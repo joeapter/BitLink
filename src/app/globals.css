@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #07111f;
+  --ink: #07111f;
+  --link-blue: #38bdf8;
+  --soft-cyan: #67e8f9;
+  --trust-green: #22c55e;
+  --muted-slate: #64748b;
+  --surface: #ffffff;
+  --surface-soft: #f1f5f9;
+  --line: rgba(7, 17, 31, 0.1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ink: var(--ink);
+  --color-link-blue: var(--link-blue);
+  --color-soft-cyan: var(--soft-cyan);
+  --color-trust-green: var(--trust-green);
+  --color-muted-slate: var(--muted-slate);
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-line: var(--line);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --shadow-liquid: 0 32px 90px rgba(7, 17, 31, 0.18);
+  --shadow-soft: 0 18px 50px rgba(15, 23, 42, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 34rem),
+    radial-gradient(circle at 85% 12%, rgba(34, 197, 94, 0.1), transparent 28rem),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 42%, #ffffff 100%);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Inter, ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(56, 189, 248, 0.28);
+  color: #07111f;
+}
+
+.liquid-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-bg::before,
+.liquid-bg::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  border-radius: 9999px;
+  filter: blur(18px);
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.liquid-bg::before {
+  width: 34rem;
+  height: 34rem;
+  right: -10rem;
+  top: -14rem;
+  background: radial-gradient(circle, rgba(103, 232, 249, 0.35), rgba(56, 189, 248, 0.08) 54%, transparent 72%);
+  animation: drift 14s ease-in-out infinite alternate;
+}
+
+.liquid-bg::after {
+  width: 28rem;
+  height: 28rem;
+  left: -12rem;
+  bottom: 12%;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.14), rgba(103, 232, 249, 0.1) 58%, transparent 76%);
+  animation: drift 18s ease-in-out infinite alternate-reverse;
+}
+
+.noise-overlay {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+.connection-line {
+  stroke-dasharray: 8 14;
+  animation: signal-flow 10s linear infinite;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-1.5rem, 1rem, 0) scale(1.08);
+  }
+}
+
+@keyframes signal-flow {
+  to {
+    stroke-dashoffset: -220;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
