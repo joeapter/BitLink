@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BitLink Email Signature</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #f8fafc;
+        color: #07111f;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      main {
+        width: min(560px, calc(100vw - 32px));
+        padding: 28px;
+        border: 1px solid rgba(7, 17, 31, 0.1);
+        border-radius: 24px;
+        background: #ffffff;
+        box-shadow: 0 18px 50px rgba(15, 23, 42, 0.1);
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 24px;
+      }
+
+      p {
+        margin: 0 0 20px;
+        color: #64748b;
+        line-height: 1.5;
+      }
+
+      #signature {
+        display: inline-block;
+        padding: 16px;
+        border: 1px dashed rgba(7, 17, 31, 0.16);
+        border-radius: 16px;
+        background: #ffffff;
+      }
+
+      button {
+        margin-top: 20px;
+        height: 44px;
+        border: 0;
+        border-radius: 999px;
+        background: #07111f;
+        color: #ffffff;
+        padding: 0 18px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .note {
+        margin-top: 14px;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>BitLink Email Signature</h1>
+      <p>Copy the rendered image below. Do not copy HTML source code into iPhone Mail.</p>
+
+      <div id="signature">
+        <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;">
+          <tr>
+            <td style="padding:0;margin:0;">
+              <a href="https://bitlink.co.il" target="_blank" style="border:0;text-decoration:none;">
+                <img src="https://raw.githubusercontent.com/joeapter/BitLink/main/public/assets/bitlink-signature.png" width="250" height="75" alt="BitLink" style="display:block;border:0;outline:none;text-decoration:none;width:250px;height:75px;max-width:250px;" />
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <br />
+      <button type="button" onclick="copySignature()">Copy rendered signature</button>
+      <p class="note" id="status">If the button does not work, drag-select the signature image itself and copy it.</p>
+    </main>
+
+    <script>
+      async function copySignature() {
+        const signature = document.getElementById("signature");
+        const html = signature.innerHTML;
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              "text/html": new Blob([html], { type: "text/html" }),
+              "text/plain": new Blob(["BitLink - https://bitlink.co.il"], { type: "text/plain" })
+            })
+          ]);
+          document.getElementById("status").textContent = "Copied as rich HTML. Paste into Mail signature settings.";
+        } catch (error) {
+          const range = document.createRange();
+          range.selectNode(signature);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+          document.execCommand("copy");
+          selection.removeAllRanges();
+          document.getElementById("status").textContent = "Selected and copied. Paste into Mail signature settings.";
+        }
+      }
+    </script>
+  </body>
+</html>
