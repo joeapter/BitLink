@@ -50,10 +50,10 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
         <div>
           <p className="text-sm font-semibold text-link-blue">Checkout</p>
           <h1 className="mt-3 text-balance text-4xl font-semibold tracking-normal text-ink sm:text-5xl">
-            Checkout securely. We&apos;ll handle the connection.
+            Checkout securely. We&apos;ll get your connection moving.
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-slate">
-            Enter your details, confirm the plan, and continue to Stripe Checkout. This MVP does not fake successful payments.
+            Enter your details, confirm the plan, and continue to secure payment. Your monthly price and plan are shown before you pay.
           </p>
         </div>
 
@@ -86,7 +86,7 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Button type="submit" size="lg" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-            Continue to Stripe
+            Continue to secure payment
           </Button>
           <p className="text-xs leading-5 text-muted-slate">
             Monthly subscription. Activation subject to BitLink confirmation and plan availability.

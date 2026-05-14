@@ -13,12 +13,12 @@ const steps = [
   },
   {
     title: "Checkout securely",
-    body: "Stripe Billing handles subscription checkout with a familiar, trusted flow.",
+    body: "Enter your details once, review the monthly price, and pay through a secure flow.",
     icon: CreditCard,
   },
   {
     title: "We handle activation",
-    body: "The BitLink team manages the MVP activation workflow and keeps status visible.",
+    body: "BitLink prepares your connection and keeps you updated as your service gets ready.",
     icon: RadioTower,
   },
   {
@@ -89,7 +89,7 @@ export default function Home() {
             Simple monthly plans. Human support. Smooth activation.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-slate-200">
-            Talk to BitLink support before you checkout, or start with a plan and we&apos;ll handle the connection.
+            Talk to BitLink support before you checkout, or start with a plan and we&apos;ll get your connection moving.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <ButtonLink href="/support" variant="dark" size="lg">

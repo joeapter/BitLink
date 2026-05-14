@@ -22,11 +22,11 @@ export function CheckoutSummary({ plan }: { plan: BitLinkPlan }) {
       <div className="mt-6 grid gap-3 text-sm text-slate-200">
         <div className="flex gap-3">
           <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-soft-cyan" aria-hidden="true" />
-          <span>Stripe Checkout handles the secure billing step.</span>
+          <span>Secure checkout protects your payment details.</span>
         </div>
         <div className="flex gap-3">
           <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-trust-green" aria-hidden="true" />
-          <span>Activation is handled by the BitLink team after payment confirmation.</span>
+          <span>BitLink prepares your connection after payment is confirmed.</span>
         </div>
       </div>
     </aside>

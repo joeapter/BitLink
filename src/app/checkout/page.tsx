@@ -4,7 +4,7 @@ import { defaultPlanSlug, plans, type PlanSlug } from "@/lib/plans";
 
 export const metadata: Metadata = {
   title: "Checkout",
-  description: "Start BitLink monthly checkout securely with Stripe Billing.",
+  description: "Start BitLink monthly checkout securely.",
 };
 
 export default async function CheckoutPage({

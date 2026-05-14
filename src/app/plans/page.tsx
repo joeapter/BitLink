@@ -17,7 +17,7 @@ export default function PlansPage() {
             Plans shaped around real monthly use.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-200">
-            Choose a plan, checkout securely, and let the BitLink team handle activation. No technical promises hidden behind unclear bundles.
+            Choose a plan, checkout securely, and let BitLink guide your connection setup. Clear monthly pricing, without confusing bundles.
           </p>
         </div>
       </section>

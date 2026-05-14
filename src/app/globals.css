@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #07111f;
-  --ink: #07111f;
-  --link-blue: #38bdf8;
-  --soft-cyan: #67e8f9;
-  --trust-green: #22c55e;
-  --muted-slate: #64748b;
+  --background: #f7faf9;
+  --foreground: #050606;
+  --ink: #050606;
+  --link-blue: #12bdb2;
+  --soft-cyan: #2ddbd0;
+  --trust-green: #13c784;
+  --muted-slate: #667085;
   --surface: #ffffff;
   --surface-soft: #f1f5f9;
   --line: rgba(7, 17, 31, 0.1);
@@ -41,9 +41,9 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 34rem),
-    radial-gradient(circle at 85% 12%, rgba(34, 197, 94, 0.1), transparent 28rem),
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 42%, #ffffff 100%);
+    radial-gradient(circle at top left, rgba(18, 189, 178, 0.18), transparent 34rem),
+    radial-gradient(circle at 85% 12%, rgba(19, 199, 132, 0.1), transparent 28rem),
+    linear-gradient(180deg, #ffffff 0%, #f7faf9 42%, #ffffff 100%);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Inter, ui-sans-serif, system-ui, sans-serif;
   letter-spacing: 0;
@@ -62,8 +62,8 @@ textarea {
 }
 
 ::selection {
-  background: rgba(56, 189, 248, 0.28);
-  color: #07111f;
+  background: rgba(18, 189, 178, 0.28);
+  color: #050606;
 }
 
 .liquid-bg {
@@ -87,7 +87,7 @@ textarea {
   height: 34rem;
   right: -10rem;
   top: -14rem;
-  background: radial-gradient(circle, rgba(103, 232, 249, 0.35), rgba(56, 189, 248, 0.08) 54%, transparent 72%);
+  background: radial-gradient(circle, rgba(45, 219, 208, 0.35), rgba(18, 189, 178, 0.08) 54%, transparent 72%);
   animation: drift 14s ease-in-out infinite alternate;
 }
 
@@ -96,7 +96,7 @@ textarea {
   height: 28rem;
   left: -12rem;
   bottom: 12%;
-  background: radial-gradient(circle, rgba(34, 197, 94, 0.14), rgba(103, 232, 249, 0.1) 58%, transparent 76%);
+  background: radial-gradient(circle, rgba(19, 199, 132, 0.14), rgba(45, 219, 208, 0.1) 58%, transparent 76%);
   animation: drift 18s ease-in-out infinite alternate-reverse;
 }
 

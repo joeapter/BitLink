@@ -61,7 +61,7 @@ export function AccountOverview({
       <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
         <p className="text-sm font-semibold text-link-blue">Referral link</p>
         <div className="mt-3 rounded-2xl bg-slate-50 p-4 font-mono text-sm text-ink">
-          {referralLink ?? "Create a customer record to generate your referral link."}
+          {referralLink ?? "Your referral link will appear here after your account is ready."}
         </div>
       </section>
     </div>

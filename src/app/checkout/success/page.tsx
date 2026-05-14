@@ -13,7 +13,7 @@ export default function CheckoutSuccessPage() {
         <CheckCircle2 className="mx-auto h-12 w-12 text-trust-green" aria-hidden="true" />
         <h1 className="mt-6 text-4xl font-semibold tracking-normal text-ink">Payment received.</h1>
         <p className="mt-4 text-muted-slate">
-          Your checkout completed through Stripe. Once the webhook confirms payment, BitLink will move your order into activation.
+          Your payment was received. BitLink will begin preparing your connection and keep your account status updated.
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <ButtonLink href="/account">Open account</ButtonLink>

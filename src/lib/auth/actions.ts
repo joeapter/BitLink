@@ -15,7 +15,7 @@ function makeReferralCode() {
 
 export async function loginAction(formData: FormData) {
   if (!hasSupabasePublicEnv()) {
-    redirect(`/login?error=${encodeMessage("Supabase environment variables are not configured.")}`);
+    redirect(`/login?error=${encodeMessage("Sign in is temporarily unavailable. Please contact BitLink support.")}`);
   }
 
   const email = String(formData.get("email") ?? "");
@@ -33,7 +33,7 @@ export async function loginAction(formData: FormData) {
 
 export async function signupAction(formData: FormData) {
   if (!hasSupabasePublicEnv()) {
-    redirect(`/signup?error=${encodeMessage("Supabase environment variables are not configured.")}`);
+    redirect(`/signup?error=${encodeMessage("Account creation is temporarily unavailable. Please contact BitLink support.")}`);
   }
 
   const fullName = String(formData.get("fullName") ?? "");

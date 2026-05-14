@@ -22,10 +22,10 @@ export default async function LegalPlaceholderPage({ params }: { params: Promise
         <h1 className="mt-3 text-5xl font-semibold tracking-normal text-ink">{title}</h1>
         <div className="mt-8 rounded-[2rem] border border-ink/10 bg-slate-50 p-6 text-sm leading-7 text-muted-slate">
           <p>
-            TODO: Replace this placeholder with production-ready {title.toLowerCase()} language reviewed for the operating market, telecom obligations, billing, support, acceptable use, privacy, and data retention.
+            BitLink&apos;s {title.toLowerCase()} page is being prepared and will be published here before public launch.
           </p>
           <p className="mt-4">
-            Current MVP copy intentionally avoids unverified telecom guarantees. Activation and service availability should be confirmed by the BitLink team.
+            For plan, billing, privacy, or acceptable use questions, contact BitLink support and our team will help directly.
           </p>
         </div>
       </div>

@@ -14,12 +14,12 @@ const items = [
   {
     icon: CreditCard,
     title: "Secure checkout",
-    body: "Stripe Billing handles subscription checkout and payment security.",
+    body: "Pay through a protected checkout with clear monthly plan details.",
   },
   {
     icon: Wifi,
     title: "Simple activation",
-    body: "Activation is handled by the BitLink team at MVP stage.",
+    body: "BitLink guides the setup and keeps your account status clear.",
   },
 ];
 

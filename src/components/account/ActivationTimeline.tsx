@@ -13,7 +13,7 @@ export function ActivationTimeline({
   return (
     <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft sm:p-8">
       <p className="text-sm font-semibold text-link-blue">Activation</p>
-      <h1 className="mt-3 text-4xl font-semibold tracking-normal text-ink">Activation handled by BitLink.</h1>
+      <h1 className="mt-3 text-4xl font-semibold tracking-normal text-ink">Your connection setup.</h1>
 
       <div className="mt-8 grid gap-3">
         {provisioningStatuses.map((status, index) => {

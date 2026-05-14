@@ -12,11 +12,11 @@ export const provisioningStatuses = [
 export type ProvisioningStatus = (typeof provisioningStatuses)[number];
 
 export const provisioningLabels: Record<ProvisioningStatus, string> = {
-  new_order: "New order",
+  new_order: "Order received",
   payment_confirmed: "Payment confirmed",
-  awaiting_sim_assignment: "Awaiting SIM assignment",
-  sim_assigned: "SIM assigned",
-  activation_sent: "Activation sent",
+  awaiting_sim_assignment: "Preparing your line",
+  sim_assigned: "Line assigned",
+  activation_sent: "Setup instructions sent",
   active: "Active",
   suspended: "Suspended",
   cancelled: "Cancelled",

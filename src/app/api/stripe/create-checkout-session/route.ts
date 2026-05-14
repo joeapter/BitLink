@@ -103,6 +103,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: session.url });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to create checkout session.";
-    return NextResponse.json({ error: message }, { status: 503 });
+    console.error("Checkout session creation failed:", message);
+    return NextResponse.json(
+      { error: "Secure checkout is temporarily unavailable. Please contact BitLink support." },
+      { status: 503 },
+    );
   }
 }

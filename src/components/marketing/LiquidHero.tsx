@@ -15,7 +15,7 @@ export function LiquidHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
         >
-          <p className="mb-5 inline-flex rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm font-semibold text-cyan-100 backdrop-blur">
+          <p className="mb-5 inline-flex rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm font-semibold text-soft-cyan backdrop-blur">
             BitLink Telecom
           </p>
           <h1 className="max-w-4xl text-balance text-5xl font-semibold leading-[1.02] tracking-normal sm:text-6xl lg:text-7xl">

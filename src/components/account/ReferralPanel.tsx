@@ -33,7 +33,7 @@ export function ReferralPanel({
                 <div>
                   <p className="text-sm font-semibold text-ink">{referral.reward_type ?? "Referral reward"}</p>
                   <p className="text-xs text-muted-slate">
-                    Reward value: {referral.reward_value_cents ? `$${(referral.reward_value_cents / 100).toFixed(2)}` : "Launch configuration pending"}
+                    Reward value: {referral.reward_value_cents ? `$${(referral.reward_value_cents / 100).toFixed(2)}` : "Reward details will appear when eligible"}
                   </p>
                 </div>
                 <StatusBadge status={referral.status} />
@@ -42,7 +42,7 @@ export function ReferralPanel({
           </div>
         ) : (
           <EmptyState title="No referrals yet">
-            Share your link after signup. Admin can configure reward handling before launch.
+            Share your link with friends. We&apos;ll track eligible referrals and show rewards here.
           </EmptyState>
         )}
       </div>

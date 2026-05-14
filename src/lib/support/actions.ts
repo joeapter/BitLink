@@ -19,7 +19,7 @@ export async function createPublicSupportTicketAction(formData: FormData) {
 
   const db = createSupabaseAdminClient();
   if (!db) {
-    redirect(`/support?error=${messageParam("Support ticket storage is not configured yet.")}`);
+    redirect(`/support?error=${messageParam("Support requests are temporarily unavailable. Please email hello@bitlink.co.il.")}`);
   }
 
   await db.from("support_tickets").insert({

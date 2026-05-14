@@ -5,11 +5,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#07111F",
-        "link-blue": "#38BDF8",
-        "soft-cyan": "#67E8F9",
-        "trust-green": "#22C55E",
-        "muted-slate": "#64748B",
+        ink: "#050606",
+        "link-blue": "#12BDB2",
+        "soft-cyan": "#2DDBD0",
+        "trust-green": "#13C784",
+        "muted-slate": "#667085",
       },
       boxShadow: {
         liquid: "0 32px 90px rgba(7, 17, 31, 0.18)",

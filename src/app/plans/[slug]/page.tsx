@@ -44,7 +44,7 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ slu
               {formatMoney(plan.priceCents, plan.currency)}
               <span className="text-lg font-medium text-slate-300">/mo</span>
             </div>
-            <p className="mt-4 text-sm leading-6 text-slate-200">Checkout securely. We&apos;ll handle the connection.</p>
+            <p className="mt-4 text-sm leading-6 text-slate-200">Checkout securely. We&apos;ll get your connection moving.</p>
             <ButtonLink href={`/checkout?plan=${plan.slug}`} variant="dark" size="lg" className="mt-6 w-full">
               Choose this plan
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -58,7 +58,7 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ slu
           <div>
             <p className="text-sm font-semibold text-link-blue">Plan details</p>
             <h2 className="mt-3 text-balance text-4xl font-semibold tracking-normal text-ink">
-              A simpler telecom experience, without overpromising technical specifics.
+              A simpler phone plan experience, with clear monthly details.
             </h2>
             <p className="mt-5 text-lg leading-8 text-muted-slate">{plan.detail}</p>
             {plan.longDistance ? (

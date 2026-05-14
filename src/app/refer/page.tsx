@@ -17,7 +17,7 @@ export default function ReferPage() {
             Link 2 friends. Unlock real savings.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-200">
-            Invite people who want a calmer phone plan experience. Rewards can be configured as a discount or first month free before production launch.
+            Invite people who want a calmer phone plan experience. When two eligible friends join, BitLink applies the matching referral reward.
           </p>
         </div>
       </section>
@@ -26,8 +26,8 @@ export default function ReferPage() {
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">
           {[
             ["Share your link", "Every customer account includes a referral link.", Link2],
-            ["Two friends join", "Track referred customers and reward status in the portal.", UsersRound],
-            ["Unlock savings", "Admin can configure discount or first-month-free reward logic.", Gift],
+            ["Two friends join", "Track referred friends and reward status in your account.", UsersRound],
+            ["Unlock savings", "Eligible referrals can unlock a discount or first-month reward.", Gift],
           ].map(([title, body, Icon]) => (
             <div key={title as string} className="rounded-[2rem] border border-ink/10 bg-slate-50 p-6">
               <Icon className="h-6 w-6 text-link-blue" aria-hidden="true" />

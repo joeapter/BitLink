@@ -9,7 +9,7 @@ export async function POST() {
   const stripe = getStripe();
 
   if (!stripe) {
-    return NextResponse.json({ error: "STRIPE_SECRET_KEY is not configured." }, { status: 503 });
+    return NextResponse.json({ error: "Billing management is temporarily unavailable." }, { status: 503 });
   }
 
   const supabase = await createSupabaseServerClient();
@@ -20,7 +20,7 @@ export async function POST() {
     .maybeSingle();
 
   if (!customer?.stripe_customer_id) {
-    return NextResponse.json({ error: "No Stripe customer is connected to this account yet." }, { status: 404 });
+    return NextResponse.json({ error: "Billing management is not available for this account yet." }, { status: 404 });
   }
 
   const session = await stripe.billingPortal.sessions.create({

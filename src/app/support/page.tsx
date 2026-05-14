@@ -36,8 +36,8 @@ export default async function SupportPage({
           <div className="grid content-start gap-4">
             {[
               ["Email", "hello@bitlink.co.il", Mail],
-              ["Activation", "Activation handled by BitLink", PhoneCall],
-              ["Portal", "Create and track support tickets after signup", MessageCircle],
+              ["Setup", "We guide your connection from order to ready", PhoneCall],
+              ["Account", "Track billing, setup, referrals, and support after signup", MessageCircle],
             ].map(([title, body, Icon]) => (
               <div key={title as string} className="rounded-[1.5rem] border border-ink/10 bg-slate-50 p-5">
                 <Icon className="h-5 w-5 text-link-blue" aria-hidden="true" />
@@ -50,7 +50,7 @@ export default async function SupportPage({
           <form action={createPublicSupportTicketAction} className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft sm:p-8">
             <h2 className="text-2xl font-semibold tracking-normal text-ink">Send a support request</h2>
             <p className="mt-2 text-sm leading-6 text-muted-slate">
-              Public support form placeholder. Logged-in customers can create database-backed tickets in the account portal.
+              Tell us what you need help with and the BitLink team will follow up.
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <Input label="Full name" name="name" autoComplete="name" required />

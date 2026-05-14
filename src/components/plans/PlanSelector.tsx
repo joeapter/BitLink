@@ -62,7 +62,7 @@ export function PlanSelector({ initialSlug = "israel-plus" }: { initialSlug?: Pl
             >
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white px-3 py-1 text-sm font-semibold text-slate-600 shadow-sm">
                 <PhoneCall className="h-4 w-4 text-link-blue" aria-hidden="true" />
-                Checkout securely. We&apos;ll handle the connection.
+                Checkout securely. We&apos;ll get your connection moving.
               </div>
 
               <div className="grid gap-8 xl:grid-cols-[1fr_18rem]">
