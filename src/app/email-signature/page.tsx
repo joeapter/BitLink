@@ -11,11 +11,12 @@ export const metadata: Metadata = {
 };
 
 export default function EmailSignaturePage() {
-  const productionImageUrl = "https://bitlink.co.il/assets/bitlink-signature.png";
+  const hostedImageUrl =
+    "https://raw.githubusercontent.com/joeapter/BitLink/main/public/assets/bitlink-signature.png";
   const html = `<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;">
   <tr>
     <td style="padding:0;margin:0;">
-      <img src="${productionImageUrl}" width="250" height="75" alt="BitLink" style="display:block;border:0;outline:none;text-decoration:none;width:250px;height:75px;max-width:250px;" />
+      <img src="${hostedImageUrl}" width="250" height="75" alt="BitLink" style="display:block;border:0;outline:none;text-decoration:none;width:250px;height:75px;max-width:250px;" />
     </td>
   </tr>
 </table>`;
