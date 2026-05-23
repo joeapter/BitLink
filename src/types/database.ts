@@ -150,6 +150,210 @@ export type Database = {
         Insert: Partial<Database["public"]["Tables"]["audit_logs"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["audit_logs"]["Row"]>;
       };
+      // ── Telecom schema (migration 002) ───────────────────────────
+      telecom_lines: {
+        Row: {
+          id: string;
+          provider_id: string;
+          provider_line_id: string | null;
+          external_id: string;
+          customer_id: string | null;
+          status: string;
+          is_kosher: boolean;
+          language: string | null;
+          metadata: Json;
+          status_transitions: Json;
+          created_at: string;
+          updated_at: string;
+          terminated_at: string | null;
+          created_by: string | null;
+          updated_by: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["telecom_lines"]["Row"]> & { external_id: string };
+        Update: Partial<Database["public"]["Tables"]["telecom_lines"]["Row"]>;
+      };
+      phone_numbers: {
+        Row: {
+          id: string;
+          line_id: string;
+          number: string;
+          provider_did_id: string | null;
+          is_primary: boolean;
+          is_ported: boolean;
+          ported_from_operator: string | null;
+          ported_to_operator: string | null;
+          is_open_to_port_out: boolean;
+          is_technical: boolean;
+          start_at: string;
+          end_at: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["phone_numbers"]["Row"]> & { line_id: string; number: string };
+        Update: Partial<Database["public"]["Tables"]["phone_numbers"]["Row"]>;
+      };
+      sim_profiles: {
+        Row: {
+          id: string;
+          line_id: string | null;
+          icc_id: string;
+          imsi: string | null;
+          msisdn: string | null;
+          eid: string | null;
+          is_esim: boolean;
+          provider_id: string;
+          provider_status: string | null;
+          status: string;
+          profile_type: string | null;
+          mno_id: string | null;
+          assigned_at: string | null;
+          activated_at: string | null;
+          status_transitions: Json;
+          metadata: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["sim_profiles"]["Row"]> & { icc_id: string };
+        Update: Partial<Database["public"]["Tables"]["sim_profiles"]["Row"]>;
+      };
+      line_plans: {
+        Row: {
+          id: string;
+          line_id: string;
+          plan_name: string;
+          provider_plan_id: string | null;
+          is_main: boolean;
+          is_topup: boolean;
+          start_at: string;
+          end_at: string | null;
+          assigned_by: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["line_plans"]["Row"]> & { line_id: string; plan_name: string };
+        Update: Partial<Database["public"]["Tables"]["line_plans"]["Row"]>;
+      };
+      provisioning_jobs: {
+        Row: {
+          id: string;
+          line_id: string | null;
+          provider_job_id: string | null;
+          idempotency_key: string;
+          type: string;
+          status: string;
+          attempt_count: number;
+          max_attempts: number;
+          payload: Json;
+          result: Json | null;
+          error: string | null;
+          next_retry_at: string | null;
+          status_transitions: Json;
+          created_at: string;
+          updated_at: string;
+          completed_at: string | null;
+          created_by: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["provisioning_jobs"]["Row"]> & {
+          idempotency_key: string;
+          type: string;
+          payload: Json;
+        };
+        Update: Partial<Database["public"]["Tables"]["provisioning_jobs"]["Row"]>;
+      };
+      suspension_history: {
+        Row: {
+          id: string;
+          line_id: string;
+          suspension_type: string;
+          provider_suspension_id: string | null;
+          reason: string;
+          suspended_by: string | null;
+          suspended_at: string;
+          reactivated_by: string | null;
+          reactivated_at: string | null;
+          is_active: boolean;
+        };
+        Insert: Partial<Database["public"]["Tables"]["suspension_history"]["Row"]> & {
+          line_id: string;
+          suspension_type: string;
+          reason: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["suspension_history"]["Row"]>;
+      };
+      webhook_events: {
+        Row: {
+          id: string;
+          provider_id: string;
+          provider_event_id: string | null;
+          received_at: string;
+          headers: Json;
+          raw_payload: string;
+          parsed_payload: Json | null;
+          event_type: string | null;
+          signature_valid: boolean | null;
+          status: string;
+          processed_at: string | null;
+          error: string | null;
+          attempt_count: number;
+          idempotency_key: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["webhook_events"]["Row"]> & {
+          headers: Json;
+          raw_payload: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["webhook_events"]["Row"]>;
+      };
+      telecom_events: {
+        Row: {
+          id: string;
+          event_type: string;
+          aggregate_type: string;
+          aggregate_id: string | null;
+          payload: Json;
+          source: string;
+          source_event_id: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["telecom_events"]["Row"]> & {
+          event_type: string;
+          aggregate_type: string;
+          payload: Json;
+          source: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["telecom_events"]["Row"]>;
+      };
+      ocs_balance_snapshots: {
+        Row: {
+          id: string;
+          line_id: string;
+          snapshotted_at: string;
+          balances: Json;
+          is_stale: boolean;
+        };
+        Insert: Partial<Database["public"]["Tables"]["ocs_balance_snapshots"]["Row"]> & {
+          line_id: string;
+          balances: Json;
+        };
+        Update: Partial<Database["public"]["Tables"]["ocs_balance_snapshots"]["Row"]>;
+      };
+      provider_sync_logs: {
+        Row: {
+          id: string;
+          provider_id: string;
+          operation: string;
+          provider_job_id: string | null;
+          request_payload: Json | null;
+          response_payload: Json | null;
+          http_status: number | null;
+          duration_ms: number | null;
+          succeeded: boolean;
+          error: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["provider_sync_logs"]["Row"]> & {
+          operation: string;
+          succeeded: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["provider_sync_logs"]["Row"]>;
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

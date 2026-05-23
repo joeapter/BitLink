@@ -1,6 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# ── Dependencies ──────────────────────────────────────────────────
 /node_modules
 /.pnp
 .pnp.*
@@ -10,32 +8,43 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# ── Next.js build output ──────────────────────────────────────────
 /.next/
 /out/
-
-# production
 /build
 
-# misc
-.DS_Store
-*.pem
+# ── TypeScript ────────────────────────────────────────────────────
+*.tsbuildinfo
+next-env.d.ts
 
-# debug
+# ── Environment — NEVER commit secrets ───────────────────────────
+# .env.example IS committed (template with empty values only)
+# Everything else must stay local
+.env
+.env.*
+!.env.example
+
+# ── Supabase local dev artifacts ──────────────────────────────────
+supabase/.temp/
+supabase/.branches/
+
+# ── Logs ──────────────────────────────────────────────────────────
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# ── Testing ───────────────────────────────────────────────────────
+/coverage
+/.vitest-cache
 
-# vercel
+# ── OS / editor ───────────────────────────────────────────────────
+.DS_Store
+*.pem
+.vscode/settings.json
+.idea/
+
+# ── Deployment ────────────────────────────────────────────────────
 .vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
