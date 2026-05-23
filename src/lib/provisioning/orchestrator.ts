@@ -13,6 +13,7 @@
 
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getTelecomProvider } from '@/lib/telecom/provider.registry';
+import { withProviderContext } from '@/lib/telecom/provider-context';
 import { logger } from '@/lib/logger';
 import { emit } from '@/lib/events/bus';
 import {
@@ -131,15 +132,23 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
   });
   log.info({ jobId: job.id, lineId: job.line_id }, 'Submitted to provider');
 
+  const ctx = {
+    correlationId: crypto.randomUUID(),
+    provisioningJobId: job.id,
+    telecomLineId: job.line_id ?? undefined,
+  };
+
   let result;
   try {
-    result = await provider.createLine({
-      externalId: payload.externalId,
-      planName: payload.planName,
-      iccId: payload.iccId,
-      isKosher: payload.isKosher ?? false,
-      metadata: payload.metadata,
-    });
+    result = await withProviderContext(ctx, () =>
+      provider.createLine({
+        externalId: payload.externalId,
+        planName: payload.planName,
+        iccId: payload.iccId,
+        isKosher: payload.isKosher ?? false,
+        metadata: payload.metadata,
+      }),
+    );
   } catch (err) {
     // Provider failure: mark FAILED and return cleanly — no re-throw.
     // Inngest retries are reserved for infrastructure failures only.
@@ -279,9 +288,17 @@ export async function reconcileJob(jobId: string): Promise<ProcessResult> {
   }
 
   const provider = getTelecomProvider();
+  const ctx = {
+    correlationId: crypto.randomUUID(),
+    provisioningJobId: job.id,
+    telecomLineId: job.line_id ?? undefined,
+  };
+
   let providerResult;
   try {
-    providerResult = await provider.getJobStatus(job.provider_job_id);
+    providerResult = await withProviderContext(ctx, () =>
+      provider.getJobStatus(job.provider_job_id!),
+    );
   } catch (err) {
     log.error({ jobId, error: err instanceof Error ? err.message : String(err) }, 'Provider poll failed');
     throw err; // Infrastructure failure — let Inngest retry

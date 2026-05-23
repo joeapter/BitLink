@@ -339,13 +339,20 @@ export type Database = {
           id: string;
           provider_id: string;
           operation: string;
-          provider_job_id: string | null;
+          request_url: string | null;
+          request_method: string | null;
+          request_headers: Json | null;
           request_payload: Json | null;
           response_payload: Json | null;
+          response_headers: Json | null;
           http_status: number | null;
           duration_ms: number | null;
           succeeded: boolean;
           error: string | null;
+          correlation_id: string | null;
+          provider_job_id: string | null;
+          telecom_line_id: string | null;
+          provisioning_job_id: string | null;
           created_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["provider_sync_logs"]["Row"]> & {
