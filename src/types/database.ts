@@ -361,7 +361,69 @@ export type Database = {
         };
         Update: Partial<Database["public"]["Tables"]["provider_sync_logs"]["Row"]>;
       };
-    };
+      // ── Stripe billing schema (migration 004) ───────────────────
+      stripe_events: {
+        Row: {
+          id: string;
+          stripe_event_id: string;
+          event_type: string;
+          api_version: string | null;
+          livemode: boolean;
+          received_at: string;
+          raw_payload: Json;
+          status: string;
+          error: string | null;
+          attempt_count: number;
+          processed_at: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["stripe_events"]["Row"]> & {
+          stripe_event_id: string;
+          event_type: string;
+          raw_payload: Json;
+        };
+        Update: Partial<Database["public"]["Tables"]["stripe_events"]["Row"]>;
+      };
+      stripe_customers: {
+        Row: {
+          id: string;
+          customer_id: string | null;
+          stripe_customer_id: string;
+          stripe_email: string | null;
+          livemode: boolean;
+          synced_at: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["stripe_customers"]["Row"]> & {
+          stripe_customer_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["stripe_customers"]["Row"]>;
+      };
+      subscribers: {
+        Row: {
+          id: string;
+          customer_id: string | null;
+          stripe_subscription_id: string;
+          stripe_customer_id: string;
+          plan_slug: string;
+          telecom_line_id: string | null;
+          provisioning_job_id: string | null;
+          originating_stripe_event_id: string | null;
+          status: string;
+          correlation_id: string | null;
+          activated_at: string | null;
+          cancelled_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["subscribers"]["Row"]> & {
+          stripe_subscription_id: string;
+          stripe_customer_id: string;
+          plan_slug: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["subscribers"]["Row"]>;
+      };
+    }; // end Tables
     Views: Record<string, never>;
     Functions: Record<string, never>;
     Enums: Record<string, never>;
