@@ -11,16 +11,16 @@ const links = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-white/50 bg-white/72 backdrop-blur-xl">
-      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="site-header-surface sticky top-0 z-40 border-b border-white/70 bg-white/68 backdrop-blur-2xl">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <BrandMark />
 
-        <nav className="hidden items-center gap-1 rounded-full border border-ink/8 bg-white/70 p-1 shadow-sm md:flex">
+        <nav className="hidden items-center gap-10 md:flex" aria-label="Main navigation">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-full px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-ink hover:text-white"
+              className="premium-nav-link text-sm font-medium text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-link-blue"
             >
               {link.label}
             </Link>
@@ -31,7 +31,9 @@ export function SiteHeader() {
           <ButtonLink href="/login" variant="ghost">
             Sign in
           </ButtonLink>
-          <ButtonLink href="/plans">Choose your plan</ButtonLink>
+          <ButtonLink href="/plans" className="premium-cta">
+            Choose plan
+          </ButtonLink>
         </div>
 
         <MobileNav />

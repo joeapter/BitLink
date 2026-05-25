@@ -10,7 +10,6 @@ export function BrandMark({ className }: { className?: string }) {
         alt="BitLink"
         width={170}
         height={51}
-        priority
         className="h-11 w-auto"
       />
     </Link>

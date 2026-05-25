@@ -29,7 +29,7 @@ export function MobileNav() {
 
       {open ? (
         <div className="fixed inset-0 z-50 bg-ink/35 p-3 backdrop-blur-sm" role="dialog" aria-modal="true">
-          <div className="liquid-bg ml-auto flex min-h-full max-w-sm flex-col rounded-[2rem] bg-white p-5 shadow-liquid">
+          <div className="ml-auto flex min-h-full max-w-sm flex-col rounded-lg border border-white/70 bg-white p-5 shadow-liquid">
             <div className="relative z-10 flex items-center justify-between">
               <BrandMark />
               <button

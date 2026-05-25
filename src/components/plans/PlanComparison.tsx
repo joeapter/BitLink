@@ -4,7 +4,7 @@ import { ButtonLink } from "@/components/ui/Button";
 
 export function PlanComparison() {
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-soft">
+    <div className="overflow-hidden rounded-lg border border-ink/10 bg-white shadow-soft">
       <div className="overflow-x-auto">
         <table className="min-w-[760px] w-full border-collapse text-left">
           <thead className="bg-slate-50 text-sm text-slate-500">

@@ -1,4 +1,4 @@
-import { ArrowRight, CreditCard, Headphones, RadioTower, Settings2 } from "lucide-react";
+import { ArrowRight, CreditCard, Headphones, RadioTower, Smartphone } from "lucide-react";
 import { LiquidHero } from "@/components/marketing/LiquidHero";
 import { ReferralBand } from "@/components/marketing/ReferralBand";
 import { TrustRibbon } from "@/components/marketing/TrustRibbon";
@@ -7,9 +7,9 @@ import { ButtonLink } from "@/components/ui/Button";
 
 const steps = [
   {
-    title: "Choose your plan",
-    body: "Pick a simple monthly plan that matches how you use your phone.",
-    icon: Settings2,
+    title: "Choose a clear plan",
+    body: "Pick a monthly plan with the details visible before you checkout.",
+    icon: Smartphone,
   },
   {
     title: "Checkout securely",
@@ -17,13 +17,13 @@ const steps = [
     icon: CreditCard,
   },
   {
-    title: "We handle activation",
-    body: "BitLink prepares your connection and keeps you updated as your service gets ready.",
+    title: "Get guided activation",
+    body: "BitLink prepares your connection and keeps the setup process understandable.",
     icon: RadioTower,
   },
   {
-    title: "Manage everything online",
-    body: "View billing status, activation progress, support, and referrals in one account.",
+    title: "Reach human support",
+    body: "View account status online and get help from people who understand the service.",
     icon: Headphones,
   },
 ];
@@ -33,14 +33,17 @@ export default function Home() {
     <>
       <LiquidHero />
 
-      <section className="relative overflow-hidden bg-white py-16 sm:py-24">
+      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)] py-20 sm:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+          <div className="mb-12 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
               <p className="text-sm font-semibold text-link-blue">Simple monthly plans</p>
-              <h2 className="mt-3 max-w-2xl text-balance text-4xl font-semibold tracking-normal text-ink sm:text-5xl">
-                Built for people who want their phone plan to just work.
+              <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-normal text-ink sm:text-5xl">
+                Plans you can understand before you pay.
               </h2>
+              <p className="mt-4 max-w-2xl text-lg leading-8 text-muted-slate">
+                No maze of bundles. Choose the rhythm that fits your phone use and keep the details visible in your account.
+              </p>
             </div>
             <ButtonLink href="/plans" variant="secondary">
               View all plans
@@ -51,24 +54,26 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="how-it-works" className="relative overflow-hidden bg-slate-50 py-16 sm:py-24">
-        <div className="absolute left-1/2 top-24 h-px w-[80vw] -translate-x-1/2 bg-gradient-to-r from-transparent via-link-blue/40 to-transparent" />
+      <section id="how-it-works" className="relative overflow-hidden bg-white py-20 sm:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold text-link-blue">How BitLink works</p>
             <h2 className="mt-3 text-balance text-4xl font-semibold tracking-normal text-ink sm:text-5xl">
-              No confusing bundles. No maze of fine print. Just a smoother way to stay connected.
+              A calmer path from plan to connected.
             </h2>
+            <p className="mt-4 text-lg leading-8 text-muted-slate">
+              The flow is intentionally simple: choose a plan, checkout securely, follow guided setup, and manage your service online.
+            </p>
           </div>
 
-          <div className="mt-12 grid gap-4 md:grid-cols-4">
+          <div className="mt-14 grid gap-4 md:grid-cols-4">
             {steps.map((step, index) => (
               <div
                 key={step.title}
-                className="relative rounded-[1.75rem] border border-ink/10 bg-white p-5 shadow-sm md:translate-y-[calc(var(--step)*1rem)]"
+                className="relative rounded-lg border border-ink/10 bg-[#f8fbfc] p-5 shadow-sm md:translate-y-[calc(var(--step)*0.75rem)]"
                 style={{ "--step": index % 2 } as React.CSSProperties}
               >
-                <div className="grid h-11 w-11 place-items-center rounded-full bg-ink text-white">
+                <div className="grid h-11 w-11 place-items-center rounded-full bg-ink text-white shadow-sm">
                   <step.icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <h3 className="mt-6 text-lg font-semibold text-ink">{step.title}</h3>
@@ -82,20 +87,20 @@ export default function Home() {
       <ReferralBand />
       <TrustRibbon />
 
-      <section className="bg-white px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-        <div className="mx-auto max-w-5xl rounded-[2.5rem] bg-ink px-6 py-12 text-center text-white shadow-liquid sm:px-12">
-          <p className="text-sm font-semibold text-soft-cyan">Need help choosing?</p>
-          <h2 className="mt-3 text-balance text-4xl font-semibold tracking-normal sm:text-5xl">
-            Simple monthly plans. Human support. Smooth activation.
+      <section className="bg-[linear-gradient(180deg,#ffffff_0%,#eef5f8_100%)] px-4 py-20 sm:px-6 sm:py-32 lg:px-8">
+        <div className="mx-auto max-w-5xl text-center">
+          <p className="text-sm font-semibold text-link-blue">Need help choosing?</p>
+          <h2 className="mt-3 text-balance text-4xl font-semibold tracking-normal text-ink sm:text-5xl">
+            Real people. Real answers.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-slate-200">
+          <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-muted-slate">
             Talk to BitLink support before you checkout, or start with a plan and we&apos;ll get your connection moving.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <ButtonLink href="/support" variant="dark" size="lg">
+            <ButtonLink href="/support" size="lg">
               Contact support
             </ButtonLink>
-            <ButtonLink href="/checkout" variant="secondary" size="lg" className="border-white/20 bg-white/10 text-white hover:bg-white/16">
+            <ButtonLink href="/checkout" variant="secondary" size="lg">
               Start checkout
             </ButtonLink>
           </div>

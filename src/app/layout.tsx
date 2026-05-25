@@ -17,15 +17,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://bitlink.co.il"),
   title: {
-    default: "BitLink | Your connection, simplified.",
+    default: "BitLink | Modern Israeli telecom.",
     template: "%s | BitLink",
   },
   description:
-    "BitLink gives you simple monthly connectivity, clean billing, and human support in a smoother telecom experience.",
+    "BitLink gives you simple monthly plans, secure checkout, guided activation, and human support in a calmer telecom experience.",
   applicationName: "BitLink",
+  icons: {
+    icon: "/assets/favicon.ico",
+    shortcut: "/assets/favicon.ico",
+  },
   openGraph: {
-    title: "BitLink | Mobile plans that feel effortless.",
-    description: "Simple monthly plans. Human support. Smooth activation.",
+    title: "BitLink | Modern Israeli telecom.",
+    description: "Simple monthly plans. Human support. Guided activation.",
     url: "https://bitlink.co.il",
     siteName: "BitLink",
     type: "website",
@@ -35,7 +39,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#07111F",
+  themeColor: "#f7fafc",
 };
 
 export default function RootLayout({

@@ -10,13 +10,14 @@ export const metadata: Metadata = {
 export default function ReferPage() {
   return (
     <div className="bg-white">
-      <section className="liquid-bg bg-ink px-4 py-16 text-white sm:px-6 sm:py-24 lg:px-8">
-        <div className="relative z-10 mx-auto max-w-7xl">
-          <p className="text-sm font-semibold text-soft-cyan">BitLink referrals</p>
-          <h1 className="mt-3 max-w-4xl text-balance text-5xl font-semibold tracking-normal sm:text-6xl">
+      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#eef5f8_100%)] px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+        <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-soft-cyan/20 blur-3xl" />
+        <div className="relative mx-auto max-w-7xl">
+          <p className="text-sm font-semibold text-link-blue">BitLink referrals</p>
+          <h1 className="mt-3 max-w-4xl text-balance text-5xl font-semibold tracking-normal text-ink sm:text-6xl">
             Link 2 friends. Unlock real savings.
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-200">
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-slate">
             Invite people who want a calmer phone plan experience. When two eligible friends join, BitLink applies the matching referral reward.
           </p>
         </div>
@@ -29,7 +30,7 @@ export default function ReferPage() {
             ["Two friends join", "Track referred friends and reward status in your account.", UsersRound],
             ["Unlock savings", "Eligible referrals can unlock a discount or first-month reward.", Gift],
           ].map(([title, body, Icon]) => (
-            <div key={title as string} className="rounded-[2rem] border border-ink/10 bg-slate-50 p-6">
+            <div key={title as string} className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-6">
               <Icon className="h-6 w-6 text-link-blue" aria-hidden="true" />
               <h2 className="mt-5 text-xl font-semibold text-ink">{title as string}</h2>
               <p className="mt-2 text-sm leading-6 text-muted-slate">{body as string}</p>
@@ -37,12 +38,12 @@ export default function ReferPage() {
           ))}
         </div>
 
-        <div className="mx-auto mt-10 max-w-7xl rounded-[2rem] bg-ink p-8 text-white shadow-liquid">
-          <h2 className="text-3xl font-semibold tracking-normal">Already a customer?</h2>
-          <p className="mt-3 max-w-2xl text-slate-200">
+        <div className="mx-auto mt-10 max-w-7xl rounded-lg border border-ink/10 bg-white p-8 shadow-soft">
+          <h2 className="text-3xl font-semibold tracking-normal text-ink">Already a customer?</h2>
+          <p className="mt-3 max-w-2xl text-muted-slate">
             Your referral link lives in your account portal alongside status and reward tracking.
           </p>
-          <ButtonLink href="/account/referrals" variant="dark" className="mt-6">
+          <ButtonLink href="/account/referrals" className="mt-6">
             Open referral portal
           </ButtonLink>
         </div>

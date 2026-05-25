@@ -72,6 +72,9 @@ async function handleCheckoutCompleted(
     typeof session.customer === 'string' ? session.customer : null;
   const customerRecordId = session.metadata?.customer_record_id ?? null;
   const planSlug = session.metadata?.plan_slug ?? 'israel-plus';
+  const isKosher = session.metadata?.is_kosher === '1';
+  const isEsim = session.metadata?.is_esim === '1';
+  const userId = session.metadata?.user_id || null;
 
   if (!stripeSubscriptionId || !stripeCustomerId) {
     log.warn({ sessionId: session.id }, 'Checkout session missing subscription or customer');
@@ -141,12 +144,15 @@ async function handleCheckoutCompleted(
         external_id: externalId,
         customer_id: customerRecordId,
         status: 'draft',
+        is_kosher: isKosher,
         metadata: {
           source: 'stripe_checkout',
           stripe_subscription_id: stripeSubscriptionId,
           stripe_customer_id: stripeCustomerId,
           correlation_id: correlationId,
           plan_slug: planSlug,
+          is_esim: isEsim,
+          user_id: userId,
         } as never,
       })
       .select('id')
@@ -175,12 +181,14 @@ async function handleCheckoutCompleted(
       payload: {
         externalId,
         planName: planSlug,
-        isKosher: false,
+        isKosher,
         metadata: {
           stripe_subscription_id: stripeSubscriptionId,
           stripe_customer_id: stripeCustomerId,
           correlation_id: correlationId,
           source: 'stripe_checkout',
+          is_esim: isEsim,
+          user_id: userId,
         },
       },
       idempotencyKey: jobIdempotencyKey,
@@ -206,7 +214,7 @@ async function handleCheckoutCompleted(
   });
 
   log.info(
-    { subscriberId: subscriber.id, lineId, jobId, correlationId, planSlug },
+    { subscriberId: subscriber.id, lineId, jobId, correlationId, planSlug, isKosher, isEsim, userId },
     'Subscriber created, telecom line drafted, provisioning job queued',
   );
 

@@ -9,7 +9,14 @@
 //
 // Storage failure → 500 so Stripe will retry.
 // Every other failure → 200 to stop retry storms.
+//
+// Body handling: MUST use arrayBuffer() → Buffer, NOT request.text().
+// Stripe's HMAC is computed over the exact raw bytes. request.text() runs a
+// UTF-8 TextDecoder which can normalise certain byte sequences in the
+// Next.js/Turbopack dev pipeline, causing the recomputed HMAC to diverge.
+// Passing a Buffer bypasses that decode/encode round-trip entirely.
 
+import type Stripe from 'stripe';
 import { NextRequest } from 'next/server';
 import { getStripeClient, getStripeWebhookSecret } from '@/lib/stripe/client';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
@@ -18,12 +25,19 @@ import { inngest } from '@/inngest/client';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // never Edge — body APIs differ
 
 const log = logger.child({ route: 'webhooks/stripe' });
 
 export async function POST(request: NextRequest): Promise<Response> {
+  // ── Debug: signature presence ─────────────────────────────────
   const signature = request.headers.get('stripe-signature');
+  log.debug(
+    { hasSignature: Boolean(signature), signaturePrefix: signature?.slice(0, 20) },
+    'Stripe webhook received',
+  );
   if (!signature) {
+    log.warn('Rejected: missing stripe-signature header');
     return new Response('Missing stripe-signature header', { status: 400 });
   }
 
@@ -37,13 +51,35 @@ export async function POST(request: NextRequest): Promise<Response> {
     return new Response('Stripe not configured', { status: 503 });
   }
 
-  // Raw bytes required for signature verification — must read before any parsing
-  const rawBody = await request.text();
-  let event: import('stripe').Stripe.Event;
+  // ── Debug: secret source ──────────────────────────────────────
+  log.debug(
+    {
+      secretSource: process.env.STRIPE_WEBHOOK_SECRET ? 'env:STRIPE_WEBHOOK_SECRET' : 'missing',
+      secretPrefix: webhookSecret.slice(0, 8),
+    },
+    'Webhook secret loaded',
+  );
+
+  // Read raw bytes — arrayBuffer → Buffer avoids TextDecoder normalisation.
+  // NEVER use request.text() or request.json() before constructEvent.
+  const rawBodyBuffer = Buffer.from(await request.arrayBuffer());
+
+  // ── Debug: payload size ───────────────────────────────────────
+  log.debug({ payloadBytes: rawBodyBuffer.length }, 'Raw body read');
+
+  let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+    event = stripe.webhooks.constructEvent(rawBodyBuffer, signature, webhookSecret);
+    log.debug({ eventId: event.id, type: event.type }, 'Stripe signature verified');
   } catch (err) {
-    log.warn({ error: err instanceof Error ? err.message : String(err) }, 'Stripe signature verification failed');
+    log.warn(
+      {
+        error: err instanceof Error ? err.message : String(err),
+        payloadBytes: rawBodyBuffer.length,
+        signatureHeader: signature.slice(0, 60),
+      },
+      'Stripe signature verification failed',
+    );
     return new Response('Invalid Stripe signature', { status: 400 });
   }
 

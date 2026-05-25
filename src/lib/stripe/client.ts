@@ -15,7 +15,8 @@ export function getStripeClient(): Stripe {
 }
 
 export function getStripeWebhookSecret(): string {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  // .trim() prevents accidental leading/trailing whitespace from .env.local
+  const secret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
   if (!secret) throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
   return secret;
 }

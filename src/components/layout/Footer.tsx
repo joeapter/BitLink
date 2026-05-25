@@ -16,7 +16,7 @@ export function Footer() {
         <div>
           <BrandMark />
           <p className="mt-5 max-w-md text-sm leading-6 text-muted-slate">
-            Your connection, simplified. Simple monthly plans. Human support. Smooth activation.
+            Modern Israeli telecom with simple monthly plans, guided activation, and human support.
           </p>
           <p className="mt-4 text-xs text-slate-400">
             Plans and activation are subject to availability, eligibility, and final BitLink confirmation.

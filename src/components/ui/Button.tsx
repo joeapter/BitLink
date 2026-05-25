@@ -7,10 +7,10 @@ type ButtonSize = "sm" | "md" | "lg";
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "bg-ink text-white shadow-soft hover:-translate-y-0.5 hover:bg-slate-950 focus-visible:outline-ink",
+    "border border-link-blue/30 bg-[#e6fbff] text-ink shadow-[0_16px_45px_rgba(0,174,202,0.16)] hover:-translate-y-0.5 hover:border-link-blue/45 hover:bg-[#d8f7fd] focus-visible:outline-link-blue",
   secondary:
-    "border border-white/60 bg-white/75 text-ink shadow-sm backdrop-blur hover:-translate-y-0.5 hover:bg-white focus-visible:outline-link-blue",
-  ghost: "text-ink hover:bg-ink/5 focus-visible:outline-link-blue",
+    "border border-ink/10 bg-white/78 text-ink shadow-sm backdrop-blur-xl hover:-translate-y-0.5 hover:border-link-blue/30 hover:bg-white focus-visible:outline-link-blue",
+  ghost: "text-ink hover:bg-link-blue/8 hover:text-link-blue focus-visible:outline-link-blue",
   dark: "bg-white text-ink shadow-soft hover:-translate-y-0.5 hover:bg-slate-50 focus-visible:outline-white",
   danger: "bg-rose-600 text-white shadow-sm hover:bg-rose-700 focus-visible:outline-rose-600",
 };

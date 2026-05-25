@@ -1,61 +1,115 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
-import { ConnectionOrb } from "@/components/brand/ConnectionOrb";
+import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  ArrowRight,
+  CheckCircle2,
+  CreditCard,
+  Headphones,
+  RadioTower,
+  Smartphone,
+} from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 
+const proofPoints = [
+  {
+    title: "Keep your number",
+    body: "Transfer in minutes.",
+    icon: Smartphone,
+  },
+  {
+    title: "Instant eSIM setup",
+    body: "Activate directly from your phone.",
+    icon: RadioTower,
+  },
+  {
+    title: "Real support",
+    body: "Talk to actual people when you need help.",
+    icon: Headphones,
+  },
+  {
+    title: "Simple monthly pricing",
+    body: "No telecom maze. No hidden nonsense.",
+    icon: CreditCard,
+  },
+];
+
 export function LiquidHero() {
+  const reduceMotion = useReducedMotion();
+
   return (
-    <section className="liquid-bg relative isolate overflow-hidden bg-ink text-white">
-      <div className="noise-overlay absolute inset-0 opacity-40" />
-      <div className="relative z-10 mx-auto grid min-h-[calc(100svh-4.5rem)] max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 md:grid-cols-[1.05fr_0.95fr] md:py-20 lg:px-8">
+    <section className="cinematic-hero relative isolate -mt-20 min-h-svh overflow-hidden bg-[#f7fafc] pt-20 text-ink">
+      <div className="absolute inset-0 -z-10">
+        <Image
+          src="/assets/bitlink-telecom-hero-v2.png"
+          alt=""
+          aria-hidden="true"
+          fill
+          preload
+          quality={90}
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.96)_0%,rgba(255,255,255,0.86)_34%,rgba(255,255,255,0.38)_63%,rgba(255,255,255,0.08)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(247,250,252,0.22)_0%,rgba(255,255,255,0)_42%,rgba(255,255,255,0.9)_100%)]" />
+        <div className="hero-light-sweep absolute inset-x-0 bottom-0 h-1/2" />
+        <div className="hero-particles absolute inset-0 opacity-70" />
+      </div>
+
+      <div className="relative z-10 mx-auto flex min-h-[calc(100svh-5rem)] max-w-7xl items-center px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
+          transition={reduceMotion ? { duration: 0 } : { duration: 0.7, ease: "easeOut" }}
+          className="w-full max-w-5xl"
         >
-          <p className="mb-5 inline-flex rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm font-semibold text-soft-cyan backdrop-blur">
-            BitLink Telecom
+          <p className="mb-6 inline-flex rounded-full border border-ink/10 bg-white/72 px-4 py-2 text-sm font-semibold text-link-blue shadow-sm backdrop-blur-xl">
+            Israeli telecom, reimagined.
           </p>
-          <h1 className="max-w-4xl text-balance text-5xl font-semibold leading-[1.02] tracking-normal sm:text-6xl lg:text-7xl">
-            Mobile plans that feel effortless.
+          <h1 className="max-w-[64rem] text-balance text-[2.85rem] font-semibold leading-[0.98] tracking-normal text-ink sm:text-[3.55rem] lg:text-[5.4rem]">
+            Israeli phone
+            <br />
+            service made
+            <br />
+            simple.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-200 sm:text-xl">
-            BitLink gives you simple monthly connectivity, clean billing, and human support — all wrapped in a smoother way to stay connected.
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700 sm:text-xl">
+            Simple plans, instant eSIM activation, and real human support whenever you need help.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href="/plans" variant="dark" size="lg">
+            <ButtonLink href="/plans" size="lg">
               Choose your plan
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </ButtonLink>
-            <ButtonLink href="#how-it-works" variant="secondary" size="lg" className="border-white/20 bg-white/10 text-white hover:bg-white/16">
-              See how BitLink works
+            <ButtonLink href="/support" variant="secondary" size="lg">
+              Talk to support
             </ButtonLink>
           </div>
 
-          <div className="mt-8 grid gap-3 text-sm text-slate-200 sm:grid-cols-3">
-            {[
-              ["Secure checkout", ShieldCheck],
-              ["Human support", CheckCircle2],
-              ["Smooth activation", Sparkles],
-            ].map(([label, Icon]) => (
-              <div key={label as string} className="flex items-center gap-2">
-                <Icon className="h-4 w-4 text-soft-cyan" aria-hidden="true" />
-                <span>{label as string}</span>
+          <div className="hero-trust-panel mt-10 max-w-4xl rounded-lg p-4 sm:p-5">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {proofPoints.map((item) => (
+                <div key={item.title} className="hero-trust-item rounded-md px-3 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <item.icon className="h-4 w-4 shrink-0 text-link-blue" aria-hidden="true" />
+                    <p className="text-sm font-semibold text-ink">{item.title}</p>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-slate-600">{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-x-5 gap-y-3 text-sm font-medium text-slate-600">
+            {["No telecom maze", "Online account access", "Setup guidance included"].map((label) => (
+              <div key={label} className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-trust-green" aria-hidden="true" />
+                <span>{label}</span>
               </div>
             ))}
           </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.12, ease: "easeOut" }}
-          className="pb-8 md:pb-0"
-        >
-          <ConnectionOrb />
         </motion.div>
       </div>
     </section>
