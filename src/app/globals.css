@@ -213,6 +213,25 @@ textarea {
   transform: translateY(-1px);
 }
 
+.support-ambient {
+  background:
+    linear-gradient(90deg, transparent, rgba(23, 212, 232, 0.07), transparent),
+    radial-gradient(ellipse at 52% 50%, rgba(255, 255, 255, 0.86), transparent 70%);
+  filter: blur(12px);
+  animation: support-glow 12s ease-in-out infinite alternate;
+}
+
+.support-scene-image {
+  filter: contrast(1.13) saturate(1.04);
+}
+
+.support-warmth {
+  background:
+    radial-gradient(circle at 76% 32%, rgba(255, 220, 176, 0.2), transparent 22rem),
+    radial-gradient(circle at 86% 70%, rgba(255, 236, 210, 0.14), transparent 24rem);
+  mix-blend-mode: soft-light;
+}
+
 .cinematic-hero::after {
   content: "";
   position: absolute;
@@ -321,6 +340,17 @@ textarea {
   50% {
     transform: translateX(18%);
     opacity: 0.42;
+  }
+}
+
+@keyframes support-glow {
+  from {
+    transform: translate3d(-2rem, 0, 0);
+    opacity: 0.42;
+  }
+  to {
+    transform: translate3d(2rem, 0.8rem, 0);
+    opacity: 0.72;
   }
 }
 

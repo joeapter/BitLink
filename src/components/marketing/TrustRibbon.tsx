@@ -25,14 +25,14 @@ const items = [
 
 export function TrustRibbon() {
   return (
-    <section className="bg-white py-20 sm:py-28">
+    <section className="bg-white py-16 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 max-w-3xl">
           <p className="text-sm font-semibold text-link-blue">Trust, made concrete</p>
-          <h2 className="mt-3 text-balance text-4xl font-semibold tracking-normal text-ink sm:text-5xl">
+          <h2 className="mt-3 text-balance text-3xl font-semibold tracking-normal text-ink sm:text-5xl">
             Proof over promises.
           </h2>
-          <p className="mt-4 text-lg leading-8 text-muted-slate">
+          <p className="mt-4 text-base leading-7 text-muted-slate sm:text-lg sm:leading-8">
             BitLink keeps the phone plan experience clear before checkout and visible after signup.
           </p>
         </div>

@@ -6,13 +6,13 @@ export function PlanComparison() {
   return (
     <div className="overflow-hidden rounded-lg border border-ink/10 bg-white shadow-soft">
       <div className="overflow-x-auto">
-        <table className="min-w-[760px] w-full border-collapse text-left">
+        <table className="min-w-[680px] w-full border-collapse text-left">
           <thead className="bg-slate-50 text-sm text-slate-500">
             <tr>
               <th className="px-5 py-4 font-semibold">Plan</th>
               <th className="px-5 py-4 font-semibold">Monthly</th>
-              <th className="px-5 py-4 font-semibold">Data posture</th>
-              <th className="px-5 py-4 font-semibold">International</th>
+              <th className="px-5 py-4 font-semibold">Data</th>
+              <th className="px-5 py-4 font-semibold">Calls &amp; texts</th>
               <th className="px-5 py-4 font-semibold">Activation</th>
               <th className="px-5 py-4" />
             </tr>
@@ -26,7 +26,7 @@ export function PlanComparison() {
                 </td>
                 <td className="px-5 py-5 font-semibold text-ink">{formatMoney(plan.priceCents, plan.currency)}/mo</td>
                 <td className="px-5 py-5">{plan.comparison.data}</td>
-                <td className="px-5 py-5">{plan.comparison.international}</td>
+                <td className="px-5 py-5">{plan.comparison.calls} / {plan.comparison.texts}</td>
                 <td className="px-5 py-5">{plan.comparison.activation}</td>
                 <td className="px-5 py-5">
                   <ButtonLink href={`/checkout?plan=${plan.slug}`} size="sm" variant={plan.featured ? "primary" : "secondary"}>

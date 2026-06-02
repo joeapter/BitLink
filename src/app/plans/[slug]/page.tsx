@@ -25,7 +25,7 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ slu
   const plan = plans.find((item) => item.slug === slug);
   if (!plan) notFound();
 
-  const nextPlan = getPlan(plan.slug === "unlimited-data-plus" ? "israel-plus" : "unlimited-data-plus");
+  const nextPlan = getPlan(plan.slug === "max-5g" ? "student-5g" : "max-5g");
 
   return (
     <div className="bg-white">
@@ -61,11 +61,6 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ slu
               A simpler phone plan experience, with clear monthly details.
             </h2>
             <p className="mt-5 text-lg leading-8 text-muted-slate">{plan.detail}</p>
-            {plan.longDistance ? (
-              <p className="mt-5 inline-flex rounded-full bg-trust-green/10 px-4 py-2 text-sm font-semibold text-emerald-700">
-                Long-distance allowance: {plan.longDistance}
-              </p>
-            ) : null}
           </div>
 
           <div className="rounded-[2rem] border border-ink/10 bg-slate-50 p-6">

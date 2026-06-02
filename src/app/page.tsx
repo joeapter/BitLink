@@ -1,7 +1,9 @@
 import { ArrowRight, CreditCard, Headphones, RadioTower, Smartphone } from "lucide-react";
+import { HumanSupportSection } from "@/components/marketing/HumanSupportSection";
 import { LiquidHero } from "@/components/marketing/LiquidHero";
 import { ReferralBand } from "@/components/marketing/ReferralBand";
 import { TrustRibbon } from "@/components/marketing/TrustRibbon";
+import { AddOnCard } from "@/components/plans/AddOnCard";
 import { PlanSelector } from "@/components/plans/PlanSelector";
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -33,15 +35,15 @@ export default function Home() {
     <>
       <LiquidHero />
 
-      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)] py-20 sm:py-32">
+      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)] py-16 sm:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-12 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
               <p className="text-sm font-semibold text-link-blue">Simple monthly plans</p>
-              <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-normal text-ink sm:text-5xl">
+              <h2 className="mt-3 max-w-3xl text-balance text-3xl font-semibold tracking-normal text-ink sm:text-5xl">
                 Plans you can understand before you pay.
               </h2>
-              <p className="mt-4 max-w-2xl text-lg leading-8 text-muted-slate">
+              <p className="mt-4 max-w-2xl text-base leading-7 text-muted-slate sm:text-lg sm:leading-8">
                 No maze of bundles. Choose the rhythm that fits your phone use and keep the details visible in your account.
               </p>
             </div>
@@ -51,22 +53,23 @@ export default function Home() {
             </ButtonLink>
           </div>
           <PlanSelector />
+          <AddOnCard />
         </div>
       </section>
 
-      <section id="how-it-works" className="relative overflow-hidden bg-white py-20 sm:py-32">
+      <section id="how-it-works" className="relative overflow-hidden bg-white py-16 sm:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold text-link-blue">How BitLink works</p>
-            <h2 className="mt-3 text-balance text-4xl font-semibold tracking-normal text-ink sm:text-5xl">
+            <h2 className="mt-3 text-balance text-3xl font-semibold tracking-normal text-ink sm:text-5xl">
               A calmer path from plan to connected.
             </h2>
-            <p className="mt-4 text-lg leading-8 text-muted-slate">
+            <p className="mt-4 text-base leading-7 text-muted-slate sm:text-lg sm:leading-8">
               The flow is intentionally simple: choose a plan, checkout securely, follow guided setup, and manage your service online.
             </p>
           </div>
 
-          <div className="mt-14 grid gap-4 md:grid-cols-4">
+          <div className="mt-10 grid gap-4 sm:mt-14 md:grid-cols-4">
             {steps.map((step, index) => (
               <div
                 key={step.title}
@@ -86,26 +89,7 @@ export default function Home() {
 
       <ReferralBand />
       <TrustRibbon />
-
-      <section className="bg-[linear-gradient(180deg,#ffffff_0%,#eef5f8_100%)] px-4 py-20 sm:px-6 sm:py-32 lg:px-8">
-        <div className="mx-auto max-w-5xl text-center">
-          <p className="text-sm font-semibold text-link-blue">Need help choosing?</p>
-          <h2 className="mt-3 text-balance text-4xl font-semibold tracking-normal text-ink sm:text-5xl">
-            Real people. Real answers.
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-muted-slate">
-            Talk to BitLink support before you checkout, or start with a plan and we&apos;ll get your connection moving.
-          </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <ButtonLink href="/support" size="lg">
-              Contact support
-            </ButtonLink>
-            <ButtonLink href="/checkout" variant="secondary" size="lg">
-              Start checkout
-            </ButtonLink>
-          </div>
-        </div>
-      </section>
+      <HumanSupportSection />
     </>
   );
 }

@@ -1,8 +1,4 @@
-export type PlanSlug =
-  | "israel-basic"
-  | "israel-plus"
-  | "data-plus"
-  | "unlimited-data-plus";
+export type PlanSlug = "basic" | "unlimited-kosher" | "student-5g" | "max-5g";
 
 export type BitLinkPlan = {
   slug: PlanSlug;
@@ -12,121 +8,154 @@ export type BitLinkPlan = {
   currency: "USD";
   description: string;
   detail: string;
-  longDistance?: string;
   stripeEnvKey: string;
   tone: string;
   featured?: boolean;
+  badge?: string;
   features: string[];
   comparison: {
     data: string;
-    international: string;
+    calls: string;
+    texts: string;
     activation: string;
-    support: string;
   };
+};
+
+export type AddOn = {
+  id: string;
+  tagline: string;
+  body: string;
+  priceCents: number;
+  currency: "USD";
 };
 
 export const plans: BitLinkPlan[] = [
   {
-    slug: "israel-basic",
-    name: "Israel Basic",
+    slug: "basic",
+    name: "Basic",
     shortName: "Basic",
+    priceCents: 1499,
+    currency: "USD",
+    description: "For simple phone use.",
+    detail:
+      "A clean starting point for people who want reliable monthly service with an Israeli number, basic 5G data, and included calls and texts.",
+    stripeEnvKey: "STRIPE_PRICE_BASIC",
+    tone: "For simple phone use",
+    features: [
+      "Israeli phone number",
+      "1GB high-speed 5G data",
+      "Calls — 1,000 minutes to Israeli landlines and mobiles",
+      "Texts — 500 SMS to Israeli mobiles",
+      "eSIM activation",
+      "WhatsApp support",
+      "VAT included",
+      "No hidden fees",
+    ],
+    comparison: {
+      data: "1GB 5G",
+      calls: "1,000 min",
+      texts: "500 SMS",
+      activation: "eSIM",
+    },
+  },
+  {
+    slug: "unlimited-kosher",
+    name: "Unlimited Kosher",
+    shortName: "Kosher",
+    priceCents: 1999,
+    currency: "USD",
+    description: "Unlimited calls on a kosher-certified number.",
+    detail:
+      "Designed for certified kosher phones — unlimited calls to Israeli and North American mobiles, plus landlines across 30+ countries. Add a US or Canadian local number for an extra $9.99/mo.",
+    stripeEnvKey: "STRIPE_PRICE_UNLIMITED_KOSHER",
+    tone: "For kosher-certified devices",
+    badge: "Kosher",
+    features: [
+      "Kosher phone number",
+      "Unlimited calls to Israeli, US & Canadian mobiles",
+      "Calls to landlines in 30+ destinations",
+      "Only compatible with a certified kosher phone",
+      "VAT included",
+      "No hidden fees",
+      "US/Canada local number available as add-on: +$9.99/mo",
+    ],
+    comparison: {
+      data: "Included",
+      calls: "Unlimited",
+      texts: "Included",
+      activation: "eSIM",
+    },
+  },
+  {
+    slug: "student-5g",
+    name: "Student 5G",
+    shortName: "Student",
     priceCents: 3499,
     currency: "USD",
-    description: "Simple monthly Israeli service for everyday calling and connectivity.",
+    description: "Best for most students.",
     detail:
-      "A clean starting point for people who want reliable monthly service without a complicated bundle.",
-    stripeEnvKey: "STRIPE_PRICE_ISRAEL_BASIC",
-    tone: "Everyday connection",
-    features: [
-      "Monthly Israeli service",
-      "Simple plan setup",
-      "Online account access",
-      "Guided connection setup with BitLink",
-    ],
-    comparison: {
-      data: "Everyday use",
-      international: "Available as an upgrade",
-      activation: "Guided setup",
-      support: "Human support",
-    },
-  },
-  {
-    slug: "israel-plus",
-    name: "Israel Plus",
-    shortName: "Plus",
-    priceCents: 4999,
-    currency: "USD",
-    description: "Includes outgoing calls to USA, Canada, UK, and Australia.",
-    detail:
-      "A stronger everyday plan for customers who call abroad and still want simple monthly billing.",
-    longDistance: "200 minutes/month",
-    stripeEnvKey: "STRIPE_PRICE_ISRAEL_PLUS",
-    tone: "Local plus international",
+      "The most popular choice for students — generous 5G data with local calls and texts included, and the option to add a US or Canadian number.",
+    stripeEnvKey: "STRIPE_PRICE_STUDENT_5G",
+    tone: "Best for most students",
     featured: true,
+    badge: "Most Popular",
     features: [
-      "Outgoing calls to USA, Canada, UK, and Australia",
-      "200 long-distance minutes per month",
-      "Simple monthly billing",
-      "Guided connection setup with BitLink",
+      "Israeli phone number",
+      "50GB high-speed 5G data",
+      "Local calls and texts",
+      "eSIM activation",
+      "WhatsApp support",
+      "VAT included",
+      "No hidden fees",
+      "US/Canada local number available as add-on: +$9.99/mo",
     ],
     comparison: {
-      data: "Everyday use",
-      international: "200 minutes/month",
-      activation: "Guided setup",
-      support: "Priority-aware support",
+      data: "50GB 5G",
+      calls: "Local",
+      texts: "Local",
+      activation: "eSIM",
     },
   },
   {
-    slug: "data-plus",
-    name: "Data Plus",
-    shortName: "Data",
-    priceCents: 5999,
+    slug: "max-5g",
+    name: "Max 5G",
+    shortName: "Max",
+    priceCents: 3999,
     currency: "USD",
-    description: "More data, more flexibility, and international calling included.",
+    description: "More data for heavy users.",
     detail:
-      "Built for people who use their phone throughout the day and want international calling included.",
-    stripeEnvKey: "STRIPE_PRICE_DATA_PLUS",
-    tone: "Flexible data rhythm",
+      "120GB of 5G data for students who stream, navigate, and stay connected all day — with priority support and the option to add a US or Canadian number.",
+    stripeEnvKey: "STRIPE_PRICE_MAX_5G",
+    tone: "More data for heavy users",
+    badge: "Most Data",
     features: [
-      "Designed for heavier everyday data use",
-      "International calling included",
-      "Online subscription visibility",
-      "Guided connection setup with BitLink",
+      "Israeli phone number",
+      "120GB high-speed 5G data",
+      "Local calls and texts",
+      "eSIM activation",
+      "Priority WhatsApp support",
+      "VAT included",
+      "No hidden fees",
+      "US/Canada local number available as add-on: +$9.99/mo",
     ],
     comparison: {
-      data: "More flexible use",
-      international: "Included",
-      activation: "Guided setup",
-      support: "Human support",
-    },
-  },
-  {
-    slug: "unlimited-data-plus",
-    name: "Unlimited Data Plus",
-    shortName: "Unlimited",
-    priceCents: 7999,
-    currency: "USD",
-    description: "Unlimited-feeling data experience with international calling included.",
-    detail:
-      "Designed for heavy everyday use with a smoother, more generous data experience.",
-    stripeEnvKey: "STRIPE_PRICE_UNLIMITED_DATA_PLUS",
-    tone: "Heavy daily use",
-    features: [
-      "Unlimited-feeling data experience",
-      "International calling included",
-      "Designed for heavy everyday use",
-      "Guided connection setup with BitLink",
-    ],
-    comparison: {
-      data: "Unlimited-feeling",
-      international: "Included",
-      activation: "Guided setup",
-      support: "Human support",
+      data: "120GB 5G",
+      calls: "Local",
+      texts: "Local",
+      activation: "eSIM",
     },
   },
 ];
 
-export const defaultPlanSlug: PlanSlug = "israel-plus";
+export const usCanadaNumberAddOn: AddOn = {
+  id: "us-canada-number",
+  tagline: "Add a US or Canadian local number",
+  body: "Let family back home call you like a local call — no international dialing, no calling cards, no stress.",
+  priceCents: 999,
+  currency: "USD",
+};
+
+export const defaultPlanSlug: PlanSlug = "student-5g";
 
 export function getPlan(slug?: string | null) {
   return plans.find((plan) => plan.slug === slug) ?? plans.find((plan) => plan.slug === defaultPlanSlug)!;
