@@ -14,5 +14,11 @@ export default async function AccountReferralsPage() {
     ? `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://bitlink.co.il"}/signup?referral=${snapshot.customer.referral_code}`
     : null;
 
-  return <ReferralPanel referralLink={referralLink} referrals={snapshot.referrals} />;
+  return (
+    <ReferralPanel
+      referralLink={referralLink}
+      referrals={snapshot.referrals}
+      referralStats={snapshot.referralStats}
+    />
+  );
 }

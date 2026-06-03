@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { CreditCard, Home, LogOut, RadioTower, Share2 } from "lucide-react";
+import { CreditCard, Home, LogOut, Phone, RadioTower, Share2 } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
 import { initials } from "@/lib/utils";
 
 const links = [
   { href: "/account", label: "Overview", icon: Home },
+  { href: "/account/lines", label: "Lines", icon: Phone },
   { href: "/account/billing", label: "Billing", icon: CreditCard },
   { href: "/account/activation", label: "Activation", icon: RadioTower },
   { href: "/account/referrals", label: "Referrals", icon: Share2 },

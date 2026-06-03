@@ -1,6 +1,12 @@
-import { ArrowUpRight, LifeBuoy } from "lucide-react";
+import { ArrowUpRight, Gift, LifeBuoy } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+
+type ReferralStats = {
+  activeCount: number;
+  bonusGb: number;
+  cap: number;
+};
 
 export function AccountOverview({
   planName,
@@ -8,12 +14,14 @@ export function AccountOverview({
   activationStatus,
   nextBillingDate,
   referralLink,
+  referralStats,
 }: {
   planName: string;
   subscriptionStatus?: string | null;
   activationStatus?: string | null;
   nextBillingDate?: string | null;
   referralLink?: string | null;
+  referralStats?: ReferralStats;
 }) {
   return (
     <div className="grid gap-6">
@@ -59,10 +67,27 @@ export function AccountOverview({
       </section>
 
       <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
-        <p className="text-sm font-semibold text-link-blue">Referral link</p>
-        <div className="mt-3 rounded-2xl bg-slate-50 p-4 font-mono text-sm text-ink">
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-sm font-semibold text-link-blue">Referrals</p>
+          <ButtonLink href="/account/referrals" variant="ghost" size="sm">
+            <Gift className="h-4 w-4" aria-hidden="true" />
+            {referralStats && referralStats.activeCount > 0
+              ? `+${referralStats.bonusGb}GB/mo earned`
+              : "Earn +5GB per friend"}
+          </ButtonLink>
+        </div>
+        <div className="mt-3 rounded-[1.5rem] bg-slate-50 p-4 font-mono text-sm text-ink break-all select-all">
           {referralLink ?? "Your referral link will appear here after your account is ready."}
         </div>
+        {referralStats && referralStats.activeCount > 0 ? (
+          <p className="mt-2 text-xs text-muted-slate">
+            {referralStats.activeCount} of {referralStats.cap} friends active · earning +{referralStats.bonusGb}GB extra data per month
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-muted-slate">
+            Earn +5GB/mo for each friend who activates — up to 5 friends, 25GB maximum.
+          </p>
+        )}
       </section>
     </div>
   );

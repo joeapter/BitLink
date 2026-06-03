@@ -24,6 +24,7 @@ export default async function AccountPage() {
       activationStatus={snapshot.order?.provisioning_status}
       nextBillingDate={nextBillingDate}
       referralLink={referralLink}
+      referralStats={snapshot.referralStats}
     />
   );
 }
