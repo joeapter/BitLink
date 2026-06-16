@@ -10,6 +10,7 @@ export type BitLinkPlan = {
   detail: string;
   stripeEnvKey: string;
   tone: string;
+  isKosher: boolean;
   featured?: boolean;
   badge?: string;
   features: string[];
@@ -41,6 +42,7 @@ export const plans: BitLinkPlan[] = [
       "A clean starting point for people who want reliable monthly service with an Israeli number, basic 5G data, and included calls and texts.",
     stripeEnvKey: "STRIPE_PRICE_BASIC",
     tone: "For simple phone use",
+    isKosher: false,
     features: [
       "Israeli phone number",
       "1GB high-speed 5G data",
@@ -59,35 +61,6 @@ export const plans: BitLinkPlan[] = [
     },
   },
   {
-    slug: "unlimited-kosher",
-    name: "Unlimited Kosher",
-    shortName: "Kosher",
-    priceCents: 1999,
-    currency: "USD",
-    description: "Unlimited calls on a kosher-certified number.",
-    detail:
-      "Designed for certified kosher phones — unlimited calls to Israeli and North American mobiles, plus landlines across 30+ countries. Add a US or Canadian local number for an extra $9.99/mo.",
-    stripeEnvKey: "STRIPE_PRICE_UNLIMITED_KOSHER",
-    tone: "For kosher-certified devices",
-    badge: "Kosher",
-    features: [
-      "Kosher phone number",
-      "Unlimited calls to Israeli, US & Canadian mobiles",
-      "Calls to landlines in 30+ destinations",
-      "Only compatible with a certified kosher phone",
-      "No data or SMS — voice only",
-      "VAT included",
-      "No hidden fees",
-      "US/Canada local number available as add-on: +$9.99/mo",
-    ],
-    comparison: {
-      data: "None",
-      calls: "Unlimited",
-      texts: "None",
-      activation: "Physical SIM",
-    },
-  },
-  {
     slug: "student-5g",
     name: "Student 5G",
     shortName: "Student",
@@ -95,15 +68,17 @@ export const plans: BitLinkPlan[] = [
     currency: "USD",
     description: "Best for most students.",
     detail:
-      "The most popular choice for students — generous 5G data with local calls and texts included, and the option to add a US or Canadian number.",
+      "The most popular choice for students — generous 5G data with 5,000 local minutes and 1,000 SMS included, and the option to add a US or Canadian number.",
     stripeEnvKey: "STRIPE_PRICE_STUDENT_5G",
     tone: "Best for most students",
+    isKosher: false,
     featured: true,
     badge: "Most Popular",
     features: [
       "Israeli phone number",
       "50GB high-speed 5G data",
-      "Local calls and texts",
+      "5,000 minutes to Israeli landlines and mobiles",
+      "1,000 SMS to Israeli mobiles",
       "eSIM activation",
       "WhatsApp support",
       "VAT included",
@@ -112,8 +87,8 @@ export const plans: BitLinkPlan[] = [
     ],
     comparison: {
       data: "50GB 5G",
-      calls: "Local",
-      texts: "Local",
+      calls: "5,000 min",
+      texts: "1,000 SMS",
       activation: "eSIM",
     },
   },
@@ -123,16 +98,19 @@ export const plans: BitLinkPlan[] = [
     shortName: "Max",
     priceCents: 3999,
     currency: "USD",
-    description: "More data for heavy users.",
+    description: "More data, plus USA/CA calling.",
     detail:
-      "120GB of 5G data for students who stream, navigate, and stay connected all day — with priority support and the option to add a US or Canadian number.",
+      "120GB of 5G data for students who stream and stay connected all day — includes 5,000 local minutes, 1,000 SMS, and 150 minutes to US and Canadian numbers.",
     stripeEnvKey: "STRIPE_PRICE_MAX_5G",
     tone: "More data for heavy users",
+    isKosher: false,
     badge: "Most Data",
     features: [
       "Israeli phone number",
       "120GB high-speed 5G data",
-      "Local calls and texts",
+      "5,000 minutes to Israeli landlines and mobiles",
+      "1,000 SMS to Israeli mobiles",
+      "150 minutes to US & Canadian numbers",
       "eSIM activation",
       "Priority WhatsApp support",
       "VAT included",
@@ -141,9 +119,39 @@ export const plans: BitLinkPlan[] = [
     ],
     comparison: {
       data: "120GB 5G",
-      calls: "Local",
-      texts: "Local",
+      calls: "5,000 min + 150 USA/CA",
+      texts: "1,000 SMS",
       activation: "eSIM",
+    },
+  },
+  {
+    slug: "unlimited-kosher",
+    name: "Unlimited Kosher",
+    shortName: "Kosher",
+    priceCents: 1999,
+    currency: "USD",
+    description: "5,000 minutes on a kosher-certified number.",
+    detail:
+      "Designed for certified kosher phones — 5,000 minutes to Israeli numbers monthly, voice only. Add a US or Canadian local number for an extra $9.99/mo.",
+    stripeEnvKey: "STRIPE_PRICE_UNLIMITED_KOSHER",
+    tone: "For kosher-certified devices",
+    isKosher: true,
+    badge: "Kosher",
+    features: [
+      "Kosher phone number",
+      "5,000 minutes to Israeli numbers",
+      "Only compatible with a certified kosher phone",
+      "No data or SMS — voice only",
+      "Physical SIM card",
+      "VAT included",
+      "No hidden fees",
+      "US/Canada local number available as add-on: +$9.99/mo",
+    ],
+    comparison: {
+      data: "None",
+      calls: "5,000 min",
+      texts: "None",
+      activation: "Physical SIM",
     },
   },
 ];

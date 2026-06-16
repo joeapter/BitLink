@@ -8,26 +8,58 @@ import { formatMoney, cn } from "@/lib/utils";
 import { ButtonLink } from "@/components/ui/Button";
 import { PlanFeatureList } from "./PlanFeatureList";
 
+type Tab = "plans" | "kosher";
+
+const TAB_DEFAULTS: Record<Tab, PlanSlug> = {
+  plans: "student-5g",
+  kosher: "unlimited-kosher",
+};
+
 export function PlanSelector({ initialSlug = "student-5g" }: { initialSlug?: PlanSlug }) {
+  const initialTab: Tab = plans.find((p) => p.slug === initialSlug)?.isKosher ? "kosher" : "plans";
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [selectedSlug, setSelectedSlug] = useState<PlanSlug>(initialSlug);
   const reduceMotion = useReducedMotion();
+
+  const visiblePlans = useMemo(() => plans.filter((p) => p.isKosher === (tab === "kosher")), [tab]);
   const selected = useMemo(
-    () => plans.find((plan) => plan.slug === selectedSlug) ?? plans[1],
-    [selectedSlug],
+    () => visiblePlans.find((p) => p.slug === selectedSlug) ?? visiblePlans[0],
+    [visiblePlans, selectedSlug],
   );
+
+  function switchTab(next: Tab) {
+    setTab(next);
+    setSelectedSlug(TAB_DEFAULTS[next]);
+  }
 
   return (
     <div className="grid gap-4 lg:grid-cols-[21rem_minmax(0,1fr)] lg:gap-5">
       <div className="rounded-lg border border-ink/10 bg-white p-2 shadow-soft">
+        {/* Tab switcher */}
+        <div className="mb-2 flex gap-1 rounded-md bg-slate-100 p-1">
+          {(["plans", "kosher"] as Tab[]).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => switchTab(t)}
+              className={cn(
+                "flex-1 rounded py-1.5 text-xs font-semibold transition",
+                tab === t ? "bg-white text-ink shadow-sm" : "text-slate-500 hover:text-ink",
+              )}
+            >
+              {t === "plans" ? "Plans" : "Kosher Plans"}
+            </button>
+          ))}
+        </div>
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
-          {plans.map((plan) => {
+          {visiblePlans.map((plan) => {
             const active = plan.slug === selected.slug;
             return (
               <button
                 key={plan.slug}
                 type="button"
                 aria-pressed={active}
-                onClick={() => setSelectedSlug(plan.slug)}
+                onClick={() => setSelectedSlug(plan.slug as PlanSlug)}
                 className={cn(
                   "min-w-0 rounded-md border px-3 py-3 text-left transition sm:px-4 sm:py-4",
                   active
