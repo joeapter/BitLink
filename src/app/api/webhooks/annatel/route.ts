@@ -36,9 +36,11 @@ export async function POST(request: NextRequest): Promise<Response> {
     return new Response('configuration error', { status: 500 });
   }
 
-  const provider = getTelecomProvider();
-  const signature = (headers['x-annatel-signature'] as string | undefined) ?? '';
-  const signatureValid = provider.verifyWebhookSignature(rawPayload, signature);
+  // Annatel doesn't sign payloads — instead we registered a custom x-bitlink-secret
+  // header on the webhook endpoint. Verify that header matches our stored secret.
+  const incomingSecret = headers['x-bitlink-secret'] ?? '';
+  const expectedSecret = process.env.ANNATEL_WEBHOOK_SECRET ?? '';
+  const signatureValid = !expectedSecret || incomingSecret === expectedSecret;
 
   // Atomic upsert — ON CONFLICT DO NOTHING eliminates the TOCTOU race on the unique
   // idempotency_key index. Returns empty array for duplicates, one row for new inserts.
