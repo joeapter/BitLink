@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, MessageSquare, Phone, Mail, ExternalLink } from "lucide-react";
 import { getAdminDb } from "@/lib/db/admin";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { updateTicketStatusAction, updateTicketPriorityAction, addTicketNoteAction } from "@/lib/admin/support-actions";
+import { updateTicketStatusAction, updateTicketPriorityAction, addTicketNoteAction, addCallNoteAction } from "@/lib/admin/support-actions";
 import { MacroCard } from "@/components/admin/MacroCard";
 
 export const metadata: Metadata = { title: "Support Ticket" };
@@ -56,6 +56,13 @@ export default async function AdminTicketDetailPage({ params }: Props) {
 
   const categoryMacros = (allMacros ?? []).filter((m) => m.category === ticket.category);
   const otherMacros    = (allMacros ?? []).filter((m) => m.category !== ticket.category);
+
+  // Fetch call notes
+  const { data: callNotes } = await db
+    .from("support_call_notes")
+    .select("*")
+    .eq("ticket_id", ticketId)
+    .order("created_at", { ascending: false });
 
   // Customer context — try to match by email, phone, bitlink_phone
   let customer = null;
@@ -206,6 +213,49 @@ export default async function AdminTicketDetailPage({ params }: Props) {
                 className="w-fit rounded-xl bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/80"
               >
                 Add note
+              </button>
+            </form>
+          </section>
+
+          {/* Call notes */}
+          <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
+            <h2 className="text-base font-semibold text-ink">Call / conversation notes</h2>
+            <p className="mt-1 text-xs text-muted-slate">Log what happened after each call or WhatsApp exchange. These feed the insights dashboard.</p>
+
+            {callNotes && callNotes.length > 0 && (
+              <div className="mt-4 grid gap-3">
+                {callNotes.map((n) => (
+                  <div key={n.id} className="rounded-2xl border border-ink/10 bg-slate-50 p-4 text-sm">
+                    <p className="font-semibold text-ink">{n.issue_summary}</p>
+                    {n.root_cause && <p className="mt-1 text-muted-slate"><span className="font-medium text-slate-500">Root cause:</span> {n.root_cause}</p>}
+                    {n.fix_given  && <p className="mt-1 text-muted-slate"><span className="font-medium text-slate-500">Fix given:</span> {n.fix_given}</p>}
+                    <div className="mt-2 flex gap-3 text-xs">
+                      {n.should_create_macro      && <span className="rounded-full bg-amber-50 px-2 py-0.5 font-semibold text-amber-700">→ Create macro</span>}
+                      {n.should_update_onboarding && <span className="rounded-full bg-blue-50 px-2 py-0.5 font-semibold text-blue-700">→ Update onboarding</span>}
+                    </div>
+                    <p className="mt-2 text-xs text-muted-slate">{new Date(n.created_at).toLocaleString()}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <form action={addCallNoteAction} className="mt-5 grid gap-3">
+              <input type="hidden" name="ticketId" value={ticketId} />
+              <textarea name="issue_summary" rows={2} required placeholder="What was the issue? (required)" className="w-full rounded-2xl border border-ink/10 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-link-blue" />
+              <textarea name="root_cause"    rows={2}          placeholder="Root cause (what caused it)" className="w-full rounded-2xl border border-ink/10 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-link-blue" />
+              <textarea name="fix_given"     rows={2}          placeholder="Fix given (what you told them)" className="w-full rounded-2xl border border-ink/10 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-link-blue" />
+              <div className="flex flex-wrap gap-4 text-sm">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="should_create_macro" className="rounded" />
+                  <span className="text-amber-700 font-medium">Should create macro</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="should_update_onboarding" className="rounded" />
+                  <span className="text-blue-700 font-medium">Should update onboarding</span>
+                </label>
+              </div>
+              <button type="submit" className="w-fit rounded-xl bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/80">
+                Save call note
               </button>
             </form>
           </section>

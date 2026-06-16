@@ -86,3 +86,26 @@ export async function deleteMacroAction(formData: FormData) {
   await db().from("support_macros").delete().eq("id", macroId);
   revalidatePath("/admin/support/macros");
 }
+
+export async function addCallNoteAction(formData: FormData) {
+  await requireAdmin();
+  const ticketId             = String(formData.get("ticketId")            ?? "");
+  const issueSummary         = String(formData.get("issue_summary")       ?? "").trim();
+  const rootCause            = String(formData.get("root_cause")          ?? "").trim();
+  const fixGiven             = String(formData.get("fix_given")           ?? "").trim();
+  const shouldCreateMacro    = formData.get("should_create_macro")    === "on";
+  const shouldUpdateOnboard  = formData.get("should_update_onboarding") === "on";
+
+  if (!ticketId || !issueSummary) return;
+
+  await db().from("support_call_notes").insert({
+    ticket_id:                ticketId,
+    issue_summary:            issueSummary,
+    root_cause:               rootCause || null,
+    fix_given:                fixGiven  || null,
+    should_create_macro:      shouldCreateMacro,
+    should_update_onboarding: shouldUpdateOnboard,
+  });
+
+  revalidatePath(`/admin/support/${ticketId}`);
+}

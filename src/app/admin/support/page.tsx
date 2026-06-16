@@ -79,6 +79,9 @@ export default async function AdminSupportPage({ searchParams }: Props) {
           <Link href="/admin/support/macros" className="rounded-full border border-ink/10 px-3 py-1 font-semibold text-ink hover:bg-slate-50">
             Macros
           </Link>
+          <Link href="/admin/support/insights" className="rounded-full border border-ink/10 px-3 py-1 font-semibold text-ink hover:bg-slate-50">
+            Insights
+          </Link>
         </div>
       </section>
 
