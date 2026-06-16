@@ -35,8 +35,12 @@ export default async function SupportPage({
       <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="grid content-start gap-4">
+            <a href="mailto:support@bitlink.co.il" className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-5 hover:border-link-blue/30 hover:bg-blue-50/40 transition-colors">
+              <Mail className="h-5 w-5 text-link-blue" aria-hidden="true" />
+              <h2 className="mt-4 text-lg font-semibold text-ink">Email</h2>
+              <p className="mt-1 text-sm leading-6 text-link-blue">support@bitlink.co.il</p>
+            </a>
             {[
-              ["Email", "hello@bitlink.co.il", Mail],
               ["Setup", "We guide your connection from order to ready", PhoneCall],
               ["Account", "Track billing, setup, referrals, and support after signup", MessageCircle],
             ].map(([title, body, Icon]) => (
