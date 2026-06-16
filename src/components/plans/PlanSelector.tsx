@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, PhoneCall } from "lucide-react";
 import { useMemo, useState } from "react";
-import { plans, type PlanSlug } from "@/lib/plans";
+import { plans, defaultKosherPlanSlug, type PlanSlug } from "@/lib/plans";
 import { formatMoney, cn } from "@/lib/utils";
 import { ButtonLink } from "@/components/ui/Button";
 import { PlanFeatureList } from "./PlanFeatureList";
@@ -12,7 +12,7 @@ type Tab = "plans" | "kosher";
 
 const TAB_DEFAULTS: Record<Tab, PlanSlug> = {
   plans: "student-5g",
-  kosher: "unlimited-kosher",
+  kosher: defaultKosherPlanSlug,
 };
 
 export function PlanSelector({ initialSlug = "student-5g" }: { initialSlug?: PlanSlug }) {

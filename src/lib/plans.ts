@@ -1,4 +1,4 @@
-export type PlanSlug = "basic" | "unlimited-kosher" | "student-5g" | "max-5g";
+export type PlanSlug = "basic" | "kosher-basic" | "kosher-plus" | "student-5g" | "max-5g";
 
 export type BitLinkPlan = {
   slug: PlanSlug;
@@ -125,15 +125,15 @@ export const plans: BitLinkPlan[] = [
     },
   },
   {
-    slug: "unlimited-kosher",
-    name: "Unlimited Kosher",
-    shortName: "Kosher",
+    slug: "kosher-basic",
+    name: "Kosher Basic",
+    shortName: "Kosher Basic",
     priceCents: 1999,
     currency: "USD",
     description: "5,000 minutes on a kosher-certified number.",
     detail:
       "Designed for certified kosher phones — 5,000 minutes to Israeli numbers monthly, voice only. Add a US or Canadian local number for an extra $9.99/mo.",
-    stripeEnvKey: "STRIPE_PRICE_UNLIMITED_KOSHER",
+    stripeEnvKey: "STRIPE_PRICE_KOSHER_BASIC",
     tone: "For kosher-certified devices",
     isKosher: true,
     badge: "Kosher",
@@ -154,6 +154,37 @@ export const plans: BitLinkPlan[] = [
       activation: "Physical SIM",
     },
   },
+  {
+    slug: "kosher-plus",
+    name: "Kosher+",
+    shortName: "Kosher+",
+    priceCents: 2499,
+    currency: "USD",
+    description: "Kosher calling with USA/CA international minutes.",
+    detail:
+      "Everything in Kosher Basic, plus 150 minutes to US and Canadian numbers — for staying connected with family back home.",
+    stripeEnvKey: "STRIPE_PRICE_KOSHER_PLUS",
+    tone: "Kosher with USA/CA calling",
+    isKosher: true,
+    badge: "Kosher",
+    features: [
+      "Kosher phone number",
+      "5,000 minutes to Israeli numbers",
+      "150 minutes to US & Canadian numbers",
+      "Only compatible with a certified kosher phone",
+      "No data or SMS — voice only",
+      "Physical SIM card",
+      "VAT included",
+      "No hidden fees",
+      "US/Canada local number available as add-on: +$9.99/mo",
+    ],
+    comparison: {
+      data: "None",
+      calls: "5,000 min + 150 USA/CA",
+      texts: "None",
+      activation: "Physical SIM",
+    },
+  },
 ];
 
 export const usCanadaNumberAddOn: AddOn = {
@@ -165,6 +196,7 @@ export const usCanadaNumberAddOn: AddOn = {
 };
 
 export const defaultPlanSlug: PlanSlug = "student-5g";
+export const defaultKosherPlanSlug: PlanSlug = "kosher-basic";
 
 export function getPlan(slug?: string | null) {
   return plans.find((plan) => plan.slug === slug) ?? plans.find((plan) => plan.slug === defaultPlanSlug)!;
