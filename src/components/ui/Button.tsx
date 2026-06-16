@@ -11,7 +11,7 @@ const variants: Record<ButtonVariant, string> = {
   secondary:
     "border border-ink/10 bg-white/78 text-ink shadow-sm backdrop-blur-xl hover:-translate-y-0.5 hover:border-link-blue/30 hover:bg-white focus-visible:outline-link-blue",
   ghost: "text-ink hover:bg-link-blue/8 hover:text-link-blue focus-visible:outline-link-blue",
-  dark: "bg-white text-ink shadow-soft hover:-translate-y-0.5 hover:bg-slate-50 focus-visible:outline-white",
+  dark: "bg-white text-slate-900 shadow-soft hover:-translate-y-0.5 hover:bg-slate-50 focus-visible:outline-white",
   danger: "bg-rose-600 text-white shadow-sm hover:bg-rose-700 focus-visible:outline-rose-600",
 };
 
