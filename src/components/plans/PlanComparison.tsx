@@ -65,9 +65,14 @@ export function PlanComparison() {
                 <td className="px-5 py-5">{plan.comparison.calls} / {plan.comparison.texts}</td>
                 <td className="px-5 py-5">{plan.comparison.activation}</td>
                 <td className="px-5 py-5">
-                  <ButtonLink href={`/checkout?plan=${plan.slug}`} size="sm" variant={plan.featured ? "primary" : "secondary"}>
-                    Choose
-                  </ButtonLink>
+                  <div className="flex flex-col gap-2">
+                    <ButtonLink href={`/checkout?plan=${plan.slug}`} size="sm" variant={plan.featured ? "primary" : "secondary"}>
+                      Choose
+                    </ButtonLink>
+                    <a href={`/plans/${plan.slug}`} className="text-center text-xs font-semibold text-link-blue hover:underline">
+                      More details
+                    </a>
+                  </div>
                 </td>
               </tr>
             ))}

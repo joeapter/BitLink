@@ -6,7 +6,7 @@ export function BrandMark({ className }: { className?: string }) {
   return (
     <Link href="/" className={cn("inline-flex items-center", className)} aria-label="BitLink home">
       <Image
-        src="/assets/Logo.png"
+        src="/assets/logo-v2.png"
         alt="BitLink"
         width={170}
         height={51}

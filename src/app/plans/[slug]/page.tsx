@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, FileText } from "lucide-react";
 import { PlanFeatureList } from "@/components/plans/PlanFeatureList";
 import { ButtonLink } from "@/components/ui/Button";
 import { formatMoney } from "@/lib/utils";
 import { getPlan, plans } from "@/lib/plans";
+import { contractData } from "@/lib/contracts";
 
 export function generateStaticParams() {
   return plans.map((plan) => ({ slug: plan.slug }));
@@ -61,6 +62,37 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ slu
               A simpler phone plan experience, with clear monthly details.
             </h2>
             <p className="mt-5 text-lg leading-8 text-muted-slate">{plan.detail}</p>
+
+            {/* Contract details table */}
+            {contractData[plan.slug] && (
+              <div className="mt-10">
+                <p className="text-sm font-semibold text-ink">Plan terms at a glance</p>
+                <table className="mt-3 w-full text-sm">
+                  <tbody className="divide-y divide-ink/8">
+                    {[
+                      ["Activation", contractData[plan.slug].activationTime],
+                      ["Commitment", contractData[plan.slug].commitment],
+                      ["SIM / Activation fee", contractData[plan.slug].simFee],
+                      ["Monthly price", contractData[plan.slug].monthlyAlone],
+                    ].map(([label, value]) => (
+                      <tr key={label}>
+                        <td className="py-2 pr-4 font-semibold text-ink">{label}</td>
+                        <td className="py-2 text-muted-slate">{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <ButtonLink
+                  href={`/legal/plans/${plan.slug}`}
+                  variant="secondary"
+                  size="sm"
+                  className="mt-5"
+                >
+                  <FileText className="h-4 w-4" aria-hidden="true" />
+                  View full contract
+                </ButtonLink>
+              </div>
+            )}
           </div>
 
           <div className="rounded-[2rem] border border-ink/10 bg-slate-50 p-6">
