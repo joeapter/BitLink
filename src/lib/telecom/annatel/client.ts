@@ -57,8 +57,8 @@ export class AnnatelApiClient {
 
     const outgoingHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.apiKey}`,
-      'X-Tenant-Id': this.tenantId,
+      'x-api-key': this.apiKey,
+      ...(this.tenantId ? { 'X-Tenant-Id': this.tenantId } : {}),
       ...extraHeaders,
     };
 
