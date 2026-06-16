@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Mail, MessageCircle } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { createPublicSupportTicketAction } from "@/lib/support/actions";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -52,11 +52,14 @@ export default async function SupportPage({
               <h2 className="mt-4 text-lg font-semibold text-ink">WhatsApp</h2>
               <p className="mt-1 text-sm leading-6 text-green-600">Message us directly</p>
             </a>
-            <div className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-5">
-              <MessageCircle className="h-5 w-5 text-link-blue" aria-hidden="true" />
-              <h2 className="mt-4 text-lg font-semibold text-ink">Account</h2>
-              <p className="mt-1 text-sm leading-6 text-muted-slate">Track billing, setup, referrals, and support after signup</p>
-            </div>
+            <a
+              href="tel:+972587939426"
+              className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-5 hover:border-link-blue/30 hover:bg-blue-50/40 transition-colors"
+            >
+              <Phone className="h-5 w-5 text-link-blue" aria-hidden="true" />
+              <h2 className="mt-4 text-lg font-semibold text-ink">Call us</h2>
+              <p className="mt-1 text-sm leading-6 text-link-blue">+972 58-793-9426</p>
+            </a>
           </div>
 
           <form action={createPublicSupportTicketAction} className="rounded-lg border border-ink/10 bg-white p-6 shadow-soft sm:p-8">
