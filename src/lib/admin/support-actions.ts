@@ -44,8 +44,6 @@ export async function useMacroAction(formData: FormData) {
   const ticketId = String(formData.get("ticketId") ?? "");
   if (!macroId) return;
 
-  await db().rpc("increment_macro_usage", { macro_id: macroId }).then(() => null).catch(() => null);
-  // Fallback if RPC not available — direct update
   const { data } = await db().from("support_macros").select("usage_count").eq("id", macroId).single();
   if (data) {
     await db().from("support_macros").update({ usage_count: (data.usage_count ?? 0) + 1 }).eq("id", macroId);
