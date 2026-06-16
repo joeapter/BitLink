@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       event_type:  eventType,
       raw_payload: payload as Record<string, unknown>,
       processed:   false,
-    }).then(() => null).catch(() => null);
+    }).then(null, () => null);
 
     // TODO (Phase 2): for each inbound message:
     //   1. Find or create support_ticket by whatsapp_number
