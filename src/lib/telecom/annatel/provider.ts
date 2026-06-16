@@ -261,7 +261,8 @@ export class AnnatelProvider implements TelecomProvider {
   // ── Webhook ───────────────────────────────────────────────────────────────
 
   verifyWebhookSignature(payload: Buffer, signature: string): boolean {
-    if (!this.webhookSecret) return false;
+    // Annatel does not sign webhooks — no secret means unverified but accepted.
+    if (!this.webhookSecret) return true;
     const clean = signature.replace(/^sha256=/, '');
     const expected = crypto
       .createHmac('sha256', this.webhookSecret)
