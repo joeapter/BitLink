@@ -4,42 +4,58 @@ import { createPublicSupportTicketAction } from "@/lib/support/actions";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { Select } from "@/components/ui/Select";
 
 export const metadata: Metadata = {
   title: "Support",
-  description: "Contact BitLink support for plans, activation, billing, and account help.",
+  description: "Real human support for BitLink plans, activation, and billing.",
 };
+
+const CATEGORIES = [
+  { value: "activation",      label: "Activation — getting my line started" },
+  { value: "esim_activation", label: "eSIM — QR code or install issues" },
+  { value: "no_data",         label: "No data / internet not working" },
+  { value: "no_service_sos",  label: "No service / SOS only" },
+  { value: "porting",         label: "Porting my number to BitLink" },
+  { value: "billing",         label: "Billing or payment question" },
+  { value: "change_plan",     label: "Change or upgrade my plan" },
+  { value: "roaming_travel",  label: "Roaming / travelling abroad" },
+  { value: "lost_phone",      label: "Lost or stolen phone" },
+  { value: "other",           label: "Something else" },
+];
 
 export default async function SupportPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const params = await searchParams;
 
   return (
     <div className="bg-white">
+      {/* Hero */}
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#eef5f8_100%)] px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
         <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-soft-cyan/20 blur-3xl" />
         <div className="relative mx-auto max-w-7xl">
           <p className="text-sm font-semibold text-link-blue">BitLink support</p>
-          <h1 className="mt-3 max-w-4xl text-balance text-5xl font-semibold tracking-normal text-ink sm:text-6xl">
-            Human help for plans, billing, and activation.
+          <h1 className="mt-3 max-w-3xl text-balance text-5xl font-semibold tracking-normal text-ink sm:text-6xl">
+            Need help? Message a real BitLink person.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-slate">
-            Built for people who want their phone plan to just work. Send a request and the BitLink team will follow up.
+            Choose what you need help with and we'll open WhatsApp with the right details so our team can help you faster.
+          </p>
+          <p className="mt-3 text-sm font-medium text-muted-slate">
+            No chatbot maze. No ticket black hole. Just real support from people who understand Israeli phone service.
           </p>
         </div>
       </section>
 
+      {/* Form + contact cards */}
       <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+
+          {/* Contact cards */}
           <div className="grid content-start gap-4">
-            <a href="mailto:support@bitlink.co.il" className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-5 hover:border-link-blue/30 hover:bg-blue-50/40 transition-colors">
-              <Mail className="h-5 w-5 text-link-blue" aria-hidden="true" />
-              <h2 className="mt-4 text-lg font-semibold text-ink">Email</h2>
-              <p className="mt-1 text-sm leading-6 text-link-blue">support@bitlink.co.il</p>
-            </a>
             <a
               href="https://wa.me/972587939426?text=Hi%20BitLink%20support%2C%20I%20need%20help%20with%20my%20plan."
               target="_blank"
@@ -52,6 +68,16 @@ export default async function SupportPage({
               <h2 className="mt-4 text-lg font-semibold text-ink">WhatsApp</h2>
               <p className="mt-1 text-sm leading-6 text-green-600">Message us directly</p>
             </a>
+
+            <a
+              href="mailto:support@bitlink.co.il"
+              className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-5 hover:border-link-blue/30 hover:bg-blue-50/40 transition-colors"
+            >
+              <Mail className="h-5 w-5 text-link-blue" aria-hidden="true" />
+              <h2 className="mt-4 text-lg font-semibold text-ink">Email</h2>
+              <p className="mt-1 text-sm leading-6 text-link-blue">support@bitlink.co.il</p>
+            </a>
+
             <a
               href="tel:+972587939426"
               className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-5 hover:border-link-blue/30 hover:bg-blue-50/40 transition-colors"
@@ -60,32 +86,81 @@ export default async function SupportPage({
               <h2 className="mt-4 text-lg font-semibold text-ink">Call us</h2>
               <p className="mt-1 text-sm leading-6 text-link-blue">+972 58-793-9426</p>
             </a>
+
+            <div className="rounded-lg border border-ink/10 bg-amber-50/60 p-5">
+              <p className="text-sm font-semibold text-amber-800">Real humans only</p>
+              <p className="mt-1 text-sm leading-6 text-amber-700">
+                No AI, no bots. A real BitLink team member reads every message and replies personally.
+              </p>
+            </div>
           </div>
 
+          {/* Form */}
           <form action={createPublicSupportTicketAction} className="rounded-lg border border-ink/10 bg-white p-6 shadow-soft sm:p-8">
-            <h2 className="text-2xl font-semibold tracking-normal text-ink">Send a support request</h2>
+            <h2 className="text-2xl font-semibold tracking-normal text-ink">Open a support ticket</h2>
             <p className="mt-2 text-sm leading-6 text-muted-slate">
-              Tell us what you need help with and the BitLink team will follow up.
+              Fill this in and we'll open WhatsApp for you — with your ticket number already in the message so we can find your account instantly.
             </p>
+
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <Input label="Full name" name="name" autoComplete="name" required />
-              <Input label="Email" name="email" type="email" autoComplete="email" required />
-              <Input label="Subject" name="subject" className="sm:col-span-2" required />
-              <Textarea label="Message" name="message" className="sm:col-span-2" required />
+              <Input
+                label="Full name"
+                name="name"
+                autoComplete="name"
+                required
+                placeholder="Moshe Cohen"
+              />
+              <Input
+                label="Your WhatsApp number"
+                name="whatsapp"
+                type="tel"
+                autoComplete="tel"
+                required
+                placeholder="+972 50-000-0000"
+              />
+              <Input
+                label="BitLink phone number"
+                name="bitlink_phone"
+                type="tel"
+                placeholder="+972 58-xxx-xxxx"
+                className="sm:col-span-2"
+              />
+              <Input
+                label="Email (optional)"
+                name="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+              />
+              <Select label="What do you need help with?" name="category" required className="sm:col-span-2">
+                <option value="">Choose a topic…</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </Select>
+              <Textarea
+                label="Details"
+                name="message"
+                className="sm:col-span-2"
+                rows={4}
+                required
+                placeholder="Describe what's happening…"
+              />
             </div>
-            {params.error ? (
+
+            {params.error && (
               <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700">
                 {params.error}
               </div>
-            ) : null}
-            {params.message ? (
-              <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
-                {params.message}
-              </div>
-            ) : null}
-            <Button type="submit" className="mt-6">
-              Submit request
+            )}
+
+            <Button type="submit" className="mt-6 w-full sm:w-auto">
+              Get WhatsApp support →
             </Button>
+
+            <p className="mt-3 text-xs text-muted-slate">
+              A real BitLink team member will answer you on WhatsApp. Your ticket number helps us find your account faster.
+            </p>
           </form>
         </div>
       </section>
