@@ -141,3 +141,99 @@ export interface TelecomEvent {
   occurredAt: Date;
   payload: Record<string, unknown>;
 }
+
+// ── Extended line detail ──────────────────────────────────────────────────────
+
+export interface LineSimInfo {
+  id: string;
+  iccId: string;
+  isMain: boolean;
+  type: 'esim' | 'sim_card';
+  activationCode?: string;       // eSIM only — the LPA activation string
+  activationCodeToken?: string;  // eSIM only
+  smDpPlusAddress?: string;      // eSIM only — SM-DP+ server
+  confirmationCode?: string;     // eSIM only
+}
+
+export interface LinePlanInfo {
+  id: string;
+  planId: string;
+  planName: string;
+  isMain: boolean;
+  startAt: Date;
+  endAt?: Date;
+}
+
+export interface LineSuspension {
+  id: string;
+  type: string;
+  createdAt: Date;
+}
+
+export interface LineBarring {
+  id: string;
+  type: string;
+  createdAt: Date;
+}
+
+export interface LineForward {
+  id: string;
+  destination: string;
+  createdAt: Date;
+}
+
+export interface LineDetail {
+  id: string;                    // Annatel line ID
+  status: string;
+  email?: string;
+  language?: string;
+  isKosher?: boolean;
+  isVoltEnabled?: boolean;
+  isAbroadRoamingEnabled?: boolean;
+  sims: LineSimInfo[];
+  plans: LinePlanInfo[];
+  dids: PhoneNumber[];
+  suspensions: LineSuspension[];
+  barrings: LineBarring[];
+  forwards: LineForward[];
+  balances: BalanceBucket[];
+}
+
+export interface EsimProfile {
+  iccId: string;
+  activationCode: string;        // Full LPA string: LPA:1$SM-DP-ADDRESS$...
+  smDpPlusAddress: string;
+  activationCodeToken?: string;
+  confirmationCode?: string;
+}
+
+export interface PlanCatalogEntry {
+  id: string;
+  name: string;
+  isMain: boolean;
+}
+
+export interface PortabilityAvailability {
+  number: string;
+  isAvailable: boolean;
+  operator?: string;
+}
+
+export interface WebhookEndpoint {
+  id: string;
+  url: string;
+  isEnabled: boolean;
+  enabledNotificationPatterns: string[];
+  createdAt: Date;
+}
+
+export interface AnnatelEvent {
+  id: string;
+  type: string;
+  ref: string;
+  resourceId: string;
+  resourceObject: string;
+  data: Record<string, unknown>;
+  occurredAt: Date;
+  tenantId: string;
+}

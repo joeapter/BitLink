@@ -1,0 +1,9 @@
+.env
+.env.*
+.claude/
+*.gpg
+.DS_Store
+logs/
+*.log
+coverage/
+.vitest-cache/

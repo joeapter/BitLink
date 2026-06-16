@@ -13,9 +13,17 @@ export function formatMoney(cents: number, currency = "USD") {
   }).format(cents / 100);
 }
 
+export function getSiteUrl() {
+  const explicitSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL?.trim() ?? process.env.VERCEL_URL?.trim();
+  const url = explicitSiteUrl || vercelUrl || "http://localhost:3000";
+  const urlWithProtocol = url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`;
+
+  return urlWithProtocol.replace(/\/$/, "");
+}
+
 export function absoluteUrl(path = "") {
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
+  const siteUrl = getSiteUrl();
   return `${siteUrl}${path.startsWith("/") ? path : `/${path}`}`;
 }
 

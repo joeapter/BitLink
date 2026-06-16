@@ -13,7 +13,7 @@ const links = [
   { href: "/account", label: "Account" },
 ];
 
-export function MobileNav() {
+export function MobileNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -59,9 +59,15 @@ export function MobileNav() {
               <ButtonLink href="/plans" size="lg">
                 Choose your plan
               </ButtonLink>
-              <ButtonLink href="/login" variant="secondary" size="lg">
-                Sign in
-              </ButtonLink>
+              {isLoggedIn ? (
+                <ButtonLink href="/account" variant="secondary" size="lg">
+                  Account
+                </ButtonLink>
+              ) : (
+                <ButtonLink href="/login" variant="secondary" size="lg">
+                  Sign in
+                </ButtonLink>
+              )}
             </div>
           </div>
         </div>

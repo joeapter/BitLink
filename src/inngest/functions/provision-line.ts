@@ -11,6 +11,7 @@
 import { inngest } from '@/inngest/client';
 import { logger } from '@/lib/logger';
 import { processProvisioningJob, reconcileJob } from '@/lib/provisioning/orchestrator';
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 const log = logger.child({ fn: 'provision-line' });
 
@@ -51,6 +52,38 @@ export const provisionLine = inngest.createFunction(
     }
 
     log.info({ jobId, status: result.status }, 'Provision complete');
+
+    // Fire notification event if line successfully provisioned
+    if (result.status === 'COMPLETED') {
+      try {
+        const admin = createSupabaseAdminClient();
+        if (admin) {
+          const { data: job } = await admin
+            .from('provisioning_jobs')
+            .select('line_id, provider_job_id')
+            .eq('id', jobId)
+            .single();
+
+          if (job?.line_id) {
+            const { data: line } = await admin
+              .from('telecom_lines')
+              .select('provider_line_id')
+              .eq('id', job.line_id)
+              .single();
+
+            if (line?.provider_line_id) {
+              await inngest.send({
+                name: 'provisioning/line.completed',
+                data: { lineId: job.line_id, providerLineId: line.provider_line_id, jobId },
+              });
+            }
+          }
+        }
+      } catch (err) {
+        log.warn({ error: String(err) }, 'Failed to dispatch provisioning/line.completed');
+      }
+    }
+
     return { jobId, ...result };
   },
 );

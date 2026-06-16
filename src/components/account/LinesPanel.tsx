@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Phone, Wifi } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -14,15 +15,6 @@ type LineRow = {
   updated_at: string;
 };
 
-function lineTone(status: string) {
-  const s = status.toLowerCase();
-  if (s === "active") return "success" as const;
-  if (s === "provisioning" || s === "draft" || s === "porting") return "info" as const;
-  if (s === "suspended") return "warning" as const;
-  if (s === "terminated" || s === "failed") return "danger" as const;
-  return "neutral" as const;
-}
-
 function lineStatusLabel(status: string) {
   const labels: Record<string, string> = {
     DRAFT: "Pending",
@@ -36,7 +28,8 @@ function lineStatusLabel(status: string) {
   return labels[status.toUpperCase()] ?? status;
 }
 
-export function LinesPanel({ lines }: { lines: LineRow[] }) {
+export function LinesPanel({ lines, children }: { lines: LineRow[]; children?: ReactNode }) {
+  const childrenArray = Array.isArray(children) ? children : children ? [children] : [];
   return (
     <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft sm:p-8">
       <div className="flex items-start gap-4">
@@ -52,7 +45,7 @@ export function LinesPanel({ lines }: { lines: LineRow[] }) {
       <div className="mt-8">
         {lines.length ? (
           <div className="grid gap-4">
-            {lines.map((line) => (
+            {lines.map((line, i) => (
               <div
                 key={line.id}
                 className="rounded-[1.5rem] border border-ink/10 bg-slate-50 p-5"
@@ -76,6 +69,7 @@ export function LinesPanel({ lines }: { lines: LineRow[] }) {
                   </div>
                   <StatusBadge status={line.status} label={lineStatusLabel(line.status)} />
                 </div>
+                {childrenArray[i] ?? null}
               </div>
             ))}
           </div>

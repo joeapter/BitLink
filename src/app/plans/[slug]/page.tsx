@@ -31,7 +31,7 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ slu
   return (
     <div className="bg-white">
       <section className="liquid-bg relative overflow-hidden bg-ink px-4 py-16 text-white sm:px-6 sm:py-24 lg:px-8">
-        <div className="relative z-10 mx-auto grid max-w-7xl gap-10 md:grid-cols-[1fr_24rem] md:items-end">
+        <div className="relative z-10 mx-auto grid max-w-7xl gap-10 md:grid-cols-[1fr_24rem] md:items-center">
           <div>
             <p className="text-sm font-semibold text-soft-cyan">{plan.tone}</p>
             <h1 className="mt-3 max-w-4xl text-balance text-5xl font-semibold tracking-normal sm:text-6xl">

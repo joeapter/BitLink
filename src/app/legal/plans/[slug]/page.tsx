@@ -45,7 +45,8 @@ export default async function PlanContractPage({ params }: { params: Promise<{ s
         </div>
 
         <h1 className="mb-1 text-2xl font-bold text-ink">Plan: {plan.name}</h1>
-        <p className="mb-8 text-slate-500">BitLink Telecom Services</p>
+        <p className="text-slate-500">BitLink Ltd. · Reg. 341280188 · HaRashar Hirsch 4/1, Israel</p>
+        <p className="mb-8 text-slate-500">Phone / WhatsApp: +972-58-793-9426 · support@bitlink.co.il · bitlink.co.il</p>
 
         {/* Customer fields */}
         <table className="mb-8 w-full border border-slate-200 text-sm">

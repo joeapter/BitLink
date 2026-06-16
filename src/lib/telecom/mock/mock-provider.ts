@@ -19,6 +19,16 @@ import type {
   PhoneNumber,
   ProviderJobResult,
   TelecomEvent,
+  LineDetail,
+  LineSimInfo,
+  LinePlanInfo,
+  LineBarring,
+  LineForward,
+  EsimProfile,
+  PlanCatalogEntry,
+  PortabilityAvailability,
+  WebhookEndpoint,
+  AnnatelEvent,
 } from '@/types/telecom';
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -180,6 +190,67 @@ export class MockTelecomProvider implements TelecomProvider {
   async getJobStatus(providerJobId: string): Promise<ProviderJobResult> {
     await this.tick();
     return { jobId: providerJobId, status: 'done' };
+  }
+
+  async getLineDetail(providerLineId: string): Promise<LineDetail> {
+    await this.tick();
+    return {
+      id: providerLineId, status: 'active', isKosher: false,
+      sims: [], plans: [], dids: [], suspensions: [], barrings: [], forwards: [], balances: [],
+    };
+  }
+
+  async refreshLine(_providerLineId: string): Promise<void> { await this.tick(); }
+  async hardResetLine(_providerLineId: string): Promise<void> { await this.tick(); }
+  async hlrReset(_providerLineId: string): Promise<void> { await this.tick(); }
+
+  async listLineSims(_providerLineId: string): Promise<LineSimInfo[]> { await this.tick(); return []; }
+
+  async getEsimProfile(_simId: string): Promise<EsimProfile> {
+    await this.tick();
+    return { iccId: '89000000000000000000', activationCode: 'LPA:1$mock.smdp.io$MOCK', smDpPlusAddress: 'mock.smdp.io' };
+  }
+
+  async recycleEsimProfile(_simId: string): Promise<void> { await this.tick(); }
+
+  async listLinePlans(_providerLineId: string): Promise<LinePlanInfo[]> { await this.tick(); return []; }
+
+  async replacePlan(_providerLineId: string, _linePlanId: string, _newPlanName: string): Promise<void> { await this.tick(); }
+
+  async listPlansCatalog(): Promise<PlanCatalogEntry[]> {
+    await this.tick();
+    return [{ id: 'mock-plan-1', name: 'mock-basic', isMain: true }];
+  }
+
+  async listBarrings(_providerLineId: string): Promise<LineBarring[]> { await this.tick(); return []; }
+  async addBarring(_providerLineId: string, type: string): Promise<LineBarring> {
+    await this.tick();
+    return { id: shortId(), type, createdAt: new Date() };
+  }
+  async removeBarring(_providerLineId: string, _barringId: string): Promise<void> { await this.tick(); }
+
+  async listForwards(_providerLineId: string): Promise<LineForward[]> { await this.tick(); return []; }
+  async addForward(_providerLineId: string, destination: string): Promise<LineForward> {
+    await this.tick();
+    return { id: shortId(), destination, createdAt: new Date() };
+  }
+  async removeForward(_providerLineId: string, _forwardId: string): Promise<void> { await this.tick(); }
+
+  async checkPortabilityAvailability(phoneNumber: string): Promise<PortabilityAvailability> {
+    await this.tick();
+    return { number: phoneNumber, isAvailable: true, operator: 'PR' };
+  }
+
+  async listWebhookEndpoints(): Promise<WebhookEndpoint[]> { await this.tick(); return []; }
+  async createWebhookEndpoint(url: string, patterns: string[]): Promise<WebhookEndpoint> {
+    await this.tick();
+    return { id: shortId(), url, isEnabled: true, enabledNotificationPatterns: patterns, createdAt: new Date() };
+  }
+  async deleteWebhookEndpoint(_id: string): Promise<void> { await this.tick(); }
+
+  async listEvents(_filters?: { resourceId?: string; type?: string; limit?: number }): Promise<AnnatelEvent[]> {
+    await this.tick();
+    return [];
   }
 
   verifyWebhookSignature(_payload: Buffer, _signature: string): boolean {

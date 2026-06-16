@@ -218,6 +218,14 @@ async function handleCheckoutCompleted(
     'Subscriber created, telecom line drafted, provisioning job queued',
   );
 
+  // Fire post-checkout notification (account creation + welcome email)
+  if (customerRecordId) {
+    await inngest.send({
+      name: 'checkout/completed',
+      data: { customerRecordId, planSlug, isEsim },
+    }).catch((err) => log.warn({ error: String(err) }, 'Failed to dispatch checkout/completed'));
+  }
+
   return { subscriberId: subscriber.id, jobId, lineId };
 }
 

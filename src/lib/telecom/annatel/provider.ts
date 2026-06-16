@@ -16,10 +16,93 @@ import type {
   PhoneNumber,
   ProviderJobResult,
   TelecomEvent,
+  LineDetail,
+  LineSimInfo,
+  LinePlanInfo,
+  LineSuspension,
+  LineBarring,
+  LineForward,
+  EsimProfile,
+  PlanCatalogEntry,
+  PortabilityAvailability,
+  WebhookEndpoint,
+  AnnatelEvent,
 } from '@/types/telecom';
 import { AnnatelApiClient } from './client';
 import { AnnatelMappers } from './mappers';
 import type { AnnatelBulkRequest, AnnatelOcsBalance } from './mappers';
+
+// ── Annatel-specific raw response shapes ─────────────────────────────────────
+
+interface AnnatelLineSim {
+  id: string;
+  icc_id: string;
+  is_main: boolean;
+  sim?: {
+    id: string;
+    type: 'esim' | 'sim_card';
+    activation_code?: string;
+    activation_code_token?: string;
+    sm_dp_plus_address?: string;
+    confirmation_code?: string;
+  };
+}
+
+interface AnnatelLinePlan {
+  id: string;
+  start_at: string;
+  end_at?: string;
+  plan: { id: string; name: string; is_main: boolean };
+  balances: Array<{ balance_type: string; balance_uuid: string }>;
+}
+
+interface AnnatelLineDetail {
+  id: string;
+  status: string;
+  email?: string;
+  language?: string;
+  is_kosher?: boolean;
+  is_volte_enabled?: boolean;
+  is_abroad_roaming_enabled?: boolean;
+  sims?: AnnatelLineSim[];
+  plans?: AnnatelLinePlan[];
+  dids?: Array<{ id: string; number: string; start_at: string; end_at?: string }>;
+  suspensions?: Array<{ id: string; type: string; created_at: string }>;
+  line_barrings?: Array<{ id: string; type: string; created_at: string }>;
+  forwards?: Array<{ id: string; destination: string; created_at: string }>;
+  balances?: AnnatelOcsBalance[];
+}
+
+interface AnnatelSim {
+  id: string;
+  icc_id: string;
+  type: 'esim' | 'sim_card';
+  activation_code?: string;
+  activation_code_token?: string;
+  sm_dp_plus_address?: string;
+  confirmation_code?: string;
+}
+
+interface AnnatelWebhookEndpoint {
+  id: string;
+  url: string;
+  is_enabled: boolean;
+  enabled_notification_patterns: string[];
+  created_at: string;
+}
+
+interface AnnatelEventRaw {
+  id: string;
+  type: string;
+  ref: string;
+  resource_id: string;
+  resource_object: string;
+  data: Record<string, unknown>;
+  created_at: string;
+  tenant_id: string;
+}
+
+const LINES_BASE = '/api/operational/network_manager/lines';
 
 export class AnnatelProvider implements TelecomProvider {
   readonly providerId = 'annatel';
@@ -33,43 +116,120 @@ export class AnnatelProvider implements TelecomProvider {
 
   async createLine(params: LineCreateParams): Promise<LineResult> {
     const body = AnnatelMappers.toCreateBulkRequest(params);
-    const response = await this.client.post<AnnatelBulkRequest>('/bulk_requests', body);
+    const response = await this.client.post<AnnatelBulkRequest>('/api/bulk_requests', body);
     return AnnatelMappers.toLineResult(response);
   }
 
-  async getLineStatus(_providerLineId: string): Promise<LineStatus> {
-    // TODO: map Annatel line.status to LineStatus once endpoint is confirmed
-    return 'active';
+  async getLineStatus(providerLineId: string): Promise<LineStatus> {
+    const detail = await this.getLineDetail(providerLineId);
+    const raw = detail.status.toLowerCase();
+    const map: Record<string, LineStatus> = {
+      active: 'active',
+      suspended: 'suspended',
+      terminated: 'terminated',
+      draft: 'draft',
+      provisioning: 'provisioning',
+      porting: 'porting',
+      failed: 'failed',
+    };
+    return map[raw] ?? 'active';
+  }
+
+  async getLineDetail(providerLineId: string): Promise<LineDetail> {
+    const raw = await this.client.get<AnnatelLineDetail>(
+      `${LINES_BASE}/${providerLineId}`,
+    );
+    return {
+      id: raw.id,
+      status: raw.status,
+      email: raw.email,
+      language: raw.language,
+      isKosher: raw.is_kosher,
+      isVoltEnabled: raw.is_volte_enabled,
+      isAbroadRoamingEnabled: raw.is_abroad_roaming_enabled,
+      sims: (raw.sims ?? []).map((s) => ({
+        id: s.id,
+        iccId: s.icc_id,
+        isMain: s.is_main,
+        type: s.sim?.type ?? 'sim_card',
+        activationCode: s.sim?.activation_code,
+        activationCodeToken: s.sim?.activation_code_token,
+        smDpPlusAddress: s.sim?.sm_dp_plus_address,
+        confirmationCode: s.sim?.confirmation_code,
+      })),
+      plans: (raw.plans ?? []).map((p) => ({
+        id: p.id,
+        planId: p.plan.id,
+        planName: p.plan.name,
+        isMain: p.plan.is_main,
+        startAt: new Date(p.start_at),
+        endAt: p.end_at ? new Date(p.end_at) : undefined,
+      })),
+      dids: (raw.dids ?? []).map((d) => ({
+        number: d.number,
+        isPrimary: true,
+        startAt: new Date(d.start_at),
+        endAt: d.end_at ? new Date(d.end_at) : undefined,
+      })),
+      suspensions: (raw.suspensions ?? []).map((s) => ({
+        id: s.id,
+        type: s.type,
+        createdAt: new Date(s.created_at),
+      })),
+      barrings: (raw.line_barrings ?? []).map((b) => ({
+        id: b.id,
+        type: b.type,
+        createdAt: new Date(b.created_at),
+      })),
+      forwards: (raw.forwards ?? []).map((f) => ({
+        id: f.id,
+        destination: f.destination,
+        createdAt: new Date(f.created_at),
+      })),
+      balances: AnnatelMappers.toBalanceBuckets(raw.balances ?? []),
+    };
   }
 
   async suspendLine(providerLineId: string, reason: SuspensionReason): Promise<void> {
     const suspensionId = AnnatelMappers.toSuspensionType(reason);
-    await this.client.post(`/lines/${providerLineId}/suspensions`, {
-      suspension_id: suspensionId,
+    await this.client.post(`${LINES_BASE}/${providerLineId}/suspensions`, {
+      suspension_type: suspensionId,
     });
   }
 
   async reactivateLine(providerLineId: string): Promise<void> {
     const suspensions = await this.client.get<{
       data: Array<{ id: string }>;
-    }>(`/lines/${providerLineId}/suspensions`);
+    }>(`${LINES_BASE}/${providerLineId}/suspensions`);
     const active = suspensions.data?.[0];
     if (active) {
-      await this.client.delete(`/lines/${providerLineId}/suspensions/${active.id}`);
+      await this.client.delete(`${LINES_BASE}/${providerLineId}/suspensions/${active.id}`);
     }
   }
 
   async terminateLine(providerLineId: string): Promise<void> {
-    await this.client.post('/bulk_requests', {
+    await this.client.post('/api/bulk_requests', {
       type: 'remove',
       line_id: providerLineId,
     });
   }
 
+  async refreshLine(providerLineId: string): Promise<void> {
+    await this.client.post(`${LINES_BASE}/${providerLineId}/refresh`, {});
+  }
+
+  async hardResetLine(providerLineId: string): Promise<void> {
+    await this.client.post(`${LINES_BASE}/${providerLineId}/hard_reset`, {});
+  }
+
+  async hlrReset(providerLineId: string): Promise<void> {
+    await this.client.post(`${LINES_BASE}/${providerLineId}/send_rtr_for_impi`, {});
+  }
+
   // ── SIM management ────────────────────────────────────────────────────────
 
   async assignSim(providerLineId: string, iccId: string): Promise<void> {
-    await this.client.post('/bulk_requests', {
+    await this.client.post('/api/bulk_requests', {
       type: 'add',
       line_id: providerLineId,
       sims: [{ icc_id: iccId }],
@@ -77,11 +237,44 @@ export class AnnatelProvider implements TelecomProvider {
   }
 
   async replaceSim(providerLineId: string, newIccId: string): Promise<void> {
-    await this.client.post('/bulk_requests', {
+    await this.client.post('/api/bulk_requests', {
       type: 'add',
       line_id: providerLineId,
       sims: [{ icc_id: newIccId }],
     });
+  }
+
+  async listLineSims(providerLineId: string): Promise<LineSimInfo[]> {
+    const result = await this.client.get<{ data: AnnatelLineSim[] }>(
+      `${LINES_BASE}/${providerLineId}/sims`,
+    );
+    return (result.data ?? []).map((s) => ({
+      id: s.id,
+      iccId: s.icc_id,
+      isMain: s.is_main,
+      type: s.sim?.type ?? 'sim_card',
+      activationCode: s.sim?.activation_code,
+      activationCodeToken: s.sim?.activation_code_token,
+      smDpPlusAddress: s.sim?.sm_dp_plus_address,
+      confirmationCode: s.sim?.confirmation_code,
+    }));
+  }
+
+  async getEsimProfile(simId: string): Promise<EsimProfile> {
+    const result = await this.client.get<AnnatelSim>(
+      `/api/operational/sim_manager/sims/${simId}/profile`,
+    );
+    return {
+      iccId: result.icc_id,
+      activationCode: result.activation_code ?? '',
+      smDpPlusAddress: result.sm_dp_plus_address ?? '',
+      activationCodeToken: result.activation_code_token,
+      confirmationCode: result.confirmation_code,
+    };
+  }
+
+  async recycleEsimProfile(simId: string): Promise<void> {
+    await this.client.post(`/api/operational/sim_manager/sims/${simId}/recycle_profile`, {});
   }
 
   async triggerOta(
@@ -90,7 +283,7 @@ export class AnnatelProvider implements TelecomProvider {
     params: OtaParams,
   ): Promise<string> {
     const result = await this.client.post<{ id: string }>(
-      `/lines/${providerLineId}/sim/ota_requests`,
+      `${LINES_BASE}/${providerLineId}/sim/ota_requests`,
       {
         icc_id: iccId,
         params: {
@@ -108,7 +301,7 @@ export class AnnatelProvider implements TelecomProvider {
       id: string;
       icc_id: string;
       responded_at?: string;
-    }>(`/lines/${providerLineId}/sim/ota_requests/${otaRequestId}`);
+    }>(`${LINES_BASE}/${providerLineId}/sim/ota_requests/${otaRequestId}`);
     return {
       id: result.id,
       iccId: result.icc_id,
@@ -120,23 +313,52 @@ export class AnnatelProvider implements TelecomProvider {
   // ── Plan management ───────────────────────────────────────────────────────
 
   async assignPlan(providerLineId: string, planName: string): Promise<void> {
-    await this.client.post('/bulk_requests', {
-      type: 'add',
-      line_id: providerLineId,
-      plan: { plan_name: planName },
+    await this.client.post(`${LINES_BASE}/${providerLineId}/plans`, {
+      plan_name: planName,
     });
   }
 
   async removePlan(providerLineId: string, planName: string): Promise<void> {
-    await this.client.post('/bulk_requests', {
+    await this.client.post('/api/bulk_requests', {
       type: 'remove',
       line_id: providerLineId,
       plan: { plan_name: planName },
     });
   }
 
+  async replacePlan(providerLineId: string, linePlanId: string, newPlanName: string): Promise<void> {
+    await this.client.post(`${LINES_BASE}/${providerLineId}/plans/${linePlanId}/replace`, {
+      plan_name: newPlanName,
+    });
+  }
+
+  async listLinePlans(providerLineId: string): Promise<LinePlanInfo[]> {
+    const result = await this.client.get<{ data: AnnatelLinePlan[] }>(
+      `${LINES_BASE}/${providerLineId}/plans`,
+    );
+    return (result.data ?? []).map((p) => ({
+      id: p.id,
+      planId: p.plan.id,
+      planName: p.plan.name,
+      isMain: p.plan.is_main,
+      startAt: new Date(p.start_at),
+      endAt: p.end_at ? new Date(p.end_at) : undefined,
+    }));
+  }
+
+  async listPlansCatalog(): Promise<PlanCatalogEntry[]> {
+    const result = await this.client.get<{ data: Array<{ id: string; name: string; is_main: boolean }> }>(
+      '/api/operational/network_manager/plans',
+    );
+    return (result.data ?? []).map((p) => ({
+      id: p.id,
+      name: p.name,
+      isMain: p.is_main,
+    }));
+  }
+
   async addTopup(providerLineId: string, topupName: string): Promise<void> {
-    await this.client.post('/bulk_requests', {
+    await this.client.post('/api/bulk_requests', {
       type: 'add',
       line_id: providerLineId,
       topups: [{ topup_name: topupName }],
@@ -147,7 +369,7 @@ export class AnnatelProvider implements TelecomProvider {
 
   async getBalances(providerLineId: string): Promise<BalanceBucket[]> {
     const result = await this.client.get<AnnatelOcsBalance[]>(
-      `/lines/${providerLineId}/ocs_balances`,
+      `${LINES_BASE}/${providerLineId}/ocs_balances`,
     );
     return AnnatelMappers.toBalanceBuckets(Array.isArray(result) ? result : []);
   }
@@ -167,17 +389,80 @@ export class AnnatelProvider implements TelecomProvider {
     };
   }
 
+  // ── Barrings ──────────────────────────────────────────────────────────────
+
+  async listBarrings(providerLineId: string): Promise<LineBarring[]> {
+    const result = await this.client.get<{ data: Array<{ id: string; type: string; created_at: string }> }>(
+      `${LINES_BASE}/${providerLineId}/line_barrings`,
+    );
+    return (result.data ?? []).map((b) => ({
+      id: b.id,
+      type: b.type,
+      createdAt: new Date(b.created_at),
+    }));
+  }
+
+  async addBarring(providerLineId: string, type: string): Promise<LineBarring> {
+    const result = await this.client.post<{ id: string; type: string; created_at: string }>(
+      `${LINES_BASE}/${providerLineId}/line_barrings`,
+      { type },
+    );
+    return { id: result.id, type: result.type, createdAt: new Date(result.created_at) };
+  }
+
+  async removeBarring(providerLineId: string, barringId: string): Promise<void> {
+    await this.client.delete(`${LINES_BASE}/${providerLineId}/line_barrings/${barringId}`);
+  }
+
+  // ── Call forwarding ───────────────────────────────────────────────────────
+
+  async listForwards(providerLineId: string): Promise<LineForward[]> {
+    const result = await this.client.get<{ data: Array<{ id: string; destination: string; created_at: string }> }>(
+      `${LINES_BASE}/${providerLineId}/forwards`,
+    );
+    return (result.data ?? []).map((f) => ({
+      id: f.id,
+      destination: f.destination,
+      createdAt: new Date(f.created_at),
+    }));
+  }
+
+  async addForward(providerLineId: string, destination: string): Promise<LineForward> {
+    const result = await this.client.post<{ id: string; destination: string; created_at: string }>(
+      `${LINES_BASE}/${providerLineId}/forwards`,
+      { destination },
+    );
+    return { id: result.id, destination: result.destination, createdAt: new Date(result.created_at) };
+  }
+
+  async removeForward(providerLineId: string, forwardId: string): Promise<void> {
+    await this.client.delete(`${LINES_BASE}/${providerLineId}/forwards/${forwardId}`);
+  }
+
   // ── Portability ───────────────────────────────────────────────────────────
 
   async checkPortability(phoneNumber: string): Promise<PortabilityCheck> {
-    const result = await this.client.get<{ number: string; operator: string }>(
-      `/numbers/${encodeURIComponent(phoneNumber)}/operator`,
+    const result = await this.client.post<{ number: string; operator: string }>(
+      `/api/operational/israeli_portability/numbers/${encodeURIComponent(phoneNumber)}/find_operator`,
+      {},
     );
     return { number: result.number, operator: result.operator, isPortable: true };
   }
 
+  async checkPortabilityAvailability(phoneNumber: string): Promise<PortabilityAvailability> {
+    const result = await this.client.post<{ number: string; is_available: boolean; operator?: string }>(
+      `/api/operational/israeli_portability/numbers/${encodeURIComponent(phoneNumber)}/check_availability`,
+      {},
+    );
+    return {
+      number: result.number,
+      isAvailable: result.is_available,
+      operator: result.operator,
+    };
+  }
+
   async initiatePortIn(params: PortInParams): Promise<PortInResult> {
-    const result = await this.client.post<{ id: string; status: string }>('/bulk_requests', {
+    const result = await this.client.post<{ id: string; status: string }>('/api/bulk_requests', {
       type: 'create',
       external_id: params.idempotencyKey,
       port_in_request_params: {
@@ -197,7 +482,7 @@ export class AnnatelProvider implements TelecomProvider {
         status: string;
         external_port_in_request?: { transfer_time?: string };
       };
-    }>(`/bulk_requests/${providerJobId}`);
+    }>(`/api/bulk_requests/${providerJobId}`);
     const portIn = result.operational_port_in_request;
     return {
       id: result.id,
@@ -209,7 +494,7 @@ export class AnnatelProvider implements TelecomProvider {
   }
 
   async cancelPortIn(providerJobId: string): Promise<void> {
-    await this.client.post(`/bulk_requests/${providerJobId}/cancel`, {});
+    await this.client.post(`/api/bulk_requests/${providerJobId}/cancel`, {});
   }
 
   // ── Number (DID) management ───────────────────────────────────────────────
@@ -217,7 +502,7 @@ export class AnnatelProvider implements TelecomProvider {
   async getAssignedNumbers(providerLineId: string): Promise<PhoneNumber[]> {
     const result = await this.client.get<{
       data: Array<{ number: string; start_at: string; end_at?: string }>;
-    }>(`/lines/${providerLineId}/dids`);
+    }>(`${LINES_BASE}/${providerLineId}/dids`);
     return (result.data ?? []).map((did) => ({
       number: did.number,
       isPrimary: true,
@@ -227,7 +512,7 @@ export class AnnatelProvider implements TelecomProvider {
   }
 
   async assignDid(providerLineId: string, number: string): Promise<void> {
-    await this.client.post('/bulk_requests', {
+    await this.client.post('/api/bulk_requests', {
       type: 'add',
       line_id: providerLineId,
       dids: [{ number }],
@@ -235,11 +520,71 @@ export class AnnatelProvider implements TelecomProvider {
   }
 
   async releaseDid(providerLineId: string, number: string): Promise<void> {
-    await this.client.post('/bulk_requests', {
+    await this.client.post('/api/bulk_requests', {
       type: 'remove',
       line_id: providerLineId,
       dids: [{ number }],
     });
+  }
+
+  // ── Webhook endpoints ─────────────────────────────────────────────────────
+
+  async listWebhookEndpoints(): Promise<WebhookEndpoint[]> {
+    const result = await this.client.get<{ data: AnnatelWebhookEndpoint[] }>('/api/webhook_endpoints');
+    return (result.data ?? []).map((w) => ({
+      id: w.id,
+      url: w.url,
+      isEnabled: w.is_enabled,
+      enabledNotificationPatterns: w.enabled_notification_patterns ?? [],
+      createdAt: new Date(w.created_at),
+    }));
+  }
+
+  async createWebhookEndpoint(
+    url: string,
+    patterns: string[],
+    _secret?: string,
+  ): Promise<WebhookEndpoint> {
+    const result = await this.client.post<AnnatelWebhookEndpoint>('/api/webhook_endpoints', {
+      url,
+      is_enabled: true,
+      enabled_notification_patterns: patterns,
+    });
+    return {
+      id: result.id,
+      url: result.url,
+      isEnabled: result.is_enabled,
+      enabledNotificationPatterns: result.enabled_notification_patterns ?? [],
+      createdAt: new Date(result.created_at),
+    };
+  }
+
+  async deleteWebhookEndpoint(id: string): Promise<void> {
+    await this.client.delete(`/api/webhook_endpoints/${id}`);
+  }
+
+  // ── Events audit log ──────────────────────────────────────────────────────
+
+  async listEvents(filters?: { resourceId?: string; type?: string; limit?: number }): Promise<AnnatelEvent[]> {
+    const params = new URLSearchParams();
+    if (filters?.resourceId) params.set('filter[resource_id]', filters.resourceId);
+    if (filters?.type) params.set('filter[type]', filters.type);
+    const qs = params.toString();
+    const result = await this.client.get<{ data: AnnatelEventRaw[] }>(
+      `/api/events${qs ? `?${qs}` : ''}`,
+    );
+    const rows = result.data ?? [];
+    const limited = filters?.limit ? rows.slice(0, filters.limit) : rows;
+    return limited.map((e) => ({
+      id: e.id,
+      type: e.type,
+      ref: e.ref,
+      resourceId: e.resource_id,
+      resourceObject: e.resource_object,
+      data: e.data,
+      occurredAt: new Date(e.created_at),
+      tenantId: e.tenant_id,
+    }));
   }
 
   // ── Async job polling ─────────────────────────────────────────────────────
@@ -249,7 +594,7 @@ export class AnnatelProvider implements TelecomProvider {
       id: string;
       status: string;
       line_id?: string;
-    }>(`/bulk_requests/${providerJobId}`);
+    }>(`/api/bulk_requests/${providerJobId}`);
     return {
       jobId: result.id,
       status: AnnatelMappers.toProviderJobStatus(result.status as never),
@@ -261,7 +606,6 @@ export class AnnatelProvider implements TelecomProvider {
   // ── Webhook ───────────────────────────────────────────────────────────────
 
   verifyWebhookSignature(payload: Buffer, signature: string): boolean {
-    // Annatel does not sign webhooks — no secret means unverified but accepted.
     if (!this.webhookSecret) return true;
     const clean = signature.replace(/^sha256=/, '');
     const expected = crypto

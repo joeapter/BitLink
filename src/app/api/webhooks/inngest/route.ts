@@ -7,8 +7,19 @@ import { processAnnatelWebhook } from '@/inngest/functions/process-annatel-webho
 import { processStripeEvent } from '@/inngest/functions/process-stripe-event';
 import { provisionLine } from '@/inngest/functions/provision-line';
 import { reconcileJobsCron } from '@/inngest/functions/reconcile-jobs';
+import { ingestCdrs } from '@/inngest/functions/ingest-cdrs';
+import { notifyCheckout } from '@/inngest/functions/notify-checkout';
+import { notifyProvisioned } from '@/inngest/functions/notify-provisioned';
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [processAnnatelWebhook, processStripeEvent, provisionLine, reconcileJobsCron],
+  functions: [
+    processAnnatelWebhook,
+    processStripeEvent,
+    provisionLine,
+    reconcileJobsCron,
+    ingestCdrs,
+    notifyCheckout,
+    notifyProvisioned,
+  ],
 });

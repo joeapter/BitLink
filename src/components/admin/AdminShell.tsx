@@ -1,17 +1,20 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { BarChart3, CreditCard, Headphones, Home, RadioTower, Settings, Share2, ShoppingCart, Users } from "lucide-react";
+import { Activity, BarChart3, CreditCard, Headphones, Home, Phone, RadioTower, Settings, Share2, ShoppingCart, Users, Webhook } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
 import { BrandMark } from "@/components/brand/BrandMark";
 
 const links = [
   { href: "/admin", label: "Overview", icon: Home },
   { href: "/admin/customers", label: "Customers", icon: Users },
+  { href: "/admin/lines", label: "Lines", icon: Phone },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
   { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard },
   { href: "/admin/provisioning", label: "Provisioning", icon: RadioTower },
   { href: "/admin/plans", label: "Plans", icon: BarChart3 },
   { href: "/admin/referrals", label: "Referrals", icon: Share2 },
+  { href: "/admin/webhooks", label: "Webhooks", icon: Webhook },
+  { href: "/admin/events", label: "Events", icon: Activity },
   { href: "/admin/support", label: "Support", icon: Headphones },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
@@ -31,7 +34,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-ink hover:text-white"
+                  className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-ink hover:!text-white focus-visible:bg-ink focus-visible:!text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link-blue"
                 >
                   <link.icon className="h-4 w-4" aria-hidden="true" />
                   {link.label}

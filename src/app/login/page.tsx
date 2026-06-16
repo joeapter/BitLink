@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string; next?: string }>;
+  searchParams: Promise<{ email?: string; error?: string; message?: string; next?: string }>;
 }) {
   const params = await searchParams;
 
@@ -27,10 +27,10 @@ export default async function LoginPage({
         </div>
 
         <form action={loginAction} className="p-8 sm:p-10">
-          <input type="hidden" name="next" value={params.next ?? "/account"} />
+          <input type="hidden" name="next" value={params.next ?? ""} />
           <h2 className="text-2xl font-semibold text-ink">Sign in</h2>
           <div className="mt-6 grid gap-4">
-            <Input label="Email" name="email" type="email" autoComplete="email" required />
+            <Input label="Email" name="email" type="email" autoComplete="email" defaultValue={params.email ?? ""} required />
             <Input label="Password" name="password" type="password" autoComplete="current-password" required />
           </div>
 

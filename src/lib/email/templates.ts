@@ -1,0 +1,173 @@
+// Email HTML templates for BitLink transactional emails.
+// Plain HTML — no React Email dependency needed.
+
+const BRAND_COLOR = '#00A3A3';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bitlink.co.il';
+
+function layout(body: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BitLink</title>
+</head>
+<body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+
+        <!-- Logo / header -->
+        <tr><td style="padding-bottom:24px;text-align:center;">
+          <a href="${BASE_URL}" style="text-decoration:none;">
+            <span style="font-size:24px;font-weight:800;color:#050606;letter-spacing:-0.5px;">Bit<span style="color:${BRAND_COLOR};">L</span>ink</span>
+          </a>
+        </td></tr>
+
+        <!-- Card -->
+        <tr><td style="background:#ffffff;border-radius:20px;padding:40px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+          ${body}
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding-top:24px;text-align:center;font-size:12px;color:#94a3b8;">
+          BitLink Ltd. · Reg. 341280188 · HaRashar Hirsch 4/1, Israel<br/>
+          <a href="${BASE_URL}" style="color:${BRAND_COLOR};text-decoration:none;">${BASE_URL.replace('https://', '')}</a>
+          &nbsp;·&nbsp;
+          <a href="mailto:support@bitlink.co.il" style="color:${BRAND_COLOR};text-decoration:none;">support@bitlink.co.il</a>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+function btn(text: string, href: string): string {
+  return `<a href="${href}" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;font-weight:700;font-size:15px;padding:14px 28px;border-radius:100px;text-decoration:none;margin:8px 0;">${text}</a>`;
+}
+
+function h1(text: string): string {
+  return `<h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:#050606;line-height:1.2;">${text}</h1>`;
+}
+
+function p(text: string): string {
+  return `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#475569;">${text}</p>`;
+}
+
+function mono(text: string): string {
+  return `<span style="font-family:monospace;background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:13px;color:#050606;">${text}</span>`;
+}
+
+// ── Welcome email — sent right after payment confirmed ────────────────────────
+
+export interface WelcomeEmailParams {
+  fullName: string;
+  email: string;
+  planName: string;
+  loginUrl: string;      // magic link or /login
+  tempPassword?: string; // only if using temp password flow
+  isEsim: boolean;
+}
+
+export function buildWelcomeEmail(params: WelcomeEmailParams): string {
+  const { fullName, email, planName, loginUrl, tempPassword, isEsim } = params;
+  const firstName = fullName.split(' ')[0] ?? fullName;
+
+  const credBlock = tempPassword
+    ? `<div style="background:#f8fafc;border-radius:12px;padding:20px;margin:20px 0;">
+        <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">Your login credentials</p>
+        <p style="margin:0 0 8px;font-size:14px;color:#050606;">Email: ${mono(email)}</p>
+        <p style="margin:0;font-size:14px;color:#050606;">Temporary password: ${mono(tempPassword)}</p>
+        <p style="margin:8px 0 0;font-size:12px;color:#94a3b8;">You'll be prompted to change this on first login.</p>
+      </div>`
+    : '';
+
+  const simNote = isEsim
+    ? `<div style="background:#eff6ff;border-left:3px solid ${BRAND_COLOR};border-radius:0 12px 12px 0;padding:16px 20px;margin:20px 0;">
+        <p style="margin:0;font-size:14px;color:#1e40af;font-weight:600;">eSIM order</p>
+        <p style="margin:6px 0 0;font-size:14px;color:#1e40af;">Your eSIM activation code will appear in your account portal once your line is live — usually within a few minutes. We'll also email it to you the moment it's ready.</p>
+      </div>`
+    : `<div style="background:#f0fdf4;border-left:3px solid #22c55e;border-radius:0 12px 12px 0;padding:16px 20px;margin:20px 0;">
+        <p style="margin:0;font-size:14px;color:#15803d;font-weight:600;">Physical SIM</p>
+        <p style="margin:6px 0 0;font-size:14px;color:#15803d;">Your SIM card will ship within 1–2 business days. Tracking details will be emailed separately.</p>
+      </div>`;
+
+  return layout(`
+    ${h1(`Welcome to BitLink, ${firstName}!`)}
+    ${p(`Your <strong>${planName}</strong> plan is confirmed and we're setting up your Israeli number right now.`)}
+    ${p('Activation usually takes <strong>3–5 minutes</strong>. You can watch the status live in your account portal.')}
+    ${simNote}
+    ${credBlock}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn('Open your account', loginUrl)}
+    </div>
+    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972587939426" style="color:' + BRAND_COLOR + ';">+972-58-793-9426</a>.')}
+  `);
+}
+
+// ── eSIM ready email — sent when Annatel line is ACTIVE ───────────────────────
+
+export interface EsimReadyEmailParams {
+  fullName: string;
+  activationCode: string;   // LPA string: LPA:1$smdp.address$token
+  planName: string;
+  portalUrl: string;
+}
+
+export function buildEsimReadyEmail(params: EsimReadyEmailParams): string {
+  const { fullName, activationCode, planName, portalUrl } = params;
+  const firstName = fullName.split(' ')[0] ?? fullName;
+
+  // QR code image via qrserver.com — no npm package needed
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=${encodeURIComponent(activationCode)}`;
+
+  return layout(`
+    ${h1(`Your eSIM is ready, ${firstName}!`)}
+    ${p(`Your <strong>${planName}</strong> line is active. Install your eSIM now to start making and receiving calls in Israel.`)}
+
+    <div style="text-align:center;margin:28px 0;">
+      <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#050606;">Scan this QR code with your phone</p>
+      <img src="${qrUrl}" alt="eSIM QR Code" width="220" height="220" style="border-radius:12px;border:1px solid #e2e8f0;" />
+      <p style="margin:12px 0 0;font-size:12px;color:#94a3b8;">iOS: Settings → Mobile → Add eSIM → Use QR Code<br/>Android: Settings → Connections → SIM Manager → Add eSIM</p>
+    </div>
+
+    <div style="background:#f8fafc;border-radius:12px;padding:20px;margin:20px 0;">
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">Manual entry (if QR doesn't work)</p>
+      <p style="margin:0;font-size:12px;font-family:monospace;word-break:break-all;color:#050606;line-height:1.6;">${activationCode}</p>
+    </div>
+
+    <div style="text-align:center;margin:28px 0;">
+      ${btn('View in account portal', portalUrl)}
+    </div>
+
+    ${p('Once installed, your eSIM QR will be removed from your portal to keep things tidy. If you need it again, just contact support.')}
+    ${p('Need help installing? <a href="https://wa.me/972587939426" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> and we\'ll walk you through it.')}
+  `);
+}
+
+// ── Physical SIM shipped email ────────────────────────────────────────────────
+
+export interface SimShippedEmailParams {
+  fullName: string;
+  planName: string;
+  trackingNumber?: string;
+  portalUrl: string;
+}
+
+export function buildSimShippedEmail(params: SimShippedEmailParams): string {
+  const { fullName, planName, trackingNumber, portalUrl } = params;
+  const firstName = fullName.split(' ')[0] ?? fullName;
+
+  return layout(`
+    ${h1(`Your SIM card is on its way, ${firstName}!`)}
+    ${p(`Your <strong>${planName}</strong> SIM card has been shipped.`)}
+    ${trackingNumber ? p(`Tracking number: ${mono(trackingNumber)}`) : ''}
+    ${p('Once your SIM arrives, insert it into your phone. Your line should activate automatically within a few minutes.')}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn('Track in account portal', portalUrl)}
+    </div>
+    ${p('Questions? <a href="https://wa.me/972587939426" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> anytime.')}
+  `);
+}

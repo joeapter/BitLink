@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { CreditCard, Home, LogOut, Phone, RadioTower, Share2 } from "lucide-react";
+import { CreditCard, Home, LogOut, Phone, RadioTower, Share2, ShieldCheck } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
 import { initials } from "@/lib/utils";
 
-const links = [
+const accountLinks = [
   { href: "/account", label: "Overview", icon: Home },
   { href: "/account/lines", label: "Lines", icon: Phone },
   { href: "/account/billing", label: "Billing", icon: CreditCard },
@@ -12,13 +12,24 @@ const links = [
   { href: "/account/referrals", label: "Referrals", icon: Share2 },
 ];
 
+type AccountProfile = {
+  full_name: string | null;
+  email: string | null;
+  role?: "customer" | "admin" | null;
+};
+
 export function AccountShell({
   children,
   profile,
 }: {
   children: ReactNode;
-  profile: { full_name: string | null; email: string | null } | null;
+  profile: AccountProfile | null;
 }) {
+  const links =
+    profile?.role === "admin"
+      ? [{ href: "/admin", label: "Admin console", icon: ShieldCheck }, ...accountLinks]
+      : accountLinks;
+
   return (
     <div className="bg-slate-50">
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[18rem_1fr] lg:px-8">
@@ -39,7 +50,7 @@ export function AccountShell({
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-ink hover:text-white"
+                  className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-ink hover:!text-white focus-visible:bg-ink focus-visible:!text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link-blue"
                 >
                   <link.icon className="h-4 w-4" aria-hidden="true" />
                   {link.label}

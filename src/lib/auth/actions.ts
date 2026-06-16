@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hasSupabasePublicEnv } from "@/lib/supabase/env";
+import { authenticatedRedirectPath, safeInternalPath } from "@/lib/auth/redirects";
+import { absoluteUrl } from "@/lib/utils";
 
 function encodeMessage(message: string) {
   return encodeURIComponent(message);
@@ -20,7 +22,7 @@ export async function loginAction(formData: FormData) {
 
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
-  const next = String(formData.get("next") ?? "/account");
+  const next = safeInternalPath(String(formData.get("next") ?? ""));
   const supabase = await createSupabaseServerClient();
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -28,7 +30,7 @@ export async function loginAction(formData: FormData) {
     redirect(`/login?error=${encodeMessage(error.message)}`);
   }
 
-  redirect(next.startsWith("/") ? next : "/account");
+  redirect(next ?? (await authenticatedRedirectPath(supabase, null)));
 }
 
 export async function signupAction(formData: FormData) {
@@ -47,6 +49,7 @@ export async function signupAction(formData: FormData) {
     email,
     password,
     options: {
+      emailRedirectTo: absoluteUrl("/auth/callback"),
       data: {
         full_name: fullName,
         phone,
@@ -97,7 +100,13 @@ export async function signupAction(formData: FormData) {
     }
   }
 
-  redirect("/account");
+  if (data.session) {
+    redirect("/account");
+  }
+
+  redirect(
+    `/login?message=${encodeMessage("Check your email to confirm your account, then sign in.")}&email=${encodeMessage(email)}`,
+  );
 }
 
 export async function logoutAction() {

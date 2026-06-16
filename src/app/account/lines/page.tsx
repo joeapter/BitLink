@@ -1,15 +1,42 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { LinesPanel } from "@/components/account/LinesPanel";
+import { LineUsageMeter } from "@/components/account/LineUsageMeter";
+import { EsimQrCard } from "@/components/account/EsimQrCard";
 import { requireUser } from "@/lib/auth/server";
 import { getAccountSnapshot } from "@/lib/db/account";
 
-export const metadata: Metadata = {
-  title: "Lines",
-};
+export const metadata: Metadata = { title: "Lines" };
+export const dynamic = "force-dynamic";
 
 export default async function AccountLinesPage() {
   const user = await requireUser();
   const snapshot = await getAccountSnapshot(user.id);
 
-  return <LinesPanel lines={snapshot.lines} />;
+  return (
+    <LinesPanel lines={snapshot.lines}>
+      {snapshot.lines.map((line) => {
+        const meta = (line.metadata ?? {}) as Record<string, unknown>;
+        const activationCode = meta.esim_activation_code as string | undefined;
+        // Hide QR once the SIM has first registered on the network
+        const isActivated = !!(meta.esim_activated_at as string | undefined);
+        const showQr = activationCode && !isActivated;
+
+        return (
+          <div key={line.id}>
+            {/* eSIM QR — shown until first network registration */}
+            {showQr && (
+              <EsimQrCard activationCode={activationCode} />
+            )}
+            {/* Usage meters — only for active provisioned lines */}
+            {line.status === "active" && line.provider_line_id && (
+              <Suspense fallback={<div className="mt-3 h-14 animate-pulse rounded-xl bg-slate-100" />}>
+                <LineUsageMeter providerLineId={line.provider_line_id} />
+              </Suspense>
+            )}
+          </div>
+        );
+      })}
+    </LinesPanel>
+  );
 }
