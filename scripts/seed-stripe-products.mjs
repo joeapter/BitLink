@@ -40,7 +40,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
 
 const { STRIPE_SECRET_KEY, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
 
@@ -54,36 +53,70 @@ if (!NEXT_PUBLIC_SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 }
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2026-04-22.dahlia' });
-const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+// Use PostgREST directly — avoids Supabase realtime init issues in Node 20
+async function upsertPlan(row) {
+  const res = await fetch(`${NEXT_PUBLIC_SUPABASE_URL}/rest/v1/plans`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      'apikey': SUPABASE_SERVICE_ROLE_KEY,
+      'Prefer': 'resolution=merge-duplicates',
+    },
+    body: JSON.stringify(row),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Supabase upsert failed (${res.status}): ${text}`);
+  }
+}
 
 const PLANS = [
   {
-    slug: 'israel-basic',
-    name: 'Israel Basic',
-    description: 'Simple monthly Israeli service for everyday calling and connectivity.',
-    priceCents: 3499,
+    slug: 'basic',
+    name: 'Basic',
+    description: 'A clean starting point for reliable monthly service with an Israeli number, basic 5G data, and included calls and texts.',
+    priceCents: 1499,
     sortOrder: 0,
+    features: ['1GB 5G data', '1,000 min to Israeli numbers', '500 SMS', 'eSIM activation', 'VAT included'],
+    isKosher: false,
   },
   {
-    slug: 'israel-plus',
-    name: 'Israel Plus',
-    description: 'Includes outgoing calls to USA, Canada, UK, and Australia — 200 minutes/month.',
-    priceCents: 4999,
+    slug: 'student-5g',
+    name: 'Student 5G',
+    description: 'The most popular choice for students — generous 5G data with 5,000 local minutes and 1,000 SMS included.',
+    priceCents: 3499,
     sortOrder: 1,
+    features: ['50GB 5G data', '5,000 min to Israeli numbers', '1,000 SMS', 'eSIM activation', 'VAT included'],
+    isKosher: false,
   },
   {
-    slug: 'data-plus',
-    name: 'Data Plus',
-    description: 'More data, more flexibility, and international calling included.',
-    priceCents: 5999,
+    slug: 'max-5g',
+    name: 'Max 5G',
+    description: '120GB of 5G data for students who stream all day — includes 5,000 local minutes, 1,000 SMS, and 150 min to US/CA.',
+    priceCents: 3999,
     sortOrder: 2,
+    features: ['120GB 5G data', '5,000 min to Israeli numbers', '150 min to US & Canada', '1,000 SMS', 'eSIM activation', 'VAT included'],
+    isKosher: false,
   },
   {
-    slug: 'unlimited-data-plus',
-    name: 'Unlimited Data Plus',
-    description: 'Unlimited-feeling data experience with international calling included.',
-    priceCents: 7999,
+    slug: 'kosher-basic',
+    name: 'Kosher Basic',
+    description: '5,000 minutes on a kosher-certified number — designed for certified kosher phones, voice only.',
+    priceCents: 1999,
     sortOrder: 3,
+    features: ['5,000 min to Israeli numbers', 'Physical SIM card', 'Voice only — no data or SMS', 'VAT included'],
+    isKosher: true,
+  },
+  {
+    slug: 'kosher-plus',
+    name: 'Kosher+',
+    description: 'Everything in Kosher Basic, plus 150 minutes to US and Canadian numbers.',
+    priceCents: 2499,
+    sortOrder: 4,
+    features: ['5,000 min to Israeli numbers', '150 min to US & Canada', 'Physical SIM card', 'Voice only — no data or SMS', 'VAT included'],
+    isKosher: true,
   },
 ];
 
@@ -137,28 +170,22 @@ async function seedPlan(plan) {
   }
 
   // ── Upsert plan row in Supabase ──────────────────────────────────────────
-  const { error } = await supabase
-    .from('plans')
-    .upsert(
-      {
-        slug: plan.slug,
-        name: plan.name,
-        description: plan.description,
-        monthly_price_cents: plan.priceCents,
-        currency: 'usd',
-        stripe_price_id: price.id,
-        active: true,
-        features: [],
-        sort_order: plan.sortOrder,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'slug', ignoreDuplicates: false },
-    );
-
-  if (error) {
-    console.error(`  supabase ERROR: ${error.message}`);
-  } else {
+  try {
+    await upsertPlan({
+      slug: plan.slug,
+      name: plan.name,
+      description: plan.description,
+      monthly_price_cents: plan.priceCents,
+      currency: 'usd',
+      stripe_price_id: price.id,
+      active: true,
+      features: plan.features ?? [],
+      sort_order: plan.sortOrder,
+      updated_at: new Date().toISOString(),
+    });
     console.log(`  supabase plans.${plan.slug}.stripe_price_id = ${price.id}`);
+  } catch (err) {
+    console.error(`  supabase ERROR: ${err.message}`);
   }
 
   return { plan, productId: product.id, priceId: price.id };
@@ -186,10 +213,11 @@ async function main() {
 
   console.log('=== Stripe price IDs (for reference / legacy env var support) ===');
   const envKeyMap = {
-    'israel-basic': 'STRIPE_PRICE_ISRAEL_BASIC',
-    'israel-plus': 'STRIPE_PRICE_ISRAEL_PLUS',
-    'data-plus': 'STRIPE_PRICE_DATA_PLUS',
-    'unlimited-data-plus': 'STRIPE_PRICE_UNLIMITED_DATA_PLUS',
+    'basic': 'STRIPE_PRICE_BASIC',
+    'student-5g': 'STRIPE_PRICE_STUDENT_5G',
+    'max-5g': 'STRIPE_PRICE_MAX_5G',
+    'kosher-basic': 'STRIPE_PRICE_KOSHER_BASIC',
+    'kosher-plus': 'STRIPE_PRICE_KOSHER_PLUS',
   };
   for (const { plan, priceId } of results) {
     const key = envKeyMap[plan.slug];

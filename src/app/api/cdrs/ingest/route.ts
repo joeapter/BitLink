@@ -40,33 +40,81 @@ interface CdrRow {
   occurred_at: string;
 }
 
-// ── CDR line parser ───────────────────────────────────────────────────────────
-// Update column order after Annatel confirms the exact file format.
-// Expected: line_id,call_type,duration_sec,data_bytes,timestamp,destination,direction
+// ── CDR file parser ───────────────────────────────────────────────────────────
+// Annatel delivers two file types per run:
+//   cdr_bitlink_YYYYMMDDHHII.csv.gz          — outgoing (all TOR types)
+//   cdr_incoming_bitlink_YYYYMMDDHHII.csv.gz — incoming calls
+//
+// Outgoing columns: uid,setup_time,answer_time,tor,category,description,
+//   tenant,account,src,dst,orig_country,dest_country,uom,usage,cost,rate,
+//   is_roaming,is_international,call_direction
+//
+// Incoming columns: uid,answer_time,src,dst,usage
 
-function parseLine(raw: string): Omit<CdrRow, 'telecom_line_id' | 'customer_id'> | null {
-  const line = raw.trim();
-  if (!line || line.startsWith('#') || line.toLowerCase().startsWith('line_id')) return null;
+function parseCdrFile(
+  filename: string,
+  content: string,
+): Omit<CdrRow, 'telecom_line_id' | 'customer_id'>[] {
+  const isIncoming = filename.includes('incoming');
+  const lines = content.split('\n').map((l) => l.trim()).filter(Boolean);
+  if (lines.length < 2) return []; // header-only or empty
 
-  const parts = line.split(',');
-  if (parts.length < 6) return null;
-
-  const [lineId, callType, durRaw, bytesRaw, tsRaw, dest, dir] = parts;
-  const ts = new Date(tsRaw?.trim() ?? '');
-  if (isNaN(ts.getTime())) return null;
-
-  const ct = (callType?.trim().toLowerCase() ?? 'other');
-
-  return {
-    provider_line_id: lineId?.trim() ?? '',
-    call_type: ['voice', 'sms', 'data'].includes(ct) ? ct : 'other',
-    duration_sec: parseInt(durRaw ?? '0', 10) || 0,
-    data_bytes: parseInt(bytesRaw ?? '0', 10) || 0,
-    sms_count: ct === 'sms' ? 1 : 0,
-    direction: dir?.trim() === 'outgoing' ? 'outgoing' : dir?.trim() === 'incoming' ? 'incoming' : 'unknown',
-    destination: dest?.trim() || null,
-    occurred_at: ts.toISOString(),
+  const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
+  const get = (row: string[], name: string): string => {
+    const i = headers.indexOf(name);
+    return i >= 0 ? (row[i]?.trim() ?? '') : '';
   };
+
+  const results: Omit<CdrRow, 'telecom_line_id' | 'customer_id'>[] = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const parts = lines[i].split(',');
+    if (parts.length < 3) continue;
+
+    // Timestamp: prefer answer_time, fall back to setup_time
+    const tsRaw = get(parts, 'answer_time') || get(parts, 'setup_time');
+    const ts = new Date(tsRaw);
+    if (isNaN(ts.getTime())) continue;
+
+    // Subscriber line ID:
+    //   outgoing → account field (Annatel's customer account identifier)
+    //   incoming → dst (the BitLink subscriber being called)
+    const subscriberId = isIncoming ? get(parts, 'dst') : get(parts, 'account');
+    if (!subscriberId) continue;
+
+    // Call type from tor (type of record) or uom
+    const tor = get(parts, 'tor').toLowerCase();
+    const uom = get(parts, 'uom').toLowerCase();
+    let callType: string;
+    if (tor === 'voice' || tor === 'call' || uom === 'sec') callType = 'voice';
+    else if (tor === 'data' || uom === 'byte' || uom === 'bytes' || uom === 'kb' || uom === 'mb') callType = 'data';
+    else if (tor === 'sms' || uom === 'sms') callType = 'sms';
+    else callType = isIncoming ? 'voice' : 'other'; // incoming-only file is always voice
+
+    const usageRaw = parseInt(get(parts, 'usage') || '0', 10) || 0;
+
+    // Direction: incoming file is always incoming; outgoing file check call_direction column
+    let direction: string;
+    if (isIncoming) {
+      direction = 'incoming';
+    } else {
+      const cd = get(parts, 'call_direction').toLowerCase();
+      direction = cd === 'incoming' ? 'incoming' : 'outgoing';
+    }
+
+    results.push({
+      provider_line_id: subscriberId,
+      call_type: callType,
+      duration_sec: callType === 'voice' ? usageRaw : 0,
+      data_bytes: callType === 'data' ? usageRaw : 0,
+      sms_count: callType === 'sms' ? 1 : 0,
+      direction,
+      destination: isIncoming ? get(parts, 'src') || null : get(parts, 'dst') || null,
+      occurred_at: ts.toISOString(),
+    });
+  }
+
+  return results;
 }
 
 function chunk<T>(arr: T[], size: number): T[][] {
@@ -112,11 +160,8 @@ export async function POST(request: NextRequest): Promise<Response> {
   // Parse all CDR records from all files
   const parsed: Omit<CdrRow, 'telecom_line_id' | 'customer_id'>[] = [];
   for (const file of body.files) {
-    const lines = (file.content ?? '').split('\n');
-    for (const line of lines) {
-      const record = parseLine(line);
-      if (record) parsed.push(record);
-    }
+    const records = parseCdrFile(file.name, file.content ?? '');
+    parsed.push(...records);
   }
 
   if (!parsed.length) {
@@ -154,7 +199,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     const { error } = await admin
       .from('cdr_records')
       .upsert(batch, {
-        onConflict: 'telecom_line_id,occurred_at,call_type,direction',
+        onConflict: 'provider_line_id,occurred_at,call_type,direction',
         ignoreDuplicates: true,
       });
 

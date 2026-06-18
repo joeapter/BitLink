@@ -37,6 +37,13 @@ const bodySchema = z.object({
   phone: z.string().min(6),
   isKosher: z.boolean().default(false),
   isEsim: z.boolean().default(false),
+  isPortIn: z.boolean().default(false),
+  portInNumber: z.string().nullable().optional(),
+  skipActivationFee: z.boolean().default(false),
+  wantsIntlNumber: z.boolean().default(false),
+  intlNumberCountry: z.enum(['us', 'canada', 'uk']).optional(),
+  intlNumberSource: z.enum(['new', 'port']).optional(),
+  intlPortNumber: z.string().nullable().optional(),
   userId: z.string().uuid().nullable().optional(),
   referralCode: z.string().nullable().optional(),
   successUrl: z.string().optional(),
@@ -63,8 +70,17 @@ export async function POST(request: NextRequest): Promise<Response> {
     );
   }
 
-  const { planSlug, fullName, email, phone, isKosher, isEsim, userId, referralCode, successUrl, cancelUrl } =
-    parsed.data;
+  const {
+    planSlug, fullName, email, phone, isKosher, isEsim,
+    isPortIn, portInNumber, skipActivationFee,
+    wantsIntlNumber, intlNumberCountry, intlNumberSource, intlPortNumber,
+    userId, referralCode, successUrl, cancelUrl,
+  } = parsed.data;
+
+  // Filled server-side — never exposed to the client.
+  const portInIdNumber = isPortIn
+    ? (process.env.PORT_IN_DEFAULT_ID?.trim() ?? '341280188')
+    : null;
 
   const admin = createSupabaseAdminClient();
   if (!admin) {
@@ -150,7 +166,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   // ── 3. Find or create Stripe customer ────────────────────────────────────
   // Lookup order: stripe_customers table → customers.stripe_customer_id → create new
   let stripeCustomerId: string;
-  {
+  try {
     const { data: scRow } = await admin
       .from('stripe_customers')
       .select('stripe_customer_id')
@@ -221,6 +237,12 @@ export async function POST(request: NextRequest): Promise<Response> {
         );
       }
     }
+  } catch (err) {
+    log.error(
+      { error: err instanceof Error ? err.message : String(err), customerId: customerRecordId, email },
+      'Failed to find or create Stripe customer',
+    );
+    return NextResponse.json({ error: 'Checkout temporarily unavailable' }, { status: 503 });
   }
 
   // ── 4. Create Stripe checkout session ────────────────────────────────────
@@ -228,10 +250,19 @@ export async function POST(request: NextRequest): Promise<Response> {
   try {
     session = await createCheckoutSession(stripe, {
       stripePriceId: planRow.stripe_price_id,
+      activationFeePriceId: skipActivationFee ? null : (process.env.STRIPE_PRICE_ACTIVATION_FEE?.trim() ?? null),
+      intlNumberAddonPriceId: wantsIntlNumber ? (process.env.STRIPE_PRICE_US_CANADA_ADDON?.trim() ?? null) : null,
       stripeCustomerId,
       planSlug,
       isKosher,
       isEsim,
+      isPortIn,
+      portInNumber: portInNumber ?? null,
+      portInIdNumber,
+      wantsIntlNumber,
+      intlNumberCountry: intlNumberCountry ?? null,
+      intlNumberSource: intlNumberSource ?? null,
+      intlPortNumber: intlPortNumber ?? null,
       customerRecordId,
       userId: userId ?? null,
       successUrl,

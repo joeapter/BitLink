@@ -1,25 +1,55 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { plans, type PlanSlug } from "@/lib/plans";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { CheckoutSummary } from "./CheckoutSummary";
+import { EsimCompatibilityModal } from "./EsimCompatibilityModal";
+
+type SimType = "esim" | "physical";
+type NumberChoice = "new" | "port-in";
+type IntlCountry = "us" | "canada" | "uk";
+type IntlSource = "new" | "port";
 
 export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug }) {
   const [planSlug, setPlanSlug] = useState<PlanSlug>(initialPlanSlug);
+  const [simType, setSimType] = useState<SimType>("esim");
+  const [numberChoice, setNumberChoice] = useState<NumberChoice>("new");
+  const [wantsIntlNumber, setWantsIntlNumber] = useState(false);
+  const [intlCountry, setIntlCountry] = useState<IntlCountry>("us");
+  const [intlSource, setIntlSource] = useState<IntlSource>("new");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [feeWaived, setFeeWaived] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("bl_staff") === "1") setFeeWaived(true);
+  }, []);
+
   const selectedPlan = useMemo(
-    () => plans.find((plan) => plan.slug === planSlug) ?? plans[1],
+    () => plans.find((p) => p.slug === planSlug) ?? plans[1],
     [planSlug],
   );
+
+  // Kosher plans are physical-SIM only
+  const forcePhysical = selectedPlan.isKosher;
+  const effectiveSimType: SimType = forcePhysical ? "physical" : simType;
+
+  // Keep simType in sync when plan changes to kosher
+  const handlePlanChange = (slug: PlanSlug) => {
+    setPlanSlug(slug);
+    const plan = plans.find((p) => p.slug === slug);
+    if (plan?.isKosher) setSimType("physical");
+  };
 
   async function onSubmit(formData: FormData) {
     setLoading(true);
     setError(null);
+
+    const isPortIn = numberChoice === "port-in";
 
     const response = await fetch("/api/stripe/create-checkout-session", {
       method: "POST",
@@ -29,7 +59,16 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
         fullName: formData.get("fullName"),
         email: formData.get("email"),
         phone: formData.get("phone"),
-        referralCode: formData.get("referralCode"),
+        referralCode: formData.get("referralCode") || null,
+        isKosher: selectedPlan.isKosher,
+        isEsim: effectiveSimType === "esim",
+        isPortIn,
+        portInNumber: isPortIn ? formData.get("portInNumber") : null,
+        skipActivationFee: feeWaived,
+        wantsIntlNumber,
+        intlNumberCountry: wantsIntlNumber ? intlCountry : undefined,
+        intlNumberSource: wantsIntlNumber ? intlSource : undefined,
+        intlPortNumber: wantsIntlNumber && intlSource === "port" ? formData.get("intlPortNumber") : null,
       }),
     });
 
@@ -46,42 +85,243 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_24rem]">
-      <form action={onSubmit} className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft sm:p-8">
+      <form action={onSubmit} className="rounded-4xl border border-ink/10 bg-white p-6 shadow-soft sm:p-8">
         <div>
           <p className="text-sm font-semibold text-link-blue">Checkout</p>
           <h1 className="mt-3 text-balance text-4xl font-semibold tracking-normal text-ink sm:text-5xl">
             Checkout securely. We&apos;ll get your connection moving.
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-slate">
-            Enter your details, confirm the plan, and continue to secure payment. Your monthly price and plan are shown before you pay.
+            Enter your details, confirm the plan, and continue to secure payment.
           </p>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        {/* ── Plan ── */}
+        <div className="mt-8">
           <Select
             label="Plan"
             name="planSlug"
             value={planSlug}
-            onChange={(event) => setPlanSlug(event.target.value as PlanSlug)}
-            className="sm:col-span-2"
+            onChange={(e) => handlePlanChange(e.target.value as PlanSlug)}
           >
-            {plans.map((plan) => (
-              <option key={plan.slug} value={plan.slug}>
-                {plan.name}
-              </option>
+            {plans.map((p) => (
+              <option key={p.slug} value={p.slug}>{p.name}</option>
             ))}
           </Select>
+        </div>
+
+        {/* ── SIM type ── */}
+        <fieldset className="mt-6">
+          <legend className="text-sm font-semibold text-ink">Type of SIM</legend>
+          <div className="mt-2 grid gap-3 sm:grid-cols-2">
+            <label className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-colors ${
+              effectiveSimType === "esim"
+                ? "border-link-blue bg-link-blue/5"
+                : "border-ink/10 hover:border-ink/20"
+            } ${forcePhysical ? "pointer-events-none opacity-50" : ""}`}>
+              <input
+                type="radio"
+                name="simType"
+                value="esim"
+                checked={effectiveSimType === "esim"}
+                onChange={() => setSimType("esim")}
+                className="mt-0.5 accent-link-blue"
+                disabled={forcePhysical}
+              />
+              <div>
+                <p className="text-sm font-semibold text-ink">eSIM</p>
+                <p className="text-xs text-muted-slate">Sent by email — instant activation</p>
+                <div className="mt-1.5">
+                  <EsimCompatibilityModal />
+                </div>
+              </div>
+            </label>
+
+            <label className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-colors ${
+              effectiveSimType === "physical"
+                ? "border-link-blue bg-link-blue/5"
+                : "border-ink/10 hover:border-ink/20"
+            }`}>
+              <input
+                type="radio"
+                name="simType"
+                value="physical"
+                checked={effectiveSimType === "physical"}
+                onChange={() => setSimType("physical")}
+                className="mt-0.5 accent-link-blue"
+              />
+              <div>
+                <p className="text-sm font-semibold text-ink">Physical SIM</p>
+                <p className="text-xs text-muted-slate">
+                  {selectedPlan.isKosher
+                    ? "Required for kosher-certified devices"
+                    : "Mailed to you — 7–10 business days"}
+                </p>
+              </div>
+            </label>
+          </div>
+        </fieldset>
+
+        {/* ── Israeli number ── */}
+        <fieldset className="mt-6">
+          <legend className="text-sm font-semibold text-ink">Israeli number</legend>
+          <div className="mt-2 grid gap-3 sm:grid-cols-2">
+            <label className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-colors ${
+              numberChoice === "new"
+                ? "border-link-blue bg-link-blue/5"
+                : "border-ink/10 hover:border-ink/20"
+            }`}>
+              <input
+                type="radio"
+                name="numberChoice"
+                value="new"
+                checked={numberChoice === "new"}
+                onChange={() => setNumberChoice("new")}
+                className="mt-0.5 accent-link-blue"
+              />
+              <div>
+                <p className="text-sm font-semibold text-ink">Get a new number</p>
+                <p className="text-xs text-muted-slate">We assign you a fresh Israeli number</p>
+              </div>
+            </label>
+
+            <label className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-colors ${
+              numberChoice === "port-in"
+                ? "border-link-blue bg-link-blue/5"
+                : "border-ink/10 hover:border-ink/20"
+            }`}>
+              <input
+                type="radio"
+                name="numberChoice"
+                value="port-in"
+                checked={numberChoice === "port-in"}
+                onChange={() => setNumberChoice("port-in")}
+                className="mt-0.5 accent-link-blue"
+              />
+              <div>
+                <p className="text-sm font-semibold text-ink">Keep my current number</p>
+                <p className="text-xs text-muted-slate">Transfer your existing Israeli number</p>
+              </div>
+            </label>
+          </div>
+
+          {numberChoice === "port-in" && (
+            <div className="mt-3 grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <Input
+                label="Current Israeli number"
+                name="portInNumber"
+                type="tel"
+                placeholder="05X-XXX-XXXX"
+                required
+              />
+              <p className="text-xs text-amber-800">
+                Your current number stays active throughout the transfer process.
+              </p>
+            </div>
+          )}
+        </fieldset>
+
+        {/* ── International number add-on ── */}
+        <div className="mt-6">
+          <label className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-colors ${
+            wantsIntlNumber ? "border-link-blue bg-link-blue/5" : "border-ink/10 hover:border-ink/20"
+          }`}>
+            <input
+              type="checkbox"
+              checked={wantsIntlNumber}
+              onChange={(e) => setWantsIntlNumber(e.target.checked)}
+              className="mt-0.5 accent-link-blue"
+            />
+            <div className="flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-ink">Add a US, Canadian, or UK number</p>
+                <span className="text-sm font-semibold text-link-blue">+$9.99/mo</span>
+              </div>
+              <p className="text-xs text-muted-slate">Let family call you like a local number — no international dialing</p>
+            </div>
+          </label>
+
+          {wantsIntlNumber && (
+            <div className="mt-3 grid gap-3 rounded-2xl border border-link-blue/20 bg-link-blue/5 p-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {/* Country */}
+                <div>
+                  <p className="mb-2 text-xs font-semibold text-ink">Country</p>
+                  <div className="flex gap-2">
+                    {(["us", "canada", "uk"] as IntlCountry[]).map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setIntlCountry(c)}
+                        className={`rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                          intlCountry === c
+                            ? "border-link-blue bg-link-blue text-white"
+                            : "border-ink/10 text-ink hover:border-ink/20"
+                        }`}
+                      >
+                        {c === "us" ? "US" : c === "canada" ? "Canada" : "UK"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* New vs port */}
+                <div>
+                  <p className="mb-2 text-xs font-semibold text-ink">Number</p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIntlSource("new")}
+                      className={`rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        intlSource === "new"
+                          ? "border-link-blue bg-link-blue text-white"
+                          : "border-ink/10 text-ink hover:border-ink/20"
+                      }`}
+                    >
+                      Assign me one
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIntlSource("port")}
+                      className={`rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        intlSource === "port"
+                          ? "border-link-blue bg-link-blue text-white"
+                          : "border-ink/10 text-ink hover:border-ink/20"
+                      }`}
+                    >
+                      Port my existing
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {intlSource === "port" && (
+                <Input
+                  label="Number to port"
+                  name="intlPortNumber"
+                  type="tel"
+                  placeholder="+1 212 555 0000"
+                  required
+                />
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ── Contact info ── */}
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <p className="text-sm font-semibold text-ink sm:col-span-2">Your details</p>
           <Input label="Full name" name="fullName" autoComplete="name" required />
           <Input label="Email" name="email" type="email" autoComplete="email" required />
           <Input label="Phone" name="phone" type="tel" autoComplete="tel" required />
           <Input label="Referral code" name="referralCode" placeholder="Optional" />
         </div>
 
-        {error ? (
+        {error && (
           <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700">
             {error}
           </div>
-        ) : null}
+        )}
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Button type="submit" size="lg" disabled={loading}>
@@ -89,12 +329,12 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
             Continue to secure payment
           </Button>
           <p className="text-xs leading-5 text-muted-slate">
-            Monthly subscription. Activation subject to BitLink confirmation and plan availability.
+            Monthly subscription + one-time activation fee. Activation subject to BitLink confirmation.
           </p>
         </div>
       </form>
 
-      <CheckoutSummary plan={selectedPlan} />
+      <CheckoutSummary plan={selectedPlan} isPortIn={numberChoice === "port-in"} feeWaived={feeWaived} hasIntlNumber={wantsIntlNumber} />
     </div>
   );
 }

@@ -12,7 +12,7 @@ import { getStripePriceId, type BitLinkPlan } from '@/lib/plans';
 // Nullable factory — returns null if STRIPE_SECRET_KEY is absent (safe for pages/routes
 // that check the return value before proceeding).
 export function getStripe(): Stripe | null {
-  const key = process.env.STRIPE_SECRET_KEY;
+  const key = process.env.STRIPE_SECRET_KEY?.trim();
   if (!key) return null;
   return new Stripe(key, { apiVersion: '2026-04-22.dahlia', typescript: true });
 }
@@ -21,10 +21,19 @@ export function getStripe(): Stripe | null {
 
 export interface CreateCheckoutSessionParams {
   stripePriceId: string;
+  activationFeePriceId: string | null;
+  intlNumberAddonPriceId?: string | null;
   stripeCustomerId: string;
   planSlug: string;
   isKosher: boolean;
   isEsim: boolean;
+  isPortIn: boolean;
+  portInNumber: string | null;
+  portInIdNumber: string | null;
+  wantsIntlNumber?: boolean;
+  intlNumberCountry?: string | null;
+  intlNumberSource?: string | null;
+  intlPortNumber?: string | null;
   customerRecordId: string | null;
   userId: string | null;
   successUrl?: string;
@@ -55,13 +64,30 @@ export async function createCheckoutSession(
     user_id: params.userId ?? '',
     is_kosher: params.isKosher ? '1' : '0',
     is_esim: params.isEsim ? '1' : '0',
+    is_port_in: params.isPortIn ? '1' : '0',
+    port_in_number: params.portInNumber ?? '',
+    port_in_id_number: params.portInIdNumber ?? '',
+    wants_intl_number: params.wantsIntlNumber ? '1' : '0',
+    intl_number_country: params.intlNumberCountry ?? '',
+    intl_number_source: params.intlNumberSource ?? '',
+    intl_port_number: params.intlPortNumber ?? '',
     source: 'bitlink_web',
   };
+
+  const lineItems: { price: string; quantity: number }[] = [
+    { price: params.stripePriceId, quantity: 1 },
+  ];
+  if (params.activationFeePriceId) {
+    lineItems.push({ price: params.activationFeePriceId, quantity: 1 });
+  }
+  if (params.intlNumberAddonPriceId) {
+    lineItems.push({ price: params.intlNumberAddonPriceId, quantity: 1 });
+  }
 
   return stripe.checkout.sessions.create({
     mode: 'subscription',
     customer: params.stripeCustomerId,
-    line_items: [{ price: params.stripePriceId, quantity: 1 }],
+    line_items: lineItems,
     success_url:
       params.successUrl ??
       absoluteUrl(`/checkout/success?session_id={CHECKOUT_SESSION_ID}`),

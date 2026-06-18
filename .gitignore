@@ -48,3 +48,4 @@ yarn-error.log*
 
 # ── Deployment ────────────────────────────────────────────────────
 .vercel
+.env*.local

@@ -48,7 +48,7 @@ export const plans: BitLinkPlan[] = [
       "1GB high-speed 5G data",
       "Calls — 1,000 minutes to Israeli landlines and mobiles",
       "Texts — 500 SMS to Israeli mobiles",
-      "eSIM activation",
+      "eSIM or physical SIM",
       "WhatsApp support",
       "VAT included",
       "No hidden fees",
@@ -79,11 +79,11 @@ export const plans: BitLinkPlan[] = [
       "50GB high-speed 5G data",
       "5,000 minutes to Israeli landlines and mobiles",
       "1,000 SMS to Israeli mobiles",
-      "eSIM activation",
+      "eSIM or physical SIM",
       "WhatsApp support",
       "VAT included",
       "No hidden fees",
-      "US/Canada local number available as add-on: +$9.99/mo",
+      "US/Canada/UK number available as add-on: +$9.99/mo",
     ],
     comparison: {
       data: "50GB 5G",
@@ -111,11 +111,11 @@ export const plans: BitLinkPlan[] = [
       "5,000 minutes to Israeli landlines and mobiles",
       "1,000 SMS to Israeli mobiles",
       "150 minutes to US & Canadian numbers",
-      "eSIM activation",
+      "eSIM or physical SIM",
       "Priority WhatsApp support",
       "VAT included",
       "No hidden fees",
-      "US/Canada local number available as add-on: +$9.99/mo",
+      "US/Canada/UK number available as add-on: +$9.99/mo",
     ],
     comparison: {
       data: "120GB 5G",
@@ -189,7 +189,7 @@ export const plans: BitLinkPlan[] = [
 
 export const usCanadaNumberAddOn: AddOn = {
   id: "us-canada-number",
-  tagline: "Add a US or Canadian local number",
+  tagline: "Add a US, Canadian, or UK local number",
   body: "Let family back home call you like a local call — no international dialing, no calling cards, no stress.",
   priceCents: 999,
   currency: "USD",
@@ -204,4 +204,18 @@ export function getPlan(slug?: string | null) {
 
 export function getStripePriceId(plan: BitLinkPlan) {
   return process.env[plan.stripeEnvKey] ?? "";
+}
+
+// Annatel plan name strings — must match exactly what Annatel returns from /plans catalog.
+// Updated June 2026 from production API probe.
+const ANNATEL_PLAN_NAMES: Record<PlanSlug, string> = {
+  "basic":        "PLAN_BITLINK_NATIONAL_1000MIN_1GB_202606",
+  "student-5g":   "PLAN_BITLINK_NATIONAL_5000MIN_50GB_202606",
+  "max-5g":       "PLAN_BITLINK_NATIONAL_5000MIN_USA_150MIN_120GB_202606",
+  "kosher-basic": "PLAN_BITLINK_KOSHER_NATIONAL_5000MIN_202606",
+  "kosher-plus":  "PLAN_BITLINK_KOSHER_NATIONAL_5000MIN_USA_150MIN_202606",
+};
+
+export function getAnnatelPlanName(slug: string): string {
+  return ANNATEL_PLAN_NAMES[slug as PlanSlug] ?? slug;
 }
