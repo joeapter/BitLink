@@ -366,6 +366,23 @@ export class AnnatelProvider implements TelecomProvider {
     }));
   }
 
+  async getAvailableDid(usedNumbers: string[] = []): Promise<string | null> {
+    try {
+      const usedSet = new Set(usedNumbers);
+      let page = 1;
+      while (true) {
+        const result = await this.listTenantDids(page, 50);
+        const available = result.dids.find((d) => !usedSet.has(d.number) && !d.isTechnical);
+        if (available) return available.number;
+        if (result.dids.length < 50 || result.meta.total <= page * 50) break;
+        page++;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
   async getAvailableEsimIccId(): Promise<string | null> {
     try {
       const result = await this.client.get<{ data: Array<{ icc_id: string }> }>(

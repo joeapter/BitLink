@@ -55,7 +55,7 @@ export function LinesPanel({ lines, children }: { lines: LineRow[]; children?: R
                     <div className="flex items-center gap-2">
                       <Wifi className="h-4 w-4 text-muted-slate" aria-hidden="true" />
                       <span className="text-lg font-semibold tracking-wide text-ink">
-                        {line.provider_line_id ?? "Number pending assignment"}
+                        {(line.metadata?.phone_number as string | undefined) ?? "Number pending assignment"}
                       </span>
                       {line.is_kosher ? (
                         <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">

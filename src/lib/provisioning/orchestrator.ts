@@ -154,6 +154,7 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
       });
       return { status: 'FAILED', error: errMsg };
     }
+    // resolvedIccId now held in local scope; propagated to completeJob via createLine result
   }
 
   let result;
@@ -235,13 +236,62 @@ async function completeJob(
   lineId: string,
   providerLineId?: string | null,
 ): Promise<ProcessResult> {
+  const provider = getTelecomProvider();
+  const payload = job.payload as Record<string, unknown>;
+
   // Stamp provider_line_id if now available (async path: provider assigns it on completion)
+  const lineUpdates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (providerLineId) lineUpdates.provider_line_id = providerLineId;
+
+  // Auto-assign a DID and collect eSIM activation code for storage in metadata
   if (providerLineId) {
-    await linesRepo.updateLine(admin, lineId, {
-      provider_line_id: providerLineId,
-      updated_at: new Date().toISOString(),
-    });
+    try {
+      // Gather phone numbers already in use so we don't double-assign
+      const { data: existingLines } = await admin
+        .from('telecom_lines')
+        .select('metadata')
+        .not('metadata->>phone_number', 'is', null);
+      const usedNumbers = (existingLines ?? [])
+        .map((l) => (l.metadata as Record<string, unknown>)?.phone_number as string | undefined)
+        .filter((n): n is string => Boolean(n));
+
+      const did = await provider.getAvailableDid(usedNumbers);
+      if (did) {
+        await provider.assignDid(providerLineId, did);
+        const existingMeta = ((await linesRepo.getLine(admin, lineId))?.metadata ?? {}) as Record<string, unknown>;
+        lineUpdates.metadata = { ...existingMeta, phone_number: did };
+        log.info({ jobId: job.id, lineId, did }, 'DID auto-assigned');
+      } else {
+        log.warn({ jobId: job.id, lineId }, 'No available DID found — line active without phone number');
+      }
+    } catch (err) {
+      log.error({ jobId: job.id, lineId, error: err instanceof Error ? err.message : String(err) }, 'DID assignment failed — continuing');
+    }
+
+    // Fetch and store eSIM activation code if applicable
+    if (payload.metadata && (payload.metadata as Record<string, unknown>).is_esim) {
+      try {
+        const sims = await provider.listLineSims(providerLineId);
+        const mainSim = sims.find((s) => s.isMain) ?? sims[0];
+        if (mainSim?.iccId) {
+          const esimProfile = await provider.getEsimProfile(mainSim.iccId);
+          const existingMeta = ((lineUpdates.metadata ?? (await linesRepo.getLine(admin, lineId))?.metadata ?? {}) as Record<string, unknown>);
+          lineUpdates.metadata = {
+            ...existingMeta,
+            ...(lineUpdates.metadata as Record<string, unknown> | undefined ?? {}),
+            esim_icc_id: mainSim.iccId,
+            esim_activation_code: esimProfile.activationCode,
+            esim_sm_dp_plus: esimProfile.smDpPlusAddress,
+          };
+          log.info({ jobId: job.id, lineId }, 'eSIM activation code stored');
+        }
+      } catch (err) {
+        log.error({ jobId: job.id, lineId, error: err instanceof Error ? err.message : String(err) }, 'eSIM profile fetch failed — continuing');
+      }
+    }
   }
+
+  await linesRepo.updateLine(admin, lineId, lineUpdates);
 
   // Transition line → ACTIVE before marking job COMPLETED
   await applyLineTransition(admin, lineId, 'ACTIVE', {
