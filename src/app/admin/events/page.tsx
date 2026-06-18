@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import { Activity } from "lucide-react";
+import { formatDateTime } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Admin Events" };
 export const dynamic = "force-dynamic";
@@ -111,7 +112,7 @@ export default async function AdminEventsPage({
                       <div className="font-mono text-xs text-ink">{ev.resourceId.slice(0, 12)}…</div>
                     </td>
                     <td className="px-5 py-4 text-xs text-muted-slate whitespace-nowrap">
-                      {ev.occurredAt.toLocaleString()}
+                      {formatDateTime(ev.occurredAt)}
                     </td>
                     <td className="px-5 py-4">
                       <details>

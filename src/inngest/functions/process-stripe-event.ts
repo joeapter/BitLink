@@ -26,6 +26,10 @@ import {
 } from '@/lib/db/subscribers';
 import { upsertSubscription, updateSubscriptionFromStripe } from '@/lib/db/subscriptions';
 import { createProvisioningJob } from '@/lib/provisioning/orchestrator';
+import { getLine } from '@/lib/db/lines';
+import { getTelecomProvider } from '@/lib/telecom/provider.registry';
+import { withProviderContext } from '@/lib/telecom/provider-context';
+import { getAnnatelPlanName } from '@/lib/plans';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ fn: 'process-stripe-event' });
@@ -124,6 +128,23 @@ async function handleCheckoutCompleted(
       { onConflict: 'stripe_subscription_id', ignoreDuplicates: false },
     );
 
+  // Idempotent: create order record if not already present for this session
+  const { data: existingOrder } = await admin
+    .from('orders')
+    .select('id')
+    .eq('stripe_checkout_session_id', session.id)
+    .maybeSingle();
+
+  if (!existingOrder) {
+    await admin.from('orders').insert({
+      customer_id: customerRecordId,
+      stripe_checkout_session_id: session.id,
+      payment_status: 'paid',
+      order_status: 'processing',
+      provisioning_status: 'payment_confirmed',
+    });
+  }
+
   // Idempotent: reuse telecom line if already created (retry scenario)
   const externalId = `stripe_sub_${stripeSubscriptionId}`;
   let lineId: string;
@@ -175,13 +196,29 @@ async function handleCheckoutCompleted(
     jobId = existingJob.id;
     log.info({ jobIdempotencyKey, jobId }, 'Provisioning job already exists — reusing');
   } else {
+    const customerEmail = session.customer_details?.email ?? session.metadata?.customer_email ?? null;
+    const identityNumber =
+      session.metadata?.identity_number ??
+      process.env.ANNATEL_DEFAULT_IDENTITY_NUMBER?.trim() ??
+      '341280188';
+
     const job = await createProvisioningJob({
       lineId,
       type: 'create_line',
       payload: {
         externalId,
-        planName: planSlug,
+        planName: getAnnatelPlanName(planSlug),
         isKosher,
+        ...(customerEmail ? { email: customerEmail } : {}),
+        ...(identityNumber ? { identityNumber } : {}),
+        language: 'he_IL',
+        ...(session.metadata?.is_port_in === '1' && session.metadata?.port_in_number ? {
+          portInParams: {
+            number: session.metadata.port_in_number,
+            identityNumber: session.metadata.port_in_id_number ?? '',
+            authenticationType: 'identity_number',
+          },
+        } : {}),
         metadata: {
           stripe_subscription_id: stripeSubscriptionId,
           stripe_customer_id: stripeCustomerId,
@@ -279,8 +316,8 @@ async function handleSubscriptionChange(
 
 /**
  * customer.subscription.deleted
- * Cancels the subscriber. A terminate_line provisioning job would be
- * created here when real Annatel integration is ready.
+ * Cancels the subscriber and terminates the Annatel line so the DID
+ * is released back to the tenant's number bank.
  */
 async function handleSubscriptionDeleted(
   admin: SupabaseClient,
@@ -290,6 +327,38 @@ async function handleSubscriptionDeleted(
 
   const subscriber = await getSubscriberByStripeSubscription(admin, subscription.id);
   if (!subscriber) return { skipped: true, reason: 'no_subscriber' };
+
+  // Terminate the Annatel line so the DID returns to the number bank.
+  // Only attempt if the line was actually provisioned (has a telecomLineId).
+  if (subscriber.telecomLineId) {
+    const line = await getLine(admin, subscriber.telecomLineId);
+    if (line?.provider_line_id && line.status !== 'terminated') {
+      try {
+        const provider = getTelecomProvider();
+        const ctx = {
+          correlationId: subscriber.correlationId ?? crypto.randomUUID(),
+          telecomLineId: subscriber.telecomLineId,
+        };
+        await withProviderContext(ctx, () =>
+          provider.terminateLine(line.provider_line_id!),
+        );
+        await admin
+          .from('telecom_lines')
+          .update({ status: 'terminated', updated_at: new Date().toISOString() })
+          .eq('id', subscriber.telecomLineId);
+        log.info(
+          { subscriberId: subscriber.id, telecomLineId: subscriber.telecomLineId, providerLineId: line.provider_line_id },
+          'Line terminated — DID released to number bank',
+        );
+      } catch (err) {
+        // Log but don't block the cancellation — line can be manually terminated
+        log.error(
+          { subscriberId: subscriber.id, telecomLineId: subscriber.telecomLineId, error: err instanceof Error ? err.message : String(err) },
+          'Failed to terminate line on subscription deletion — manual cleanup may be needed',
+        );
+      }
+    }
+  }
 
   await updateSubscriber(admin, subscriber.id, {
     status: 'cancelled',

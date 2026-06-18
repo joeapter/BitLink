@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Activity, Phone, Radio } from "lucide-react";
 import { getAdminDb } from "@/lib/db/admin";
+import { formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 
@@ -103,7 +104,7 @@ export default async function AdminLinesPage() {
                         ) : "—"}
                       </td>
                       <td className="px-5 py-4 text-slate-500">
-                        {new Date(line.created_at).toLocaleDateString()}
+                        {formatDate(line.created_at)}
                       </td>
                       <td className="px-5 py-4">
                         <Link

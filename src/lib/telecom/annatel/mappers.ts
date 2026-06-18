@@ -51,6 +51,9 @@ export const AnnatelMappers = {
       external_id: params.externalId,
       is_kosher: params.isKosher ?? false,
       plan: { plan_name: params.planName },
+      language: params.language ?? 'he_IL',
+      ...(params.email ? { email: params.email } : {}),
+      ...(params.identityNumber ? { identity_number: params.identityNumber } : {}),
       ...(params.iccId ? { sims: [{ icc_id: params.iccId }] } : {}),
       ...(params.phoneNumber ? { dids: [{ number: params.phoneNumber }] } : {}),
       ...(params.portInParams

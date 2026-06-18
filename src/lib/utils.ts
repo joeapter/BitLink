@@ -1,6 +1,16 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+const IL_TZ = 'Asia/Jerusalem';
+
+export function formatDate(date: string | Date): string {
+  return new Date(date).toLocaleDateString('en-US', { timeZone: IL_TZ });
+}
+
+export function formatDateTime(date: string | Date): string {
+  return new Date(date).toLocaleString('en-US', { timeZone: IL_TZ });
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

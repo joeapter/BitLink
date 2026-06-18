@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import { createWebhookEndpointAction, deleteWebhookEndpointAction } from "@/lib/admin/line-actions";
 import { Plus, Trash2, Webhook, CheckCircle, XCircle } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Admin Webhooks" };
 export const dynamic = "force-dynamic";
@@ -75,7 +76,7 @@ export default async function AdminWebhooksPage() {
                       </span>
                     ))}
                   </div>
-                  <p className="mt-1 text-xs text-muted-slate">Created {ep.createdAt.toLocaleDateString()}</p>
+                  <p className="mt-1 text-xs text-muted-slate">Created {formatDate(ep.createdAt)}</p>
                 </div>
                 <form action={deleteWebhookEndpointAction}>
                   <input type="hidden" name="id" value={ep.id} />

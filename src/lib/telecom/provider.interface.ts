@@ -18,6 +18,8 @@ export type {
   PortInResult,
   PortInStatus,
   PhoneNumber,
+  TenantDid,
+  TenantDidPage,
   ProviderJobResult,
   ProviderJobStatus,
   TelecomEvent,
@@ -48,6 +50,8 @@ import type {
   PortInResult,
   PortInStatus,
   PhoneNumber,
+  TenantDid,
+  TenantDidPage,
   ProviderJobResult,
   TelecomEvent,
   LineDetail,
@@ -92,6 +96,7 @@ export interface TelecomProvider {
   listLinePlans(providerLineId: string): Promise<LinePlanInfo[]>;
   listPlansCatalog(): Promise<PlanCatalogEntry[]>;
   addTopup(providerLineId: string, topupName: string): Promise<void>;
+  getAvailableEsimIccId(): Promise<string | null>;
 
   // ── Usage & balance ──────────────────────────────────────────
   getBalances(providerLineId: string): Promise<BalanceBucket[]>;
@@ -115,6 +120,7 @@ export interface TelecomProvider {
   cancelPortIn(providerJobId: string): Promise<void>;
 
   // ── Number (DID) management ──────────────────────────────────
+  listTenantDids(page?: number, pageSize?: number): Promise<TenantDidPage>;
   getAssignedNumbers(providerLineId: string): Promise<PhoneNumber[]>;
   assignDid(providerLineId: string, number: string): Promise<void>;
   releaseDid(providerLineId: string, number: string): Promise<void>;

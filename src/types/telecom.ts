@@ -47,6 +47,9 @@ export interface LineCreateParams {
   planName: string;
   iccId?: string;
   phoneNumber?: string;
+  email?: string;
+  language?: string;
+  identityNumber?: string;
   portInParams?: {
     number: string;
     identityNumber: string;
@@ -124,6 +127,21 @@ export interface PhoneNumber {
   isPrimary: boolean;
   startAt: Date;
   endAt?: Date;
+}
+
+export interface TenantDid {
+  number: string;
+  createdAt: Date;
+  isOpenToPortOut: boolean;
+  isTechnical: boolean;
+  portedFromOperator?: string;
+  portedToOperator?: string;
+  returnedByOperator?: string;
+}
+
+export interface TenantDidPage {
+  dids: TenantDid[];
+  meta: { pageNumber: number; pageSize: number; total: number };
 }
 
 export interface ProviderJobResult {

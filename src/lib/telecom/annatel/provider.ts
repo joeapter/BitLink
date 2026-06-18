@@ -14,6 +14,8 @@ import type {
   PortInResult,
   PortInStatus,
   PhoneNumber,
+  TenantDid,
+  TenantDidPage,
   ProviderJobResult,
   TelecomEvent,
   LineDetail,
@@ -102,6 +104,21 @@ interface AnnatelEventRaw {
   tenant_id: string;
 }
 
+interface AnnatelDid {
+  number: string;
+  created_at: string;
+  is_open_to_port_out: boolean;
+  is_technical: boolean;
+  ported_from_operator?: string;
+  ported_to_operator?: string;
+  returned_by_operator?: string;
+}
+
+interface AnnatelDidListResponse {
+  data: AnnatelDid[];
+  meta: { page_number: number; page_size: number; total: number };
+}
+
 const LINES_BASE = '/api/operational/network_manager/lines';
 
 export class AnnatelProvider implements TelecomProvider {
@@ -136,9 +153,12 @@ export class AnnatelProvider implements TelecomProvider {
   }
 
   async getLineDetail(providerLineId: string): Promise<LineDetail> {
-    const raw = await this.client.get<AnnatelLineDetail>(
-      `${LINES_BASE}/${providerLineId}`,
-    );
+    const [raw, simsResult, plansResult, didsResult] = await Promise.all([
+      this.client.get<AnnatelLineDetail>(`${LINES_BASE}/${providerLineId}`),
+      this.client.get<{ data: Array<{ id: string; icc_id: string; is_main: boolean; start_at: string; end_at?: string; sim?: { type: string; activation_code?: string; activation_code_token?: string; sm_dp_plus_address?: string; confirmation_code?: string } }> }>(`${LINES_BASE}/${providerLineId}/sims`).catch(() => ({ data: [] })),
+      this.client.get<{ data: Array<{ id: string; start_at: string; end_at?: string; plan_id: string; plan?: { id: string; name: string; is_main: boolean } }> }>(`${LINES_BASE}/${providerLineId}/plans`).catch(() => ({ data: [] })),
+      this.client.get<{ data: Array<{ id: string; number: string; start_at: string; end_at?: string }> }>(`${LINES_BASE}/${providerLineId}/dids`).catch(() => ({ data: [] })),
+    ]);
     return {
       id: raw.id,
       status: raw.status,
@@ -147,7 +167,7 @@ export class AnnatelProvider implements TelecomProvider {
       isKosher: raw.is_kosher,
       isVoltEnabled: raw.is_volte_enabled,
       isAbroadRoamingEnabled: raw.is_abroad_roaming_enabled,
-      sims: (raw.sims ?? []).map((s) => ({
+      sims: (simsResult.data ?? []).map((s) => ({
         id: s.id,
         iccId: s.icc_id,
         isMain: s.is_main,
@@ -157,15 +177,15 @@ export class AnnatelProvider implements TelecomProvider {
         smDpPlusAddress: s.sim?.sm_dp_plus_address,
         confirmationCode: s.sim?.confirmation_code,
       })),
-      plans: (raw.plans ?? []).map((p) => ({
+      plans: (plansResult.data ?? []).map((p) => ({
         id: p.id,
-        planId: p.plan.id,
-        planName: p.plan.name,
-        isMain: p.plan.is_main,
+        planId: p.plan?.id ?? p.plan_id,
+        planName: p.plan?.name ?? '',
+        isMain: p.plan?.is_main ?? true,
         startAt: new Date(p.start_at),
         endAt: p.end_at ? new Date(p.end_at) : undefined,
       })),
-      dids: (raw.dids ?? []).map((d) => ({
+      dids: (didsResult.data ?? []).map((d) => ({
         number: d.number,
         isPrimary: true,
         startAt: new Date(d.start_at),
@@ -346,6 +366,17 @@ export class AnnatelProvider implements TelecomProvider {
     }));
   }
 
+  async getAvailableEsimIccId(): Promise<string | null> {
+    try {
+      const result = await this.client.get<{ data: Array<{ icc_id: string }> }>(
+        '/api/operational/sim_manager/sims?page[size]=1',
+      );
+      return result?.data?.[0]?.icc_id ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   async listPlansCatalog(): Promise<PlanCatalogEntry[]> {
     const result = await this.client.get<{ data: Array<{ id: string; name: string; is_main: boolean }> }>(
       '/api/operational/network_manager/plans',
@@ -499,6 +530,30 @@ export class AnnatelProvider implements TelecomProvider {
 
   // ── Number (DID) management ───────────────────────────────────────────────
 
+  async listTenantDids(page = 1, pageSize = 100): Promise<TenantDidPage> {
+    const qs = new URLSearchParams({
+      'page[number]': String(page),
+      'page[size]': String(pageSize),
+    });
+    const result = await this.client.get<AnnatelDidListResponse>(`/api/dids?${qs}`);
+    return {
+      dids: (result.data ?? []).map((d): TenantDid => ({
+        number: d.number,
+        createdAt: new Date(d.created_at),
+        isOpenToPortOut: d.is_open_to_port_out,
+        isTechnical: d.is_technical,
+        portedFromOperator: d.ported_from_operator,
+        portedToOperator: d.ported_to_operator,
+        returnedByOperator: d.returned_by_operator,
+      })),
+      meta: {
+        pageNumber: result.meta.page_number,
+        pageSize: result.meta.page_size,
+        total: result.meta.total,
+      },
+    };
+  }
+
   async getAssignedNumbers(providerLineId: string): Promise<PhoneNumber[]> {
     const result = await this.client.get<{
       data: Array<{ number: string; start_at: string; end_at?: string }>;
@@ -512,19 +567,17 @@ export class AnnatelProvider implements TelecomProvider {
   }
 
   async assignDid(providerLineId: string, number: string): Promise<void> {
-    await this.client.post('/api/bulk_requests', {
-      type: 'add',
-      line_id: providerLineId,
-      dids: [{ number }],
-    });
+    await this.client.post(`${LINES_BASE}/${providerLineId}/dids`, { number });
   }
 
   async releaseDid(providerLineId: string, number: string): Promise<void> {
-    await this.client.post('/api/bulk_requests', {
-      type: 'remove',
-      line_id: providerLineId,
-      dids: [{ number }],
-    });
+    const didsResult = await this.client.get<{ data: Array<{ id: string; number: string }> }>(
+      `${LINES_BASE}/${providerLineId}/dids`,
+    );
+    const did = (didsResult.data ?? []).find((d) => d.number === number);
+    if (did) {
+      await this.client.delete(`${LINES_BASE}/${providerLineId}/dids/${did.id}`);
+    }
   }
 
   // ── Webhook endpoints ─────────────────────────────────────────────────────
@@ -573,7 +626,7 @@ export class AnnatelProvider implements TelecomProvider {
     const result = await this.client.get<{ data: AnnatelEventRaw[] }>(
       `/api/events${qs ? `?${qs}` : ''}`,
     );
-    const rows = result.data ?? [];
+    const rows = result?.data ?? [];
     const limited = filters?.limit ? rows.slice(0, filters.limit) : rows;
     return limited.map((e) => ({
       id: e.id,

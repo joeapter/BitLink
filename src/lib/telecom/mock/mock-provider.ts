@@ -17,6 +17,7 @@ import type {
   PortInResult,
   PortInStatus,
   PhoneNumber,
+  TenantDidPage,
   ProviderJobResult,
   TelecomEvent,
   LineDetail,
@@ -174,6 +175,11 @@ export class MockTelecomProvider implements TelecomProvider {
     await this.tick();
   }
 
+  async listTenantDids(_page?: number, _pageSize?: number): Promise<TenantDidPage> {
+    await this.tick();
+    return { dids: [], meta: { pageNumber: 1, pageSize: 100, total: 0 } };
+  }
+
   async getAssignedNumbers(_providerLineId: string): Promise<PhoneNumber[]> {
     await this.tick();
     return [{ number: '+9725512345678', isPrimary: true, startAt: new Date() }];
@@ -220,6 +226,10 @@ export class MockTelecomProvider implements TelecomProvider {
   async listPlansCatalog(): Promise<PlanCatalogEntry[]> {
     await this.tick();
     return [{ id: 'mock-plan-1', name: 'mock-basic', isMain: true }];
+  }
+
+  async getAvailableEsimIccId(): Promise<string | null> {
+    return '89000000000000000001';
   }
 
   async listBarrings(_providerLineId: string): Promise<LineBarring[]> { await this.tick(); return []; }

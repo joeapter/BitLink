@@ -4,6 +4,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { getAdminDb } from "@/lib/db/admin";
+import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Admin Customers",
@@ -65,7 +66,7 @@ export default async function AdminCustomersPage({
                       <StatusBadge status={customer.stripe_customer_id ? "active" : "pending"} label={customer.stripe_customer_id ? "Connected" : "Missing"} />
                     </td>
                     <td className="px-5 py-4 font-mono text-xs text-slate-500">{customer.referral_code ?? "—"}</td>
-                    <td className="px-5 py-4 text-slate-500">{new Date(customer.created_at).toLocaleDateString()}</td>
+                    <td className="px-5 py-4 text-slate-500">{formatDate(customer.created_at)}</td>
                   </tr>
                 ))}
               </tbody>

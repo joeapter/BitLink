@@ -11,6 +11,7 @@ import { LinePlansCard } from "@/components/admin/LinePlansCard";
 import { LineForwardsCard } from "@/components/admin/LineForwardsCard";
 import { LineBarringsCard } from "@/components/admin/LineBarringsCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { formatDate, formatDateTime } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Line Detail" };
 export const dynamic = "force-dynamic";
@@ -91,7 +92,7 @@ export default async function AdminLineDetailPage({ params }: Props) {
           </div>
           <div className="flex gap-3">
             <span className="w-28 text-muted-slate">Created</span>
-            <span className="text-ink">{new Date(line.created_at).toLocaleString()}</span>
+            <span className="text-ink">{formatDateTime(line.created_at)}</span>
           </div>
         </div>
       </section>
@@ -190,7 +191,7 @@ export default async function AdminLineDetailPage({ params }: Props) {
                   <div key={did.number} className="flex items-center justify-between rounded-xl bg-slate-50 p-3 text-sm">
                     <span className="font-semibold text-ink">{did.number}</span>
                     <span className="text-xs text-muted-slate">
-                      Since {did.startAt.toLocaleDateString()}
+                      Since {formatDate(did.startAt)}
                     </span>
                   </div>
                 ))}
@@ -220,7 +221,7 @@ export default async function AdminLineDetailPage({ params }: Props) {
                 {liveDetail.suspensions.map((s) => (
                   <li key={s.id} className="rounded-xl bg-white p-3 text-xs">
                     <span className="font-semibold text-amber-900">{s.type}</span>
-                    <span className="ml-2 text-amber-700">since {s.createdAt.toLocaleDateString()}</span>
+                    <span className="ml-2 text-amber-700">since {formatDate(s.createdAt)}</span>
                   </li>
                 ))}
               </ul>

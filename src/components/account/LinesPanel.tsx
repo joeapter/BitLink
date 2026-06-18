@@ -75,7 +75,7 @@ export function LinesPanel({ lines, children }: { lines: LineRow[]; children?: R
           </div>
         ) : (
           <EmptyState title="No lines yet">
-            Your Israeli line will appear here once your order is activated. This usually takes 1–2 business days after payment.
+            Your Israeli line will appear here once your order is activated.
           </EmptyState>
         )}
       </div>

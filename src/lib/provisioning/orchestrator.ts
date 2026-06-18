@@ -119,7 +119,7 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
   const provider = getTelecomProvider();
   const payload = job.payload as Pick<
     LineCreateParams,
-    'externalId' | 'planName' | 'iccId' | 'isKosher' | 'metadata'
+    'externalId' | 'planName' | 'iccId' | 'isKosher' | 'email' | 'language' | 'identityNumber' | 'portInParams' | 'metadata'
   >;
 
   // PENDING → SUBMITTED
@@ -138,14 +138,39 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
     telecomLineId: job.line_id ?? undefined,
   };
 
+  // For eSIM orders without a pre-assigned ICC ID, pick one from Annatel's inventory.
+  const isEsim = payload.metadata?.is_esim === true;
+  let resolvedIccId = payload.iccId;
+  if (isEsim && !resolvedIccId) {
+    resolvedIccId = (await provider.getAvailableEsimIccId()) ?? undefined;
+    if (!resolvedIccId) {
+      const errMsg = 'No available eSIM profiles in Annatel inventory';
+      const failed = transition(submitted, 'FAILED', { error: errMsg });
+      await jobsRepo.updateJob(admin, job.id, {
+        status: 'failed',
+        status_transitions: failed.status_transitions,
+        updated_at: failed.updated_at,
+        error: errMsg,
+      });
+      return { status: 'FAILED', error: errMsg };
+    }
+  }
+
   let result;
   try {
     result = await withProviderContext(ctx, () =>
       provider.createLine({
         externalId: payload.externalId,
         planName: payload.planName,
-        iccId: payload.iccId,
+        iccId: resolvedIccId,
         isKosher: payload.isKosher ?? false,
+        email: payload.email,
+        language: payload.language ?? 'he_IL',
+        identityNumber:
+          payload.identityNumber ??
+          process.env.ANNATEL_DEFAULT_IDENTITY_NUMBER?.trim() ??
+          '341280188',
+        portInParams: payload.portInParams,
         metadata: payload.metadata,
       }),
     );

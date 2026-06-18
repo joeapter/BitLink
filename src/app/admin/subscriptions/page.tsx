@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { getAdminDb } from "@/lib/db/admin";
+import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Admin Subscriptions",
@@ -40,7 +41,7 @@ export default async function AdminSubscriptionsPage() {
                     </td>
                     <td className="px-5 py-4"><StatusBadge status={subscription.status} /></td>
                     <td className="px-5 py-4 text-slate-600">
-                      {subscription.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString() : "—"}
+                      {subscription.current_period_end ? formatDate(subscription.current_period_end) : "—"}
                     </td>
                     <td className="px-5 py-4 text-slate-600">{subscription.cancel_at_period_end ? "Yes" : "No"}</td>
                   </tr>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getAdminDb } from "@/lib/db/admin";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { formatDateTime } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Admin Support" };
 export const dynamic = "force-dynamic";
@@ -153,7 +154,7 @@ export default async function AdminSupportPage({ searchParams }: Props) {
                       <StatusBadge status={t.status} />
                     </td>
                     <td className="px-5 py-4 text-xs text-muted-slate whitespace-nowrap">
-                      {new Date(t.created_at).toLocaleString("he-IL", { dateStyle: "short", timeStyle: "short" })}
+                      {formatDateTime(t.created_at)}
                     </td>
                     <td className="px-5 py-4">
                       <Link

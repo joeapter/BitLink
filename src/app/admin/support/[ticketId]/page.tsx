@@ -6,6 +6,7 @@ import { getAdminDb } from "@/lib/db/admin";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { updateTicketStatusAction, updateTicketPriorityAction, addTicketNoteAction, addCallNoteAction } from "@/lib/admin/support-actions";
 import { MacroCard } from "@/components/admin/MacroCard";
+import { formatDateTime } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Support Ticket" };
 export const dynamic = "force-dynamic";
@@ -147,7 +148,7 @@ export default async function AdminTicketDetailPage({ params }: Props) {
                 <Mail className="h-3.5 w-3.5" /> {ticket.email}
               </span>
             )}
-            <span className="text-xs">Created {new Date(ticket.created_at).toLocaleString()}</span>
+            <span className="text-xs">Created {formatDateTime(ticket.created_at)}</span>
           </div>
         </div>
 
@@ -188,7 +189,7 @@ export default async function AdminTicketDetailPage({ params }: Props) {
                       <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wide text-slate-600">
                         {m.channel} · {m.direction}
                       </span>
-                      <span className="text-xs text-muted-slate">{new Date(m.created_at).toLocaleString()}</span>
+                      <span className="text-xs text-muted-slate">{formatDateTime(m.created_at)}</span>
                     </div>
                     <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-ink">{m.body}</p>
                   </div>
@@ -233,7 +234,7 @@ export default async function AdminTicketDetailPage({ params }: Props) {
                       {n.should_create_macro      && <span className="rounded-full bg-amber-50 px-2 py-0.5 font-semibold text-amber-700">→ Create macro</span>}
                       {n.should_update_onboarding && <span className="rounded-full bg-blue-50 px-2 py-0.5 font-semibold text-blue-700">→ Update onboarding</span>}
                     </div>
-                    <p className="mt-2 text-xs text-muted-slate">{new Date(n.created_at).toLocaleString()}</p>
+                    <p className="mt-2 text-xs text-muted-slate">{formatDateTime(n.created_at)}</p>
                   </div>
                 ))}
               </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { getAdminDb } from "@/lib/db/admin";
+import { formatDateTime } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Admin Orders",
@@ -42,7 +43,7 @@ export default async function AdminOrdersPage() {
                     <td className="px-5 py-4"><StatusBadge status={order.payment_status} /></td>
                     <td className="px-5 py-4"><StatusBadge status={order.order_status} /></td>
                     <td className="px-5 py-4"><StatusBadge status={order.provisioning_status} /></td>
-                    <td className="px-5 py-4 text-slate-500">{new Date(order.created_at).toLocaleString()}</td>
+                    <td className="px-5 py-4 text-slate-500">{formatDateTime(order.created_at)}</td>
                   </tr>
                 ))}
               </tbody>

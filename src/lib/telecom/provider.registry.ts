@@ -31,7 +31,7 @@ export function getTelecomProvider(): TelecomProvider {
     AnnatelProvider: new (client: unknown, secret: string) => TelecomProvider;
   };
 
-  const apiUrl = process.env.ANNATEL_API_URL ?? 'https://business-manager.annatel.io/api';
+  const apiUrl = process.env.ANNATEL_API_URL ?? 'https://business-manager.annatel.io';
   const apiKey = process.env.ANNATEL_API_KEY ?? '';
   const tenantId = process.env.ANNATEL_TENANT_ID ?? '';
   const webhookSecret = process.env.ANNATEL_WEBHOOK_SECRET ?? '';
