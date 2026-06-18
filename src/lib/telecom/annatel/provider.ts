@@ -155,7 +155,7 @@ export class AnnatelProvider implements TelecomProvider {
   async getLineDetail(providerLineId: string): Promise<LineDetail> {
     const [raw, simsResult, plansResult, didsResult] = await Promise.all([
       this.client.get<AnnatelLineDetail>(`${LINES_BASE}/${providerLineId}`),
-      this.client.get<{ data: Array<{ id: string; icc_id: string; is_main: boolean; start_at: string; end_at?: string; sim?: { type: string; activation_code?: string; activation_code_token?: string; sm_dp_plus_address?: string; confirmation_code?: string } }> }>(`${LINES_BASE}/${providerLineId}/sims`).catch(() => ({ data: [] })),
+      this.client.get<{ data: Array<{ id: string; icc_id: string; is_main: boolean; start_at: string; end_at?: string; sim?: { type: 'esim' | 'sim_card'; activation_code?: string; activation_code_token?: string; sm_dp_plus_address?: string; confirmation_code?: string } }> }>(`${LINES_BASE}/${providerLineId}/sims`).catch(() => ({ data: [] })),
       this.client.get<{ data: Array<{ id: string; start_at: string; end_at?: string; plan_id: string; plan?: { id: string; name: string; is_main: boolean } }> }>(`${LINES_BASE}/${providerLineId}/plans`).catch(() => ({ data: [] })),
       this.client.get<{ data: Array<{ id: string; number: string; start_at: string; end_at?: string }> }>(`${LINES_BASE}/${providerLineId}/dids`).catch(() => ({ data: [] })),
     ]);
