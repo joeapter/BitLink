@@ -296,13 +296,19 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
               </div>
 
               {intlSource === "port" && (
-                <Input
-                  label="Number to port"
-                  name="intlPortNumber"
-                  type="tel"
-                  placeholder="+1 212 555 0000"
-                  required
-                />
+                <div className="grid gap-3">
+                  <Input
+                    label="Number to port"
+                    name="intlPortNumber"
+                    type="tel"
+                    placeholder="+1 212 555 0000"
+                    required
+                  />
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                    <p className="font-semibold">One-time port fee: $49.99</p>
+                    <p className="mt-0.5">International number ports are processed manually and typically take 2–3 business days after your Israeli SIM is activated.</p>
+                  </div>
+                </div>
               )}
             </div>
           )}
@@ -334,7 +340,7 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
         </div>
       </form>
 
-      <CheckoutSummary plan={selectedPlan} isPortIn={numberChoice === "port-in"} feeWaived={feeWaived} hasIntlNumber={wantsIntlNumber} />
+      <CheckoutSummary plan={selectedPlan} isPortIn={numberChoice === "port-in"} feeWaived={feeWaived} hasIntlNumber={wantsIntlNumber} intlIsPortIn={wantsIntlNumber && intlSource === "port"} />
     </div>
   );
 }

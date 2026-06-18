@@ -179,25 +179,82 @@ export default async function AdminLineDetailPage({ params }: Props) {
             </section>
           )}
 
-          {/* DIDs */}
-          {liveDetail && liveDetail.dids.length > 0 && (
-            <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
-                <Phone className="h-4 w-4 text-link-blue" />
-                Assigned numbers
-              </h2>
-              <div className="mt-4 grid gap-2">
-                {liveDetail.dids.map((did) => (
-                  <div key={did.number} className="flex items-center justify-between rounded-xl bg-slate-50 p-3 text-sm">
-                    <span className="font-semibold text-ink">{did.number}</span>
-                    <span className="text-xs text-muted-slate">
-                      Since {formatDate(did.startAt)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+          {/* DIDs + pending port-ins */}
+          {(() => {
+            const intlPortIn = metadata.intl_port_in as Record<string, unknown> | undefined;
+            const hasDids = liveDetail && liveDetail.dids.length > 0;
+            const hasPortIn = Boolean(intlPortIn?.number);
+            if (!hasDids && !hasPortIn) return null;
+            const portInStatusColors: Record<string, string> = {
+              awaiting_israeli_line: 'bg-amber-50 text-amber-700 border-amber-200',
+              manual_pending:        'bg-orange-50 text-orange-700 border-orange-200',
+              submitting:            'bg-blue-50 text-blue-700 border-blue-200',
+              submitted:             'bg-blue-50 text-blue-700 border-blue-200',
+              processing:            'bg-blue-50 text-blue-700 border-blue-200',
+              porting:               'bg-violet-50 text-violet-700 border-violet-200',
+              complete:              'bg-emerald-50 text-emerald-700 border-emerald-200',
+              api_error:             'bg-red-50 text-red-700 border-red-200',
+              failed:                'bg-red-50 text-red-700 border-red-200',
+              pending:               'bg-slate-100 text-slate-600 border-slate-200',
+            };
+            const portInStatusLabel: Record<string, string> = {
+              awaiting_israeli_line: 'Waiting for Israeli SIM',
+              manual_pending:        'Pending manual port (Annatel)',
+              submitting:            'Submitting',
+              submitted:             'Submitted',
+              processing:            'Processing',
+              porting:               'Porting in progress',
+              complete:              'Ported',
+              api_error:             'API error',
+              failed:                'Failed',
+              pending:               'Pending',
+            };
+            return (
+              <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
+                <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
+                  <Phone className="h-4 w-4 text-link-blue" />
+                  Assigned numbers
+                </h2>
+                <div className="mt-4 grid gap-2">
+                  {hasDids && liveDetail!.dids.map((did) => (
+                    <div key={did.number} className="flex items-center justify-between rounded-xl bg-slate-50 p-3 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-ink">{did.number}</span>
+                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700">Active</span>
+                      </div>
+                      <span className="text-xs text-muted-slate">Since {formatDate(did.startAt)}</span>
+                    </div>
+                  ))}
+                  {hasPortIn && (
+                    <div className="rounded-xl border p-3">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <span className="font-semibold text-ink">{intlPortIn!.number as string}</span>
+                          <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-[0.65rem] font-semibold uppercase text-slate-500">
+                            {(intlPortIn!.country as string | undefined)?.toUpperCase() ?? 'INTL'} {intlPortIn!.source === 'port' ? 'Port-in' : 'New'}
+                          </span>
+                        </div>
+                        <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${portInStatusColors[intlPortIn!.status as string] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                          {portInStatusLabel[intlPortIn!.status as string] ?? String(intlPortIn!.status)}
+                        </span>
+                      </div>
+                      {intlPortIn!.error ? (
+                        <div className="mt-2 flex items-start gap-1.5 rounded-lg bg-red-50 p-2.5 text-xs text-red-700">
+                          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                          <span className="font-mono">{String(intlPortIn!.error)}</span>
+                        </div>
+                      ) : null}
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.65rem] text-muted-slate">
+                        {intlPortIn!.created_at ? <span>Requested {formatDateTime(intlPortIn!.created_at as string)}</span> : null}
+                        {intlPortIn!.attempted_at ? <span>Last attempted {formatDateTime(intlPortIn!.attempted_at as string)}</span> : null}
+                        {intlPortIn!.annatel_bur_id ? <span className="font-mono">BUR: {String(intlPortIn!.annatel_bur_id)}</span> : null}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+            );
+          })()}
         </div>
 
         {/* Right column — actions */}

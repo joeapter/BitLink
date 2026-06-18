@@ -315,6 +315,32 @@ async function completeJob(
     occurredAt: new Date().toISOString(),
   });
 
+  // Mark intl port-in as pending manual processing now that Israeli line is active.
+  // US/CA/UK port-ins are processed manually by Annatel — not via API.
+  if (providerLineId) {
+    const freshLine = await linesRepo.getLine(admin, lineId);
+    const lineMeta = (freshLine?.metadata ?? {}) as Record<string, unknown>;
+    const portInIntent = lineMeta.intl_port_in as Record<string, unknown> | undefined;
+    if (portInIntent && portInIntent.status === 'awaiting_israeli_line') {
+      try {
+        const updatedMeta = (await linesRepo.getLine(admin, lineId))?.metadata as Record<string, unknown> ?? {};
+        await linesRepo.updateLine(admin, lineId, {
+          metadata: {
+            ...updatedMeta,
+            intl_port_in: {
+              ...portInIntent,
+              status: 'manual_pending',
+              attempted_at: new Date().toISOString(),
+            },
+          } as never,
+        });
+        log.info({ jobId: job.id, lineId, number: portInIntent.number }, 'Intl port-in marked manual_pending — awaiting Annatel manual processing');
+      } catch (err) {
+        log.error({ jobId: job.id, lineId, error: err instanceof Error ? err.message : String(err) }, 'Failed to update intl port-in status — continuing');
+      }
+    }
+  }
+
   log.info({ jobId: job.id, lineId }, 'Line provisioning completed');
   return { status: 'COMPLETED' };
 }

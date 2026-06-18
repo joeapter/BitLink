@@ -23,6 +23,7 @@ export interface CreateCheckoutSessionParams {
   stripePriceId: string;
   activationFeePriceId: string | null;
   intlNumberAddonPriceId?: string | null;
+  intlPortInFeeId?: string | null;
   stripeCustomerId: string;
   planSlug: string;
   isKosher: boolean;
@@ -82,6 +83,9 @@ export async function createCheckoutSession(
   }
   if (params.intlNumberAddonPriceId) {
     lineItems.push({ price: params.intlNumberAddonPriceId, quantity: 1 });
+  }
+  if (params.intlPortInFeeId) {
+    lineItems.push({ price: params.intlPortInFeeId, quantity: 1 });
   }
 
   return stripe.checkout.sessions.create({

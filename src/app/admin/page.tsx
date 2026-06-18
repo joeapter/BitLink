@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { AlertTriangle, CreditCard, RadioTower, Share2, Users } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangle, CreditCard, Phone, RadioTower, Share2, Users } from "lucide-react";
 import { AdminMetric } from "@/components/admin/AdminMetric";
 import { ProvisioningQueue } from "@/components/admin/ProvisioningQueue";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -50,6 +51,39 @@ export default async function AdminPage() {
               )}
             </div>
           </div>
+
+          {overview.portInQueue.length > 0 && (
+            <div className="rounded-[2rem] border border-orange-200 bg-orange-50 p-6 shadow-soft">
+              <h2 className="flex items-center gap-2 text-xl font-semibold text-orange-900">
+                <Phone className="h-5 w-5" aria-hidden="true" />
+                Port-in queue
+              </h2>
+              <div className="mt-4 grid gap-3">
+                {overview.portInQueue.map((line) => {
+                  const pi = (line.metadata as Record<string, unknown>)?.intl_port_in as Record<string, unknown>;
+                  const customer = line.customers as { full_name?: string; email?: string } | null;
+                  const statusColors: Record<string, string> = {
+                    manual_pending: 'bg-orange-100 text-orange-800',
+                    awaiting_israeli_line: 'bg-amber-100 text-amber-800',
+                    api_error: 'bg-red-100 text-red-800',
+                    failed: 'bg-red-100 text-red-800',
+                  };
+                  const statusColor = statusColors[pi?.status as string] ?? 'bg-slate-100 text-slate-700';
+                  return (
+                    <Link key={line.id} href={`/admin/lines/${line.id}`} className="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm hover:shadow transition-shadow">
+                      <div>
+                        <p className="text-sm font-semibold text-ink">{pi?.number as string}</p>
+                        <p className="text-xs text-muted-slate">{customer?.full_name ?? customer?.email ?? 'Unknown'}</p>
+                      </div>
+                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusColor}`}>
+                        {(pi?.status as string)?.replace(/_/g, ' ')}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
             <h2 className="flex items-center gap-2 text-xl font-semibold text-ink">

@@ -191,6 +191,53 @@ async function seedPlan(plan) {
   return { plan, productId: product.id, priceId: price.id };
 }
 
+async function seedOneTimeAddon(slug, name, description, amountCents) {
+  const existingProducts = await stripe.products.search({
+    query: `metadata['addon_slug']:'${slug}'`,
+    limit: 1,
+  });
+
+  let product;
+  if (existingProducts.data.length > 0) {
+    product = existingProducts.data[0];
+    console.log(`  product  reused   ${product.name} (${product.id})`);
+  } else {
+    product = await stripe.products.create({
+      name,
+      description,
+      metadata: { addon_slug: slug, source: 'bitlink_seed' },
+    });
+    console.log(`  product  created  ${product.name} (${product.id})`);
+  }
+
+  const existingPrices = await stripe.prices.list({
+    product: product.id,
+    active: true,
+    type: 'one_time',
+    limit: 5,
+  });
+
+  const matchingPrice = existingPrices.data.find((p) => p.unit_amount === amountCents);
+  let price;
+  if (matchingPrice) {
+    price = matchingPrice;
+    console.log(`  price    reused   $${(price.unit_amount / 100).toFixed(2)} one-time (${price.id})`);
+  } else if (existingPrices.data.length > 0) {
+    price = existingPrices.data[0];
+    console.log(`  price    reused   $${(price.unit_amount / 100).toFixed(2)} one-time (${price.id}) [amount differs]`);
+  } else {
+    price = await stripe.prices.create({
+      product: product.id,
+      unit_amount: amountCents,
+      currency: 'usd',
+      metadata: { addon_slug: slug, source: 'bitlink_seed' },
+    });
+    console.log(`  price    created  $${(price.unit_amount / 100).toFixed(2)} one-time (${price.id})`);
+  }
+
+  return { slug, productId: product.id, priceId: price.id };
+}
+
 async function main() {
   const isLive = !STRIPE_SECRET_KEY.startsWith('sk_test_');
   console.log(`BitLink — Stripe seed (${isLive ? 'LIVE MODE' : 'test mode'})\n`);
@@ -207,9 +254,18 @@ async function main() {
     console.log('');
   }
 
+  console.log('[intl-port-in-fee]');
+  const portInFee = await seedOneTimeAddon(
+    'intl-port-in-fee',
+    'International Number Port-in Fee',
+    'One-time fee for porting a US, Canadian, or UK number to your BitLink Israeli line. Processed manually by Annatel (2–3 business days).',
+    4999,
+  );
+  console.log('');
+
   console.log('=== Seed complete ===');
   console.log('stripe_price_id values are now stored in the Supabase plans table.');
-  console.log('The checkout flow reads price IDs from the DB — no additional env vars needed.\n');
+  console.log('Add the following env vars to Vercel (production + preview):\n');
 
   console.log('=== Stripe price IDs (for reference / legacy env var support) ===');
   const envKeyMap = {
@@ -223,6 +279,7 @@ async function main() {
     const key = envKeyMap[plan.slug];
     if (key) console.log(`${key}=${priceId}`);
   }
+  console.log(`STRIPE_PRICE_INTL_PORT_IN_FEE=${portInFee.priceId}`);
 }
 
 main().catch((err) => {

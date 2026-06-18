@@ -149,6 +149,11 @@ async function handleCheckoutCompleted(
   const externalId = `stripe_sub_${stripeSubscriptionId}`;
   let lineId: string;
 
+  const wantsIntlNumber = session.metadata?.wants_intl_number === '1';
+  const intlPortNumber = session.metadata?.intl_port_number || null;
+  const intlNumberCountry = session.metadata?.intl_number_country || 'us';
+  const intlNumberSource = session.metadata?.intl_number_source || 'port';
+
   const { data: existingLine } = await admin
     .from('telecom_lines')
     .select('id')
@@ -174,6 +179,19 @@ async function handleCheckoutCompleted(
           plan_slug: planSlug,
           is_esim: isEsim,
           user_id: userId,
+          // Stamp intl port-in intent immediately so it's visible in admin
+          ...(wantsIntlNumber && intlPortNumber ? {
+            intl_port_in: {
+              number: intlPortNumber,
+              country: intlNumberCountry,
+              source: intlNumberSource,
+              status: 'pending',
+              annatel_bur_id: null,
+              error: null,
+              attempted_at: null,
+              created_at: new Date().toISOString(),
+            },
+          } : {}),
         } as never,
       })
       .select('id')
@@ -254,6 +272,41 @@ async function handleCheckoutCompleted(
     { subscriberId: subscriber.id, lineId, jobId, correlationId, planSlug, isKosher, isEsim, userId },
     'Subscriber created, telecom line drafted, provisioning job queued',
   );
+
+  // Attempt intl port-in via Annatel if requested — record intent + result immediately
+  if (wantsIntlNumber && intlPortNumber) {
+    const attemptedAt = new Date().toISOString();
+    try {
+      const provider = getTelecomProvider();
+      // We need the provider line ID — it won't exist yet at this point since the job is async.
+      // Store the intent now; the actual submission must happen after the Israeli line is active.
+      // Update: record as 'awaiting_line' so admin knows we're waiting for the Israeli SIM first.
+      const { data: currentLine } = await admin.from('telecom_lines').select('metadata').eq('id', lineId).single();
+      const currentMeta = (currentLine?.metadata ?? {}) as Record<string, unknown>;
+      const existingPortIn = (currentMeta.intl_port_in ?? {}) as Record<string, unknown>;
+      await admin.from('telecom_lines').update({
+        metadata: {
+          ...currentMeta,
+          intl_port_in: {
+            ...existingPortIn,
+            number: intlPortNumber,
+            country: intlNumberCountry,
+            source: intlNumberSource,
+            status: 'awaiting_israeli_line',
+            annatel_bur_id: null,
+            error: null,
+            attempted_at: attemptedAt,
+            created_at: existingPortIn.created_at ?? attemptedAt,
+          },
+        } as never,
+      }).eq('id', lineId);
+      void provider; // provider will be used when Israeli line is active
+      log.info({ lineId, intlPortNumber, intlNumberCountry }, 'Intl port-in intent recorded — awaiting Israeli line activation');
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      log.error({ lineId, intlPortNumber, error: errMsg }, 'Failed to record intl port-in intent');
+    }
+  }
 
   // Fire post-checkout notification (account creation + welcome email)
   if (customerRecordId) {

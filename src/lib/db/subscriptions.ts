@@ -18,9 +18,19 @@ export interface SubscriptionRecord {
 }
 
 type StripeSub = Stripe.Subscription & {
+  // Legacy top-level fields (pre-2026-04-22 API). In 2026-04-22.dahlia these moved to
+  // SubscriptionItem level — use getSubPeriod() instead of accessing these directly.
   current_period_start?: number;
   current_period_end?: number;
 };
+
+function getSubPeriod(sub: StripeSub): { start: number | null; end: number | null } {
+  // In API 2026-04-22.dahlia period dates are on the first subscription item, not the sub root.
+  const item = sub.items?.data?.[0] as (Stripe.SubscriptionItem & { current_period_start?: number; current_period_end?: number }) | undefined;
+  const start = item?.current_period_start ?? sub.current_period_start ?? null;
+  const end = item?.current_period_end ?? sub.current_period_end ?? null;
+  return { start: start ?? null, end: end ?? null };
+}
 
 function rowToRecord(row: Record<string, unknown>): SubscriptionRecord {
   return {
@@ -38,15 +48,12 @@ function rowToRecord(row: Record<string, unknown>): SubscriptionRecord {
 }
 
 function buildPeriodFields(sub: StripeSub): Record<string, unknown> {
+  const { start, end } = getSubPeriod(sub);
   return {
     status: sub.status,
     cancel_at_period_end: sub.cancel_at_period_end,
-    current_period_start: sub.current_period_start
-      ? new Date(sub.current_period_start * 1000).toISOString()
-      : null,
-    current_period_end: sub.current_period_end
-      ? new Date(sub.current_period_end * 1000).toISOString()
-      : null,
+    current_period_start: start ? new Date(start * 1000).toISOString() : null,
+    current_period_end: end ? new Date(end * 1000).toISOString() : null,
     updated_at: new Date().toISOString(),
   };
 }

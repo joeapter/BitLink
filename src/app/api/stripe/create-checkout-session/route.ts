@@ -252,6 +252,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       stripePriceId: planRow.stripe_price_id,
       activationFeePriceId: skipActivationFee ? null : (process.env.STRIPE_PRICE_ACTIVATION_FEE?.trim() ?? null),
       intlNumberAddonPriceId: wantsIntlNumber ? (process.env.STRIPE_PRICE_US_CANADA_ADDON?.trim() ?? null) : null,
+      intlPortInFeeId: (wantsIntlNumber && intlNumberSource === 'port') ? (process.env.STRIPE_PRICE_INTL_PORT_IN_FEE?.trim() ?? null) : null,
       stripeCustomerId,
       planSlug,
       isKosher,

@@ -1,20 +1,23 @@
-import { ShieldCheck, Sparkles, Phone } from "lucide-react";
+import { ShieldCheck, Sparkles, Phone, Clock } from "lucide-react";
 import type { BitLinkPlan } from "@/lib/plans";
 import { formatMoney } from "@/lib/utils";
 
 const ACTIVATION_FEE_CENTS = 1499;
 const INTL_NUMBER_ADDON_CENTS = 999;
+const INTL_PORT_IN_FEE_CENTS = 4999;
 
 export function CheckoutSummary({
   plan,
   isPortIn = false,
   feeWaived = false,
   hasIntlNumber = false,
+  intlIsPortIn = false,
 }: {
   plan: BitLinkPlan;
   isPortIn?: boolean;
   feeWaived?: boolean;
   hasIntlNumber?: boolean;
+  intlIsPortIn?: boolean;
 }) {
   return (
     <aside className="rounded-4xl border border-ink/10 bg-ink p-6 text-white shadow-liquid">
@@ -54,6 +57,14 @@ export function CheckoutSummary({
             </span>
           </div>
         )}
+        {hasIntlNumber && intlIsPortIn && (
+          <div className="mt-3 border-t border-white/10 pt-3 flex items-center justify-between gap-4">
+            <span className="text-sm text-slate-300">Number port-in fee (one-time)</span>
+            <span className="text-lg font-semibold">
+              {formatMoney(INTL_PORT_IN_FEE_CENTS, plan.currency)}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="mt-6 grid gap-3 text-sm text-slate-200">
@@ -71,10 +82,16 @@ export function CheckoutSummary({
             <span>Your current number stays active throughout the porting process.</span>
           </div>
         )}
-        {hasIntlNumber && (
+        {hasIntlNumber && !intlIsPortIn && (
           <div className="flex gap-3">
             <Phone className="mt-0.5 h-5 w-5 shrink-0 text-soft-cyan" aria-hidden="true" />
             <span>Your US/Canada/UK number is set up alongside your Israeli line.</span>
+          </div>
+        )}
+        {hasIntlNumber && intlIsPortIn && (
+          <div className="flex gap-3">
+            <Clock className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" aria-hidden="true" />
+            <span>International number ports are processed manually and typically take 2–3 business days.</span>
           </div>
         )}
       </div>

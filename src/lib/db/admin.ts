@@ -23,6 +23,7 @@ export async function getAdminOverview() {
       provisioningOrders: [],
       failedOrders: [],
       referrals: [],
+      portInQueue: [],
     };
   }
 
@@ -35,6 +36,7 @@ export async function getAdminOverview() {
     provisioningOrders,
     failedOrders,
     referrals,
+    portInLines,
   ] = await Promise.all([
     db.from("customers").select("id", { count: "exact", head: true }),
     db.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
@@ -52,7 +54,20 @@ export async function getAdminOverview() {
       .limit(8),
     db.from("orders").select("*").in("payment_status", ["failed", "unpaid"]).order("created_at", { ascending: false }).limit(6),
     db.from("referrals").select("*").order("created_at", { ascending: false }).limit(6),
+    db
+      .from("telecom_lines")
+      .select("id, metadata, customers(full_name, email)")
+      .not("metadata->intl_port_in", "is", null)
+      .not("metadata->>intl_port_in", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(20),
   ]);
+
+  // Filter port-in lines to only those with non-complete status
+  const portInQueue = (portInLines.data ?? []).filter((l) => {
+    const pi = (l.metadata as Record<string, unknown> | null)?.intl_port_in as Record<string, unknown> | undefined;
+    return pi && pi.status !== 'complete';
+  });
 
   return {
     metrics: {
@@ -65,5 +80,6 @@ export async function getAdminOverview() {
     provisioningOrders: provisioningOrders.data ?? [],
     failedOrders: failedOrders.data ?? [],
     referrals: referrals.data ?? [],
+    portInQueue,
   };
 }
