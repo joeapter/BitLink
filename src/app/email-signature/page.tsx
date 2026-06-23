@@ -1,14 +1,9 @@
 import type { Metadata } from "next";
+import { createNoIndexMetadata } from "@/lib/seo";
 
 const signatureImagePath = "/assets/bitlink-signature.png";
 
-export const metadata: Metadata = {
-  title: "Email Signature",
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
+export const metadata: Metadata = createNoIndexMetadata("Email Signature");
 
 export default function EmailSignaturePage() {
   const hostedImageUrl =

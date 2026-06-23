@@ -11,9 +11,11 @@
 import { inngest } from '@/inngest/client';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/send';
-import { buildWelcomeEmail } from '@/lib/email/templates';
+import { buildWelcomeEmail, buildAdminSaleEmail } from '@/lib/email/templates';
 import { plans } from '@/lib/plans';
 import { logger } from '@/lib/logger';
+
+const ADMIN_NOTIFY_EMAIL = 'joe@bitlink.co.il';
 
 const log = logger.child({ fn: 'notify-checkout' });
 
@@ -44,7 +46,7 @@ export const notifyCheckout = inngest.createFunction(
     const customer = await step.run('fetch-customer', async () => {
       const { data } = await admin
         .from('customers')
-        .select('id, full_name, email, user_id')
+        .select('id, full_name, email, user_id, org_referral_code')
         .eq('id', customerRecordId)
         .single();
       return data;
@@ -140,6 +142,23 @@ export const notifyCheckout = inngest.createFunction(
           loginUrl,
           tempPassword: authResult.tempPassword ?? undefined,
           isEsim,
+        }),
+      });
+    });
+
+    // Step 5: notify admin of the new sale
+    const plan = plans.find((p) => p.slug === planSlug);
+    await step.run('notify-admin-sale', async () => {
+      return sendEmail({
+        to: ADMIN_NOTIFY_EMAIL,
+        subject: `New BitLink sale — ${planName}`,
+        html: buildAdminSaleEmail({
+          fullName: customer.full_name ?? 'Unknown',
+          email: customer.email,
+          planName,
+          priceCents: plan?.priceCents ?? 0,
+          isEsim,
+          orgReferralCode: (customer as Record<string, unknown>).org_referral_code as string | null,
         }),
       });
     });

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { PrintButton } from "./PrintButton";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Terms & Conditions | BitLink",
+export const metadata: Metadata = createPageMetadata({
+  title: "Terms & Conditions",
   description: "BitLink Terms and Conditions for telecommunication services.",
-};
+  path: "/legal/terms",
+});
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 

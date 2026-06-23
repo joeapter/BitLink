@@ -1,11 +1,19 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { plans } from "@/lib/plans";
 import { contractData } from "@/lib/contracts";
+import { createNoIndexMetadata } from "@/lib/seo";
 import { PrintButton } from "./PrintButton";
 
 export function generateStaticParams() {
   return plans.map((plan) => ({ slug: plan.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const plan = plans.find((p) => p.slug === slug);
+  return createNoIndexMetadata(plan ? `${plan.name} Plan Contract` : "Plan Contract");
 }
 
 export default async function PlanContractPage({ params }: { params: Promise<{ slug: string }> }) {

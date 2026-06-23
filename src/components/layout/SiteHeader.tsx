@@ -7,6 +7,8 @@ import { hasSupabasePublicEnv } from "@/lib/supabase/env";
 
 const links = [
   { href: "/plans", label: "Plans" },
+  { href: "/students", label: "Students" },
+  { href: "/aliyah", label: "Aliyah" },
   { href: "/refer", label: "Refer" },
   { href: "/support", label: "Support" },
 ];
@@ -28,7 +30,7 @@ export async function SiteHeader() {
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <BrandMark />
 
-        <nav className="hidden items-center gap-10 md:flex" aria-label="Main navigation">
+        <nav className="hidden items-center gap-7 lg:flex" aria-label="Main navigation">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -40,7 +42,7 @@ export async function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           {isLoggedIn ? (
             <ButtonLink href="/account" variant="ghost">
               Account

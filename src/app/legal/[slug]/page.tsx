@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { createNoIndexMetadata } from "@/lib/seo";
 
 const labels: Record<string, string> = {
   terms: "Terms",
@@ -8,7 +9,7 @@ const labels: Record<string, string> = {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  return { title: labels[slug] ?? "Legal" };
+  return createNoIndexMetadata(labels[slug] ?? "Legal");
 }
 
 export default async function LegalPlaceholderPage({ params }: { params: Promise<{ slug: string }> }) {

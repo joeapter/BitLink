@@ -13,7 +13,16 @@
     "db:push": "supabase db push",
     "db:reset": "supabase db reset",
     "db:types": "supabase gen types typescript --local > src/types/database.ts",
-    "seed:stripe": "node --env-file=.env.local scripts/seed-stripe-products.mjs"
+    "seed:stripe": "node --env-file=.env.local scripts/seed-stripe-products.mjs",
+    "seo:gsc": "node --env-file=.env.local scripts/seo-gsc.mjs",
+    "seo:gsc:auth": "npm run seo:gsc -- auth",
+    "seo:gsc:properties": "npm run seo:gsc -- properties",
+    "seo:gsc:sitemaps": "npm run seo:gsc -- sitemaps",
+    "seo:gsc:submit-sitemap": "npm run seo:gsc -- submit-sitemap",
+    "seo:gsc:queries": "npm run seo:gsc -- queries",
+    "seo:gsc:pages": "npm run seo:gsc -- pages",
+    "seo:gsc:inspect": "npm run seo:gsc -- inspect",
+    "seo:gsc:report": "npm run seo:gsc -- report"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
@@ -39,6 +48,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "googleapis": "^173.0.0",
     "pino-pretty": "^13.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"

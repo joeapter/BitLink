@@ -1,11 +1,16 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hasSupabasePublicEnv } from "@/lib/supabase/env";
 import { authenticatedRedirectPath, safeInternalPath } from "@/lib/auth/redirects";
 import { absoluteUrl } from "@/lib/utils";
+import { sendEmail } from "@/lib/email/send";
+import { buildAdminSignupEmail } from "@/lib/email/templates";
+
+const ADMIN_NOTIFY_EMAIL = "joe@bitlink.co.il";
 
 function encodeMessage(message: string) {
   return encodeURIComponent(message);
@@ -43,6 +48,9 @@ export async function signupAction(formData: FormData) {
   const phone = String(formData.get("phone") ?? "");
   const password = String(formData.get("password") ?? "");
   const referredBy = String(formData.get("referralCode") ?? "") || null;
+  const cookieStore = await cookies();
+  const orgFromCookie = cookieStore.get("bl_org")?.value ?? "";
+  const orgReferralCode = (String(formData.get("orgReferralCode") ?? "") || orgFromCookie) || null;
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase.auth.signUp({
@@ -85,6 +93,7 @@ export async function signupAction(formData: FormData) {
           full_name: fullName,
           phone,
           referred_by: referredBy,
+          ...(orgReferralCode ? { org_referral_code: orgReferralCode } : {}),
           updated_at: new Date().toISOString(),
         })
         .eq("id", existingCustomer.id);
@@ -96,9 +105,19 @@ export async function signupAction(formData: FormData) {
         phone,
         referral_code: makeReferralCode(),
         referred_by: referredBy,
+        org_referral_code: orgReferralCode,
       });
     }
   }
+
+  cookieStore.delete("bl_org");
+
+  // Fire-and-forget — never block the user redirect on this
+  void sendEmail({
+    to: ADMIN_NOTIFY_EMAIL,
+    subject: `New BitLink signup — ${fullName}`,
+    html: buildAdminSignupEmail({ fullName, email, phone, orgReferralCode }),
+  });
 
   if (data.session) {
     redirect("/account");

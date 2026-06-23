@@ -3,8 +3,9 @@ import { CheckCircle2, Clock, Mail, Smartphone } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hasSupabasePublicEnv } from "@/lib/supabase/env";
+import { createNoIndexMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Payment confirmed — BitLink" };
+export const metadata: Metadata = createNoIndexMetadata("Payment confirmed");
 export const dynamic = "force-dynamic";
 
 async function getLoggedInEmail(): Promise<string | null> {

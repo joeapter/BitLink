@@ -26,6 +26,18 @@ export async function middleware(request: NextRequest) {
   });
 
   await supabase.auth.getUser();
+
+  // Persist org referral code across sessions — set cookie on any page hit with ?org=
+  const orgCode = request.nextUrl.searchParams.get("org");
+  if (orgCode && /^ORG-[0-9A-F]{8}$/i.test(orgCode)) {
+    response.cookies.set("bl_org", orgCode.toUpperCase(), {
+      maxAge: 60 * 60 * 24 * 30,
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+  }
+
   return response;
 }
 

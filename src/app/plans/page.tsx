@@ -2,15 +2,19 @@ import type { Metadata } from "next";
 import { AddOnCard } from "@/components/plans/AddOnCard";
 import { PlanComparison } from "@/components/plans/PlanComparison";
 import { PlanSelector } from "@/components/plans/PlanSelector";
+import { plans } from "@/lib/plans";
+import { createPageMetadata, jsonLdScriptProps, plansCollectionJsonLd } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Plans",
   description: "Compare BitLink monthly phone and data plans.",
-};
+  path: "/plans",
+});
 
 export default function PlansPage() {
   return (
     <div className="bg-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(plansCollectionJsonLd(plans))} />
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#eef5f8_100%)] px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
         <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-soft-cyan/20 blur-3xl" />
         <div className="relative mx-auto max-w-7xl">

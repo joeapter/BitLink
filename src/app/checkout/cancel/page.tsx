@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { ButtonLink } from "@/components/ui/Button";
+import { createNoIndexMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Checkout Canceled",
-};
+export const metadata: Metadata = createNoIndexMetadata("Checkout Canceled");
 
 export default function CheckoutCancelPage() {
   return (

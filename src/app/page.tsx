@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import Link from "next/link";
 import { ArrowRight, CreditCard, Headphones, RadioTower, Smartphone } from "lucide-react";
 import { HumanSupportSection } from "@/components/marketing/HumanSupportSection";
 import { LiquidHero } from "@/components/marketing/LiquidHero";
@@ -6,6 +8,14 @@ import { TrustRibbon } from "@/components/marketing/TrustRibbon";
 import { AddOnCard } from "@/components/plans/AddOnCard";
 import { PlanSelector } from "@/components/plans/PlanSelector";
 import { ButtonLink } from "@/components/ui/Button";
+import { createPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = createPageMetadata({
+  title: "Israeli Phone Service Made Simple",
+  description:
+    "BitLink offers simple monthly Israeli phone plans, instant eSIM activation, secure checkout, and real human support.",
+  path: "/",
+});
 
 const steps = [
   {
@@ -30,10 +40,59 @@ const steps = [
   },
 ];
 
+const servicePaths = [
+  {
+    href: "/israel-esim",
+    title: "Israel eSIM",
+    body: "For compatible phones when the fastest path is activating directly from the device.",
+  },
+  {
+    href: "/israeli-phone-plans-for-students",
+    title: "Student plans",
+    body: "For students who need an Israeli number, enough data, and clear support from the start.",
+  },
+  {
+    href: "/kosher-phone-plans-israel",
+    title: "Kosher plans",
+    body: "For certified kosher phones, with voice-only options and physical SIM activation.",
+  },
+];
+
 export default function Home() {
   return (
     <>
       <LiquidHero />
+
+      <section className="bg-white px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold text-link-blue">Built around real setup moments</p>
+            <h2 className="mt-3 text-balance text-3xl font-semibold tracking-normal text-ink sm:text-5xl">
+              Choose the path that matches the way you need to connect.
+            </h2>
+            <p className="mt-4 text-base leading-7 text-muted-slate sm:text-lg sm:leading-8">
+              Whether you need eSIM activation, a student-ready plan, or a kosher phone setup, BitLink keeps the details clear before checkout.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {servicePaths.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group rounded-lg border border-ink/10 bg-[#f8fbfc] p-6 transition hover:border-link-blue/30 hover:bg-white hover:shadow-soft"
+              >
+                <h3 className="text-xl font-semibold tracking-normal text-ink">{item.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted-slate">{item.body}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-link-blue">
+                  Learn more
+                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden="true" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)] py-16 sm:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

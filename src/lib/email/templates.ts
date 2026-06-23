@@ -171,3 +171,79 @@ export function buildSimShippedEmail(params: SimShippedEmailParams): string {
     ${p('Questions? <a href="https://wa.me/972587939426" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> anytime.')}
   `);
 }
+
+// ── Internal admin notifications ──────────────────────────────────────────────
+
+const ADMIN_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bitlink.co.il';
+
+function adminRow(label: string, value: string): string {
+  return `<tr>
+    <td style="padding:8px 0;font-size:13px;color:#64748b;font-weight:600;width:120px;vertical-align:top;">${label}</td>
+    <td style="padding:8px 0;font-size:13px;color:#050606;">${value}</td>
+  </tr>`;
+}
+
+export interface AdminSignupEmailParams {
+  fullName: string;
+  email: string;
+  phone: string;
+  orgReferralCode?: string | null;
+}
+
+export function buildAdminSignupEmail(params: AdminSignupEmailParams): string {
+  const { fullName, email, phone, orgReferralCode } = params;
+  const now = new Date().toLocaleString('en-IL', { timeZone: 'Asia/Jerusalem', dateStyle: 'medium', timeStyle: 'short' });
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:16px;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <div style="max-width:480px;background:#fff;border-radius:16px;padding:28px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+    <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#00A3A3;text-transform:uppercase;letter-spacing:0.08em;">BitLink</p>
+    <h1 style="margin:0 0 20px;font-size:20px;font-weight:700;color:#050606;">New signup</h1>
+    <table cellpadding="0" cellspacing="0" style="width:100%;">
+      ${adminRow('Name', fullName)}
+      ${adminRow('Email', `<a href="mailto:${email}" style="color:#00A3A3;">${email}</a>`)}
+      ${adminRow('Phone', phone)}
+      ${orgReferralCode ? adminRow('Org code', orgReferralCode) : ''}
+      ${adminRow('Time', now)}
+    </table>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0;">
+      <a href="${ADMIN_URL}/admin/customers" style="font-size:13px;font-weight:600;color:#00A3A3;text-decoration:none;">Open admin →</a>
+    </div>
+  </div>
+</body></html>`;
+}
+
+export interface AdminSaleEmailParams {
+  fullName: string;
+  email: string;
+  planName: string;
+  priceCents: number;
+  isEsim: boolean;
+  orgReferralCode?: string | null;
+}
+
+export function buildAdminSaleEmail(params: AdminSaleEmailParams): string {
+  const { fullName, email, planName, priceCents, isEsim, orgReferralCode } = params;
+  const priceStr = `$${(priceCents / 100).toFixed(2)}/mo`;
+  const now = new Date().toLocaleString('en-IL', { timeZone: 'Asia/Jerusalem', dateStyle: 'medium', timeStyle: 'short' });
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:16px;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <div style="max-width:480px;background:#fff;border-radius:16px;padding:28px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+    <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#00A3A3;text-transform:uppercase;letter-spacing:0.08em;">BitLink</p>
+    <h1 style="margin:0 0 4px;font-size:20px;font-weight:700;color:#050606;">New sale 🎉</h1>
+    <p style="margin:0 0 20px;font-size:28px;font-weight:800;color:#050606;">${priceStr}</p>
+    <table cellpadding="0" cellspacing="0" style="width:100%;">
+      ${adminRow('Customer', fullName)}
+      ${adminRow('Email', `<a href="mailto:${email}" style="color:#00A3A3;">${email}</a>`)}
+      ${adminRow('Plan', planName)}
+      ${adminRow('SIM type', isEsim ? 'eSIM' : 'Physical SIM')}
+      ${orgReferralCode ? adminRow('Org code', orgReferralCode) : ''}
+      ${adminRow('Time', now)}
+    </table>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0;">
+      <a href="${ADMIN_URL}/admin/customers" style="font-size:13px;font-weight:600;color:#00A3A3;text-decoration:none;">Open admin →</a>
+    </div>
+  </div>
+</body></html>`;
+}

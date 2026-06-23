@@ -8,6 +8,8 @@ import { BrandMark } from "@/components/brand/BrandMark";
 
 const links = [
   { href: "/plans", label: "Plans" },
+  { href: "/students", label: "Students" },
+  { href: "/aliyah", label: "Aliyah" },
   { href: "/refer", label: "Refer" },
   { href: "/support", label: "Support" },
   { href: "/account", label: "Account" },
@@ -17,7 +19,7 @@ export function MobileNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <button
         type="button"
         className="grid h-11 w-11 place-items-center rounded-full border border-ink/10 bg-white/80 text-ink shadow-sm backdrop-blur"

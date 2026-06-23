@@ -3,10 +3,9 @@ import Link from "next/link";
 import { loginAction } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { createNoIndexMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Login",
-};
+export const metadata: Metadata = createNoIndexMetadata("Login");
 
 export default async function LoginPage({
   searchParams,

@@ -5,10 +5,26 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
+import { canonicalUrl, createPageMetadata, jsonLdScriptProps, organizationId } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Support",
   description: "Real human support for BitLink plans, activation, and billing.",
+  path: "/support",
+});
+
+const supportJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "@id": `${canonicalUrl("/support")}#contact`,
+  url: canonicalUrl("/support"),
+  name: "BitLink support",
+  isPartOf: {
+    "@id": organizationId,
+  },
+  about: {
+    "@id": organizationId,
+  },
 };
 
 const CATEGORIES = [
@@ -33,6 +49,7 @@ export default async function SupportPage({
 
   return (
     <div className="bg-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(supportJsonLd)} />
       {/* Hero */}
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#eef5f8_100%)] px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
         <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-soft-cyan/20 blur-3xl" />

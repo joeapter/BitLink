@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Gift, Link2, UsersRound } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Refer Friends",
   description: "Link 2 friends and unlock BitLink referral savings.",
-};
+  path: "/refer",
+});
 
 export default function ReferPage() {
   return (

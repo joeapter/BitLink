@@ -8,6 +8,14 @@ const footerLinks = [
   { href: "/support", label: "Support" },
 ];
 
+const exploreLinks = [
+  { href: "/israel-esim", label: "Israel eSIM" },
+  { href: "/aliyah", label: "Aliyah" },
+  { href: "/israeli-phone-plans-for-students", label: "Student plans" },
+  { href: "/kosher-phone-plans-israel", label: "Kosher plans" },
+  { href: "/faq", label: "FAQ" },
+];
+
 const contactRows = [
   { label: "From Israel", href: "tel:+972587939426", value: "058-793-9426" },
   { label: "From USA", href: "tel:+13473445733", value: "347-344-5733" },
@@ -29,8 +37,18 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="grid gap-8 sm:grid-cols-[auto_auto] sm:items-start lg:gap-12">
+        <div className="grid gap-8 sm:grid-cols-[auto_auto] sm:items-start lg:grid-cols-[auto_auto_auto] lg:gap-12">
+          <nav aria-label="Helpful paths" className="grid gap-3 text-sm font-semibold text-slate-600">
+            <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-ink">Explore</p>
+            {exploreLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="transition hover:text-ink">
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
           <nav aria-label="Footer navigation" className="grid gap-3 text-sm font-semibold text-slate-600">
+            <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-ink">Company</p>
             {footerLinks.map((link) => (
               <Link key={link.href} href={link.href} className="transition hover:text-ink">
                 {link.label}

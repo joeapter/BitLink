@@ -1,9 +1,11 @@
+.claude/
 .env
 .env.*
-.claude/
+!.env.example
 *.gpg
-.DS_Store
-logs/
 *.log
+logs/
+bitlink_access.txt.gpg
+node_modules/
+.next/
 coverage/
-.vitest-cache/

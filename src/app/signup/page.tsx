@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { signupAction } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { createNoIndexMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Sign Up",
-};
+export const metadata: Metadata = createNoIndexMetadata("Sign Up");
 
 export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; referral?: string }>;
+  searchParams: Promise<{ error?: string; referral?: string; org?: string }>;
 }) {
   const params = await searchParams;
+  const cookieStore = await cookies();
+  const orgCode = params.org || cookieStore.get("bl_org")?.value || "";
 
   return (
     <section className="liquid-bg bg-slate-50 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
@@ -34,6 +36,7 @@ export default async function SignupPage({
             <Input label="Email" name="email" type="email" autoComplete="email" required className="sm:col-span-2" />
             <Input label="Password" name="password" type="password" autoComplete="new-password" required className="sm:col-span-2" />
             <Input label="Referral code" name="referralCode" defaultValue={params.referral ?? ""} placeholder="Optional" className="sm:col-span-2" />
+            <input type="hidden" name="orgReferralCode" value={orgCode} />
           </div>
 
           {params.error ? (

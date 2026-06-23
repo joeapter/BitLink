@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
 import { defaultPlanSlug, plans, type PlanSlug } from "@/lib/plans";
+import { createNoIndexMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Checkout",
-  description: "Start BitLink monthly checkout securely.",
-};
+export const metadata: Metadata = createNoIndexMetadata("Checkout", "Start BitLink monthly checkout securely.");
 
 export default async function CheckoutPage({
   searchParams,

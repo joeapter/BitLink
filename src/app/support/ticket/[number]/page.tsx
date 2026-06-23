@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CheckCircle } from "lucide-react";
 import { getAdminDb } from "@/lib/db/admin";
+import { createNoIndexMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Support ticket opened" };
+export const metadata: Metadata = createNoIndexMetadata("Support ticket opened");
 export const dynamic = "force-dynamic";
 
 interface Props {

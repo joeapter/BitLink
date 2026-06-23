@@ -49,3 +49,15 @@ yarn-error.log*
 # ── Deployment ────────────────────────────────────────────────────
 .vercel
 .env*.local
+
+# ── Google Search Console CLI ─────────────────────────────────────
+# OAuth client credentials, refresh tokens, and generated search reports
+# stay local and must never be committed.
+/.seo/
+/reports/seo/
+
+# ── Claude Code internal files ────────────────────────────────────
+.claude/
+
+# ── Encrypted credentials ─────────────────────────────────────────
+*.gpg

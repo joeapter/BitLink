@@ -1,15 +1,16 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { CreditCard, Home, LogOut, Phone, RadioTower, Share2, ShieldCheck } from "lucide-react";
+import { BarChart2, CreditCard, Home, LogOut, Phone, RadioTower, Share2, ShieldCheck } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
 import { initials } from "@/lib/utils";
 
 const accountLinks = [
-  { href: "/account", label: "Overview", icon: Home },
-  { href: "/account/lines", label: "Lines", icon: Phone },
-  { href: "/account/billing", label: "Billing", icon: CreditCard },
-  { href: "/account/activation", label: "Activation", icon: RadioTower },
-  { href: "/account/referrals", label: "Referrals", icon: Share2 },
+  { href: "/account",           label: "Overview",   icon: Home       },
+  { href: "/account/lines",     label: "Lines",      icon: Phone      },
+  { href: "/account/usage",     label: "Usage",      icon: BarChart2  },
+  { href: "/account/billing",   label: "Billing",    icon: CreditCard },
+  { href: "/account/activation",label: "Activation", icon: RadioTower },
+  { href: "/account/referrals", label: "Referrals",  icon: Share2     },
 ];
 
 type AccountProfile = {

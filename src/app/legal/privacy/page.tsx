@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | BitLink",
+export const metadata: Metadata = createPageMetadata({
+  title: "Privacy Policy",
   description: "BitLink privacy policy for account, telecom, billing, activation, support, and website data.",
-};
+  path: "/legal/privacy",
+});
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="mt-10 text-2xl font-semibold tracking-normal text-ink">{children}</h2>;
