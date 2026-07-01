@@ -29,6 +29,17 @@ export function ServiceLandingPage({ content }: { content: LandingPageContent })
         </div>
       </section>
 
+      <section className="bg-white px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+        <div className="mx-auto max-w-3xl divide-y divide-ink/8 rounded-lg border border-ink/10 bg-[#f8fbfc] shadow-sm">
+          {content.qaBlocks.map((block) => (
+            <article key={block.question} className="p-6 sm:p-7">
+              <h2 className="text-xl font-semibold tracking-normal text-ink">{block.question}</h2>
+              <p className="mt-3 text-sm leading-6 text-muted-slate">{block.answer}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">
           {content.highlights.map((item) => (

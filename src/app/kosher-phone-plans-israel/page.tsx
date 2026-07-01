@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ServiceLandingPage } from "@/components/marketing/ServiceLandingPage";
 import { landingPages } from "@/lib/public-content";
-import { createPageMetadata, jsonLdScriptProps, servicePageJsonLd } from "@/lib/seo";
+import { createPageMetadata, faqPageJsonLd, jsonLdScriptProps, servicePageJsonLd } from "@/lib/seo";
 
 const content = landingPages.kosherPlans;
 
@@ -15,6 +15,7 @@ export default function KosherPhonePlansPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(servicePageJsonLd(content))} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(faqPageJsonLd(content.qaBlocks))} />
       <ServiceLandingPage content={content} />
     </>
   );
