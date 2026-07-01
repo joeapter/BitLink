@@ -3,6 +3,7 @@ import { plans } from "@/lib/plans";
 import { canonicalUrl } from "@/lib/seo";
 
 const lastModified = new Date("2026-06-22");
+const recentUpdate = new Date("2026-07-02");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -20,13 +21,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: canonicalUrl("/israel-esim"),
-      lastModified,
+      lastModified: recentUpdate,
       changeFrequency: "monthly",
       priority: 0.82,
     },
     {
       url: canonicalUrl("/israeli-phone-plans-for-students"),
-      lastModified,
+      lastModified: recentUpdate,
+      changeFrequency: "monthly",
+      priority: 0.82,
+    },
+    {
+      url: canonicalUrl("/israeli-phone-plans-for-olim"),
+      lastModified: recentUpdate,
       changeFrequency: "monthly",
       priority: 0.82,
     },
@@ -44,7 +51,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: canonicalUrl("/kosher-phone-plans-israel"),
-      lastModified,
+      lastModified: recentUpdate,
       changeFrequency: "monthly",
       priority: 0.82,
     },
