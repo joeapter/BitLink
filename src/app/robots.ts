@@ -14,7 +14,6 @@ export default function robots(): MetadataRoute.Robots {
         "/email-signature",
         "/legal/plans/",
         "/support/ticket/",
-        "/temp-hero-png-test",
       ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
