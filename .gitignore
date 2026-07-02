@@ -56,6 +56,11 @@ yarn-error.log*
 /.seo/
 /reports/seo/
 
+# ── Google Analytics 4 CLI ────────────────────────────────────────
+# OAuth client credentials, refresh tokens, and generated GA4 reports
+# stay local and must never be committed.
+/reports/analytics/
+
 # ── Claude Code internal files ────────────────────────────────────
 .claude/
 

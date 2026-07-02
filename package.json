@@ -22,7 +22,14 @@
     "seo:gsc:queries": "npm run seo:gsc -- queries",
     "seo:gsc:pages": "npm run seo:gsc -- pages",
     "seo:gsc:inspect": "npm run seo:gsc -- inspect",
-    "seo:gsc:report": "npm run seo:gsc -- report"
+    "seo:gsc:report": "npm run seo:gsc -- report",
+    "ga4": "node --env-file=.env.local scripts/ga4.mjs",
+    "ga4:auth": "npm run ga4 -- auth",
+    "ga4:overview": "npm run ga4 -- overview",
+    "ga4:pages": "npm run ga4 -- pages",
+    "ga4:sources": "npm run ga4 -- sources",
+    "ga4:realtime": "npm run ga4 -- realtime",
+    "ga4:report": "npm run ga4 -- report"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.10",
