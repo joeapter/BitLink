@@ -25,9 +25,12 @@
     "seo:gsc:report": "npm run seo:gsc -- report"
   },
   "dependencies": {
+    "@next/third-parties": "^16.2.10",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",
     "@types/nodemailer": "^8.0.1",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "inngest": "^3.32.4",

@@ -42,7 +42,7 @@ export function LiquidHero() {
     <section className="cinematic-hero relative isolate -mt-20 min-h-[660px] overflow-hidden bg-[#f7fafc] pt-20 text-ink sm:min-h-svh">
       <div className="absolute inset-0 -z-10">
         <Image
-          src="/assets/bitlink-telecom-hero-v2.png"
+          src="/assets/bitlink-telecom-hero-v2.jpg"
           alt=""
           aria-hidden="true"
           fill

@@ -9,7 +9,7 @@ export const DEFAULT_DESCRIPTION =
   "BitLink gives you simple monthly Israeli phone plans, secure checkout, guided activation, and human support.";
 
 export const defaultOgImage = {
-  url: "/assets/bitlink-telecom-hero-v2.png",
+  url: "/assets/bitlink-telecom-hero-v2.jpg",
   width: 1672,
   height: 941,
   alt: "BitLink Israeli phone service",

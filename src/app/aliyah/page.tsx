@@ -16,7 +16,7 @@ export const metadata: Metadata = createPageMetadata({
     "Israeli phone service for Aliyah, with an Israeli number, work-ready data, guided activation, and a US, Canadian, or UK number add-on from BitLink.",
   path: pagePath,
   image: {
-    url: "/assets/bitlink-telecom-hero-v2.png",
+    url: "/assets/bitlink-telecom-hero-v2.jpg",
     width: 1672,
     height: 941,
     alt: "BitLink phone service connecting to Israel.",
@@ -75,7 +75,7 @@ export default function AliyahPage() {
       <main className="bg-white">
         <section className="relative isolate min-h-[42rem] overflow-hidden border-b border-ink/10 bg-[#eef5f8] px-4 py-20 sm:px-6 sm:py-28 lg:min-h-[44rem] lg:px-8">
           <Image
-            src="/assets/bitlink-telecom-hero-v2.png"
+            src="/assets/bitlink-telecom-hero-v2.jpg"
             alt="BitLink phone service connecting to Israel."
             fill
             priority
@@ -191,8 +191,8 @@ export default function AliyahPage() {
                 <ButtonLink href={`/plans/${workPlan.slug}`} variant="secondary">
                   See Max 5G details
                 </ButtonLink>
-                <Link href="/plans" className="inline-flex items-center gap-2 self-start text-sm font-semibold text-link-blue transition hover:text-ink">
-                  Compare all plans
+                <Link href="/israeli-phone-plans-for-olim" className="inline-flex items-center gap-2 self-start text-sm font-semibold text-link-blue transition hover:text-ink">
+                  Read the olim phone plan guide
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </div>
