@@ -2,8 +2,7 @@ import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
 import { BrandMark } from "@/components/brand/BrandMark";
 import { MobileNav } from "./MobileNav";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { hasSupabasePublicEnv } from "@/lib/supabase/env";
+import { HeaderAuthActions } from "./HeaderAuthActions";
 
 const links = [
   { href: "/plans", label: "Plans" },
@@ -13,18 +12,7 @@ const links = [
   { href: "/support", label: "Support" },
 ];
 
-export async function SiteHeader() {
-  let isLoggedIn = false;
-  if (hasSupabasePublicEnv()) {
-    try {
-      const supabase = await createSupabaseServerClient();
-      const { data } = await supabase.auth.getUser();
-      isLoggedIn = !!data.user;
-    } catch {
-      // not critical — fall back to signed-out state
-    }
-  }
-
+export function SiteHeader() {
   return (
     <header className="site-header-surface sticky top-0 z-40 border-b border-white/70 bg-white/68 backdrop-blur-2xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -43,21 +31,13 @@ export async function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          {isLoggedIn ? (
-            <ButtonLink href="/account" variant="ghost">
-              Account
-            </ButtonLink>
-          ) : (
-            <ButtonLink href="/login" variant="ghost">
-              Sign in
-            </ButtonLink>
-          )}
+          <HeaderAuthActions />
           <ButtonLink href="/plans" className="premium-cta">
             Choose plan
           </ButtonLink>
         </div>
 
-        <MobileNav isLoggedIn={isLoggedIn} />
+        <MobileNav />
       </div>
     </header>
   );

@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import { BrandMark } from "@/components/brand/BrandMark";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { hasSupabasePublicEnv } from "@/lib/supabase/env";
 
 const links = [
   { href: "/plans", label: "Plans" },
@@ -15,8 +17,29 @@ const links = [
   { href: "/account", label: "Account" },
 ];
 
-export function MobileNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
+export function MobileNav() {
   const [open, setOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (!hasSupabasePublicEnv()) return;
+
+    let cancelled = false;
+    const supabase = createSupabaseBrowserClient();
+
+    supabase.auth.getUser().then(({ data }) => {
+      if (!cancelled) setIsLoggedIn(!!data.user);
+    });
+
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session?.user);
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <div className="lg:hidden">
