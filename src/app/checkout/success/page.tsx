@@ -4,6 +4,9 @@ import { ButtonLink } from "@/components/ui/Button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hasSupabasePublicEnv } from "@/lib/supabase/env";
 import { createNoIndexMetadata } from "@/lib/seo";
+import { getStripe } from "@/lib/stripe/server";
+import { getPlan } from "@/lib/plans";
+import { PurchaseEvent } from "./PurchaseEvent";
 
 export const metadata: Metadata = createNoIndexMetadata("Payment confirmed");
 export const dynamic = "force-dynamic";
@@ -19,11 +22,50 @@ async function getLoggedInEmail(): Promise<string | null> {
   }
 }
 
-export default async function CheckoutSuccessPage() {
-  const email = await getLoggedInEmail();
+type PurchaseDetails = {
+  transactionId: string;
+  value: number;
+  currency: string;
+  planSlug: string;
+  planName: string;
+};
+
+async function getPurchaseDetails(sessionId: string | undefined): Promise<PurchaseDetails | null> {
+  if (!sessionId) return null;
+  const stripe = getStripe();
+  if (!stripe) return null;
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (session.payment_status !== "paid" || session.amount_total == null) return null;
+
+    const planSlug = session.metadata?.plan_slug ?? "";
+    return {
+      transactionId: session.id,
+      value: session.amount_total / 100,
+      currency: (session.currency ?? "usd").toUpperCase(),
+      planSlug,
+      planName: getPlan(planSlug).name,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export default async function CheckoutSuccessPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ session_id?: string }>;
+}) {
+  const { session_id: sessionId } = await searchParams;
+  const [email, purchase] = await Promise.all([
+    getLoggedInEmail(),
+    getPurchaseDetails(sessionId),
+  ]);
 
   return (
     <section className="bg-white px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+      {purchase ? <PurchaseEvent {...purchase} /> : null}
       <div className="mx-auto max-w-2xl">
 
         {/* Hero */}
