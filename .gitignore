@@ -61,6 +61,10 @@ yarn-error.log*
 # stay local and must never be committed.
 /reports/analytics/
 
+# ── Google Ads campaign drafts ────────────────────────────────────
+# Draft ad copy/campaign structure — local planning artifacts, not app code.
+/reports/ads/
+
 # ── Claude Code internal files ────────────────────────────────────
 .claude/
 
