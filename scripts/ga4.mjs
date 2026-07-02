@@ -17,7 +17,7 @@ const DEFAULT_PROPERTY_ID = '510449299';
 const DEFAULT_CLIENT_FILE = '.seo/google-ga-oauth-client.json';
 const DEFAULT_TOKEN_FILE = '.seo/google-ga-oauth-token.json';
 const DEFAULT_REPORT_DIRECTORY = 'reports/analytics';
-const OAUTH_SCOPE = 'https://www.googleapis.com/auth/analytics.readonly';
+const OAUTH_SCOPES = ['https://www.googleapis.com/auth/analytics.readonly'];
 const CALLBACK_PATH = '/oauth2callback';
 
 const [command = 'help', ...rawArgs] = process.argv.slice(2);
@@ -73,6 +73,7 @@ Commands:
   pages [--days 28]       Top pages by views for the period.
   sources [--days 28]     Sessions by acquisition channel for the period.
   realtime                Active users on the site right now.
+  ads-links               List Google Ads accounts linked to this GA4 property.
   report [--days 28]      Write a local Markdown performance report.
   help                    Show this help text.
 
@@ -207,7 +208,7 @@ async function authenticate() {
   const authorizationUrl = client.generateAuthUrl({
     access_type: 'offline',
     prompt: 'consent',
-    scope: [OAUTH_SCOPE],
+    scope: OAUTH_SCOPES,
   });
 
   console.log('Opening Google authorization in your browser.');
@@ -259,6 +260,33 @@ async function authenticate() {
 
 async function getAnalyticsData() {
   return google.analyticsdata({ version: 'v1beta', auth: await getAuthenticatedClient() });
+}
+
+async function getAnalyticsAdmin() {
+  return google.analyticsadmin({ version: 'v1beta', auth: await getAuthenticatedClient() });
+}
+
+async function showAdsLinks() {
+  const admin = await getAnalyticsAdmin();
+  const property = getPropertyId();
+
+  const { data } = await admin.properties.googleAdsLinks.list({
+    parent: `properties/${property}`,
+  });
+
+  const links = data.googleAdsLinks ?? [];
+  console.log(`\nGoogle Ads links for properties/${property}\n`);
+
+  if (links.length === 0) {
+    console.log('No Google Ads link found on this GA4 property yet.');
+    return;
+  }
+
+  console.table(links.map((link) => ({
+    'Ads Customer ID': link.customerId,
+    'Personalized ads': link.adsPersonalizationEnabled ? 'enabled' : 'disabled',
+    Created: link.createTime,
+  })));
 }
 
 function getDateRange(days) {
@@ -512,6 +540,9 @@ async function main() {
       return;
     case 'realtime':
       await showRealtime();
+      return;
+    case 'ads-links':
+      await showAdsLinks();
       return;
     case 'report':
       await writeReport();

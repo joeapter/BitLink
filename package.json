@@ -29,6 +29,7 @@
     "ga4:pages": "npm run ga4 -- pages",
     "ga4:sources": "npm run ga4 -- sources",
     "ga4:realtime": "npm run ga4 -- realtime",
+    "ga4:ads-links": "npm run ga4 -- ads-links",
     "ga4:report": "npm run ga4 -- report"
   },
   "dependencies": {
