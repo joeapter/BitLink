@@ -24,6 +24,7 @@
 
 ## Facts
 
+- Network: BitLink runs primarily on the Partner network, with Pelephone as a secondary network — both major Israeli national carriers with nationwide 5G coverage.
 - Israeli number porting: typically completes in 5–10 minutes, no porting fee.
 - International number porting (US/UK/Canada): $49.99 one-time fee, typically up to 3 business days; the old number stays active during the port.
 - eSIM plans activate on compatible unlocked devices; kosher plans require a physical SIM.
