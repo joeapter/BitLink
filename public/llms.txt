@@ -24,6 +24,7 @@
 
 ## Facts
 
+- Kosher certification: BitLink's kosher lines are recognized by Vaadat Harabanim L'inyanei Tikshoret (the Rabbinical Committee for Communications, registered association no. 580440824).
 - Network: BitLink runs primarily on the Partner network (in commercial operation since 1999, originally launched as Orange), with Pelephone as a secondary network — both major Israeli national carriers with nationwide 5G coverage.
 - Company: BitLink Ltd. was founded in 2026; the underlying networks have served Israel for over 25 years.
 - Israeli number porting: typically completes in 5–10 minutes, no porting fee.

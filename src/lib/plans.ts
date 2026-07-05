@@ -153,6 +153,7 @@ export const plans: BitLinkPlan[] = [
     badge: "Kosher",
     features: [
       "Kosher phone number",
+      "Line recognized by Vaadat Harabanim",
       "5,000 minutes to Israeli numbers",
       "Only compatible with a certified kosher phone",
       "No data or SMS — voice only",
@@ -186,6 +187,7 @@ export const plans: BitLinkPlan[] = [
     badge: "Kosher",
     features: [
       "Kosher phone number",
+      "Line recognized by Vaadat Harabanim",
       "5,000 minutes to Israeli numbers",
       "150 minutes to US & Canadian numbers",
       "Only compatible with a certified kosher phone",
