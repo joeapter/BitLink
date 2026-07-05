@@ -1,19 +1,30 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand/BrandMark";
 
-const footerLinks = [
+const planLinks = [
+  { href: "/plans", label: "All plans" },
+  { href: "/plans/basic", label: "Basic" },
+  { href: "/plans/student-5g", label: "Student 5G" },
+  { href: "/plans/max-5g", label: "Max 5G" },
+  { href: "/plans/kosher-basic", label: "Kosher Basic" },
+  { href: "/plans/kosher-plus", label: "Kosher+" },
+];
+
+const guideLinks = [
+  { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+  { href: "/israeli-phone-plans-for-olim", label: "Phone plans for olim" },
+  { href: "/israel-esim", label: "Israel eSIM" },
+  { href: "/kosher-phone-plans-israel", label: "Kosher plans" },
+  { href: "/aliyah", label: "Aliyah" },
+  { href: "/faq", label: "FAQ" },
+];
+
+const companyLinks = [
+  { href: "/support", label: "Support" },
+  { href: "/refer", label: "Refer friends" },
   { href: "/legal/terms", label: "Terms" },
   { href: "/legal/privacy", label: "Privacy" },
   { href: "/legal/acceptable-use", label: "Acceptable Use" },
-  { href: "/support", label: "Support" },
-];
-
-const exploreLinks = [
-  { href: "/israel-esim", label: "Israel eSIM" },
-  { href: "/aliyah", label: "Aliyah" },
-  { href: "/israeli-phone-plans-for-students", label: "Student plans" },
-  { href: "/kosher-phone-plans-israel", label: "Kosher plans" },
-  { href: "/faq", label: "FAQ" },
 ];
 
 const contactRows = [
@@ -37,19 +48,28 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="grid gap-8 sm:grid-cols-[auto_auto] sm:items-start lg:grid-cols-[auto_auto_auto] lg:gap-12">
-          <nav aria-label="Helpful paths" className="grid gap-3 text-sm font-semibold text-slate-600">
-            <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-ink">Explore</p>
-            {exploreLinks.map((link) => (
+        <div className="grid gap-8 sm:grid-cols-2 sm:items-start lg:grid-cols-[auto_auto_auto_auto] lg:gap-12">
+          <nav aria-label="Plans" className="grid content-start gap-3 text-sm font-semibold text-slate-600">
+            <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-ink">Plans</p>
+            {planLinks.map((link) => (
               <Link key={link.href} href={link.href} className="transition hover:text-ink">
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          <nav aria-label="Footer navigation" className="grid gap-3 text-sm font-semibold text-slate-600">
+          <nav aria-label="Guides" className="grid content-start gap-3 text-sm font-semibold text-slate-600">
+            <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-ink">Guides</p>
+            {guideLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="transition hover:text-ink">
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          <nav aria-label="Company" className="grid content-start gap-3 text-sm font-semibold text-slate-600">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-ink">Company</p>
-            {footerLinks.map((link) => (
+            {companyLinks.map((link) => (
               <Link key={link.href} href={link.href} className="transition hover:text-ink">
                 {link.label}
               </Link>

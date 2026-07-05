@@ -7,7 +7,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { formatMoney } from "@/lib/utils";
 import { getPlan, plans } from "@/lib/plans";
 import { contractData } from "@/lib/contracts";
-import { createPageMetadata, jsonLdScriptProps, planJsonLd, planMetaDescription } from "@/lib/seo";
+import { createPageMetadata, jsonLdScriptProps, planJsonLd } from "@/lib/seo";
 
 export function generateStaticParams() {
   return plans.map((plan) => ({ slug: plan.slug }));
@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const plan = plans.find((item) => item.slug === slug);
   if (!plan) return { title: "Plan" };
   return createPageMetadata({
-    title: plan.name,
-    description: planMetaDescription(plan),
+    title: plan.seoTitle,
+    description: plan.seoDescription,
     path: `/plans/${plan.slug}`,
   });
 }
@@ -38,8 +38,18 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ slu
         body: "This plan uses a physical SIM and is designed around clear voice service, not data bundles.",
       }
     : {
-        href: plan.slug === "basic" ? "/israel-esim" : "/israeli-phone-plans-for-students",
-        label: plan.slug === "basic" ? "Israel eSIM guidance" : "Student plan guidance",
+        href:
+          plan.slug === "basic"
+            ? "/israel-esim"
+            : plan.slug === "max-5g"
+              ? "/israeli-phone-plans-for-olim"
+              : "/israeli-phone-plans-for-students",
+        label:
+          plan.slug === "basic"
+            ? "Israel eSIM guidance"
+            : plan.slug === "max-5g"
+              ? "Olim plan guidance"
+              : "Student plan guidance",
         title: "Designed to keep activation understandable.",
         body: "Standard plans can support eSIM or physical SIM, depending on your device and setup needs.",
       };

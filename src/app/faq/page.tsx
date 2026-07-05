@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
+import { TextWithLinks } from "@/components/ui/TextWithLinks";
 import { faqItems } from "@/lib/public-content";
 import { createPageMetadata, faqPageJsonLd, jsonLdScriptProps } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "FAQ",
-  description: "Clear answers about BitLink Israeli phone plans, eSIM activation, kosher plans, support, and number options.",
+  title: "FAQ — Israeli Phone Plans, eSIM & Number Porting",
+  description:
+    "Straight answers: what plans cost, how eSIM activation works, porting Israeli and US numbers, kosher plan limits, and how to reach real human support.",
   path: "/faq",
 });
 
@@ -47,7 +49,9 @@ export default function FaqPage() {
             {faqItems.map((item) => (
               <article key={item.question} className="p-6 sm:p-7">
                 <h2 className="text-xl font-semibold tracking-normal text-ink">{item.question}</h2>
-                <p className="mt-3 text-sm leading-6 text-muted-slate">{item.answer}</p>
+                <p className="mt-3 text-sm leading-6 text-muted-slate">
+                  <TextWithLinks text={item.answer} />
+                </p>
                 {"action" in item && item.action ? (
                   <a
                     href={item.action.href}

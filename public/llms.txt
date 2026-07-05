@@ -1,0 +1,32 @@
+# BitLink
+
+> BitLink (BitLink Ltd., Israeli company no. 341280188) is an Israeli mobile carrier built for English speakers — students, new olim, and families. Monthly plans are priced in USD with VAT included and no hidden fees, and every plan includes a real Israeli phone number. Activation is by eSIM (typically minutes after checkout) or physical SIM, with kosher voice-only options. Support is by WhatsApp, phone, and email, in English, from real people.
+
+## Plans (USD per month, VAT included)
+
+- Basic — $14.99: 1GB 5G data, 1,000 Israel minutes, 500 SMS. https://www.bitlink.co.il/plans/basic
+- Student 5G — $34.99 (most popular): 50GB 5G data, 5,000 minutes, 1,000 SMS. https://www.bitlink.co.il/plans/student-5g
+- Max 5G — $39.99: 120GB 5G data, 5,000 minutes, 1,000 SMS, plus 150 minutes to US/Canada. https://www.bitlink.co.il/plans/max-5g
+- Kosher Basic — $19.99: voice-only, 5,000 Israel minutes, physical SIM, requires a certified kosher phone. https://www.bitlink.co.il/plans/kosher-basic
+- Kosher+ — $24.99: Kosher Basic plus 150 minutes to US/Canada. https://www.bitlink.co.il/plans/kosher-plus
+- Add-on — $9.99/month: a US, Canadian, or UK local number on any plan, so family abroad can call at local rates.
+
+## Key pages
+
+- Plans and pricing: https://www.bitlink.co.il/plans
+- Israel eSIM with an Israeli phone number: https://www.bitlink.co.il/israel-esim
+- Phone plans for students: https://www.bitlink.co.il/israeli-phone-plans-for-students
+- Phone plans for new olim: https://www.bitlink.co.il/israeli-phone-plans-for-olim
+- Kosher phone plans: https://www.bitlink.co.il/kosher-phone-plans-israel
+- Aliyah phone service: https://www.bitlink.co.il/aliyah
+- FAQ: https://www.bitlink.co.il/faq
+- Support: https://www.bitlink.co.il/support
+
+## Facts
+
+- Israeli number porting: typically completes in 5–10 minutes, no porting fee.
+- International number porting (US/UK/Canada): $49.99 one-time fee, typically up to 3 business days; the old number stays active during the port.
+- eSIM plans activate on compatible unlocked devices; kosher plans require a physical SIM.
+- Prices are charged in USD and include Israeli VAT.
+- Support hours (Israel time): Sunday–Thursday 9:00–18:00, Friday 9:00–12:00.
+- Contact: WhatsApp +972-58-793-9426, from the USA +1-347-344-5733, support@bitlink.co.il.

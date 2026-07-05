@@ -3,19 +3,19 @@ import { plans } from "@/lib/plans";
 import { canonicalUrl } from "@/lib/seo";
 
 const lastModified = new Date("2026-06-22");
-const recentUpdate = new Date("2026-07-02");
+const recentUpdate = new Date("2026-07-05");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: canonicalUrl("/"),
-      lastModified,
+      lastModified: recentUpdate,
       changeFrequency: "weekly",
       priority: 1,
     },
     {
       url: canonicalUrl("/plans"),
-      lastModified,
+      lastModified: recentUpdate,
       changeFrequency: "weekly",
       priority: 0.9,
     },
@@ -39,13 +39,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: canonicalUrl("/students"),
-      lastModified,
+      lastModified: recentUpdate,
       changeFrequency: "monthly",
       priority: 0.84,
     },
     {
       url: canonicalUrl("/aliyah"),
-      lastModified,
+      lastModified: recentUpdate,
       changeFrequency: "monthly",
       priority: 0.84,
     },
@@ -57,25 +57,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     ...plans.map((plan) => ({
       url: canonicalUrl(`/plans/${plan.slug}`),
-      lastModified,
+      lastModified: recentUpdate,
       changeFrequency: "monthly" as const,
       priority: plan.featured ? 0.85 : 0.8,
     })),
     {
       url: canonicalUrl("/support"),
-      lastModified,
+      lastModified: recentUpdate,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: canonicalUrl("/refer"),
-      lastModified,
+      lastModified: recentUpdate,
       changeFrequency: "monthly",
       priority: 0.6,
     },
     {
       url: canonicalUrl("/faq"),
-      lastModified,
+      lastModified: recentUpdate,
       changeFrequency: "monthly",
       priority: 0.55,
     },

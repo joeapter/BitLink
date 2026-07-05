@@ -8,8 +8,9 @@ import { Select } from "@/components/ui/Select";
 import { canonicalUrl, createPageMetadata, jsonLdScriptProps, organizationId } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Support",
-  description: "Real human support for BitLink plans, activation, and billing.",
+  title: "Contact BitLink — WhatsApp, Phone & Email Support",
+  description:
+    "Real people, in English. Reach BitLink support by WhatsApp, phone, or email for activation, billing, porting, and plan help. Sun–Thu 9–6, Fri 9–12 (Israel).",
   path: "/support",
 });
 

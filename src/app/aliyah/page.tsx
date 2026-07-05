@@ -11,9 +11,9 @@ const pagePath = "/aliyah";
 const workPlan = getPlan("max-5g");
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Aliyah Phone Service",
+  title: "Aliyah Phone Service — Israeli Number + US Line",
   description:
-    "Israeli phone service for Aliyah, with an Israeli number, work-ready data, guided activation, and a US, Canadian, or UK number add-on from BitLink.",
+    "Israeli phone service ready when you land: work-ready data, guided activation, and a US, Canadian, or UK number add-on so home can still reach you.",
   path: pagePath,
   image: {
     url: "/assets/bitlink-telecom-hero-v2.jpg",

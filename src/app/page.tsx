@@ -11,9 +11,11 @@ import { ButtonLink } from "@/components/ui/Button";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Israeli Phone Service Made Simple",
+  // The root segment doesn't inherit the layout title template, so the brand
+  // suffix is written out here and rendered as-is via the absolute-title path.
+  title: "Israeli Phone Plans in English — eSIM & Human Support | BitLink",
   description:
-    "BitLink offers simple monthly Israeli phone plans, instant eSIM activation, secure checkout, and real human support.",
+    "Israeli phone service for English speakers. Monthly plans from $14.99 (USD, VAT incl.), instant eSIM, US/Canada/UK number add-on, and real WhatsApp support.",
   path: "/",
 });
 
@@ -56,6 +58,11 @@ const servicePaths = [
     title: "Kosher plans",
     body: "For certified kosher phones, with voice-only options and physical SIM activation.",
   },
+  {
+    href: "/israeli-phone-plans-for-olim",
+    title: "Plans for new olim",
+    body: "For your first weeks in Israel: a working number for the bank, Misrad HaPnim, and family back home.",
+  },
 ];
 
 export default function Home() {
@@ -71,11 +78,11 @@ export default function Home() {
               Choose the path that matches the way you need to connect.
             </h2>
             <p className="mt-4 text-base leading-7 text-muted-slate sm:text-lg sm:leading-8">
-              Whether you need eSIM activation, a student-ready plan, or a kosher phone setup, BitLink keeps the details clear before checkout.
+              Whether you need eSIM activation, a student-ready plan, a kosher phone setup, or a first Israeli number after aliyah, BitLink keeps the details clear before checkout.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {servicePaths.map((item) => (
               <Link
                 key={item.href}

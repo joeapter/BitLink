@@ -18,9 +18,9 @@ const referralImage = {
 };
 
 export const metadata: Metadata = createPageMetadata({
-  title: "BitLink for Students",
+  title: "BitLink for Students — Land Connected",
   description:
-    "Israeli phone service for students who want to land connected, stay in the group chat, and keep their semester moving with BitLink.",
+    "Your phone works when you land: Israeli number, 50GB of data, referral rewards, and English support that answers. The student setup, handled.",
   path: pagePath,
   image: referralImage,
 });

@@ -61,7 +61,9 @@ export function createPageMetadata({
   const url = canonicalUrl(path);
 
   return {
-    title,
+    // Titles that already carry the brand skip the "| BitLink" layout template
+    // so pages like /students don't render a doubled brand suffix.
+    title: title.includes(SITE_NAME) ? { absolute: title } : title,
     description,
     alternates: {
       canonical: url,
@@ -117,6 +119,10 @@ export const siteJsonLd: JsonLd = {
       email: "support@bitlink.co.il",
       telephone: "+972587939426",
       identifier: "341280188",
+      areaServed: {
+        "@type": "Country",
+        name: "Israel",
+      },
       contactPoint: [
         {
           "@type": "ContactPoint",
@@ -124,6 +130,14 @@ export const siteJsonLd: JsonLd = {
           telephone: "+972587939426",
           email: "support@bitlink.co.il",
           areaServed: "IL",
+          availableLanguage: ["en"],
+        },
+        {
+          "@type": "ContactPoint",
+          contactType: "customer support",
+          telephone: "+13473445733",
+          email: "support@bitlink.co.il",
+          areaServed: ["US", "CA"],
           availableLanguage: ["en"],
         },
       ],
@@ -151,16 +165,6 @@ export function breadcrumbJsonLd(items: Array<{ name: string; path: string }>): 
       item: canonicalUrl(item.path),
     })),
   };
-}
-
-export function planMetaDescription(plan: BitLinkPlan) {
-  const inclusions = [
-    plan.comparison.data !== "None" ? `${plan.comparison.data} data` : null,
-    plan.comparison.calls !== "None" ? `${plan.comparison.calls} calling` : null,
-    plan.comparison.texts !== "None" ? `${plan.comparison.texts} texts` : null,
-  ].filter(Boolean);
-
-  return `${plan.name} is a BitLink monthly Israeli ${plan.isKosher ? "kosher " : ""}phone plan with ${inclusions.join(", ")} and guided human activation support.`;
 }
 
 export function planJsonLd(plan: BitLinkPlan): JsonLd {
@@ -253,6 +257,12 @@ export function servicePageJsonLd(content: LandingPageContent): JsonLd {
   };
 }
 
+// Answer copy may carry inline [label](/path) links for on-page rendering;
+// structured data expects plain text, so the link syntax is stripped here.
+export function stripInlineLinks(text: string) {
+  return text.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, "$1");
+}
+
 export function faqPageJsonLd(items: Array<{ question: string; answer: string }>): JsonLd {
   return {
     "@context": "https://schema.org",
@@ -262,7 +272,7 @@ export function faqPageJsonLd(items: Array<{ question: string; answer: string }>
       name: item.question,
       acceptedAnswer: {
         "@type": "Answer",
-        text: item.answer,
+        text: stripInlineLinks(item.answer),
       },
     })),
   };

@@ -31,6 +31,10 @@ export type LandingPageContent = {
     answer: string;
   }>;
   planSlugs: PlanSlug[];
+  relatedLinks?: Array<{
+    href: string;
+    label: string;
+  }>;
   finalHeading: string;
   finalBody: string;
 };
@@ -38,9 +42,9 @@ export type LandingPageContent = {
 export const landingPages = {
   israelEsim: {
     slug: "/israel-esim",
-    metaTitle: "Israel eSIM Plans",
+    metaTitle: "Israel eSIM with a Real Israeli Phone Number",
     metaDescription:
-      "BitLink helps you choose an Israeli phone plan, activate by eSIM when compatible, and get human support if setup gets confusing.",
+      "Unlike travel eSIMs, BitLink includes an Israeli number — for banks, SMS codes, and calls. Activate in minutes from $14.99/month. Human help if setup gets confusing.",
     eyebrow: "Israel eSIM",
     h1: "Israel eSIM, with a person behind the setup.",
     intro:
@@ -148,6 +152,10 @@ export const landingPages = {
       },
     ],
     planSlugs: ["student-5g", "max-5g", "basic"],
+    relatedLinks: [
+      { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
+      { href: "/students", label: "BitLink for students" },
+    ],
     finalHeading: "Choose the plan that matches the semester, not the sales pitch.",
     finalBody:
       "If you are unsure how much data you need, start with the comparison and ask support before checkout.",
@@ -264,6 +272,10 @@ export const landingPages = {
       },
     ],
     planSlugs: ["max-5g", "student-5g", "basic"],
+    relatedLinks: [
+      { href: "/aliyah", label: "Aliyah phone service" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+    ],
     finalHeading: "Choose the plan that fits your klita, not just your data.",
     finalBody:
       "If you are unsure how much data or calling you need for the first few months, start with the comparison and ask support before checkout.",
@@ -274,32 +286,32 @@ export const faqItems = [
   {
     question: "Can BitLink set me up with an Israeli phone number?",
     answer:
-      "Yes. Every BitLink plan includes a real Israeli phone number, not a temporary workaround. Plans range from $14.99/month for Basic (1GB data, 1,000 minutes, 500 SMS) up to $39.99/month for Max 5G (120GB data, 5,000 minutes, plus 150 minutes to US and Canadian numbers). You choose a plan, see the exact data, minutes, and price before checkout, then pay through a secure flow. BitLink provisions your number and line right after payment, and activation is usually ready within 3 to 5 minutes — you can watch the status live in your account portal. Activation can happen by eSIM or physical SIM depending on your plan and device. Service is subject to availability, eligibility, and final BitLink confirmation, but for the vast majority of customers an Israeli number is live and usable the same day they sign up.",
+      "Yes. Every BitLink plan includes a real Israeli phone number, not a temporary workaround. Plans range from $14.99/month for [Basic](/plans/basic) (1GB data, 1,000 minutes, 500 SMS) up to $39.99/month for [Max 5G](/plans/max-5g) (120GB data, 5,000 minutes, plus 150 minutes to US and Canadian numbers). You choose a plan, see the exact data, minutes, and price before checkout, then pay through a secure flow. BitLink provisions your number and line right after payment, and activation is usually ready within 3 to 5 minutes — you can watch the status live in your account portal. Activation can happen by eSIM or physical SIM depending on your plan and device. Service is subject to availability, eligibility, and final BitLink confirmation, but for the vast majority of customers an Israeli number is live and usable the same day they sign up.",
   },
   {
     question: "Can I use eSIM?",
     answer:
-      "Yes, for most plans and devices. BitLink's standard plans — Basic, Student 5G, and Max 5G — can activate by eSIM on a compatible, unlocked device, or by physical SIM if you'd rather have a card or your phone doesn't support eSIM. Kosher Basic and Kosher+ always use a physical SIM, since certified kosher phones aren't built for eSIM activation. When eSIM is available, BitLink emails the activation QR code once your line is live, typically within a few minutes of payment confirmation, and you scan it directly from your phone's settings — no waiting for a card to ship. If you're not sure whether your specific device supports eSIM, BitLink support can confirm compatibility over WhatsApp before you check out, so there are no surprises after payment.",
+      "Yes, for most plans and devices. BitLink's [standard plans](/plans) — Basic, Student 5G, and Max 5G — can activate by eSIM on a compatible, unlocked device, or by physical SIM if you'd rather have a card or your phone doesn't support eSIM. Kosher Basic and Kosher+ always use a physical SIM, since certified kosher phones aren't built for eSIM activation. When eSIM is available, BitLink emails the activation QR code once your line is live, typically within a few minutes of payment confirmation, and you scan it directly from your phone's settings — no waiting for a card to ship. If you're not sure whether your specific device supports eSIM, BitLink support can confirm compatibility over WhatsApp before you check out, so there are no surprises after payment.",
   },
   {
     question: "Which plan is meant for students?",
     answer:
-      "Student 5G, at $34.99/month, is BitLink's most popular plan and the one designed for most student use: 50GB of high-speed 5G data, 5,000 minutes to Israeli numbers, and 1,000 SMS, with an optional US/Canada/UK number add-on for $9.99/month. Max 5G, at $39.99/month, is the heavier-data option — 120GB of data plus 150 minutes of built-in calling to US and Canadian numbers — for students who stream constantly or use their phone as a hotspot. Basic, at $14.99/month with 1GB of data, 1,000 minutes, and 500 SMS, is a simpler starting point for lighter phone use, though most students studying or living in Israel outgrow 1GB within the first week. All three include an Israeli number, VAT, and no hidden fees, and can activate by eSIM or physical SIM.",
+      "[Student 5G](/plans/student-5g), at $34.99/month, is BitLink's most popular plan and the one designed for most student use: 50GB of high-speed 5G data, 5,000 minutes to Israeli numbers, and 1,000 SMS, with an optional US/Canada/UK number add-on for $9.99/month. [Max 5G](/plans/max-5g), at $39.99/month, is the heavier-data option — 120GB of data plus 150 minutes of built-in calling to US and Canadian numbers — for students who stream constantly or use their phone as a hotspot. Basic, at $14.99/month with 1GB of data, 1,000 minutes, and 500 SMS, is a simpler starting point for lighter phone use, though most students studying or living in Israel outgrow 1GB within the first week. All three include an Israeli number, VAT, and no hidden fees, and can activate by eSIM or physical SIM.",
   },
   {
     question: "Do kosher plans include data or SMS?",
     answer:
-      "No, and this is intentional rather than a missing feature. Kosher Basic ($19.99/month) and Kosher+ ($24.99/month) are voice-only plans built for certified kosher phones, which aren't designed to use mobile data or SMS at all. Kosher Basic includes 5,000 minutes of calling to Israeli numbers on a physical SIM. Kosher+ includes the same 5,000 Israeli minutes plus 150 minutes to US and Canadian numbers, for staying connected with family abroad. Both can add a US or Canadian local number for an extra $9.99/month. If you need mobile data on your line, a kosher-certified device can't support it, so BitLink's standard plans — Basic, Student 5G, and Max 5G, starting at $14.99/month — are the right comparison instead, though they require a standard, non-kosher phone.",
+      "No, and this is intentional rather than a missing feature. [Kosher Basic](/plans/kosher-basic) ($19.99/month) and [Kosher+](/plans/kosher-plus) ($24.99/month) are voice-only plans built for certified kosher phones, which aren't designed to use mobile data or SMS at all. Kosher Basic includes 5,000 minutes of calling to Israeli numbers on a physical SIM. Kosher+ includes the same 5,000 Israeli minutes plus 150 minutes to US and Canadian numbers, for staying connected with family abroad. Both can add a US or Canadian local number for an extra $9.99/month. If you need mobile data on your line, a kosher-certified device can't support it, so BitLink's standard plans — Basic, Student 5G, and Max 5G, starting at $14.99/month — are the right comparison instead, though they require a standard, non-kosher phone.",
   },
   {
     question: "Can family in the US or Canada reach me more easily?",
     answer:
-      "Yes. Any BitLink plan can add a US, Canadian, or UK local number for an additional $9.99/month, so family back home dials a number that's local to them — no international dialing, calling cards, or per-minute international rates on their end. On top of that, Max 5G and Kosher+ also include a set amount of built-in calling from your Israeli line to US and Canadian numbers — 150 minutes per month on both plans — at no extra cost. Basic and Student 5G don't include US/Canada minutes by default but can still add the local-number add-on. If staying easily reachable by family abroad matters to you, Max 5G or Kosher+ are the plans built around that specific need.",
+      "Yes. Any BitLink plan can add a US, Canadian, or UK local number for an additional $9.99/month, so family back home dials a number that's local to them — no international dialing, calling cards, or per-minute international rates on their end. On top of that, [Max 5G](/plans/max-5g) and [Kosher+](/plans/kosher-plus) also include a set amount of built-in calling from your Israeli line to US and Canadian numbers — 150 minutes per month on both plans — at no extra cost. Basic and Student 5G don't include US/Canada minutes by default but can still add the local-number add-on. If staying easily reachable by family abroad matters to you, Max 5G or Kosher+ are the plans built around that specific need.",
   },
   {
     question: "Can I keep my international number?",
     answer:
-      "Yes — porting an existing US, UK, or Canadian number onto your BitLink line is available, and BitLink is upfront about the real cost and timeline rather than glossing over it. International porting carries an additional $49.99 fee on top of your plan price and typically takes up to 3 business days to complete, since it involves coordination with your current international carrier rather than just BitLink's own network. During that window your old number stays active until the port finishes, so there's usually no gap in service. This is different from porting an Israeli number, which is far faster. If keeping your existing international number matters to you, reach out to the team before checkout — they'll confirm your carrier supports porting and walk you through the steps so there are no surprises.",
+      "Yes — porting an existing US, UK, or Canadian number onto your BitLink line is available, and BitLink is upfront about the real cost and timeline rather than glossing over it. International porting carries an additional $49.99 fee on top of your plan price and typically takes up to 3 business days to complete, since it involves coordination with your current international carrier rather than just BitLink's own network. During that window your old number stays active until the port finishes, so there's usually no gap in service. This is different from porting an Israeli number, which is far faster. If keeping your existing international number matters to you, [reach out to the team](/support) before checkout — they'll confirm your carrier supports porting and walk you through the steps so there are no surprises.",
     action: {
       label: "Find out more",
       href: "https://wa.me/972587939426?text=I%20would%20like%20more%20info%20about%20Porting%20My%20existing%20international%20number",
@@ -308,11 +320,11 @@ export const faqItems = [
   {
     question: "Can I keep my Israeli number?",
     answer:
-      "Yes, and it's a much simpler process than international porting. Because both your old carrier and BitLink operate on Israeli telecom infrastructure, porting an existing Israeli mobile number is straightforward and doesn't carry the multi-day coordination that international porting does. It generally feels instant from the customer's side and typically completes within 5 to 10 minutes once initiated. There's no separate porting fee for Israeli numbers the way there is for international ones. You can start the process during signup or afterward through support, and BitLink will confirm once the switch to your new line is complete.",
+      "Yes, and it's a much simpler process than international porting. Because both your old carrier and BitLink operate on Israeli telecom infrastructure, porting an existing Israeli mobile number is straightforward and doesn't carry the multi-day coordination that international porting does. It generally feels instant from the customer's side and typically completes within 5 to 10 minutes once initiated. There's no separate porting fee for Israeli numbers the way there is for international ones. You can start the process during signup or afterward [through support](/support), and BitLink will confirm once the switch to your new line is complete.",
   },
   {
     question: "How do I get help with activation?",
     answer:
-      "Use the support page to reach BitLink by WhatsApp, email, phone, or support ticket — whichever channel is easiest for you. A real team member, not a bot, can help with activation status, eSIM setup and QR code issues, physical SIM shipping and tracking, billing questions, plan changes, or general service questions. WhatsApp tends to get the fastest response since it's the channel the support team monitors most closely, and it's the same number used throughout the BitLink site for quick questions. If your issue relates to an order in progress — like an eSIM that hasn't arrived yet or a SIM card still in transit — having your account email ready when you reach out helps the team find your order faster.",
+      "Use the [support page](/support) to reach BitLink by WhatsApp, email, phone, or support ticket — whichever channel is easiest for you. A real team member, not a bot, can help with activation status, eSIM setup and QR code issues, physical SIM shipping and tracking, billing questions, plan changes, or general service questions. WhatsApp tends to get the fastest response since it's the channel the support team monitors most closely, and it's the same number used throughout the BitLink site for quick questions. If your issue relates to an order in progress — like an eSIM that hasn't arrived yet or a SIM card still in transit — having your account email ready when you reach out helps the team find your order faster.",
   },
 ];

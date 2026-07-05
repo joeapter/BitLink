@@ -4,8 +4,9 @@ import { ButtonLink } from "@/components/ui/Button";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Refer Friends",
-  description: "Link 2 friends and unlock BitLink referral savings.",
+  title: "Refer Friends — Unlock Referral Rewards",
+  description:
+    "Share your BitLink referral link. When eligible friends join, rewards unlock automatically — and you track referrals and savings in your account.",
   path: "/refer",
 });
 

@@ -6,8 +6,9 @@ import { plans } from "@/lib/plans";
 import { createPageMetadata, jsonLdScriptProps, plansCollectionJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Plans",
-  description: "Compare BitLink monthly phone and data plans.",
+  title: "Israeli Phone Plans & Pricing — From $14.99/month",
+  description:
+    "Compare all five BitLink plans: 1GB to 120GB 5G data, kosher options, USD pricing with VAT included, no hidden fees. eSIM or physical SIM. See every price up front.",
   path: "/plans",
 });
 

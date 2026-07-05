@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { ArrowRight, CheckCircle2, MessageCircle } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
+import { TextWithLinks } from "@/components/ui/TextWithLinks";
 import type { LandingPageContent } from "@/lib/public-content";
 import { getPlan } from "@/lib/plans";
 import { formatMoney } from "@/lib/utils";
@@ -34,7 +36,9 @@ export function ServiceLandingPage({ content }: { content: LandingPageContent })
           {content.qaBlocks.map((block) => (
             <article key={block.question} className="p-7 sm:p-8">
               <h2 className="text-xl font-semibold tracking-normal text-ink">{block.question}</h2>
-              <p className="mt-3 text-base leading-7 text-muted-slate">{block.answer}</p>
+              <p className="mt-3 text-base leading-7 text-muted-slate">
+                <TextWithLinks text={block.answer} />
+              </p>
             </article>
           ))}
         </div>
@@ -69,6 +73,16 @@ export function ServiceLandingPage({ content }: { content: LandingPageContent })
             ))}
           </div>
         </div>
+        {content.relatedLinks?.length ? (
+          <div className="mx-auto mt-10 flex max-w-7xl flex-wrap gap-4 text-sm font-semibold text-link-blue">
+            {content.relatedLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="inline-flex items-center gap-2 transition hover:text-ink">
+                {link.label}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            ))}
+          </div>
+        ) : null}
       </section>
 
       <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-8">

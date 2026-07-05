@@ -8,6 +8,8 @@ export type BitLinkPlan = {
   currency: "USD";
   description: string;
   detail: string;
+  seoTitle: string;
+  seoDescription: string;
   stripeEnvKey: string;
   tone: string;
   isKosher: boolean;
@@ -40,6 +42,9 @@ export const plans: BitLinkPlan[] = [
     description: "For simple phone use.",
     detail:
       "A clean starting point for people who want reliable monthly service with an Israeli number, basic 5G data, and included calls and texts.",
+    seoTitle: "Basic — $14.99/mo Israeli Phone Plan, 1GB 5G",
+    seoDescription:
+      "Israeli number, 1GB 5G data, 1,000 minutes, 500 SMS. $14.99/month, VAT included, eSIM or physical SIM. For light phone use in Israel.",
     stripeEnvKey: "STRIPE_PRICE_BASIC",
     tone: "For simple phone use",
     isKosher: false,
@@ -69,6 +74,9 @@ export const plans: BitLinkPlan[] = [
     description: "Best for most students.",
     detail:
       "The most popular choice for students — generous 5G data with 5,000 local minutes and 1,000 SMS included, and the option to add a US or Canadian number.",
+    seoTitle: "Student 5G — $34.99/mo, 50GB Israeli Phone Plan",
+    seoDescription:
+      "BitLink's most popular plan: 50GB 5G, 5,000 minutes, 1,000 SMS for $34.99/month. Built for students in Israel. eSIM activation and English WhatsApp support.",
     stripeEnvKey: "STRIPE_PRICE_STUDENT_5G",
     tone: "Best for most students",
     isKosher: false,
@@ -101,6 +109,9 @@ export const plans: BitLinkPlan[] = [
     description: "More data, plus USA/CA calling.",
     detail:
       "120GB of 5G data for students who stream and stay connected all day — includes 5,000 local minutes, 1,000 SMS, and 150 minutes to US and Canadian numbers.",
+    seoTitle: "Max 5G — $39.99/mo, 120GB + US/Canada Minutes",
+    seoDescription:
+      "120GB 5G data plus 150 minutes to US & Canada, 5,000 local minutes. $39.99/month, VAT included. The plan for olim staying close to family abroad.",
     stripeEnvKey: "STRIPE_PRICE_MAX_5G",
     tone: "More data for heavy users",
     isKosher: false,
@@ -133,6 +144,9 @@ export const plans: BitLinkPlan[] = [
     description: "5,000 minutes on a kosher-certified number.",
     detail:
       "Designed for certified kosher phones — 5,000 minutes to Israeli numbers monthly, voice only. Add a US or Canadian local number for an extra $9.99/mo.",
+    seoTitle: "Kosher Basic — $19.99/mo Voice-Only Kosher Plan",
+    seoDescription:
+      "5,000 minutes to Israeli numbers on a certified kosher phone. Voice only, physical SIM, $19.99/month VAT included. English support by phone.",
     stripeEnvKey: "STRIPE_PRICE_KOSHER_BASIC",
     tone: "For kosher-certified devices",
     isKosher: true,
@@ -163,6 +177,9 @@ export const plans: BitLinkPlan[] = [
     description: "Kosher calling with USA/CA international minutes.",
     detail:
       "Everything in Kosher Basic, plus 150 minutes to US and Canadian numbers — for staying connected with family back home.",
+    seoTitle: "Kosher+ — $24.99/mo Kosher Plan + US/CA Minutes",
+    seoDescription:
+      "Kosher voice-only plan with 5,000 Israeli minutes plus 150 minutes to US & Canada. $24.99/month, physical SIM, VAT included.",
     stripeEnvKey: "STRIPE_PRICE_KOSHER_PLUS",
     tone: "Kosher with USA/CA calling",
     isKosher: true,
