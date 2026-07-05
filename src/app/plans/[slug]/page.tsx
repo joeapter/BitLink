@@ -3,11 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, FileText } from "lucide-react";
 import { PlanFeatureList } from "@/components/plans/PlanFeatureList";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ButtonLink } from "@/components/ui/Button";
+import { TextWithLinks } from "@/components/ui/TextWithLinks";
 import { formatMoney } from "@/lib/utils";
 import { getPlan, plans } from "@/lib/plans";
 import { contractData } from "@/lib/contracts";
-import { createPageMetadata, jsonLdScriptProps, planJsonLd } from "@/lib/seo";
+import { createPageMetadata, faqPageJsonLd, jsonLdScriptProps, planJsonLd } from "@/lib/seo";
 
 export function generateStaticParams() {
   return plans.map((plan) => ({ slug: plan.slug }));
@@ -67,9 +69,13 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ slu
   return (
     <div className="bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(planJsonLd(plan))} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(faqPageJsonLd(plan.faq))} />
       <section className="liquid-bg relative overflow-hidden bg-ink px-4 py-16 text-white sm:px-6 sm:py-24 lg:px-8">
         <div className="relative z-10 mx-auto grid max-w-7xl gap-10 md:grid-cols-[1fr_24rem] md:items-center">
           <div>
+            <div className="[&_a]:text-slate-300 [&_a]:hover:text-white [&_li]:text-slate-400 [&_span]:text-white">
+              <Breadcrumbs items={[{ label: "Plans", href: "/plans" }, { label: plan.name }]} />
+            </div>
             <p className="text-sm font-semibold text-soft-cyan">{plan.tone}</p>
             <h1 className="mt-3 max-w-4xl text-balance text-5xl font-semibold tracking-normal sm:text-6xl">
               {plan.name}
@@ -173,6 +179,23 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ slu
           <Link href="/support" className="hover:underline">
             Ask support
           </Link>
+        </div>
+      </section>
+
+      <section className="bg-slate-50 px-4 pb-4 pt-16 sm:px-6 sm:pt-20 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-sm font-semibold text-link-blue">Common questions</p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-normal text-ink">Questions about {plan.name}.</h2>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {plan.faq.map((item) => (
+              <article key={item.question} className="rounded-lg border border-ink/10 bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-semibold tracking-normal text-ink">{item.question}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted-slate">
+                  <TextWithLinks text={item.answer} />
+                </p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

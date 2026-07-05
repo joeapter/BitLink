@@ -187,6 +187,24 @@ export function planJsonLd(plan: BitLinkPlan): JsonLd {
         { name: "Plans", path: "/plans" },
         { name: plan.name, path },
       ]),
+      // Product alongside Service: price rich results key off Product.
+      {
+        "@type": "Product",
+        "@id": `${url}#product`,
+        name: `${plan.name} mobile plan`,
+        description: plan.seoDescription,
+        image: canonicalUrl(defaultOgImage.url),
+        brand: {
+          "@id": organizationId,
+        },
+        offers: {
+          "@type": "Offer",
+          url,
+          price: (plan.priceCents / 100).toFixed(2),
+          priceCurrency: plan.currency,
+          availability: "https://schema.org/InStock",
+        },
+      },
       {
         "@type": "Service",
         "@id": `${url}#service`,
@@ -222,14 +240,20 @@ export function plansCollectionJsonLd(plans: BitLinkPlan[]): JsonLd {
         { name: "Plans", path: "/plans" },
       ]),
       {
-        "@type": "ItemList",
+        "@type": "OfferCatalog",
         "@id": `${canonicalUrl("/plans")}#plans`,
         name: "BitLink mobile plans",
-        itemListElement: plans.map((plan, index) => ({
-          "@type": "ListItem",
-          position: index + 1,
+        itemListElement: plans.map((plan) => ({
+          "@type": "Offer",
           url: canonicalUrl(`/plans/${plan.slug}`),
-          name: plan.name,
+          price: (plan.priceCents / 100).toFixed(2),
+          priceCurrency: plan.currency,
+          availability: "https://schema.org/InStock",
+          itemOffered: {
+            "@type": "Service",
+            name: `${plan.name} mobile plan`,
+            url: canonicalUrl(`/plans/${plan.slug}`),
+          },
         })),
       },
     ],

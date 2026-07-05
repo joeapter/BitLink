@@ -10,6 +10,10 @@ export type BitLinkPlan = {
   detail: string;
   seoTitle: string;
   seoDescription: string;
+  faq: Array<{
+    question: string;
+    answer: string;
+  }>;
   stripeEnvKey: string;
   tone: string;
   isKosher: boolean;
@@ -45,6 +49,18 @@ export const plans: BitLinkPlan[] = [
     seoTitle: "Basic — $14.99/mo Israeli Phone Plan, 1GB 5G",
     seoDescription:
       "Israeli number, 1GB 5G data, 1,000 minutes, 500 SMS. $14.99/month, VAT included, eSIM or physical SIM. For light phone use in Israel.",
+    faq: [
+      {
+        question: "Who is the Basic plan for?",
+        answer:
+          "Basic fits light phone use: an Israeli number for calls, texts, and the occasional map check, mostly on Wi-Fi. Its 1GB of 5G data runs out fast with daily social media, streaming, or navigation — most people who use their phone all day are better served by Student 5G's 50GB. If you mainly need a working Israeli number rather than mobile data, Basic is the clean, inexpensive starting point.",
+      },
+      {
+        question: "Can I upgrade from Basic later?",
+        answer:
+          "Yes. There's no long-term contract on any BitLink plan, so you can move up to Student 5G or Max 5G whenever your usage changes. Your Israeli number stays exactly the same through the switch — just message support on WhatsApp and the team will handle the change.",
+      },
+    ],
     stripeEnvKey: "STRIPE_PRICE_BASIC",
     tone: "For simple phone use",
     isKosher: false,
@@ -77,6 +93,18 @@ export const plans: BitLinkPlan[] = [
     seoTitle: "Student 5G — $34.99/mo, 50GB Israeli Phone Plan",
     seoDescription:
       "BitLink's most popular plan: 50GB 5G, 5,000 minutes, 1,000 SMS for $34.99/month. Built for students in Israel. eSIM activation and English WhatsApp support.",
+    faq: [
+      {
+        question: "Is 50GB enough for a semester in Israel?",
+        answer:
+          "For most students, comfortably. 50GB per month covers daily maps, group chats, social media, music, and moderate video streaming over 5G — which is why Student 5G is BitLink's most popular plan. If you stream video heavily or hotspot a laptop away from Wi-Fi, Max 5G's 120GB gives more headroom for $5 more per month.",
+      },
+      {
+        question: "Can my parents pay for this plan from abroad?",
+        answer:
+          "Yes. Checkout is online and priced in US dollars with VAT included, so a parent in the US, UK, or Canada can pay with their own card while the line activates on the student's phone in Israel. There are no NIS conversion surprises on the statement, and support is available in English if the family has questions before or after signup.",
+      },
+    ],
     stripeEnvKey: "STRIPE_PRICE_STUDENT_5G",
     tone: "Best for most students",
     isKosher: false,
@@ -112,6 +140,18 @@ export const plans: BitLinkPlan[] = [
     seoTitle: "Max 5G — $39.99/mo, 120GB + US/Canada Minutes",
     seoDescription:
       "120GB 5G data plus 150 minutes to US & Canada, 5,000 local minutes. $39.99/month, VAT included. The plan for olim staying close to family abroad.",
+    faq: [
+      {
+        question: "Who should choose Max 5G?",
+        answer:
+          "Max 5G is built for two situations that often overlap: heavy data use — streaming, hotspotting a laptop, working from your phone — and staying close to family abroad, with 150 minutes of calling to US and Canadian numbers included every month at no extra cost. It tends to suit olim in their first year and anyone whose phone is their main work tool.",
+      },
+      {
+        question: "Does Max 5G include international calling?",
+        answer:
+          "It includes 150 minutes per month to US and Canadian numbers, on top of 5,000 minutes to Israeli numbers. If family calls you more than you call them, the US/Canada/UK local number add-on ($9.99/month) gives them a number that's local on their end, so they can reach you without international dialing at all.",
+      },
+    ],
     stripeEnvKey: "STRIPE_PRICE_MAX_5G",
     tone: "More data for heavy users",
     isKosher: false,
@@ -147,6 +187,18 @@ export const plans: BitLinkPlan[] = [
     seoTitle: "Kosher Basic — $19.99/mo Voice-Only Kosher Plan",
     seoDescription:
       "5,000 minutes to Israeli numbers on a certified kosher phone. Voice only, physical SIM, $19.99/month VAT included. English support by phone.",
+    faq: [
+      {
+        question: "Which phones work with Kosher Basic?",
+        answer:
+          "Kosher Basic requires a certified kosher phone and activates on a physical SIM only — it isn't compatible with smartphones or eSIM. If you're unsure whether a specific device qualifies, or you're choosing for a community or yeshiva requirement, BitLink support can confirm compatibility before you pay.",
+      },
+      {
+        question: "Is the Kosher Basic line rabbinically recognized?",
+        answer:
+          "Yes. BitLink's kosher lines are recognized by Vaadat Harabanim L'inyanei Tikshoret, the Rabbinical Committee for Communications (registered association no. 580440824), so the number works the way kosher-phone communities and institutions expect a kosher line to work.",
+      },
+    ],
     stripeEnvKey: "STRIPE_PRICE_KOSHER_BASIC",
     tone: "For kosher-certified devices",
     isKosher: true,
@@ -181,6 +233,18 @@ export const plans: BitLinkPlan[] = [
     seoTitle: "Kosher+ — $24.99/mo Kosher Plan + US/CA Minutes",
     seoDescription:
       "Kosher voice-only plan with 5,000 Israeli minutes plus 150 minutes to US & Canada. $24.99/month, physical SIM, VAT included.",
+    faq: [
+      {
+        question: "What does Kosher+ add over Kosher Basic?",
+        answer:
+          "For $5 more per month, Kosher+ adds 150 minutes of calling to US and Canadian numbers on top of the same 5,000 minutes to Israeli numbers. It's the kosher plan for staying in regular touch with family abroad — same certified kosher line, same physical SIM, same voice-only limits.",
+      },
+      {
+        question: "Can family in the US or Canada reach me easily on Kosher+?",
+        answer:
+          "Two ways. Your included 150 US/Canada minutes cover the calls you make to them. For the calls they make to you, the US or Canada local-number add-on ($9.99/month) gives your line a number that's local on their end — parents dial a regular local number and it rings your kosher phone in Israel.",
+      },
+    ],
     stripeEnvKey: "STRIPE_PRICE_KOSHER_PLUS",
     tone: "Kosher with USA/CA calling",
     isKosher: true,

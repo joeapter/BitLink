@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, MessageCircle } from "lucide-react";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ButtonLink } from "@/components/ui/Button";
 import { TextWithLinks } from "@/components/ui/TextWithLinks";
 import type { LandingPageContent } from "@/lib/public-content";
@@ -14,6 +15,7 @@ export function ServiceLandingPage({ content }: { content: LandingPageContent })
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#eef5f8_100%)] px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
         <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-soft-cyan/20 blur-3xl" />
         <div className="relative mx-auto max-w-7xl">
+          <Breadcrumbs items={[{ label: content.eyebrow }]} />
           <p className="text-sm font-semibold text-link-blue">{content.eyebrow}</p>
           <h1 className="mt-3 max-w-4xl text-balance text-5xl font-semibold tracking-normal text-ink sm:text-6xl">
             {content.h1}
@@ -43,6 +45,45 @@ export function ServiceLandingPage({ content }: { content: LandingPageContent })
           ))}
         </div>
       </section>
+
+      {content.comparisonTable ? (
+        <section className="bg-white px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
+          <div className="mx-auto max-w-4xl">
+            <h2 className="text-balance text-3xl font-semibold tracking-normal text-ink sm:text-4xl">
+              {content.comparisonTable.heading}
+            </h2>
+            {content.comparisonTable.body ? (
+              <p className="mt-4 max-w-2xl text-base leading-7 text-muted-slate">{content.comparisonTable.body}</p>
+            ) : null}
+            <div className="mt-8 overflow-x-auto rounded-lg border border-ink/10 bg-white shadow-sm">
+              <table className="w-full min-w-xl text-sm">
+                <thead>
+                  <tr className="bg-[#f8fbfc] text-left">
+                    <th scope="col" className="p-4 font-semibold text-muted-slate" />
+                    <th scope="col" className="p-4 font-semibold text-muted-slate">
+                      {content.comparisonTable.columns[0]}
+                    </th>
+                    <th scope="col" className="p-4 font-semibold text-ink">
+                      {content.comparisonTable.columns[1]}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-ink/8">
+                  {content.comparisonTable.rows.map((row) => (
+                    <tr key={row.label}>
+                      <th scope="row" className="p-4 text-left font-semibold text-ink">
+                        {row.label}
+                      </th>
+                      <td className="p-4 leading-6 text-muted-slate">{row.a}</td>
+                      <td className="p-4 font-medium leading-6 text-ink">{row.b}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">

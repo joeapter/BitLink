@@ -8,7 +8,9 @@ import { TrustRibbon } from "@/components/marketing/TrustRibbon";
 import { AddOnCard } from "@/components/plans/AddOnCard";
 import { PlanSelector } from "@/components/plans/PlanSelector";
 import { ButtonLink } from "@/components/ui/Button";
-import { createPageMetadata } from "@/lib/seo";
+import { TextWithLinks } from "@/components/ui/TextWithLinks";
+import { faqItems } from "@/lib/public-content";
+import { createPageMetadata, faqPageJsonLd, jsonLdScriptProps } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
   // The root segment doesn't inherit the layout title template, so the brand
@@ -65,10 +67,42 @@ const servicePaths = [
   },
 ];
 
+const homeFaqQuestions = new Set([
+  "Can BitLink set me up with an Israeli phone number?",
+  "Can I use eSIM?",
+  "What mobile network does BitLink use?",
+  "Can family in the US or Canada reach me more easily?",
+  "Can I use BitLink for a short trip to Israel?",
+]);
+
+const homeFaqItems = faqItems.filter((item) => homeFaqQuestions.has(item.question));
+
+const carrierComparison = [
+  ["Support", "Hebrew call centers", "Real people in English, on WhatsApp"],
+  ["Billing", "NIS bills, terms in Hebrew", "USD prices with VAT included — the price shown is the price paid"],
+  ["Signing up", "In-store, usually with an Israeli ID and bank account", "Online from anywhere, before you even land"],
+  ["Contracts", "Fine print in Hebrew", "Plain-English contracts published on every plan page"],
+  ["When you leave", "Cancel through a call center", "Cancel anytime, or pause for $10/mo and keep your number"],
+];
+
 export default function Home() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(faqPageJsonLd(homeFaqItems))} />
       <LiquidHero />
+
+      <section className="border-b border-ink/10 bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          <p className="text-sm font-semibold text-link-blue">What is BitLink?</p>
+          <p className="mt-4 text-pretty text-lg leading-8 text-slate-700 sm:text-xl sm:leading-9">
+            BitLink is an Israeli mobile carrier built for English speakers — students, new olim, families, and
+            frequent visitors. Plans run $14.99–$39.99 per month in USD, VAT included, with a real Israeli number, 5G
+            data on the Partner network, eSIM or physical SIM activation, kosher options recognized by Vaadat
+            Harabanim, and an optional US, Canadian, or UK number add-on. Support comes from real people — in English,
+            on WhatsApp, by phone, and by email.
+          </p>
+        </div>
+      </section>
 
       <section className="bg-white px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="mx-auto max-w-7xl">
@@ -153,8 +187,75 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)] px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <p className="text-sm font-semibold text-link-blue">Why BitLink</p>
+          <h2 className="mt-3 max-w-3xl text-balance text-3xl font-semibold tracking-normal text-ink sm:text-5xl">
+            Built for English speakers, not adapted for them.
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-muted-slate sm:text-lg sm:leading-8">
+            Israel&apos;s big carriers run excellent networks with Hebrew-first service. BitLink runs on that same
+            infrastructure — the difference is everything around it.
+          </p>
+          <div className="mt-10 overflow-x-auto rounded-lg border border-ink/10 bg-white shadow-sm">
+            <table className="w-full min-w-xl text-sm">
+              <thead>
+                <tr className="bg-[#f8fbfc] text-left">
+                  <th scope="col" className="p-4 font-semibold text-muted-slate" />
+                  <th scope="col" className="p-4 font-semibold text-muted-slate">Typical Israeli carrier</th>
+                  <th scope="col" className="p-4 font-semibold text-ink">BitLink</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-ink/8">
+                {carrierComparison.map(([label, carrier, bitlink]) => (
+                  <tr key={label}>
+                    <th scope="row" className="p-4 text-left font-semibold text-ink">{label}</th>
+                    <td className="p-4 leading-6 text-muted-slate">{carrier}</td>
+                    <td className="p-4 font-medium leading-6 text-ink">{bitlink}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-5 max-w-2xl text-sm leading-6 text-muted-slate">
+            Honest caveat: if you&apos;re fluent in Hebrew and don&apos;t mind call centers, a big carrier can cost
+            less. BitLink is for people who want the whole experience — signup, billing, support, contracts — in
+            English.
+          </p>
+        </div>
+      </section>
+
       <ReferralBand />
       <TrustRibbon />
+
+      <section className="bg-white px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.72fr_1fr]">
+          <div>
+            <p className="text-sm font-semibold text-link-blue">Common questions</p>
+            <h2 className="mt-3 text-balance text-4xl font-semibold tracking-normal text-ink">
+              Answers before you choose.
+            </h2>
+            <p className="mt-4 text-sm leading-6 text-muted-slate">
+              The questions people ask most before signing up — with the numbers stated plainly.
+            </p>
+            <ButtonLink href="/faq" variant="secondary" className="mt-6">
+              See all questions
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </ButtonLink>
+          </div>
+          <div className="divide-y divide-ink/8 rounded-lg border border-ink/10 bg-white shadow-soft">
+            {homeFaqItems.map((item) => (
+              <article key={item.question} className="p-6 sm:p-7">
+                <h3 className="text-lg font-semibold tracking-normal text-ink">{item.question}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted-slate">
+                  <TextWithLinks text={item.answer} />
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <HumanSupportSection />
     </>
   );

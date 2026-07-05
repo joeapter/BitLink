@@ -30,6 +30,16 @@ export type LandingPageContent = {
     question: string;
     answer: string;
   }>;
+  comparisonTable?: {
+    heading: string;
+    body?: string;
+    columns: [string, string];
+    rows: Array<{
+      label: string;
+      a: string;
+      b: string;
+    }>;
+  };
   planSlugs: PlanSlug[];
   relatedLinks?: Array<{
     href: string;
@@ -46,7 +56,7 @@ export const landingPages = {
     metaDescription:
       "Unlike travel eSIMs, BitLink includes an Israeli number — for banks, SMS codes, and calls. Activate in minutes from $14.99/month. Human help if setup gets confusing.",
     eyebrow: "Israel eSIM",
-    h1: "Israel eSIM, with a person behind the setup.",
+    h1: "Israel eSIM with a real Israeli phone number.",
     intro:
       "Yes — Israel supports eSIM, and BitLink's standard plans (Basic, Student 5G, and Max 5G) activate by eSIM on compatible devices, with a physical SIM available as a backup. Choose a monthly plan from $14.99, and get guidance from a real person if the setup starts to feel unclear.",
     primaryCta: {
@@ -93,7 +103,48 @@ export const landingPages = {
           "It depends on the plan, not the activation method — eSIM and physical SIM draw from the same data allowances. Basic includes 1GB of high-speed 5G data for $14.99/month, enough for light use like messaging and maps. Student 5G includes 50GB for $34.99/month, BitLink's most popular plan, sized for daily social media, navigation, and moderate streaming. Max 5G includes 120GB for $39.99/month and adds 150 minutes of calling to US and Canadian numbers, built for people who stream heavily or use their phone as a hotspot. Basic includes 1,000 minutes and 500 SMS to Israeli numbers; Student 5G and Max 5G include 5,000 minutes and 1,000 SMS. All plans include VAT and no hidden fees. If you are unsure how much data you typically use per month, BitLink support can help you estimate before you commit to a plan.",
       },
     ],
+    comparisonTable: {
+      heading: "Travel eSIM vs. a BitLink Israel eSIM",
+      body: "Travel eSIMs are a fine way to buy pure data. The difference is the phone number — and everything in Israel that depends on having one.",
+      columns: ["Travel eSIM (data-only)", "BitLink Israel eSIM"],
+      rows: [
+        {
+          label: "Israeli phone number (+972)",
+          a: "No — data only",
+          b: "Yes — included with every plan",
+        },
+        {
+          label: "Israeli SMS verification codes (banks, Bit, Pango, deliveries)",
+          a: "No",
+          b: "Yes",
+        },
+        {
+          label: "Calls to and from Israeli numbers",
+          a: "Internet calls only",
+          b: "Included minutes on every plan",
+        },
+        {
+          label: "5G data in Israel",
+          a: "Yes",
+          b: "Yes — 1GB to 120GB monthly",
+        },
+        {
+          label: "After your trip",
+          a: "Expires",
+          b: "Cancel anytime, or pause for $10/mo and keep your number",
+        },
+        {
+          label: "Help when setup gets confusing",
+          a: "App and email self-serve",
+          b: "Real people on WhatsApp, in English",
+        },
+      ],
+    },
     planSlugs: ["student-5g", "max-5g", "basic"],
+    relatedLinks: [
+      { href: "/keep-your-number", label: "Porting your number" },
+      { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
+    ],
     finalHeading: "Start with the plan. We will help with the setup.",
     finalBody:
       "Choose the monthly plan that matches your phone use, then let BitLink guide the activation path from there.",
@@ -289,7 +340,106 @@ export const landingPages = {
     finalBody:
       "If you are unsure how much data or calling you need for the first few months, start with the comparison and ask support before checkout.",
   },
+  keepYourNumber: {
+    slug: "/keep-your-number",
+    metaTitle: "Keep Your Number — Port to BitLink",
+    metaDescription:
+      "Port your Israeli number to BitLink free in about 5–10 minutes, or bring your US, UK, or Canadian number for $49.99. Your old number stays live until the switch completes.",
+    eyebrow: "Number porting",
+    h1: "Keep your number. Switch to BitLink in minutes.",
+    intro:
+      "Porting an Israeli mobile number to BitLink is free and typically completes in 5 to 10 minutes. Bringing a US, UK, or Canadian number takes up to 3 business days and a one-time $49.99 fee. Either way, your old number stays active until the moment the switch completes — so you're never unreachable in between.",
+    primaryCta: {
+      href: "/plans",
+      label: "Choose your plan",
+    },
+    secondaryCta: {
+      href: "/support",
+      label: "Ask about porting",
+    },
+    highlights: [
+      {
+        title: "Israeli numbers: minutes, not days",
+        body: "Both carriers run on Israeli telecom infrastructure, so the port generally feels instant — typically 5 to 10 minutes once initiated, with no porting fee.",
+      },
+      {
+        title: "US, UK & Canadian numbers welcome",
+        body: "International porting carries a one-time $49.99 fee and typically completes within 3 business days, coordinated with your current carrier.",
+      },
+      {
+        title: "No gap in service",
+        body: "Your old number keeps working until the port completes, so calls and messages arrive throughout the switch.",
+      },
+    ],
+    details: [
+      {
+        title: "How an Israeli port works",
+        body: "Start during signup or afterward through support. You confirm ownership of the number, BitLink initiates the port with your current carrier, and the number goes live on your new line — usually within minutes. Your plan price doesn't change.",
+      },
+      {
+        title: "How an international port works",
+        body: "Reach out before checkout so the team can confirm your US, UK, or Canadian carrier supports porting. Once initiated, the port takes up to 3 business days, and you keep using your old number normally until it completes.",
+      },
+      {
+        title: "What you'll need",
+        body: "Your current number and proof you own the account. For international ports, your current carrier will typically also ask for an account number and a transfer PIN — support will walk you through where to find them.",
+      },
+    ],
+    qaBlocks: [
+      {
+        question: "How long does porting my number to BitLink take?",
+        answer:
+          "It depends on where the number lives. Porting an Israeli mobile number is fast — both your old carrier and BitLink operate on Israeli telecom infrastructure, so the switch typically completes within 5 to 10 minutes of being initiated and feels close to instant from your side. Porting an international number from the US, UK, or Canada involves coordination with your current carrier abroad, so it typically takes up to 3 business days. In both cases your old number stays active until the port finishes, so there's no window where people can't reach you. If timing matters — say you're landing on a specific date — [reach out to support](/support) and the team will help you sequence the port around your plans.",
+      },
+      {
+        question: "What does it cost to keep my number?",
+        answer:
+          "Porting an Israeli number to BitLink is free — there's no fee on top of your monthly plan. Porting an international number from the US, UK, or Canada carries a one-time $49.99 fee, which covers the coordination with your current carrier abroad. BitLink states this up front rather than burying it: it's the real cost, there are no other porting charges, and your monthly plan price is unaffected either way. Compare that with keeping an old US plan alive just to hold onto the number — often $10–$40 every month — and a one-time port usually pays for itself quickly.",
+      },
+      {
+        question: "Does my old number stay active during the port?",
+        answer:
+          "Yes. Number porting is designed so the old line keeps working until the new one takes over. For Israeli ports that window is minutes; for international ports it can be up to 3 business days — and through that whole period your existing SIM keeps receiving calls and messages as normal. The handover itself is the moment your number goes live on BitLink, and the team confirms with you once it's complete.",
+      },
+      {
+        question: "Can I start the porting process before I arrive in Israel?",
+        answer:
+          "Yes — and for international numbers it's actually the smart order of operations. [Message support](/support) before you travel: the team confirms your current US, UK, or Canadian carrier supports porting, tells you exactly which details to gather (usually an account number and transfer PIN), and maps the steps around your arrival date. Israeli number ports happen once your BitLink line is active, which itself takes only minutes by eSIM — so even that can be done on the day you land.",
+      },
+    ],
+    planSlugs: ["student-5g", "max-5g", "basic"],
+    relatedLinks: [
+      { href: "/israel-esim", label: "Israel eSIM" },
+      { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
+    ],
+    finalHeading: "Bring the number everyone already has.",
+    finalBody:
+      "Choose a plan, tell us which number you're keeping, and BitLink handles the switch with your old carrier.",
+  },
 } satisfies Record<string, LandingPageContent>;
+
+export const plansFaqItems = [
+  {
+    question: "How much does an Israeli phone plan cost with BitLink?",
+    answer:
+      "Standard plans run from $14.99/month ([Basic](/plans/basic), 1GB) to $39.99/month ([Max 5G](/plans/max-5g), 120GB plus US/Canada minutes), with [Student 5G](/plans/student-5g) at $34.99/month the most popular. Kosher voice-only plans are $19.99–$24.99/month. Every price is in US dollars with VAT included and no hidden fees — the price on the page is the price on your statement.",
+  },
+  {
+    question: "Am I locked into a contract?",
+    answer:
+      "No. All BitLink plans are monthly with no long-term commitment. You can cancel anytime, switch plans as your usage changes, or pause your line for $10/month to keep your Israeli number active between stays in Israel — useful if you visit regularly.",
+  },
+  {
+    question: "Are the prices really in US dollars?",
+    answer:
+      "Yes — plans are priced and charged in USD, unlike Israeli carriers that bill in shekels. That means no currency-conversion surprises on your statement, and a parent or family member abroad can pay for a student's line with their own card. VAT is already included in every price shown.",
+  },
+  {
+    question: "Can I keep my current phone number?",
+    answer:
+      "Yes. Israeli numbers port to BitLink free, typically in 5–10 minutes. US, UK, and Canadian numbers can be ported for a one-time $49.99 fee, typically within 3 business days. See [how porting works](/keep-your-number) for the details.",
+  },
+];
 
 export const faqItems = [
   {
@@ -330,7 +480,7 @@ export const faqItems = [
   {
     question: "Can I keep my international number?",
     answer:
-      "Yes — porting an existing US, UK, or Canadian number onto your BitLink line is available, and BitLink is upfront about the real cost and timeline rather than glossing over it. International porting carries an additional $49.99 fee on top of your plan price and typically takes up to 3 business days to complete, since it involves coordination with your current international carrier rather than just BitLink's own network. During that window your old number stays active until the port finishes, so there's usually no gap in service. This is different from porting an Israeli number, which is far faster. If keeping your existing international number matters to you, [reach out to the team](/support) before checkout — they'll confirm your carrier supports porting and walk you through the steps so there are no surprises.",
+      "Yes — [porting an existing US, UK, or Canadian number](/keep-your-number) onto your BitLink line is available, and BitLink is upfront about the real cost and timeline rather than glossing over it. International porting carries an additional $49.99 fee on top of your plan price and typically takes up to 3 business days to complete, since it involves coordination with your current international carrier rather than just BitLink's own network. During that window your old number stays active until the port finishes, so there's usually no gap in service. This is different from porting an Israeli number, which is far faster. If keeping your existing international number matters to you, [reach out to the team](/support) before checkout — they'll confirm your carrier supports porting and walk you through the steps so there are no surprises.",
     action: {
       label: "Find out more",
       href: "https://wa.me/972587939426?text=I%20would%20like%20more%20info%20about%20Porting%20My%20existing%20international%20number",
@@ -339,7 +489,7 @@ export const faqItems = [
   {
     question: "Can I keep my Israeli number?",
     answer:
-      "Yes, and it's a much simpler process than international porting. Because both your old carrier and BitLink operate on Israeli telecom infrastructure, porting an existing Israeli mobile number is straightforward and doesn't carry the multi-day coordination that international porting does. It generally feels instant from the customer's side and typically completes within 5 to 10 minutes once initiated. There's no separate porting fee for Israeli numbers the way there is for international ones. You can start the process during signup or afterward [through support](/support), and BitLink will confirm once the switch to your new line is complete.",
+      "Yes, and it's a much simpler process than international porting. Because both your old carrier and BitLink operate on Israeli telecom infrastructure, [porting an existing Israeli mobile number](/keep-your-number) is straightforward and doesn't carry the multi-day coordination that international porting does. It generally feels instant from the customer's side and typically completes within 5 to 10 minutes once initiated. There's no separate porting fee for Israeli numbers the way there is for international ones. You can start the process during signup or afterward [through support](/support), and BitLink will confirm once the switch to your new line is complete.",
   },
   {
     question: "Does BitLink have a referral program?",

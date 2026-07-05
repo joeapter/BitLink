@@ -55,6 +55,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.82,
     },
+    {
+      url: canonicalUrl("/keep-your-number"),
+      lastModified: recentUpdate,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: canonicalUrl("/about"),
+      lastModified: recentUpdate,
+      changeFrequency: "yearly",
+      priority: 0.6,
+    },
     ...plans.map((plan) => ({
       url: canonicalUrl(`/plans/${plan.slug}`),
       lastModified: recentUpdate,

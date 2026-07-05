@@ -15,11 +15,13 @@ const guideLinks = [
   { href: "/israeli-phone-plans-for-olim", label: "Phone plans for olim" },
   { href: "/israel-esim", label: "Israel eSIM" },
   { href: "/kosher-phone-plans-israel", label: "Kosher plans" },
+  { href: "/keep-your-number", label: "Keep your number" },
   { href: "/aliyah", label: "Aliyah" },
   { href: "/faq", label: "FAQ" },
 ];
 
 const companyLinks = [
+  { href: "/about", label: "About" },
   { href: "/support", label: "Support" },
   { href: "/refer", label: "Refer friends" },
   { href: "/legal/terms", label: "Terms" },
