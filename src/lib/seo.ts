@@ -119,6 +119,13 @@ export const siteJsonLd: JsonLd = {
       email: "support@bitlink.co.il",
       telephone: "+972587939426",
       identifier: "341280188",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "HaRashar Hirsch 4/1",
+        addressLocality: "Beit Shemesh",
+        postalCode: "9965000",
+        addressCountry: "IL",
+      },
       areaServed: {
         "@type": "Country",
         name: "Israel",

@@ -46,6 +46,9 @@ export function Footer() {
           <p className="mt-4 text-xs text-slate-400">
             Plans and activation are subject to availability, eligibility, and final BitLink confirmation.
           </p>
+          <p className="mt-4 text-xs text-slate-400">
+            BitLink Ltd. · HaRashar Hirsch 4/1, Beit Shemesh, Israel 9965000
+          </p>
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2 sm:items-start lg:grid-cols-[auto_auto_auto_auto] lg:gap-12">
