@@ -5,7 +5,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { createPageMetadata } from "@/lib/seo";
 
 const referralImage = {
-  url: "/assets/Bit%20Link%20Refferal%20image.png",
+  url: "/assets/bitlink-referral-offer.png",
   width: 1122,
   height: 1402,
   alt: "BitLink referral offer showing 5GB of monthly data per linked friend, up to 25GB per month.",
