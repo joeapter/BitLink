@@ -328,6 +328,11 @@ export const faqItems = [
       "Yes, and it's a much simpler process than international porting. Because both your old carrier and BitLink operate on Israeli telecom infrastructure, porting an existing Israeli mobile number is straightforward and doesn't carry the multi-day coordination that international porting does. It generally feels instant from the customer's side and typically completes within 5 to 10 minutes once initiated. There's no separate porting fee for Israeli numbers the way there is for international ones. You can start the process during signup or afterward [through support](/support), and BitLink will confirm once the switch to your new line is complete.",
   },
   {
+    question: "Does BitLink have a referral program?",
+    answer:
+      "Yes, and it pays in data rather than one-off discounts. Every customer account includes a personal referral link. Each friend who signs up through your link and stays an active customer adds 5GB of bonus data to your plan every month, up to 25GB per month. The bonus is ongoing — it applies each month for as long as your referrals stay active, not just once at signup. Referral and reward status is tracked in your account portal, and the current terms are shown at signup. If you're arriving with a group of friends or bringing several family lines, referrals can meaningfully raise your monthly data at no cost — see the [referral page](/refer) for how it works.",
+  },
+  {
     question: "How do I get help with activation?",
     answer:
       "Use the [support page](/support) to reach BitLink by WhatsApp, email, phone, or support ticket — whichever channel is easiest for you. A real team member, not a bot, can help with activation status, eSIM setup and QR code issues, physical SIM shipping and tracking, billing questions, plan changes, or general service questions. WhatsApp tends to get the fastest response since it's the channel the support team monitors most closely, and it's the same number used throughout the BitLink site for quick questions. If your issue relates to an order in progress — like an eSIM that hasn't arrived yet or a SIM card still in transit — having your account email ready when you reach out helps the team find your order faster.",

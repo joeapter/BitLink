@@ -4,9 +4,9 @@ import { ButtonLink } from "@/components/ui/Button";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Refer Friends — Unlock Referral Rewards",
+  title: "Refer Friends — Free Data for Every Referral",
   description:
-    "Share your BitLink referral link. When eligible friends join, rewards unlock automatically — and you track referrals and savings in your account.",
+    "Earn 5GB of bonus data every month for each active referral, up to 25GB per month. Share your BitLink link and track referrals in your account.",
   path: "/refer",
 });
 
@@ -18,10 +18,10 @@ export default function ReferPage() {
         <div className="relative mx-auto max-w-7xl">
           <p className="text-sm font-semibold text-link-blue">BitLink referrals</p>
           <h1 className="mt-3 max-w-4xl text-balance text-5xl font-semibold tracking-normal text-ink sm:text-6xl">
-            Link 2 friends. Unlock real savings.
+            Refer friends. Earn free data every month.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-slate">
-            Invite people who want a calmer phone plan experience. When two eligible friends join, BitLink applies the matching referral reward.
+            Every active referral adds 5GB of bonus data to your plan each month — up to 25GB per month. Share your link, friends join, and the extra data keeps coming while they stay active.
           </p>
         </div>
       </section>
@@ -30,8 +30,8 @@ export default function ReferPage() {
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">
           {[
             ["Share your link", "Every customer account includes a referral link.", Link2],
-            ["Two friends join", "Track referred friends and reward status in your account.", UsersRound],
-            ["Unlock savings", "Eligible referrals can unlock a discount or first-month reward.", Gift],
+            ["Friends join", "Each friend who signs up through your link and stays active counts as a referral.", UsersRound],
+            ["Earn monthly data", "Get 5GB of bonus data per active referral, every month — up to 25GB per month.", Gift],
           ].map(([title, body, Icon]) => (
             <div key={title as string} className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-6">
               <Icon className="h-6 w-6 text-link-blue" aria-hidden="true" />

@@ -12,10 +12,10 @@ export function ReferralBand() {
             Referral savings
           </div>
           <h2 className="max-w-2xl text-balance text-3xl font-semibold tracking-normal text-ink sm:text-5xl">
-            Link 2 friends. Unlock real savings.
+            Refer friends. Earn up to 25GB of free data monthly.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-muted-slate sm:text-lg sm:leading-8">
-            Share BitLink with people who want their phone plan to just work. We&apos;ll track eligible referrals and apply rewards when they qualify.
+            Every active referral adds 5GB of bonus data to your plan each month. We&apos;ll track eligible referrals and apply the bonus data when they qualify.
           </p>
         </div>
 
