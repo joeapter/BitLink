@@ -619,6 +619,120 @@ export const landingPages = {
     finalBody:
       "Pick the plan that fits your life in Israel, then ask support to attach the US, Canadian, or UK number to your line.",
   },
+  tourists: {
+    slug: "/israel-sim-for-tourists",
+    metaTitle: "Israel SIM for Tourists — Monthly, No Contract",
+    metaDescription:
+      "A real Israeli number for your trip: monthly plans from $14.99, eSIM live before you land, cancel when you leave — or pause for $10/mo and keep the number for your next visit.",
+    eyebrow: "Visiting Israel",
+    h1: "A real Israeli number for your trip — and the next one.",
+    intro:
+      "BitLink plans are monthly with no contract: from $14.99/month, with eSIM activation that finishes before you even board. Use it for a 2–4 week trip and cancel when you fly home — or pause the line for $10/month and keep your Israeli number waiting for the next visit. Unlike a travel eSIM, you get a real Israeli number that works for calls, SMS codes, and local apps.",
+    primaryCta: {
+      href: "/plans",
+      label: "Choose a plan",
+    },
+    secondaryCta: {
+      href: "/israel-esim",
+      label: "How the eSIM works",
+    },
+    highlights: [
+      {
+        title: "Land already connected",
+        body: "Checkout online from home; the eSIM QR code arrives by email within minutes. Most visitors activate before the flight and skip the airport SIM kiosk entirely.",
+      },
+      {
+        title: "Leave without strings",
+        body: "Plans are monthly with no long-term commitment. Fly home, cancel, and you've paid only for the months you used — VAT included, no exit fees.",
+      },
+      {
+        title: "Come back to the same number",
+        body: "Visit Israel regularly? Pause the line for $10/month instead of cancelling. Your Israeli number — and everything registered to it — is waiting when you return.",
+      },
+    ],
+    comparisonTable: {
+      heading: "Airport SIM & travel eSIM vs. a BitLink plan",
+      body: "For a few days of pure data, a travel eSIM is fine. For a real trip — and especially for repeat visits — the math and the experience change.",
+      columns: ["Travel eSIM / airport SIM", "BitLink monthly plan"],
+      rows: [
+        {
+          label: "Israeli phone number",
+          a: "Data-only, or a temporary number",
+          b: "A real +972 number of your own",
+        },
+        {
+          label: "Israeli SMS codes (banks, Bit, Pango, deliveries)",
+          a: "Usually don't work",
+          b: "Work like a local's phone",
+        },
+        {
+          label: "Setup",
+          a: "Kiosk queue on arrival, or per-app fiddling",
+          b: "Online checkout — eSIM live before you land",
+        },
+        {
+          label: "Cost shape",
+          a: "Per-day or per-GB, adds up fast",
+          b: "Flat monthly from $14.99, VAT included",
+        },
+        {
+          label: "Between trips",
+          a: "Number gone — start over next visit",
+          b: "Pause for $10/mo and keep your number",
+        },
+        {
+          label: "When something breaks",
+          a: "Self-serve apps and email queues",
+          b: "Real people on WhatsApp, in English",
+        },
+      ],
+    },
+    details: [
+      {
+        title: "Built for 2–4 week trips",
+        body: "One month of Student 5G — $34.99 for 50GB, 5,000 local minutes, and 1,000 SMS — usually costs less than stacking travel eSIM data packs for the same stay, and it comes with a number that actually works in Israel. Lighter visits can start at $14.99 with Basic.",
+      },
+      {
+        title: "The repeat-visitor move: pause, don't cancel",
+        body: "Chagim regulars, parents visiting kids in yeshiva or seminary, families with one foot in Israel: pause the line through support for $10/month between trips. The number stays yours, and on your next visit everything simply works again — no new SIM, no re-registering apps.",
+      },
+      {
+        title: "Staying longer than a visit?",
+        body: "If the trip is really a semester or a move, the student and olim guides cover data sizing, porting, and family calling in more depth — same plans, different questions.",
+      },
+    ],
+    qaBlocks: [
+      {
+        question: "What's the best SIM card for tourists in Israel?",
+        answer:
+          "It depends on what your trip needs. For a few days of maps and WhatsApp on Wi-Fi-adjacent travel, a data-only travel eSIM is genuinely fine and often cheapest. The switch point is needing a real Israeli phone number: receiving calls, getting SMS verification codes from Israeli banks and apps like Bit and Pango, ordering deliveries, or staying multiple weeks. Travel eSIMs don't do those things — they're data pipes. A BitLink monthly plan from $14.99 (VAT included, no contract) includes a real Israeli number and activates by eSIM before you land, and for a 2–4 week stay [Student 5G](/plans/student-5g) at $34.99 with 50GB usually beats stacking travel data packs.",
+      },
+      {
+        question: "Can I get an Israeli SIM before I arrive?",
+        answer:
+          "Yes — that's the normal BitLink flow, not a special case. Check out online from home, and on an eSIM-compatible phone the activation QR code arrives by email within minutes of payment. Install it before your flight and your Israeli number is live when the wheels touch down: rides, family, and hotel confirmations all work from the arrivals hall. If your phone needs a physical SIM, [support](/support) will help you time delivery around your trip instead.",
+      },
+      {
+        question: "What happens to my number when I leave Israel?",
+        answer:
+          "Your choice, and both options are clean. Cancel, and you've simply paid for the months you used — no exit fees, no contract tail. Or pause the line for $10/month through [support](/support) and keep the number: it stays registered to you, keeps your app and WhatsApp registrations intact, and reactivates when you're back. If you visit Israel more than once a year, pausing is almost always worth it — it's the difference between starting over every trip and just landing connected.",
+      },
+      {
+        question: "How much does a phone plan cost for a month in Israel?",
+        answer:
+          "With BitLink: [Basic](/plans/basic) is $14.99/month with 1GB of 5G data for light use, [Student 5G](/plans/student-5g) is $34.99/month with 50GB — the right size for most multi-week visits — and [Max 5G](/plans/max-5g) is $39.99/month with 120GB plus 150 minutes of calling to US and Canadian numbers. All prices are in USD with VAT included, there's no contract beyond the month, and every plan includes a real Israeli number with eSIM or physical SIM activation.",
+      },
+    ],
+    planSlugs: ["student-5g", "basic", "max-5g"],
+    relatedLinks: [
+      { href: "/israel-esim", label: "Israel eSIM" },
+      { href: "/keep-your-number", label: "Porting your number" },
+      { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
+    ],
+    finalHeading: "One trip or twenty. Same number.",
+    finalBody:
+      "Choose a monthly plan for this visit — and if you'll be back, pause instead of cancelling and keep your Israeli number.",
+  },
 } satisfies Record<string, LandingPageContent>;
 
 export const plansFaqItems = [

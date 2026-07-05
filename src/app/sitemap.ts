@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { guides } from "@/lib/guides";
 import { plans } from "@/lib/plans";
 import { canonicalUrl } from "@/lib/seo";
 
@@ -73,6 +74,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    {
+      url: canonicalUrl("/israel-sim-for-tourists"),
+      lastModified: recentUpdate,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: canonicalUrl("/guides"),
+      lastModified: recentUpdate,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
+    ...guides.map((guide) => ({
+      url: canonicalUrl(`/guides/${guide.slug}`),
+      lastModified: new Date(guide.dateModified),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
     {
       url: canonicalUrl("/about"),
       lastModified: recentUpdate,

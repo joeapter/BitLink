@@ -18,7 +18,9 @@ const guideLinks = [
   { href: "/kosher-phone-plans-israel", label: "Kosher plans" },
   { href: "/keep-your-number", label: "Keep your number" },
   { href: "/us-number-in-israel", label: "US number add-on" },
+  { href: "/israel-sim-for-tourists", label: "Visiting Israel" },
   { href: "/aliyah", label: "Aliyah" },
+  { href: "/guides", label: "Guides" },
   { href: "/faq", label: "FAQ" },
 ];
 
