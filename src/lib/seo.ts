@@ -119,6 +119,7 @@ export const siteJsonLd: JsonLd = {
       email: "support@bitlink.co.il",
       telephone: "+972587939426",
       identifier: "341280188",
+      foundingDate: "2026",
       address: {
         "@type": "PostalAddress",
         streetAddress: "HaRashar Hirsch 4/1",

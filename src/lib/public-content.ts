@@ -296,7 +296,7 @@ export const faqItems = [
   {
     question: "What mobile network does BitLink use?",
     answer:
-      "BitLink runs primarily on the Partner network, one of Israel's major national carriers, with Pelephone — another major Israeli network — as a secondary network. In practice that means nationwide coverage and 5G service on the same infrastructure most Israelis use every day, not a small or regional network. There's nothing to choose or configure at checkout: your line is set up on the network automatically when it's provisioned. If you want to sanity-check signal for a specific spot — a yeshiva campus, a moshav, a particular neighborhood — [BitLink support](/support) can tell you what to expect there before you commit to a plan.",
+      "BitLink runs primarily on the Partner network, one of Israel's major national carriers, with Pelephone — another major Israeli network — as a secondary network. Partner's network has been in commercial operation since 1999, when it launched under the Orange brand — so while BitLink itself is a new company, the infrastructure carrying your calls and data has been serving Israel for over 25 years. In practice that means nationwide coverage and 5G service on the same infrastructure most Israelis use every day, not a small or regional network. There's nothing to choose or configure at checkout: your line is set up on the network automatically when it's provisioned. If you want to sanity-check signal for a specific spot — a yeshiva campus, a moshav, a particular neighborhood — [BitLink support](/support) can tell you what to expect there before you commit to a plan.",
   },
   {
     question: "Which plan is meant for students?",
