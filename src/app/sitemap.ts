@@ -62,6 +62,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: canonicalUrl("/yeshiva-seminary-phone-plans"),
+      lastModified: recentUpdate,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: canonicalUrl("/us-number-in-israel"),
+      lastModified: recentUpdate,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
       url: canonicalUrl("/about"),
       lastModified: recentUpdate,
       changeFrequency: "yearly",

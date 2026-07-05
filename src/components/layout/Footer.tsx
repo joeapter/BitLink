@@ -13,9 +13,11 @@ const planLinks = [
 const guideLinks = [
   { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
   { href: "/israeli-phone-plans-for-olim", label: "Phone plans for olim" },
+  { href: "/yeshiva-seminary-phone-plans", label: "Yeshiva & seminary" },
   { href: "/israel-esim", label: "Israel eSIM" },
   { href: "/kosher-phone-plans-israel", label: "Kosher plans" },
   { href: "/keep-your-number", label: "Keep your number" },
+  { href: "/us-number-in-israel", label: "US number add-on" },
   { href: "/aliyah", label: "Aliyah" },
   { href: "/faq", label: "FAQ" },
 ];

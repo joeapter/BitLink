@@ -201,10 +201,21 @@ export const landingPages = {
         answer:
           "Most students studying in Israel are comfortable with 50GB per month, which is what BitLink's Student 5G plan includes for $34.99/month — enough for daily maps, messaging, social media, and moderate streaming over 5G. If you stream video heavily, use your phone as a mobile hotspot for a laptop, or expect to be away from campus Wi-Fi often, Max 5G's 120GB for $39.99/month gives more headroom and adds 150 minutes of US/Canada calling. For lighter use — mostly messaging and occasional browsing — Basic's 1GB for $14.99/month can be enough, though most students outgrow it within the first week. If you're unsure, BitLink support can help estimate usage from your typical phone habits before you choose.",
       },
+      {
+        question: "Do I need an Israeli bank account or credit card?",
+        answer:
+          "No. Checkout is online and priced in US dollars with VAT included, so a regular US, UK, or Canadian card works — which is also why many parents simply pay for the line from home while the student uses it in Israel. There's no in-store visit and no Israeli bank account required to get started, a real difference from signing up with a traditional Israeli carrier. If anything extra is ever needed for your specific situation, [support](/support) will tell you before you pay, not after.",
+      },
+      {
+        question: "Can I set up my Israeli number before I fly?",
+        answer:
+          "Yes, and it's the order of operations most students should use. Checkout happens online from anywhere, and on an eSIM-compatible phone the activation QR code arrives by email within minutes of payment — so your Israeli number can be live before you board, and your phone connects the moment you land. No airport SIM kiosk, no first-week scramble. If your program requires a kosher device, the physical-SIM kosher plans take a little more planning around your arrival date, and [support](/support) will help you time it.",
+      },
     ],
     planSlugs: ["student-5g", "max-5g", "basic"],
     relatedLinks: [
       { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
+      { href: "/yeshiva-seminary-phone-plans", label: "Yeshiva & seminary plans" },
       { href: "/students", label: "BitLink for students" },
     ],
     finalHeading: "Choose the plan that matches the semester, not the sales pitch.",
@@ -326,6 +337,16 @@ export const landingPages = {
           "BitLink phone plans range from $14.99 to $39.99 per month, with no long-term contract beyond the monthly term, VAT included, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS, a fit for light use while you're getting settled. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, BitLink's most popular plan for everyday use. Max 5G is $39.99/month with 120GB of data, 5,000 minutes, 1,000 SMS, and 150 minutes of calling to US and Canadian numbers built in, which tends to suit olim families staying in close touch with relatives abroad during the first year. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month.",
       },
       {
+        question: "Do I need an Israeli phone number for banks, Kupat Cholim, and apps like Bit?",
+        answer:
+          "Practically, yes. Israeli banks, Kupat Cholim, government services, delivery companies, and everyday apps like Bit and Pango verify you by sending an SMS code to an Israeli mobile number — and most of them won't accept a foreign number or a data-only travel eSIM. That's why a real Israeli number is one of the first things to sort out during klita: without one, you can find yourself unable to open a bank account, register with a kupah, or pay for parking. Every BitLink plan includes a real Israeli number, so verification codes, callbacks from the bank, and appointment reminders all just work from day one.",
+      },
+      {
+        question: "Can I set up my phone service before my aliyah flight?",
+        answer:
+          "Yes. Checkout is online, and on an eSIM-compatible phone the activation QR code arrives by email within minutes of payment — so your Israeli number can be live before your flight, ready for the arrival paperwork that starts almost immediately. If you're also [keeping your US, UK, or Canadian number](/keep-your-number), it's worth messaging support before you travel: the team will confirm your current carrier supports porting and sequence the steps around your arrival date, so nothing overlaps badly during your first week.",
+      },
+      {
         question: "Which BitLink plan is best for olim staying in touch with family back home?",
         answer:
           "Max 5G, at $39.99/month, is built for exactly that: 120GB of data plus 150 minutes of calling to US and Canadian numbers included at no extra cost, alongside 5,000 Israeli minutes and 1,000 SMS. If family calls you more than you call them, adding a US, Canadian, or UK local number for $9.99/month lets them dial a number that's local to them instead of an international one, on any plan including Basic or Student 5G. For olim without a specific calling pattern yet, Student 5G at $34.99/month with 50GB of data is a reasonable starting point, and BitLink support can help you switch plans later if your usage changes once you're settled.",
@@ -334,6 +355,7 @@ export const landingPages = {
     planSlugs: ["max-5g", "student-5g", "basic"],
     relatedLinks: [
       { href: "/aliyah", label: "Aliyah phone service" },
+      { href: "/us-number-in-israel", label: "US number add-on" },
       { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
     ],
     finalHeading: "Choose the plan that fits your klita, not just your data.",
@@ -415,6 +437,187 @@ export const landingPages = {
     finalHeading: "Bring the number everyone already has.",
     finalBody:
       "Choose a plan, tell us which number you're keeping, and BitLink handles the switch with your old carrier.",
+  },
+  yeshivaPlans: {
+    slug: "/yeshiva-seminary-phone-plans",
+    metaTitle: "Yeshiva & Seminary Phone Plans in Israel",
+    metaDescription:
+      "Phone plans for yeshiva and seminary students: kosher lines recognized by Vaadat Harabanim from $19.99/mo, standard student plans from $14.99/mo, USD billing parents can pay from abroad.",
+    eyebrow: "Yeshiva & seminary",
+    h1: "Phone plans for yeshiva and seminary students in Israel.",
+    intro:
+      "BitLink covers both paths a yeshiva or seminary student might need: voice-only kosher plans from $19.99/month on lines recognized by Vaadat Harabanim L'inyanei Tikshoret, and standard student plans from $14.99/month for programs that allow smartphones. Parents pay in USD from abroad, support answers in English, and the setup is guided from checkout to first call.",
+    primaryCta: {
+      href: "/plans",
+      label: "Compare plans",
+    },
+    secondaryCta: {
+      href: "/support",
+      label: "Ask about school requirements",
+    },
+    highlights: [
+      {
+        title: "Kosher lines, properly recognized",
+        body: "BitLink's kosher lines are recognized by Vaadat Harabanim L'inyanei Tikshoret (registered association no. 580440824) — the recognition yeshivos and kosher-phone communities look for.",
+      },
+      {
+        title: "Parents pay from abroad",
+        body: "Plans are priced and charged in USD with VAT included, so a parent in the US, UK, or Canada pays with their own card while the line runs on the student's phone in Israel.",
+      },
+      {
+        title: "A standard path where it's allowed",
+        body: "For programs that permit smartphones, Student 5G gives 50GB of data, 5,000 minutes, and 1,000 SMS for $34.99/month — BitLink's most popular plan.",
+      },
+    ],
+    details: [
+      {
+        title: "Check your program's phone policy first",
+        body: "Many yeshivos require certified kosher devices; many seminaries allow smartphones with conditions. The policy decides which BitLink path fits, so confirm it before buying a device — and ask support if you're unsure which plan matches a specific school's rules.",
+      },
+      {
+        title: "Arrive with the phone already working",
+        body: "Standard plans can activate by eSIM within minutes of checkout, before you fly. Kosher plans use a physical SIM, so they take a little more planning — support will help you time it around your arrival.",
+      },
+      {
+        title: "For administrators: partner with BitLink",
+        body: "Yeshivos, seminaries, and shuls can get a dedicated signup link for their students, with referrals tracked and the institution supported through BitLink's referral program. Reach out through the support page to set one up for your school.",
+      },
+    ],
+    qaBlocks: [
+      {
+        question: "Do yeshivas and seminaries require kosher phones?",
+        answer:
+          "It varies by institution, and the school's policy — not the carrier — is what decides. Many chareidi yeshivos require a certified kosher device on a recognized kosher line, in which case [Kosher Basic](/plans/kosher-basic) ($19.99/month) or [Kosher+](/plans/kosher-plus) ($24.99/month, adds 150 US/Canada minutes) is the right path. Many seminaries and yeshivos permit smartphones, sometimes with a filtering requirement, where [Student 5G](/plans/student-5g) at $34.99/month fits most students. Check with the school office before buying a device — and if the policy is ambiguous, [BitLink support](/support) can tell you which plans other students at the same program typically use.",
+      },
+      {
+        question: "Are BitLink's kosher lines accepted by yeshivos?",
+        answer:
+          "BitLink's kosher lines are recognized by Vaadat Harabanim L'inyanei Tikshoret — the Rabbinical Committee for Communications, registered association no. 580440824 — which is the recognition kosher-phone communities and institutions generally look for. The lines are voice-only on a physical SIM and require a certified kosher phone. If a school or mashgiach wants to confirm the certification details before a student signs up, [support](/support) can provide them in writing.",
+      },
+      {
+        question: "Can parents manage and pay for the line from the US?",
+        answer:
+          "Yes — this is one of the main reasons families choose BitLink. Checkout is online and priced in US dollars with VAT included, so a parent pays with their own card and sees a predictable USD charge each month, not a shekel amount that moves with the exchange rate. Support is in English by WhatsApp, phone, and email, so a parent can ask questions or sort out an issue directly, without needing the student to translate. Adding a [US, Canadian, or UK local number](/us-number-in-israel) for $9.99/month also lets family call the student like a local call.",
+      },
+      {
+        question: "Does BitLink work with schools directly?",
+        answer:
+          "Yes. BitLink's organization program gives a yeshiva, seminary, or shul its own signup link to share with incoming students. Signups through the link are tracked, and the institution is supported through BitLink's referral program. It costs the school nothing and gives students a vetted, English-speaking option for a task that otherwise lands on the office staff during the busiest week of the year. Administrators can [reach out through support](/support) to set it up.",
+      },
+    ],
+    planSlugs: ["kosher-basic", "student-5g", "kosher-plus"],
+    relatedLinks: [
+      { href: "/kosher-phone-plans-israel", label: "Kosher phone plans" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+      { href: "/keep-your-number", label: "Porting your number" },
+    ],
+    finalHeading: "Two clean paths. One clear setup.",
+    finalBody:
+      "Choose the kosher or standard plan your program calls for — and ask support anything before checkout, device rules included.",
+  },
+  usNumber: {
+    slug: "/us-number-in-israel",
+    metaTitle: "US Number in Israel — $9.99/mo Add-On",
+    metaDescription:
+      "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family dials a local number and your phone rings in Israel — no calling cards, no roaming.",
+    eyebrow: "US / Canada / UK number",
+    h1: "A US number that rings in Israel.",
+    intro:
+      "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family and clients back home dial a number that's local to them — no international dialing, no calling cards — and the call rings your phone in Israel. It works on every plan, including kosher lines.",
+    primaryCta: {
+      href: "/plans",
+      label: "Choose a plan",
+    },
+    secondaryCta: {
+      href: "/support",
+      label: "Ask about the add-on",
+    },
+    highlights: [
+      {
+        title: "Local on their end",
+        body: "Parents, grandparents, and clients dial a regular local number in their own country. For them, calling you costs what any local call costs.",
+      },
+      {
+        title: "Works with every plan",
+        body: "The add-on attaches to any BitLink plan — Basic through Max 5G, and US/Canada numbers on the kosher plans too.",
+      },
+      {
+        title: "One account, one bill",
+        body: "The number rides alongside your Israeli line for a flat $9.99/month, on the same USD bill — no second carrier to manage.",
+      },
+    ],
+    comparisonTable: {
+      heading: "Add-on vs. keeping your old US plan alive",
+      body: "A lot of people land in Israel still paying a US carrier just so family can reach them. Here's the honest comparison.",
+      columns: ["Keeping your old US plan", "BitLink US/CA/UK add-on"],
+      rows: [
+        {
+          label: "Monthly cost",
+          a: "$10–$40+ depending on carrier",
+          b: "$9.99 flat, on any plan",
+        },
+        {
+          label: "Where calls ring",
+          a: "Your US SIM — with roaming behavior that varies by carrier",
+          b: "Your phone in Israel, like any normal call",
+        },
+        {
+          label: "What you manage",
+          a: "Two carriers, two bills, two SIMs",
+          b: "One BitLink account and bill",
+        },
+        {
+          label: "Your existing US number",
+          a: "Stays hostage to the old plan",
+          b: "Can be ported to BitLink for a one-time $49.99 instead",
+        },
+      ],
+    },
+    details: [
+      {
+        title: "How it works",
+        body: "The local number is provisioned alongside your Israeli line. When someone dials it from the US, Canada, or the UK, the call comes through to your phone in Israel — they never dial internationally, and you answer as usual.",
+      },
+      {
+        title: "Add-on or porting — which one?",
+        body: "The add-on gives you a new local number for people to call. Porting brings your existing US, UK, or Canadian number onto your BitLink line for a one-time $49.99. If everyone already knows your old number, porting keeps it; if you just want to be easy to reach, the add-on is simpler. Some people do both.",
+      },
+      {
+        title: "Getting it set up",
+        body: "Choose your plan first, then ask support to attach the add-on to your line — WhatsApp is the fastest way. The team confirms the country and number details with you before anything is billed.",
+      },
+    ],
+    qaBlocks: [
+      {
+        question: "How much does a US number in Israel cost?",
+        answer:
+          "With BitLink, $9.99 per month on top of any plan — so a student on [Student 5G](/plans/student-5g) pays $44.98/month total for an Israeli line plus a US number that family can call locally. The same add-on price covers a Canadian or UK number instead, and US/Canada numbers are available on the kosher plans as well. Compare that with keeping an old US plan alive just to stay reachable, which typically runs $10–$40 per month and leaves you juggling two carriers.",
+      },
+      {
+        question: "Do my parents pay international rates when they call me?",
+        answer:
+          "No — that's the point of the add-on. Your parents dial a number that's local in their country, and their carrier treats it as a local call, which on most US, Canadian, and UK plans costs nothing extra. The call then rings your phone in Israel. No calling cards, no dialing +972, no explaining international dialing to a grandparent. On your side, answering works like any normal incoming call.",
+      },
+      {
+        question: "Should I add a US number or port my old US number?",
+        answer:
+          "Ask one question: do people need to reach the number they already have saved? If yes — you've had the same cell number for 15 years and everyone from your dentist to your bank uses it — then [porting it to BitLink](/keep-your-number) for a one-time $49.99 keeps it alive on your Israeli line. If you just want family to have an easy way to call, the $9.99/month add-on gives them a fresh local number and skips the porting process entirely. They solve different problems, and some people do both.",
+      },
+      {
+        question: "Does the add-on work with kosher plans?",
+        answer:
+          "Yes. A US or Canadian local number can be added to [Kosher Basic](/plans/kosher-basic) or [Kosher+](/plans/kosher-plus) for the same $9.99/month, and it rings the kosher phone like any other call. Combined with Kosher+'s included 150 minutes of outbound US/Canada calling, a kosher line can stay closely connected with family abroad in both directions.",
+      },
+    ],
+    planSlugs: ["student-5g", "max-5g", "kosher-plus"],
+    relatedLinks: [
+      { href: "/keep-your-number", label: "Porting your number" },
+      { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
+      { href: "/aliyah", label: "Aliyah phone service" },
+    ],
+    finalHeading: "Stay a local call away.",
+    finalBody:
+      "Pick the plan that fits your life in Israel, then ask support to attach the US, Canadian, or UK number to your line.",
   },
 } satisfies Record<string, LandingPageContent>;
 
