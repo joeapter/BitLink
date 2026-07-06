@@ -273,6 +273,31 @@ async function handleCheckoutCompleted(
     'Subscriber created, telecom line drafted, provisioning job queued',
   );
 
+  // NEW intl number (no port): record the request on the line so it can't be
+  // silently billed without fulfillment. No automated provisioning path exists
+  // yet — admin fulfills manually until Annatel exposes one.
+  if (wantsIntlNumber && !intlPortNumber) {
+    try {
+      const { data: currentLine } = await admin.from('telecom_lines').select('metadata').eq('id', lineId).single();
+      const currentMeta = (currentLine?.metadata ?? {}) as Record<string, unknown>;
+      await admin.from('telecom_lines').update({
+        metadata: {
+          ...currentMeta,
+          intl_number: {
+            country: intlNumberCountry,
+            source: 'new',
+            status: 'awaiting_fulfillment',
+            requested_at: new Date().toISOString(),
+          },
+        } as never,
+        updated_at: new Date().toISOString(),
+      }).eq('id', lineId);
+      log.info({ lineId, intlNumberCountry }, 'New intl number request recorded — awaiting manual fulfillment');
+    } catch (err) {
+      log.error({ lineId, error: err instanceof Error ? err.message : String(err) }, 'Failed to record intl number request');
+    }
+  }
+
   // Attempt intl port-in via Annatel if requested — record intent + result immediately
   if (wantsIntlNumber && intlPortNumber) {
     const attemptedAt = new Date().toISOString();

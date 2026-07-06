@@ -9,10 +9,17 @@ export function BrandMark({ className }: { className?: string }) {
   const timestamps = useRef<number[]>([]);
   const [toast, setToast] = useState(false);
 
-  const handleClick = useCallback(() => {
+  const handleClick = useCallback((e: React.MouseEvent) => {
     const now = Date.now();
-    const recent = [...timestamps.current, now].filter((t) => now - t < 2000);
+    const recent = [...timestamps.current, now].filter((t) => now - t < 3000);
     timestamps.current = recent;
+
+    // Rapid-succession clicks are the fee-waiver easter egg, not navigation
+    // intent — without this, the first click navigates, the page scrolls, and
+    // the logo moves out from under the cursor before the count can build.
+    if (recent.length >= 2) {
+      e.preventDefault();
+    }
 
     if (recent.length >= 7) {
       timestamps.current = [];
