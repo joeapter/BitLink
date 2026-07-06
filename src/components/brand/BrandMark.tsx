@@ -31,6 +31,8 @@ export function BrandMark({ className }: { className?: string }) {
       timestamps.current = [];
       const already = localStorage.getItem("bl_staff") === "1";
       if (!already) localStorage.setItem("bl_staff", "1");
+      // Let an already-mounted checkout form pick up the waiver immediately.
+      window.dispatchEvent(new Event("bl-staff-changed"));
       // Always confirm — a silent success is indistinguishable from a bug.
       setToast(already ? "Activation fee waiver already active" : "Activation fee waived");
       setTimeout(() => setToast(null), 2500);

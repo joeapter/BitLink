@@ -26,7 +26,20 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
   const [feeWaived, setFeeWaived] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem("bl_staff") === "1") setFeeWaived(true);
+    const check = () => {
+      if (localStorage.getItem("bl_staff") === "1") setFeeWaived(true);
+    };
+    check();
+    // React to the unlock happening while this form is already mounted:
+    // same-tab (custom event from BrandMark), cross-tab (storage), and focus.
+    window.addEventListener("bl-staff-changed", check);
+    window.addEventListener("storage", check);
+    window.addEventListener("focus", check);
+    return () => {
+      window.removeEventListener("bl-staff-changed", check);
+      window.removeEventListener("storage", check);
+      window.removeEventListener("focus", check);
+    };
   }, []);
 
   const selectedPlan = useMemo(
@@ -50,6 +63,9 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
     setError(null);
 
     const isPortIn = numberChoice === "port-in";
+    // Read the waiver fresh at submit time — the mounted state can be stale
+    // if the unlock happened after this form loaded.
+    const waived = feeWaived || localStorage.getItem("bl_staff") === "1";
 
     const response = await fetch("/api/stripe/create-checkout-session", {
       method: "POST",
@@ -64,7 +80,7 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
         isEsim: effectiveSimType === "esim",
         isPortIn,
         portInNumber: isPortIn ? formData.get("portInNumber") : null,
-        skipActivationFee: feeWaived,
+        skipActivationFee: waived,
         wantsIntlNumber,
         intlNumberCountry: wantsIntlNumber ? intlCountry : undefined,
         intlNumberSource: wantsIntlNumber ? intlSource : undefined,
