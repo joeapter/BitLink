@@ -43,7 +43,7 @@ export function statusTone(status?: string | null): BadgeTone {
   if (["new_order", "awaiting_sim_assignment", "trialing", "incomplete"].includes(status)) {
     return "info";
   }
-  if (["past_due", "open", "pending"].includes(status)) {
+  if (["past_due", "open", "pending", "paused"].includes(status)) {
     return "warning";
   }
   if (["cancelled", "canceled", "failed", "unpaid", "suspended"].includes(status)) {

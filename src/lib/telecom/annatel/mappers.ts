@@ -35,6 +35,9 @@ const SUSPENSION_MAP: Record<SuspensionReason, string> = {
   block: 'block',
   fraud: 'fraud_block',
   admin: 'admin_block',
+  // Confirmed with Annatel (Jul 2026): 'freeze' holds the line, number, and
+  // SIM — used by the customer-facing "Pause My Plan" feature.
+  freeze: 'freeze',
 };
 
 const JOB_STATUS_MAP: Record<AnnatelBulkStatus, ProviderJobStatus> = {

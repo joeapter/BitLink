@@ -21,6 +21,7 @@ function lineStatusLabel(status: string) {
     PROVISIONING: "Setting up",
     ACTIVE: "Active",
     SUSPENDED: "Suspended",
+    PAUSED: "Paused",
     PORTING: "Porting",
     TERMINATED: "Terminated",
     FAILED: "Failed",

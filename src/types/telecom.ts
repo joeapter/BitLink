@@ -9,6 +9,7 @@ export type LineStatus =
   | 'provisioning'
   | 'active'
   | 'suspended'
+  | 'paused'
   | 'porting'
   | 'terminated'
   | 'failed';
@@ -22,7 +23,7 @@ export type SimStatus =
   | 'retired'
   | 'failed';
 
-export type SuspensionReason = 'billing' | 'voluntary' | 'block' | 'fraud' | 'admin';
+export type SuspensionReason = 'billing' | 'voluntary' | 'block' | 'fraud' | 'admin' | 'freeze';
 
 export type ProvisioningJobType =
   | 'create_line'

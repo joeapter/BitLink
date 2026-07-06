@@ -238,6 +238,54 @@ async function seedOneTimeAddon(slug, name, description, amountCents) {
   return { slug, productId: product.id, priceId: price.id };
 }
 
+async function seedRecurringAddon(slug, name, description, amountCents) {
+  const existingProducts = await stripe.products.search({
+    query: `metadata['addon_slug']:'${slug}'`,
+    limit: 1,
+  });
+
+  let product;
+  if (existingProducts.data.length > 0) {
+    product = existingProducts.data[0];
+    console.log(`  product  reused   ${product.name} (${product.id})`);
+  } else {
+    product = await stripe.products.create({
+      name,
+      description,
+      metadata: { addon_slug: slug, source: 'bitlink_seed' },
+    });
+    console.log(`  product  created  ${product.name} (${product.id})`);
+  }
+
+  const existingPrices = await stripe.prices.list({
+    product: product.id,
+    active: true,
+    type: 'recurring',
+    limit: 5,
+  });
+
+  const matchingPrice = existingPrices.data.find((p) => p.unit_amount === amountCents);
+  let price;
+  if (matchingPrice) {
+    price = matchingPrice;
+    console.log(`  price    reused   $${(price.unit_amount / 100).toFixed(2)}/mo (${price.id})`);
+  } else if (existingPrices.data.length > 0) {
+    price = existingPrices.data[0];
+    console.log(`  price    reused   $${(price.unit_amount / 100).toFixed(2)}/mo (${price.id}) [amount differs]`);
+  } else {
+    price = await stripe.prices.create({
+      product: product.id,
+      unit_amount: amountCents,
+      currency: 'usd',
+      recurring: { interval: 'month' },
+      metadata: { addon_slug: slug, source: 'bitlink_seed' },
+    });
+    console.log(`  price    created  $${(price.unit_amount / 100).toFixed(2)}/mo (${price.id})`);
+  }
+
+  return { slug, productId: product.id, priceId: price.id };
+}
+
 async function main() {
   const isLive = !STRIPE_SECRET_KEY.startsWith('sk_test_');
   console.log(`BitLink — Stripe seed (${isLive ? 'LIVE MODE' : 'test mode'})\n`);
@@ -263,6 +311,15 @@ async function main() {
   );
   console.log('');
 
+  console.log('[line-pause]');
+  const linePause = await seedRecurringAddon(
+    'line-pause',
+    'Line Pause',
+    'Pause My Plan: holds an Israeli line, number, and SIM while service is frozen. Billed monthly in place of the regular plan; starts at the next billing date after pausing.',
+    1000,
+  );
+  console.log('');
+
   console.log('=== Seed complete ===');
   console.log('stripe_price_id values are now stored in the Supabase plans table.');
   console.log('Add the following env vars to Vercel (production + preview):\n');
@@ -280,6 +337,7 @@ async function main() {
     if (key) console.log(`${key}=${priceId}`);
   }
   console.log(`STRIPE_PRICE_INTL_PORT_IN_FEE=${portInFee.priceId}`);
+  console.log(`STRIPE_PRICE_PAUSE=${linePause.priceId}`);
 }
 
 main().catch((err) => {

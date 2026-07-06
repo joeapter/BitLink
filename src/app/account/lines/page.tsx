@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { LinesPanel } from "@/components/account/LinesPanel";
 import { LineUsageMeter } from "@/components/account/LineUsageMeter";
 import { EsimQrCard } from "@/components/account/EsimQrCard";
+import { PauseLineCard } from "@/components/account/PauseLineCard";
 import { requireUser } from "@/lib/auth/server";
 import { getAccountSnapshot } from "@/lib/db/account";
 
@@ -34,6 +35,12 @@ export default async function AccountLinesPage() {
                 <LineUsageMeter providerLineId={line.provider_line_id} />
               </Suspense>
             )}
+            {/* Pause My Plan — $10/mo freeze that holds the number and SIM */}
+            <PauseLineCard
+              lineId={line.id}
+              status={line.status}
+              pausedAt={(meta.paused_at as string | undefined) ?? null}
+            />
           </div>
         );
       })}

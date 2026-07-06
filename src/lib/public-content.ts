@@ -694,7 +694,7 @@ export const landingPages = {
       },
       {
         title: "The repeat-visitor move: pause, don't cancel",
-        body: "Chagim regulars, parents visiting kids in yeshiva or seminary, families with one foot in Israel: pause the line through support for $10/month between trips. The number stays yours, and on your next visit everything simply works again — no new SIM, no re-registering apps.",
+        body: "Chagim regulars, parents visiting kids in yeshiva or seminary, families with one foot in Israel: pause the line for $10/month right from your account between trips. The number stays yours for up to 18 months per pause, and on your next visit everything simply works again — no new SIM, no re-registering apps.",
       },
       {
         title: "Staying longer than a visit?",
@@ -715,7 +715,7 @@ export const landingPages = {
       {
         question: "What happens to my number when I leave Israel?",
         answer:
-          "Your choice, and both options are clean. Cancel, and you've simply paid for the months you used — no exit fees, no contract tail. Or pause the line for $10/month through [support](/support) and keep the number: it stays registered to you, keeps your app and WhatsApp registrations intact, and reactivates when you're back. If you visit Israel more than once a year, pausing is almost always worth it — it's the difference between starting over every trip and just landing connected.",
+          "Your choice, and both options are clean. Cancel, and you've simply paid for the months you used — no exit fees, no contract tail. Or pause the line for $10/month right from your account and keep the number: service freezes immediately, the month you've already paid for runs to the end of its billing cycle, and the $10/month pause rate starts on your next billing date. The number stays registered to you — app and WhatsApp registrations intact — and resumes instantly when you're back. Two honest limits: a paused line is held for up to 18 months (after that it may be cancelled and the number lost), and when you resume, your regular billing restarts that day. If you visit Israel more than once a year, pausing is almost always worth it.",
       },
       {
         question: "How much does a phone plan cost for a month in Israel?",
@@ -744,7 +744,7 @@ export const plansFaqItems = [
   {
     question: "Am I locked into a contract?",
     answer:
-      "No. All BitLink plans are monthly with no long-term commitment. You can cancel anytime, switch plans as your usage changes, or pause your line for $10/month to keep your Israeli number active between stays in Israel — useful if you visit regularly.",
+      "No. All BitLink plans are monthly with no long-term commitment. You can cancel anytime, switch plans as your usage changes, or pause your line for $10/month from your account to keep your Israeli number between stays in Israel. Pausing takes effect immediately, the $10 rate starts at your next billing date, and a paused line is held for up to 18 months.",
   },
   {
     question: "Are the prices really in US dollars?",
@@ -777,7 +777,7 @@ export const faqItems = [
   {
     question: "Can I use BitLink for a short trip to Israel?",
     answer:
-      "Yes. BitLink plans are monthly with no long-term commitment, so a 2–4 week visit works fine: choose a [plan](/plans), activate by eSIM within minutes of checkout (or by physical SIM), and cancel when you leave — you pay for the months you use, VAT included. Unlike a travel eSIM, a BitLink plan includes a real Israeli phone number, so calls, SMS verification codes, and local services work like a resident's phone from day one. And if you visit Israel regularly, there's a smarter option than cancelling: pause your line for $10/month through [support](/support) and keep your Israeli number active between trips — no new SIM, no new number, and everything simply works again the next time you land.",
+      "Yes. BitLink plans are monthly with no long-term commitment, so a 2–4 week visit works fine: choose a [plan](/plans), activate by eSIM within minutes of checkout (or by physical SIM), and cancel when you leave — you pay for the months you use, VAT included. Unlike a travel eSIM, a BitLink plan includes a real Israeli phone number, so calls, SMS verification codes, and local services work like a resident's phone from day one. And if you visit Israel regularly, there's a smarter option than cancelling: pause your line for $10/month right from your account and keep your Israeli number between trips — no new SIM, no new number, and everything simply works again the next time you land. The pause takes effect immediately, the $10/month rate starts at your next billing date (your current paid month runs its course), and a paused line is held for up to 18 months — after that it may be cancelled and the number released.",
   },
   {
     question: "Which plan is meant for students?",
