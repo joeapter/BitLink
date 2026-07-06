@@ -36,10 +36,11 @@ type Admin = NonNullable<ReturnType<typeof createSupabaseAdminClient>>;
 
 const log = logger.child({ module: 'orchestrator' });
 
-// Fire-and-forget admin alert so failed jobs surface immediately instead of
-// waiting for someone to open the admin console.
-function notifyAdminOfJobFailure(job: ProvisioningJob, errMsg: string): void {
-  void sendEmail({
+// Admin alert so failed jobs surface immediately instead of waiting for
+// someone to open the admin console. Must be awaited — a dangling promise
+// dies with the serverless invocation before SMTP completes.
+async function notifyAdminOfJobFailure(job: ProvisioningJob, errMsg: string): Promise<void> {
+  await sendEmail({
     to: 'joe@bitlink.co.il',
     subject: `⚠ Provisioning FAILED — ${job.type} (attempt ${job.attempt_count + 1})`,
     html: [
@@ -52,6 +53,17 @@ function notifyAdminOfJobFailure(job: ProvisioningJob, errMsg: string): void {
   }).catch(() => {
     // alerting is best-effort; never let it mask the original failure
   });
+}
+
+// Numbers already assigned to lines — excluded when picking a fresh DID.
+async function collectUsedNumbers(admin: Admin): Promise<string[]> {
+  const { data: existingLines } = await admin
+    .from('telecom_lines')
+    .select('metadata')
+    .not('metadata->>phone_number', 'is', null);
+  return (existingLines ?? [])
+    .map((l) => (l.metadata as Record<string, unknown>)?.phone_number as string | undefined)
+    .filter((n): n is string => Boolean(n));
 }
 
 function requireAdmin(): Admin {
@@ -138,7 +150,7 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
   const provider = getTelecomProvider();
   const payload = job.payload as Pick<
     LineCreateParams,
-    'externalId' | 'planName' | 'iccId' | 'isKosher' | 'email' | 'language' | 'identityNumber' | 'portInParams' | 'metadata'
+    'externalId' | 'planName' | 'iccId' | 'isKosher' | 'email' | 'language' | 'identityNumber' | 'portInParams' | 'metadata' | 'phoneNumber'
   >;
 
   // PENDING → SUBMITTED
@@ -179,6 +191,28 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
     // resolvedIccId now held in local scope; propagated to completeJob via createLine result
   }
 
+  // Annatel requires a DID in the create request for port-in orders — the line
+  // starts on a technical number that the ported number later replaces.
+  let prePickedDid = payload.phoneNumber;
+  if (payload.portInParams && !prePickedDid) {
+    prePickedDid = (await provider.getAvailableDid(await collectUsedNumbers(admin))) ?? undefined;
+    if (!prePickedDid) {
+      const errMsg = 'No available DID for the port-in technical number';
+      const failed = transition(submitted, 'FAILED', { error: errMsg });
+      await jobsRepo.updateJob(admin, job.id, {
+        status: 'failed',
+        status_transitions: failed.status_transitions,
+        updated_at: failed.updated_at,
+        error: errMsg,
+      });
+      if (job.line_id) {
+        await applyLineTransition(admin, job.line_id, 'FAILED', { jobId: job.id, error: errMsg });
+      }
+      await notifyAdminOfJobFailure(job, errMsg);
+      return { status: 'FAILED', error: errMsg };
+    }
+  }
+
   let result;
   try {
     result = await withProviderContext(ctx, () =>
@@ -193,6 +227,7 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
           payload.identityNumber ??
           process.env.ANNATEL_DEFAULT_IDENTITY_NUMBER?.trim() ??
           '341280188',
+        phoneNumber: prePickedDid,
         portInParams: payload.portInParams,
         metadata: payload.metadata,
       }),
@@ -213,7 +248,7 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
       await applyLineTransition(admin, job.line_id, 'FAILED', { jobId: job.id, error: errMsg });
     }
     log.error({ jobId: job.id, error: errMsg }, 'Provider createLine failed');
-    notifyAdminOfJobFailure(job, errMsg);
+    await notifyAdminOfJobFailure(job, errMsg);
     return { status: 'FAILED', error: errMsg };
   }
 
@@ -222,6 +257,12 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
     const lineUpdates: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (result.providerLineId) {
       lineUpdates.provider_line_id = result.providerLineId;
+    }
+    if (prePickedDid) {
+      // DID went out in the create request — record it now so completeJob
+      // (which may run in a later invocation) knows not to assign another.
+      const existingMeta = ((await linesRepo.getLine(admin, job.line_id))?.metadata ?? {}) as Record<string, unknown>;
+      lineUpdates.metadata = { ...existingMeta, phone_number: prePickedDid };
     }
     await linesRepo.updateLine(admin, job.line_id, lineUpdates);
     await applyLineTransition(admin, job.line_id, 'PROVISIONING', { jobId: job.id });
@@ -272,23 +313,21 @@ async function completeJob(
   // Auto-assign a DID and collect eSIM activation code for storage in metadata
   if (providerLineId) {
     try {
-      // Gather phone numbers already in use so we don't double-assign
-      const { data: existingLines } = await admin
-        .from('telecom_lines')
-        .select('metadata')
-        .not('metadata->>phone_number', 'is', null);
-      const usedNumbers = (existingLines ?? [])
-        .map((l) => (l.metadata as Record<string, unknown>)?.phone_number as string | undefined)
-        .filter((n): n is string => Boolean(n));
-
-      const did = await provider.getAvailableDid(usedNumbers);
-      if (did) {
-        await provider.assignDid(providerLineId, did);
-        const existingMeta = ((await linesRepo.getLine(admin, lineId))?.metadata ?? {}) as Record<string, unknown>;
-        lineUpdates.metadata = { ...existingMeta, phone_number: did };
-        log.info({ jobId: job.id, lineId, did }, 'DID auto-assigned');
+      const currentMeta = ((await linesRepo.getLine(admin, lineId))?.metadata ?? {}) as Record<string, unknown>;
+      if (currentMeta.phone_number) {
+        // A DID already went out with the create request (port-in technical
+        // number) — assigning another would double-book inventory.
+        log.info({ jobId: job.id, lineId, did: currentMeta.phone_number }, 'Line already has a number — skipping DID auto-assign');
       } else {
-        log.warn({ jobId: job.id, lineId }, 'No available DID found — line active without phone number');
+        const usedNumbers = await collectUsedNumbers(admin);
+        const did = await provider.getAvailableDid(usedNumbers);
+        if (did) {
+          await provider.assignDid(providerLineId, did);
+          lineUpdates.metadata = { ...currentMeta, phone_number: did };
+          log.info({ jobId: job.id, lineId, did }, 'DID auto-assigned');
+        } else {
+          log.warn({ jobId: job.id, lineId }, 'No available DID found — line active without phone number');
+        }
       }
     } catch (err) {
       log.error({ jobId: job.id, lineId, error: err instanceof Error ? err.message : String(err) }, 'DID assignment failed — continuing');
