@@ -10,7 +10,7 @@ export function BrandMark({ className }: { className?: string }) {
   const router = useRouter();
   const timestamps = useRef<number[]>([]);
   const navTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [toast, setToast] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   // The logo doubles as the fee-waiver easter egg (7 rapid clicks). Navigation
   // is deferred by 400ms so a click burst never navigates — otherwise click #1
@@ -30,11 +30,10 @@ export function BrandMark({ className }: { className?: string }) {
     if (recent.length >= 7) {
       timestamps.current = [];
       const already = localStorage.getItem("bl_staff") === "1";
-      if (!already) {
-        localStorage.setItem("bl_staff", "1");
-        setToast(true);
-        setTimeout(() => setToast(false), 2500);
-      }
+      if (!already) localStorage.setItem("bl_staff", "1");
+      // Always confirm — a silent success is indistinguishable from a bug.
+      setToast(already ? "Activation fee waiver already active" : "Activation fee waived");
+      setTimeout(() => setToast(null), 2500);
     }
   }, [router]);
 
@@ -57,7 +56,7 @@ export function BrandMark({ className }: { className?: string }) {
 
       {toast && (
         <div className="fixed bottom-6 right-6 z-50 rounded-2xl bg-ink px-5 py-3 text-sm font-medium text-white shadow-liquid">
-          Activation fee waived
+          {toast}
         </div>
       )}
     </>
