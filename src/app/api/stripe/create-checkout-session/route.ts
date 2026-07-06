@@ -132,7 +132,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         .update({
           full_name: fullName,
           phone,
-          user_id: userId ?? null,
+          ...(userId ? { user_id: userId } : {}),
           updated_at: new Date().toISOString(),
         })
         .eq('id', existing.id);

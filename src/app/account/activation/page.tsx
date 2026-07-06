@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function AccountActivationPage() {
   const user = await requireUser();
-  const snapshot = await getAccountSnapshot(user.id);
+  const snapshot = await getAccountSnapshot(user.id, user.email);
 
   return (
     <ActivationTimeline

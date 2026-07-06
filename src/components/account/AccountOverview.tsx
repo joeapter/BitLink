@@ -1,4 +1,4 @@
-import { ArrowUpRight, Gift, LifeBuoy } from "lucide-react";
+import { ArrowUpRight, Gift, LifeBuoy, Plus } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
@@ -38,6 +38,10 @@ export function AccountOverview({
             <ButtonLink href="/plans" variant="dark">
               Upgrade plan
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </ButtonLink>
+            <ButtonLink href="/account/add-line" variant="secondary" className="border-white/20 bg-white/10 text-white hover:bg-white/16">
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Add line
             </ButtonLink>
             <ButtonLink href="/support" variant="secondary" className="border-white/20 bg-white/10 text-white hover:bg-white/16">
               <LifeBuoy className="h-4 w-4" aria-hidden="true" />

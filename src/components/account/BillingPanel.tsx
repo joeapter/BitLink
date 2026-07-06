@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatMoney } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/EmptyState";
+import type { AccountLineBilling } from "@/lib/db/account";
 
 export type InvoiceRow = {
   id: string;
@@ -22,10 +23,12 @@ export function BillingPanel({
   subscriptionStatus,
   nextBillingDate,
   invoices = [],
+  lineBillings = [],
 }: {
   subscriptionStatus?: string | null;
   nextBillingDate?: string | null;
   invoices?: InvoiceRow[];
+  lineBillings?: AccountLineBilling[];
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,6 +70,46 @@ export function BillingPanel({
           {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <ExternalLink className="h-4 w-4" aria-hidden="true" />}
           Manage billing
         </Button>
+      </section>
+
+      <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft sm:p-8">
+        <p className="text-sm font-semibold text-link-blue">Line billing</p>
+        <h2 className="mt-2 text-2xl font-semibold tracking-normal text-ink">Monthly subscriptions</h2>
+        {lineBillings.length ? (
+          <div className="mt-6 grid gap-3">
+            {lineBillings.map((line) => (
+              <div key={line.stripeSubscriptionId} className="rounded-[1.5rem] bg-slate-50 p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-ink">{line.planName}</p>
+                    <p className="mt-1 font-mono text-xs text-muted-slate">
+                      {line.lineId ? `Line ${line.lineId.slice(0, 8)}` : "Line pending"}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg font-semibold text-ink">
+                      {formatMoney(line.priceCents, line.currency)}
+                      <span className="text-sm text-muted-slate">/mo</span>
+                    </p>
+                    <StatusBadge status={line.subscriptionStatus ?? line.subscriberStatus} />
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-slate">
+                  <span>Subscription {line.stripeSubscriptionId.slice(0, 12)}</span>
+                  {line.nextBillingDate ? (
+                    <span>Next bill {new Date(line.nextBillingDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-6">
+            <EmptyState title="No active line subscriptions">
+              Add a line from your account portal to see per-line billing here.
+            </EmptyState>
+          </div>
+        )}
       </section>
 
       <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft sm:p-8">

@@ -47,6 +47,10 @@ const JOB_STATUS_MAP: Record<AnnatelBulkStatus, ProviderJobStatus> = {
   canceled: 'canceled',
 };
 
+function normalizePortAuthenticationType(value: unknown): 'sms_code' | 'ivr' {
+  return value === 'ivr' ? 'ivr' : 'sms_code';
+}
+
 export const AnnatelMappers = {
   toCreateBulkRequest(params: LineCreateParams): Record<string, unknown> {
     return {
@@ -64,7 +68,7 @@ export const AnnatelMappers = {
             port_in_request_params: {
               number: params.portInParams.number,
               identity_number: params.portInParams.identityNumber,
-              authentication_type: params.portInParams.authenticationType,
+              authentication_type: normalizePortAuthenticationType(params.portInParams.authenticationType),
             },
           }
         : {}),

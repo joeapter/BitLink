@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default async function AccountPage() {
   const user = await requireUser();
-  const snapshot = await getAccountSnapshot(user.id);
+  const snapshot = await getAccountSnapshot(user.id, user.email);
   const nextBillingDate = snapshot.subscription?.current_period_end
     ? new Date(snapshot.subscription.current_period_end).toLocaleDateString()
     : null;

@@ -152,6 +152,9 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
         updated_at: failed.updated_at,
         error: errMsg,
       });
+      if (job.line_id) {
+        await applyLineTransition(admin, job.line_id, 'FAILED', { jobId: job.id, error: errMsg });
+      }
       return { status: 'FAILED', error: errMsg };
     }
     // resolvedIccId now held in local scope; propagated to completeJob via createLine result
@@ -187,6 +190,9 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
       updated_at: failed.updated_at,
       error: errMsg,
     });
+    if (job.line_id) {
+      await applyLineTransition(admin, job.line_id, 'FAILED', { jobId: job.id, error: errMsg });
+    }
     log.error({ jobId: job.id, error: errMsg }, 'Provider createLine failed');
     return { status: 'FAILED', error: errMsg };
   }
@@ -450,6 +456,9 @@ export async function retryProvisioningJob(jobId: string): Promise<ProvisioningJ
   const nextRetryAt = new Date(Date.now() + backoffSeconds * 1000).toISOString();
 
   const retried = transition(job, 'PENDING', { retryAttempt: job.attempt_count + 1 });
+  if (job.line_id) {
+    await applyLineTransition(admin, job.line_id, 'DRAFT', { jobId, retryAttempt: job.attempt_count + 1 });
+  }
   await jobsRepo.updateJob(admin, jobId, {
     status: 'pending',
     status_transitions: retried.status_transitions,

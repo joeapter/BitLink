@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function AccountReferralsPage() {
   const user = await requireUser();
-  const snapshot = await getAccountSnapshot(user.id);
+  const snapshot = await getAccountSnapshot(user.id, user.email);
   const referralLink = snapshot.customer?.referral_code
     ? `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://bitlink.co.il"}/signup?referral=${snapshot.customer.referral_code}`
     : null;

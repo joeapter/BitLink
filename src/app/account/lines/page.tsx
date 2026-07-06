@@ -12,10 +12,10 @@ export const dynamic = "force-dynamic";
 
 export default async function AccountLinesPage() {
   const user = await requireUser();
-  const snapshot = await getAccountSnapshot(user.id);
+  const snapshot = await getAccountSnapshot(user.id, user.email);
 
   return (
-    <LinesPanel lines={snapshot.lines}>
+    <LinesPanel lines={snapshot.lines} lineBillings={snapshot.lineBillings}>
       {snapshot.lines.map((line) => {
         const meta = (line.metadata ?? {}) as Record<string, unknown>;
         const activationCode = meta.esim_activation_code as string | undefined;

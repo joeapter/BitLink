@@ -109,7 +109,7 @@ export default async function AdminLinesPage() {
                       <td className="px-5 py-4">
                         <Link
                           href={`/admin/lines/${line.id}`}
-                          className="rounded-xl bg-ink px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-ink/80"
+                          className="rounded-xl bg-ink px-3 py-1.5 text-xs font-semibold !text-white transition hover:bg-ink/80 hover:!text-white"
                         >
                           Manage
                         </Link>

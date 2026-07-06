@@ -49,7 +49,7 @@ export default async function UsagePage({
   const isCurrentMonth = reportYear === now.getFullYear() && reportMonth === now.getMonth() + 1;
 
   const user = await requireUser();
-  const snapshot = await getAccountSnapshot(user.id);
+  const snapshot = await getAccountSnapshot(user.id, user.email);
 
   // CDR records for this customer in the selected month
   const supabase = await createSupabaseServerClient();

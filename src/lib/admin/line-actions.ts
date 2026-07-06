@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
+import { retryProvisioningJob } from "@/lib/provisioning/orchestrator";
+import { inngest } from "@/inngest/client";
 
 function getProvider() {
   return getTelecomProvider();
@@ -256,4 +258,21 @@ export async function checkPortabilityAction(formData: FormData) {
     provider.checkPortability(number).catch(() => null),
   ]);
   return { availability, operator };
+}
+
+// ── Provisioning job operations ──────────────────────────────────────────────
+
+export async function retryProvisioningJobAction(formData: FormData): Promise<void> {
+  const { user } = await requireAdmin();
+  const jobId = String(formData.get('jobId') ?? '');
+  const lineId = String(formData.get('lineId') ?? '');
+  if (!jobId || !lineId) return;
+
+  const job = await retryProvisioningJob(jobId);
+  await inngest.send({ name: 'provisioning/line.create', data: { jobId: job.id } });
+  await logAction(user.id, 'provisioning_job_retry', lineId, { jobId });
+
+  revalidatePath(`/admin/lines/${lineId}`);
+  revalidatePath('/admin/lines');
+  revalidatePath('/admin/provisioning');
 }

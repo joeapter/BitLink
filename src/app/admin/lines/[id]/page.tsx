@@ -10,6 +10,8 @@ import { LineBalanceCard } from "@/components/admin/LineBalanceCard";
 import { LinePlansCard } from "@/components/admin/LinePlansCard";
 import { LineForwardsCard } from "@/components/admin/LineForwardsCard";
 import { LineBarringsCard } from "@/components/admin/LineBarringsCard";
+import { retryProvisioningJobAction } from "@/lib/admin/line-actions";
+import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatDate, formatDateTime } from "@/lib/utils";
 
@@ -35,6 +37,13 @@ export default async function AdminLineDetailPage({ params }: Props) {
 
   const customer = line.customers as { full_name?: string; email?: string; phone?: string } | null;
   const providerLineId = line.provider_line_id as string | null;
+  const { data: latestJob } = await db
+    .from("provisioning_jobs")
+    .select("id, status, error, attempt_count, max_attempts, updated_at")
+    .eq("line_id", id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
   // Fetch live data from Annatel if line is provisioned
   let liveDetail: LineDetail | null = null;
@@ -259,6 +268,38 @@ export default async function AdminLineDetailPage({ params }: Props) {
 
         {/* Right column — actions */}
         <div className="grid content-start gap-6">
+          {latestJob && (
+            <section className="rounded-[2rem] border border-ink/10 bg-white p-5 shadow-soft">
+              <h2 className="text-lg font-semibold text-ink">Provisioning job</h2>
+              <div className="mt-4 grid gap-3 text-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-slate">Status</span>
+                  <StatusBadge status={latestJob.status} />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-slate">Attempts</span>
+                  <span className="font-mono text-xs text-ink">
+                    {latestJob.attempt_count} / {latestJob.max_attempts}
+                  </span>
+                </div>
+                {latestJob.error ? (
+                  <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                    {latestJob.error}
+                  </div>
+                ) : null}
+                {latestJob.status === "failed" && latestJob.attempt_count < latestJob.max_attempts ? (
+                  <form action={retryProvisioningJobAction}>
+                    <input type="hidden" name="jobId" value={latestJob.id} />
+                    <input type="hidden" name="lineId" value={line.id} />
+                    <Button type="submit" size="sm" className="w-full">
+                      Retry provisioning
+                    </Button>
+                  </form>
+                ) : null}
+              </div>
+            </section>
+          )}
+
           {providerLineId && (
             <LineActionsPanel
               lineId={line.id}

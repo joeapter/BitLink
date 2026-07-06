@@ -234,7 +234,7 @@ async function handleCheckoutCompleted(
           portInParams: {
             number: session.metadata.port_in_number,
             identityNumber: session.metadata.port_in_id_number ?? '',
-            authenticationType: 'identity_number',
+            authenticationType: 'sms_code',
           },
         } : {}),
         metadata: {
