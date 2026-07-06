@@ -2,23 +2,29 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 export function BrandMark({ className }: { className?: string }) {
+  const router = useRouter();
   const timestamps = useRef<number[]>([]);
+  const navTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [toast, setToast] = useState(false);
 
+  // The logo doubles as the fee-waiver easter egg (7 rapid clicks). Navigation
+  // is deferred by 400ms so a click burst never navigates — otherwise click #1
+  // scrolls the page and the logo moves out from under the cursor.
   const handleClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
     const now = Date.now();
     const recent = [...timestamps.current, now].filter((t) => now - t < 3000);
     timestamps.current = recent;
 
-    // Rapid-succession clicks are the fee-waiver easter egg, not navigation
-    // intent — without this, the first click navigates, the page scrolls, and
-    // the logo moves out from under the cursor before the count can build.
-    if (recent.length >= 2) {
-      e.preventDefault();
+    if (navTimer.current) clearTimeout(navTimer.current);
+    if (recent.length === 1) {
+      // Single click: navigate home after a beat, unless a burst follows.
+      navTimer.current = setTimeout(() => router.push("/"), 400);
     }
 
     if (recent.length >= 7) {
@@ -30,7 +36,7 @@ export function BrandMark({ className }: { className?: string }) {
         setTimeout(() => setToast(false), 2500);
       }
     }
-  }, []);
+  }, [router]);
 
   return (
     <>
