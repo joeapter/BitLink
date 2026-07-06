@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2, PlusCircle } from "lucide-react";
 import { plans, type PlanSlug } from "@/lib/plans";
 import { Button } from "@/components/ui/Button";
@@ -31,6 +31,22 @@ export function AddLineForm({
   const [intlSource, setIntlSource] = useState<IntlSource>("new");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [feeWaived, setFeeWaived] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      if (localStorage.getItem("bl_staff") === "1") setFeeWaived(true);
+    };
+    check();
+    window.addEventListener("bl-staff-changed", check);
+    window.addEventListener("storage", check);
+    window.addEventListener("focus", check);
+    return () => {
+      window.removeEventListener("bl-staff-changed", check);
+      window.removeEventListener("storage", check);
+      window.removeEventListener("focus", check);
+    };
+  }, []);
 
   const selectedPlan = useMemo(
     () => plans.find((p) => p.slug === planSlug) ?? plans[1],
@@ -51,6 +67,8 @@ export function AddLineForm({
     setError(null);
 
     const isPortIn = numberChoice === "port-in";
+    // Read the waiver fresh at submit time — mounted state can be stale.
+    const waived = feeWaived || localStorage.getItem("bl_staff") === "1";
     const response = await fetch("/api/account/create-line-checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -58,6 +76,7 @@ export function AddLineForm({
         planSlug,
         isEsim: effectiveSimType === "esim",
         isPortIn,
+        skipActivationFee: waived,
         portInNumber: isPortIn ? formData.get("portInNumber") : null,
         wantsIntlNumber,
         intlNumberCountry: wantsIntlNumber ? intlCountry : undefined,
@@ -255,6 +274,7 @@ export function AddLineForm({
       <CheckoutSummary
         plan={selectedPlan}
         isPortIn={numberChoice === "port-in"}
+        feeWaived={feeWaived}
         hasIntlNumber={wantsIntlNumber}
         intlIsPortIn={wantsIntlNumber && intlSource === "port"}
       />

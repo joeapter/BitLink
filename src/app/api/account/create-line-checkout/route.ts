@@ -17,6 +17,7 @@ const bodySchema = z.object({
   planSlug: z.enum(["basic", "kosher-basic", "kosher-plus", "student-5g", "max-5g"]),
   isEsim: z.boolean().default(true),
   isPortIn: z.boolean().default(false),
+  skipActivationFee: z.boolean().default(false),
   portInNumber: z.string().nullable().optional(),
   wantsIntlNumber: z.boolean().default(false),
   intlNumberCountry: z.enum(["us", "canada", "uk"]).optional(),
@@ -154,7 +155,9 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   const session = await createCheckoutSession(stripe, {
     stripePriceId: planRow.stripe_price_id,
-    activationFeePriceId: process.env.STRIPE_PRICE_ACTIVATION_FEE?.trim() ?? null,
+    activationFeePriceId: parsed.data.skipActivationFee
+      ? null
+      : (process.env.STRIPE_PRICE_ACTIVATION_FEE?.trim() ?? null),
     intlNumberAddonPriceId: wantsIntlNumber ? (process.env.STRIPE_PRICE_US_CANADA_ADDON?.trim() ?? null) : null,
     intlPortInFeeId: (wantsIntlNumber && intlNumberSource === "port")
       ? (process.env.STRIPE_PRICE_INTL_PORT_IN_FEE?.trim() ?? null)
