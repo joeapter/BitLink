@@ -14,6 +14,7 @@
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getTelecomProvider } from '@/lib/telecom/provider.registry';
 import { withProviderContext } from '@/lib/telecom/provider-context';
+import { sendEmail } from '@/lib/email/send';
 import { logger } from '@/lib/logger';
 import { emit } from '@/lib/events/bus';
 import {
@@ -34,6 +35,24 @@ import type { ProvisioningJobType, LineCreateParams } from '@/types/telecom';
 type Admin = NonNullable<ReturnType<typeof createSupabaseAdminClient>>;
 
 const log = logger.child({ module: 'orchestrator' });
+
+// Fire-and-forget admin alert so failed jobs surface immediately instead of
+// waiting for someone to open the admin console.
+function notifyAdminOfJobFailure(job: ProvisioningJob, errMsg: string): void {
+  void sendEmail({
+    to: 'joe@bitlink.co.il',
+    subject: `⚠ Provisioning FAILED — ${job.type} (attempt ${job.attempt_count + 1})`,
+    html: [
+      `<p>Provisioning job <b>${job.id}</b> failed.</p>`,
+      `<p><b>Error:</b> ${errMsg}</p>`,
+      job.line_id
+        ? `<p><a href="https://www.bitlink.co.il/admin/lines/${job.line_id}">Open the line in admin</a> to inspect and retry.</p>`
+        : '',
+    ].join(''),
+  }).catch(() => {
+    // alerting is best-effort; never let it mask the original failure
+  });
+}
 
 function requireAdmin(): Admin {
   const admin = createSupabaseAdminClient();
@@ -194,6 +213,7 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
       await applyLineTransition(admin, job.line_id, 'FAILED', { jobId: job.id, error: errMsg });
     }
     log.error({ jobId: job.id, error: errMsg }, 'Provider createLine failed');
+    notifyAdminOfJobFailure(job, errMsg);
     return { status: 'FAILED', error: errMsg };
   }
 

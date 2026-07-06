@@ -23,6 +23,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getStripe, createCheckoutSession } from '@/lib/stripe/server';
+import { isValidIsraeliMobile } from '@/lib/utils';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
@@ -76,6 +77,16 @@ export async function POST(request: NextRequest): Promise<Response> {
     wantsIntlNumber, intlNumberCountry, intlNumberSource, intlPortNumber,
     userId, referralCode, successUrl, cancelUrl,
   } = parsed.data;
+
+  // Reject malformed Israeli port-in numbers BEFORE payment — Annatel requires
+  // a valid mobile number and 422s the provisioning request otherwise, which
+  // strands a paid order in a failed state.
+  if (isPortIn && (!portInNumber || !isValidIsraeliMobile(portInNumber))) {
+    return NextResponse.json(
+      { error: 'That does not look like a valid Israeli mobile number. Use the format 05x-xxx-xxxx.' },
+      { status: 400 },
+    );
+  }
 
   // Filled server-side — never exposed to the client.
   const portInIdNumber = isPortIn

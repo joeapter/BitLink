@@ -4,7 +4,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createCheckoutSession, getStripe } from "@/lib/stripe/server";
 import { getPlan } from "@/lib/plans";
-import { absoluteUrl } from "@/lib/utils";
+import { absoluteUrl, isValidIsraeliMobile } from "@/lib/utils";
 import { logger } from "@/lib/logger";
 import { resolveAccountCustomer } from "@/lib/db/account";
 
@@ -76,6 +76,14 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   if (isPortIn && !portInNumber?.trim()) {
     return NextResponse.json({ error: "Enter the Israeli number you want to port." }, { status: 400 });
+  }
+
+  // Malformed numbers 422 at Annatel AFTER payment — reject them here instead.
+  if (isPortIn && portInNumber && !isValidIsraeliMobile(portInNumber)) {
+    return NextResponse.json(
+      { error: "That does not look like a valid Israeli mobile number. Use the format 05x-xxx-xxxx." },
+      { status: 400 },
+    );
   }
 
   if (wantsIntlNumber && intlNumberSource === "port" && !intlPortNumber?.trim()) {

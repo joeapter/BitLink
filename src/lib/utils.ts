@@ -37,6 +37,14 @@ export function absoluteUrl(path = "") {
   return `${siteUrl}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+// Accepts an Israeli mobile number in any common format: 05x-xxx-xxxx,
+// +9725xxxxxxxx, 9725xxxxxxxx. Used to validate port-in numbers BEFORE payment
+// so malformed numbers never reach Annatel after money has changed hands.
+export function isValidIsraeliMobile(value: string): boolean {
+  const cleaned = value.replace(/[\s\-().]/g, "");
+  return /^(\+972|972|0)5\d{8}$/.test(cleaned);
+}
+
 export function initials(name?: string | null) {
   if (!name) return "BL";
   return name

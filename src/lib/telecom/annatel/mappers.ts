@@ -51,6 +51,17 @@ function normalizePortAuthenticationType(value: unknown): 'sms_code' | 'ivr' {
   return value === 'ivr' ? 'ivr' : 'sms_code';
 }
 
+// Annatel expects MSISDNs in E.164 (+972…) — confirmed from its own DID
+// responses. Local formats like 0587939426 are rejected with a 422.
+function normalizeMsisdn(value: string): string {
+  const cleaned = value.replace(/[\s\-().]/g, '');
+  if (cleaned.startsWith('+')) return cleaned;
+  if (cleaned.startsWith('00')) return `+${cleaned.slice(2)}`;
+  if (cleaned.startsWith('972')) return `+${cleaned}`;
+  if (/^0\d{8,9}$/.test(cleaned)) return `+972${cleaned.slice(1)}`;
+  return cleaned;
+}
+
 export const AnnatelMappers = {
   toCreateBulkRequest(params: LineCreateParams): Record<string, unknown> {
     return {
@@ -62,11 +73,11 @@ export const AnnatelMappers = {
       ...(params.email ? { email: params.email } : {}),
       ...(params.identityNumber ? { identity_number: params.identityNumber } : {}),
       ...(params.iccId ? { sims: [{ icc_id: params.iccId }] } : {}),
-      ...(params.phoneNumber ? { dids: [{ number: params.phoneNumber }] } : {}),
+      ...(params.phoneNumber ? { dids: [{ number: normalizeMsisdn(params.phoneNumber) }] } : {}),
       ...(params.portInParams
         ? {
             port_in_request_params: {
-              number: params.portInParams.number,
+              number: normalizeMsisdn(params.portInParams.number),
               identity_number: params.portInParams.identityNumber,
               authentication_type: normalizePortAuthenticationType(params.portInParams.authenticationType),
             },
