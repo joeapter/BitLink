@@ -179,8 +179,13 @@ export async function POST(request: NextRequest): Promise<Response> {
     userId: user.id,
     successUrl: absoluteUrl("/checkout/success?session_id={CHECKOUT_SESSION_ID}"),
     cancelUrl: absoluteUrl(`/account/add-line?plan=${planSlug}`),
+    // Embedded (on-site) checkout when the publishable key is configured;
+    // hosted redirect otherwise.
+    uiMode: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() ? "embedded" : "hosted",
   });
 
   log.info({ userId: user.id, customerId: customer.id, planSlug, sessionId: session.id }, "Add-line checkout created");
-  return NextResponse.json({ url: session.url });
+  return NextResponse.json(
+    session.client_secret ? { clientSecret: session.client_secret } : { url: session.url },
+  );
 }

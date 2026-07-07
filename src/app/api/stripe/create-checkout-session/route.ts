@@ -279,6 +279,9 @@ export async function POST(request: NextRequest): Promise<Response> {
       userId: userId ?? null,
       successUrl,
       cancelUrl,
+      // Embedded (on-site) checkout when the publishable key is configured;
+      // hosted redirect otherwise.
+      uiMode: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() ? 'embedded' : 'hosted',
     });
   } catch (err) {
     log.error(
@@ -306,5 +309,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     'Checkout session created — redirecting to Stripe',
   );
 
-  return NextResponse.json({ url: session.url });
+  return NextResponse.json(
+    session.client_secret ? { clientSecret: session.client_secret } : { url: session.url },
+  );
 }

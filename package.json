@@ -35,6 +35,8 @@
   },
   "dependencies": {
     "@next/third-parties": "^16.2.10",
+    "@stripe/react-stripe-js": "^6.7.0",
+    "@stripe/stripe-js": "^9.9.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",
     "@types/nodemailer": "^8.0.1",

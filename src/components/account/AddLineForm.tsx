@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { CheckoutSummary } from "@/components/checkout/CheckoutSummary";
+import { EmbeddedStripeCheckout } from "@/components/checkout/EmbeddedStripeCheckout";
 import { EsimCompatibilityModal } from "@/components/checkout/EsimCompatibilityModal";
 
 type SimType = "esim" | "physical";
@@ -32,6 +33,7 @@ export function AddLineForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [feeWaived, setFeeWaived] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   useEffect(() => {
     const check = () => {
@@ -85,15 +87,29 @@ export function AddLineForm({
       }),
     });
 
-    const payload = (await response.json()) as { url?: string; error?: string };
+    const payload = (await response.json()) as { url?: string; clientSecret?: string; error?: string };
     setLoading(false);
 
-    if (!response.ok || !payload.url) {
+    if (!response.ok || (!payload.url && !payload.clientSecret)) {
       setError(payload.error ?? "Line checkout could not be started.");
       return;
     }
 
-    window.location.href = payload.url;
+    // Embedded checkout keeps payment on-site; hosted URL is the fallback.
+    if (payload.clientSecret) {
+      setClientSecret(payload.clientSecret);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    window.location.href = payload.url!;
+  }
+
+  if (clientSecret) {
+    return (
+      <div className="mx-auto max-w-3xl">
+        <EmbeddedStripeCheckout clientSecret={clientSecret} onBack={() => setClientSecret(null)} />
+      </div>
+    );
   }
 
   return (

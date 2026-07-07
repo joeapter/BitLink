@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { CheckoutSummary } from "./CheckoutSummary";
+import { EmbeddedStripeCheckout } from "./EmbeddedStripeCheckout";
 import { EsimCompatibilityModal } from "./EsimCompatibilityModal";
 
 type SimType = "esim" | "physical";
@@ -24,6 +25,7 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [feeWaived, setFeeWaived] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   useEffect(() => {
     const check = () => {
@@ -88,15 +90,29 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
       }),
     });
 
-    const payload = (await response.json()) as { url?: string; error?: string };
+    const payload = (await response.json()) as { url?: string; clientSecret?: string; error?: string };
     setLoading(false);
 
-    if (!response.ok || !payload.url) {
+    if (!response.ok || (!payload.url && !payload.clientSecret)) {
       setError(payload.error ?? "Checkout could not be started. Please try again.");
       return;
     }
 
-    window.location.href = payload.url;
+    // Embedded checkout keeps payment on-site; hosted URL is the fallback.
+    if (payload.clientSecret) {
+      setClientSecret(payload.clientSecret);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    window.location.href = payload.url!;
+  }
+
+  if (clientSecret) {
+    return (
+      <div className="mx-auto max-w-3xl">
+        <EmbeddedStripeCheckout clientSecret={clientSecret} onBack={() => setClientSecret(null)} />
+      </div>
+    );
   }
 
   return (

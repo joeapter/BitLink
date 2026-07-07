@@ -39,6 +39,9 @@ export interface CreateCheckoutSessionParams {
   userId: string | null;
   successUrl?: string;
   cancelUrl?: string;
+  // 'embedded' renders inside our pages via Stripe Embedded Checkout;
+  // 'hosted' (default) redirects to checkout.stripe.com.
+  uiMode?: 'hosted' | 'embedded';
 }
 
 /**
@@ -88,16 +91,10 @@ export async function createCheckoutSession(
     lineItems.push({ price: params.intlPortInFeeId, quantity: 1 });
   }
 
-  return stripe.checkout.sessions.create({
+  const shared: Stripe.Checkout.SessionCreateParams = {
     mode: 'subscription',
     customer: params.stripeCustomerId,
     line_items: lineItems,
-    success_url:
-      params.successUrl ??
-      absoluteUrl(`/checkout/success?session_id={CHECKOUT_SESSION_ID}`),
-    cancel_url:
-      params.cancelUrl ??
-      absoluteUrl(`/checkout/cancel?plan=${params.planSlug}`),
     allow_promotion_codes: true,
     billing_address_collection: 'auto',
     phone_number_collection: { enabled: true },
@@ -105,6 +102,26 @@ export async function createCheckoutSession(
     subscription_data: {
       metadata: sharedMetadata,
     },
+  };
+
+  if (params.uiMode === 'embedded') {
+    // Embedded checkout renders in-page; Stripe forbids success/cancel URLs
+    // here and uses return_url after completion instead.
+    return stripe.checkout.sessions.create({
+      ...shared,
+      ui_mode: 'embedded',
+      return_url: absoluteUrl(`/checkout/success?session_id={CHECKOUT_SESSION_ID}`),
+    });
+  }
+
+  return stripe.checkout.sessions.create({
+    ...shared,
+    success_url:
+      params.successUrl ??
+      absoluteUrl(`/checkout/success?session_id={CHECKOUT_SESSION_ID}`),
+    cancel_url:
+      params.cancelUrl ??
+      absoluteUrl(`/checkout/cancel?plan=${params.planSlug}`),
   });
 }
 
