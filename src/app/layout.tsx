@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Footer } from "@/components/layout/Footer";
@@ -78,21 +77,18 @@ export default function RootLayout({
         <Footer />
         <Analytics />
         <SpeedInsights />
-        {/* Plain gtag wiring — the @next/third-parties component loaded the
-            library but its init never ran, so GA4 collected nothing. */}
+        {/* Native script tags rendered server-side — Next's client-side script
+            injection throws "Invalid or unexpected token" on this site (both
+            @next/third-parties and next/script inline), which is why GA4
+            collected nothing. Parse-time execution has no injection step. */}
         {gaMeasurementId ? (
           <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
-              strategy="afterInteractive"
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`} />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','${gaMeasurementId}');`,
+              }}
             />
-            <Script id="ga4-init" strategy="afterInteractive">
-              {`window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-window.gtag = gtag;
-gtag('js', new Date());
-gtag('config', '${gaMeasurementId}');`}
-            </Script>
           </>
         ) : null}
       </body>
