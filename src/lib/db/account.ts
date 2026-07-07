@@ -22,6 +22,104 @@ export type AccountLineBilling = {
   nextBillingDate: string | null;
 };
 
+export type AccountSalesRepCommission = {
+  id: string;
+  status: string;
+  amountAgorot: number;
+  earnedAt: string | null;
+  paidAt: string | null;
+  referredCustomerName: string | null;
+  referredCustomerEmail: string | null;
+  referredLineId: string | null;
+  referredLineStatus: string | null;
+};
+
+export type AccountSalesRepSummary = {
+  id: string;
+  referralCode: string;
+  status: string;
+  totalReferrals: number;
+  pendingAgorot: number;
+  paidAgorot: number;
+  activeReferralLines: number;
+  bonusGb: number;
+  commissions: AccountSalesRepCommission[];
+};
+
+async function getSalesRepSummary(db: AccountDbClient, userId: string): Promise<AccountSalesRepSummary | null> {
+  const { data: rep } = await db
+    .from("sales_reps")
+    .select("id, referral_code, status")
+    .eq("profile_id", userId)
+    .maybeSingle();
+
+  if (!rep?.id) return null;
+
+  const { data: commissions } = await db
+    .from("sales_rep_commissions")
+    .select("id, status, amount_agorot, earned_at, paid_at, referred_customer_id, referred_line_id")
+    .eq("sales_rep_id", rep.id)
+    .order("earned_at", { ascending: false });
+
+  const commissionList = commissions ?? [];
+  const referredCustomerIds = [
+    ...new Set(commissionList.map((commission) => commission.referred_customer_id as string | null).filter(Boolean) as string[]),
+  ];
+  const referredLineIds = [
+    ...new Set(commissionList.map((commission) => commission.referred_line_id as string | null).filter(Boolean) as string[]),
+  ];
+
+  const [{ data: referredCustomers }, { data: referredLines }] = await Promise.all([
+    referredCustomerIds.length
+      ? db.from("customers").select("id, full_name, email").in("id", referredCustomerIds)
+      : Promise.resolve({ data: [] }),
+    referredLineIds.length
+      ? db.from("telecom_lines").select("id, status").in("id", referredLineIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const customerById = new Map((referredCustomers ?? []).map((customer) => [customer.id as string, customer]));
+  const lineById = new Map((referredLines ?? []).map((line) => [line.id as string, line]));
+  const activeReferralLines = Math.min(
+    referredLineIds.filter((lineId) => lineById.get(lineId)?.status === "active").length,
+    REFERRAL_CAP,
+  );
+
+  return {
+    id: rep.id as string,
+    referralCode: rep.referral_code as string,
+    status: rep.status as string,
+    totalReferrals: commissionList.length,
+    pendingAgorot: commissionList
+      .filter((commission) => commission.status === "pending")
+      .reduce((total, commission) => total + Number(commission.amount_agorot ?? 0), 0),
+    paidAgorot: commissionList
+      .filter((commission) => commission.status === "paid")
+      .reduce((total, commission) => total + Number(commission.amount_agorot ?? 0), 0),
+    activeReferralLines,
+    bonusGb: activeReferralLines * REFERRAL_BONUS_GB,
+    commissions: commissionList.map((commission) => {
+      const referredCustomer = commission.referred_customer_id
+        ? customerById.get(commission.referred_customer_id as string)
+        : null;
+      const referredLine = commission.referred_line_id
+        ? lineById.get(commission.referred_line_id as string)
+        : null;
+      return {
+        id: commission.id as string,
+        status: commission.status as string,
+        amountAgorot: Number(commission.amount_agorot ?? 0),
+        earnedAt: (commission.earned_at ?? null) as string | null,
+        paidAt: (commission.paid_at ?? null) as string | null,
+        referredCustomerName: (referredCustomer?.full_name ?? null) as string | null,
+        referredCustomerEmail: (referredCustomer?.email ?? null) as string | null,
+        referredLineId: (commission.referred_line_id ?? null) as string | null,
+        referredLineStatus: (referredLine?.status ?? null) as string | null,
+      };
+    }),
+  };
+}
+
 export async function resolveAccountCustomer(
   db: AccountDbClient,
   userId: string,
@@ -64,6 +162,7 @@ export async function getAccountSnapshot(userId: string, userEmail?: string | nu
   const supabase = await createSupabaseServerClient();
   const admin = createSupabaseAdminClient();
   const db = admin ?? supabase;
+  const salesRep = await getSalesRepSummary(db, userId);
 
   const customer = await resolveAccountCustomer(db, userId, userEmail);
 
@@ -81,6 +180,7 @@ export async function getAccountSnapshot(userId: string, userEmail?: string | nu
       lines: [],
       lineBillings: [] as AccountLineBilling[],
       referralStats: { activeCount: 0, totalCount: 0, bonusGb: 0, cap: REFERRAL_CAP },
+      salesRep,
     };
   }
 
@@ -203,6 +303,7 @@ export async function getAccountSnapshot(userId: string, userEmail?: string | nu
     referrals: referralList,
     lines: lines ?? [],
     lineBillings,
+    salesRep,
     referralStats: {
       activeCount,
       totalCount: referralList.length,

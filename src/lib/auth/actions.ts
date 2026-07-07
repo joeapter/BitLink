@@ -9,15 +9,12 @@ import { authenticatedRedirectPath, safeInternalPath } from "@/lib/auth/redirect
 import { absoluteUrl } from "@/lib/utils";
 import { sendEmail } from "@/lib/email/send";
 import { buildAdminSignupEmail } from "@/lib/email/templates";
+import { generateReferralCode, normalizeReferralCode } from "@/lib/referrals";
 
 const ADMIN_NOTIFY_EMAIL = "joe@bitlink.co.il";
 
 function encodeMessage(message: string) {
   return encodeURIComponent(message);
-}
-
-function makeReferralCode() {
-  return `BL-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
 }
 
 export async function loginAction(formData: FormData) {
@@ -89,7 +86,7 @@ export async function signupAction(formData: FormData) {
   const email = String(formData.get("email") ?? "");
   const phone = String(formData.get("phone") ?? "");
   const password = String(formData.get("password") ?? "");
-  const referredBy = String(formData.get("referralCode") ?? "") || null;
+  const referredBy = normalizeReferralCode(String(formData.get("referralCode") ?? ""));
   const cookieStore = await cookies();
   const orgFromCookie = cookieStore.get("bl_org")?.value ?? "";
   const orgReferralCode = (String(formData.get("orgReferralCode") ?? "") || orgFromCookie) || null;
@@ -123,7 +120,7 @@ export async function signupAction(formData: FormData) {
 
     const { data: existingCustomer } = await admin
       .from("customers")
-      .select("id")
+      .select("id, referred_by")
       .eq("email", email)
       .maybeSingle();
 
@@ -134,7 +131,7 @@ export async function signupAction(formData: FormData) {
           user_id: data.user.id,
           full_name: fullName,
           phone,
-          referred_by: referredBy,
+          ...(!existingCustomer.referred_by && referredBy ? { referred_by: referredBy } : {}),
           ...(orgReferralCode ? { org_referral_code: orgReferralCode } : {}),
           updated_at: new Date().toISOString(),
         })
@@ -145,7 +142,7 @@ export async function signupAction(formData: FormData) {
         full_name: fullName,
         email,
         phone,
-        referral_code: makeReferralCode(),
+        referral_code: generateReferralCode(),
         referred_by: referredBy,
         org_referral_code: orgReferralCode,
       });

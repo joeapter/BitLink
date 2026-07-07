@@ -17,7 +17,13 @@ type NumberChoice = "new" | "port-in";
 type IntlCountry = "us" | "canada" | "uk";
 type IntlSource = "new" | "port";
 
-export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug }) {
+export function CheckoutForm({
+  initialPlanSlug,
+  initialReferralCode = "",
+}: {
+  initialPlanSlug: PlanSlug;
+  initialReferralCode?: string;
+}) {
   const [planSlug, setPlanSlug] = useState<PlanSlug>(initialPlanSlug);
   const [simType, setSimType] = useState<SimType>("esim");
   const [numberChoice, setNumberChoice] = useState<NumberChoice>("new");
@@ -373,7 +379,7 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
           <Input label="Full name" name="fullName" autoComplete="name" required />
           <Input label="Email" name="email" type="email" autoComplete="email" required />
           <Input label="Phone" name="phone" type="tel" autoComplete="tel" required />
-          <Input label="Referral code" name="referralCode" placeholder="Optional" />
+          <Input label="Referral code" name="referralCode" defaultValue={initialReferralCode} placeholder="Optional" />
         </div>
 
         {error && (

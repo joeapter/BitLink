@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { getAdminDb } from "@/lib/db/admin";
 import { formatDate } from "@/lib/utils";
+import { makeSalesRepAction } from "@/lib/admin/sales-rep-actions";
 
 export const metadata: Metadata = {
   title: "Admin Customers",
@@ -27,6 +28,16 @@ export default async function AdminCustomersPage({
           .limit(100)
       ).data ?? []
     : [];
+  const customerIds = customers.map((customer) => customer.id);
+  const salesReps = db && customerIds.length
+    ? (
+        await db
+          .from("sales_reps")
+          .select("id, customer_id, referral_code, status")
+          .in("customer_id", customerIds)
+      ).data ?? []
+    : [];
+  const salesRepByCustomer = new Map(salesReps.map((rep) => [rep.customer_id, rep]));
 
   return (
     <div className="grid gap-6">
@@ -44,31 +55,50 @@ export default async function AdminCustomersPage({
       <section className="overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-soft">
         {customers.length ? (
           <div className="overflow-x-auto">
-            <table className="min-w-[760px] w-full text-left text-sm">
+            <table className="min-w-[940px] w-full text-left text-sm">
               <thead className="bg-slate-50 text-muted-slate">
                 <tr>
                   <th className="px-5 py-4 font-semibold">Customer</th>
                   <th className="px-5 py-4 font-semibold">Phone</th>
                   <th className="px-5 py-4 font-semibold">Stripe</th>
                   <th className="px-5 py-4 font-semibold">Referral</th>
+                  <th className="px-5 py-4 font-semibold">Sales rep</th>
                   <th className="px-5 py-4 font-semibold">Created</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ink/8">
-                {customers.map((customer) => (
-                  <tr key={customer.id}>
-                    <td className="px-5 py-4">
-                      <div className="font-semibold text-ink">{customer.full_name ?? "Unnamed customer"}</div>
-                      <div className="text-xs text-muted-slate">{customer.email}</div>
-                    </td>
-                    <td className="px-5 py-4 text-slate-600">{customer.phone ?? "—"}</td>
-                    <td className="px-5 py-4">
-                      <StatusBadge status={customer.stripe_customer_id ? "active" : "pending"} label={customer.stripe_customer_id ? "Connected" : "Missing"} />
-                    </td>
-                    <td className="px-5 py-4 font-mono text-xs text-slate-500">{customer.referral_code ?? "—"}</td>
-                    <td className="px-5 py-4 text-slate-500">{formatDate(customer.created_at)}</td>
-                  </tr>
-                ))}
+                {customers.map((customer) => {
+                  const salesRep = salesRepByCustomer.get(customer.id);
+                  return (
+                    <tr key={customer.id}>
+                      <td className="px-5 py-4">
+                        <div className="font-semibold text-ink">{customer.full_name ?? "Unnamed customer"}</div>
+                        <div className="text-xs text-muted-slate">{customer.email}</div>
+                      </td>
+                      <td className="px-5 py-4 text-slate-600">{customer.phone ?? "—"}</td>
+                      <td className="px-5 py-4">
+                        <StatusBadge status={customer.stripe_customer_id ? "active" : "pending"} label={customer.stripe_customer_id ? "Connected" : "Missing"} />
+                      </td>
+                      <td className="px-5 py-4 font-mono text-xs text-slate-500">{customer.referral_code ?? "—"}</td>
+                      <td className="px-5 py-4">
+                        {salesRep ? (
+                          <div className="grid gap-1">
+                            <StatusBadge status={salesRep.status} label="Rep" />
+                            <span className="font-mono text-xs text-slate-500">{salesRep.referral_code}</span>
+                          </div>
+                        ) : customer.user_id ? (
+                          <form action={makeSalesRepAction}>
+                            <input type="hidden" name="customerId" value={customer.id} />
+                            <Button type="submit" variant="secondary" size="sm">Make rep</Button>
+                          </form>
+                        ) : (
+                          <span className="text-xs font-semibold text-slate-400">Needs login</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-slate-500">{formatDate(customer.created_at)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

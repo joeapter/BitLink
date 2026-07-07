@@ -26,6 +26,7 @@ import { getStripe, createCheckoutSession } from '@/lib/stripe/server';
 import { normalizeIsraeliMobile } from '@/lib/utils';
 import { getTelecomProvider } from '@/lib/telecom/provider.registry';
 import { logger } from '@/lib/logger';
+import { generateReferralCode, normalizeReferralCode } from '@/lib/referrals';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -52,10 +53,6 @@ const bodySchema = z.object({
   cancelUrl: z.string().optional(),
 });
 
-function generateReferralCode(): string {
-  return `BL-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
-}
-
 export async function POST(request: NextRequest): Promise<Response> {
   let body: unknown;
   try {
@@ -76,8 +73,9 @@ export async function POST(request: NextRequest): Promise<Response> {
     planSlug, fullName, email, phone, isKosher, isEsim,
     isPortIn, portInNumber, skipActivationFee,
     wantsIntlNumber, intlNumberCountry, intlNumberSource, intlPortNumber,
-    userId, referralCode, successUrl, cancelUrl,
+    userId, successUrl, cancelUrl,
   } = parsed.data;
+  const referralCode = normalizeReferralCode(parsed.data.referralCode);
 
   // Reject malformed Israeli port-in numbers BEFORE payment — Annatel requires
   // a valid mobile number and 422s the provisioning request otherwise, which
@@ -150,7 +148,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   {
     const { data: existing } = await admin
       .from('customers')
-      .select('id')
+      .select('id, referred_by')
       .eq('email', email)
       .maybeSingle();
 
@@ -160,6 +158,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         .update({
           full_name: fullName,
           phone,
+          ...(!existing.referred_by && referralCode ? { referred_by: referralCode } : {}),
           ...(userId ? { user_id: userId } : {}),
           updated_at: new Date().toISOString(),
         })

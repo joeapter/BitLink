@@ -8,15 +8,16 @@ export const metadata: Metadata = createNoIndexMetadata("Checkout", "Start BitLi
 export default async function CheckoutPage({
   searchParams,
 }: {
-  searchParams: Promise<{ plan?: string }>;
+  searchParams: Promise<{ plan?: string; referral?: string; ref?: string }>;
 }) {
-  const { plan } = await searchParams;
+  const { plan, referral, ref } = await searchParams;
   const initialPlanSlug = plans.some((item) => item.slug === plan) ? (plan as PlanSlug) : defaultPlanSlug;
+  const initialReferralCode = referral ?? ref ?? "";
 
   return (
     <section className="liquid-bg bg-slate-50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
       <div className="relative z-10 mx-auto max-w-7xl">
-        <CheckoutForm initialPlanSlug={initialPlanSlug} />
+        <CheckoutForm initialPlanSlug={initialPlanSlug} initialReferralCode={initialReferralCode} />
       </div>
     </section>
   );

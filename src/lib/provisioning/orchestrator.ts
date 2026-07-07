@@ -30,6 +30,7 @@ import {
 } from '@/lib/provisioning/state-machines/line';
 import * as linesRepo from '@/lib/db/lines';
 import * as jobsRepo from '@/lib/db/jobs';
+import { recordReferralForLine } from '@/lib/referral-service';
 import type { ProvisioningJobType, LineCreateParams } from '@/types/telecom';
 
 type Admin = NonNullable<ReturnType<typeof createSupabaseAdminClient>>;
@@ -386,6 +387,18 @@ async function completeJob(
   await applyLineTransition(admin, lineId, 'ACTIVE', {
     jobId: job.id,
   });
+
+  try {
+    const referralResult = await recordReferralForLine(admin, lineId);
+    if (referralResult.referralId) {
+      log.info(
+        { jobId: job.id, lineId, referralId: referralResult.referralId, salesRepId: referralResult.salesRepId ?? null },
+        'Referral attribution recorded for active line',
+      );
+    }
+  } catch (err) {
+    log.error({ jobId: job.id, lineId, error: err instanceof Error ? err.message : String(err) }, 'Referral attribution failed — continuing');
+  }
 
   const completed = transition(job, 'COMPLETED');
   await jobsRepo.updateJob(admin, job.id, {

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Gift, Share2 } from "lucide-react";
+import { Check, Copy, Gift, Handshake, Share2 } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
-import { REFERRAL_CAP, REFERRAL_BONUS_GB } from "@/lib/referrals";
+import { formatAgorot, REFERRAL_BONUS_GB, SALES_REP_PAYOUT_AGOROT } from "@/lib/referrals";
 
 type ReferralRow = {
   id: string;
@@ -20,6 +20,29 @@ type ReferralStats = {
   totalCount: number;
   bonusGb: number;
   cap: number;
+};
+
+type SalesRepCommission = {
+  id: string;
+  status: string;
+  amountAgorot: number;
+  earnedAt: string | null;
+  paidAt: string | null;
+  referredCustomerName: string | null;
+  referredCustomerEmail: string | null;
+  referredLineId: string | null;
+  referredLineStatus: string | null;
+};
+
+type SalesRepSummary = {
+  referralLink: string | null;
+  status: string;
+  totalReferrals: number;
+  pendingAgorot: number;
+  paidAgorot: number;
+  activeReferralLines: number;
+  bonusGb: number;
+  commissions: SalesRepCommission[];
 };
 
 function CopyShareButton({ link }: { link: string }) {
@@ -63,10 +86,12 @@ export function ReferralPanel({
   referralLink,
   referrals,
   referralStats,
+  salesRep,
 }: {
   referralLink?: string | null;
   referrals: ReferralRow[];
   referralStats: ReferralStats;
+  salesRep?: SalesRepSummary | null;
 }) {
   const { activeCount, bonusGb, cap } = referralStats;
   const slotsRemaining = cap - activeCount;
@@ -126,6 +151,86 @@ export function ReferralPanel({
           </div>
         </div>
       </section>
+
+      {salesRep ? (
+        <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft sm:p-8">
+          <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-link-blue/10 text-link-blue">
+                  <Handshake className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-link-blue">Sales rep account</p>
+                  <h2 className="mt-1 text-2xl font-semibold tracking-normal text-ink">Referral payouts</h2>
+                </div>
+              </div>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-slate">
+                Each active line created through your rep link records a one-time {formatAgorot(SALES_REP_PAYOUT_AGOROT)} payout.
+                Active referred lines also count toward your monthly data bonus when you have an eligible BitLink line.
+              </p>
+            </div>
+            <StatusBadge status={salesRep.status} label="Rep" />
+          </div>
+
+          {salesRep.referralLink ? (
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex-1 rounded-[1.5rem] border border-ink/10 bg-slate-50 px-4 py-3 font-mono text-sm text-ink select-all break-all">
+                {salesRep.referralLink}
+              </div>
+              <CopyShareButton link={salesRep.referralLink} />
+            </div>
+          ) : null}
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-4">
+            <div className="rounded-2xl bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-slate">Referrals</p>
+              <p className="mt-1 text-2xl font-semibold text-ink">{salesRep.totalReferrals}</p>
+            </div>
+            <div className="rounded-2xl bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-slate">Owed</p>
+              <p className="mt-1 text-2xl font-semibold text-ink">{formatAgorot(salesRep.pendingAgorot)}</p>
+            </div>
+            <div className="rounded-2xl bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-slate">Paid</p>
+              <p className="mt-1 text-2xl font-semibold text-ink">{formatAgorot(salesRep.paidAgorot)}</p>
+            </div>
+            <div className="rounded-2xl bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-slate">Data bonus</p>
+              <p className="mt-1 text-2xl font-semibold text-ink">+{salesRep.bonusGb}GB</p>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            {salesRep.commissions.length ? (
+              <div className="grid gap-3">
+                {salesRep.commissions.map((commission) => (
+                  <div
+                    key={commission.id}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] bg-slate-50 p-4"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-ink">
+                        {commission.referredCustomerName ?? "Referred customer"}
+                        <span className="ml-2 font-normal text-muted-slate">{formatAgorot(commission.amountAgorot)}</span>
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-slate">
+                        {commission.referredCustomerEmail ?? "No email"}
+                        {commission.earnedAt ? ` · ${new Date(commission.earnedAt).toLocaleDateString("en-US")}` : ""}
+                      </p>
+                    </div>
+                    <StatusBadge status={commission.status} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState title="No sales rep referrals yet">
+                Share your rep link above. Activated lines will show here with payout status.
+              </EmptyState>
+            )}
+          </div>
+        </section>
+      ) : null}
 
       {/* Link + share */}
       <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft sm:p-8">

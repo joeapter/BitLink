@@ -115,15 +115,102 @@ export type Database = {
           id: string;
           referrer_customer_id: string | null;
           referred_customer_id: string | null;
+          referred_line_id: string | null;
+          sales_rep_id: string | null;
           referral_code: string | null;
           status: string;
           reward_type: string | null;
           reward_value_cents: number | null;
+          reward_value_agorot: number | null;
+          activated_at: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["referrals"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["referrals"]["Row"]>;
+      };
+      sales_reps: {
+        Row: {
+          id: string;
+          profile_id: string;
+          customer_id: string | null;
+          referral_code: string;
+          status: string;
+          payout_amount_agorot: number;
+          currency: string;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["sales_reps"]["Row"]> & {
+          profile_id: string;
+          referral_code: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["sales_reps"]["Row"]>;
+      };
+      sales_rep_payments: {
+        Row: {
+          id: string;
+          sales_rep_id: string;
+          amount_agorot: number;
+          currency: string;
+          paid_at: string;
+          method: string | null;
+          reference: string | null;
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["sales_rep_payments"]["Row"]> & {
+          sales_rep_id: string;
+          amount_agorot: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["sales_rep_payments"]["Row"]>;
+      };
+      sales_rep_commissions: {
+        Row: {
+          id: string;
+          sales_rep_id: string;
+          referral_id: string | null;
+          referred_customer_id: string | null;
+          referred_line_id: string | null;
+          amount_agorot: number;
+          currency: string;
+          status: string;
+          earned_at: string;
+          paid_at: string | null;
+          payment_id: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["sales_rep_commissions"]["Row"]> & {
+          sales_rep_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["sales_rep_commissions"]["Row"]>;
+      };
+      referral_bonus_grants: {
+        Row: {
+          id: string;
+          sales_rep_id: string | null;
+          referrer_customer_id: string | null;
+          beneficiary_customer_id: string | null;
+          beneficiary_line_id: string | null;
+          referred_line_id: string | null;
+          grant_month: string;
+          bonus_gb: number;
+          provider_line_id: string | null;
+          provider_topup_name: string | null;
+          status: string;
+          error: string | null;
+          applied_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["referral_bonus_grants"]["Row"]> & {
+          grant_month: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["referral_bonus_grants"]["Row"]>;
       };
       payment_events: {
         Row: {
