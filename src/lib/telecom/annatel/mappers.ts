@@ -73,16 +73,22 @@ export const AnnatelMappers = {
       ...(params.email ? { email: params.email } : {}),
       ...(params.identityNumber ? { identity_number: params.identityNumber } : {}),
       ...(params.iccId ? { sims: [{ icc_id: params.iccId }] } : {}),
-      ...(params.phoneNumber ? { dids: [{ number: normalizeMsisdn(params.phoneNumber) }] } : {}),
+      // Annatel (Ruben, Jul 2026): the line's number is EITHER a pool DID or a
+      // port-in — and for port-ins the dids array must carry the ported number
+      // itself. Empirically: omitting dids → "dids can't be blank"; a pool DID
+      // alongside port params → "port_in_request_params.number is invalid".
       ...(params.portInParams
         ? {
+            dids: [{ number: normalizeMsisdn(params.portInParams.number) }],
             port_in_request_params: {
               number: normalizeMsisdn(params.portInParams.number),
               identity_number: params.portInParams.identityNumber,
               authentication_type: normalizePortAuthenticationType(params.portInParams.authenticationType),
             },
           }
-        : {}),
+        : params.phoneNumber
+          ? { dids: [{ number: normalizeMsisdn(params.phoneNumber) }] }
+          : {}),
     };
   },
 
