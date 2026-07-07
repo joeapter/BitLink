@@ -61,7 +61,9 @@ export const viewport: Viewport = {
   themeColor: "#f7fafc",
 };
 
-const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+// trim(): the env var once shipped with a trailing newline that produced an
+// unterminated string in the inline script and killed GA sitewide.
+const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
 
 export default function RootLayout({
   children,
