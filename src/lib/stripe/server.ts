@@ -106,10 +106,11 @@ export async function createCheckoutSession(
 
   if (params.uiMode === 'embedded') {
     // Embedded checkout renders in-page; Stripe forbids success/cancel URLs
-    // here and uses return_url after completion instead.
+    // here and uses return_url after completion instead. This API version
+    // names the mode 'embedded_page' (formerly 'embedded').
     return stripe.checkout.sessions.create({
       ...shared,
-      ui_mode: 'embedded',
+      ui_mode: 'embedded_page',
       return_url: absoluteUrl(`/checkout/success?session_id={CHECKOUT_SESSION_ID}`),
     });
   }
