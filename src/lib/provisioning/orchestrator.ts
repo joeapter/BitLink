@@ -55,6 +55,25 @@ async function notifyAdminOfJobFailure(job: ProvisioningJob, errMsg: string): Pr
   });
 }
 
+// ICCIDs consumed by lines or reserved by in-flight jobs — the provider's SIM
+// listing keeps consumed SIMs, so without this every order picks the same SIM.
+async function collectUsedIccIds(admin: Admin): Promise<string[]> {
+  const [{ data: jobs }, { data: lines }] = await Promise.all([
+    admin
+      .from('provisioning_jobs')
+      .select('payload')
+      .not('payload->>iccId', 'is', null)
+      .in('status', ['pending', 'submitted', 'syncing', 'completed']),
+    admin
+      .from('telecom_lines')
+      .select('metadata')
+      .not('metadata->>esim_icc_id', 'is', null),
+  ]);
+  const fromJobs = (jobs ?? []).map((j) => (j.payload as Record<string, unknown>)?.iccId as string | undefined);
+  const fromLines = (lines ?? []).map((l) => (l.metadata as Record<string, unknown>)?.esim_icc_id as string | undefined);
+  return [...fromJobs, ...fromLines].filter((x): x is string => Boolean(x));
+}
+
 // Numbers already assigned to lines — excluded when picking a fresh DID.
 async function collectUsedNumbers(admin: Admin): Promise<string[]> {
   const { data: existingLines } = await admin
@@ -173,7 +192,18 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
   const isEsim = payload.metadata?.is_esim === true;
   let resolvedIccId = payload.iccId;
   if (isEsim && !resolvedIccId) {
-    resolvedIccId = (await provider.getAvailableEsimIccId()) ?? undefined;
+    resolvedIccId = (await provider.getAvailableEsimIccId(await collectUsedIccIds(admin))) ?? undefined;
+    if (resolvedIccId) {
+      // Persist the pick: retries reuse the same SIM, and concurrent orders
+      // see it as reserved via collectUsedIccIds.
+      await admin
+        .from('provisioning_jobs')
+        .update({
+          payload: { ...(job.payload as Record<string, unknown>), iccId: resolvedIccId } as never,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', job.id);
+    }
     if (!resolvedIccId) {
       const errMsg = 'No available eSIM profiles in Annatel inventory';
       const failed = transition(submitted, 'FAILED', { error: errMsg });
@@ -299,11 +329,15 @@ async function completeJob(
       const currentMeta = ((await linesRepo.getLine(admin, lineId))?.metadata ?? {}) as Record<string, unknown>;
       const portInParams = payload.portInParams as { number?: string } | undefined;
       if (portInParams) {
+        // The job only completes once the port has executed — the ported
+        // number IS the line's number now. Stamp it so the portal and emails
+        // show it instead of "pending assignment".
         lineUpdates.metadata = {
           ...currentMeta,
-          pending_port_in_number: portInParams.number ?? currentMeta.pending_port_in_number,
+          phone_number: portInParams.number ?? currentMeta.phone_number,
+          pending_port_in_number: null,
         };
-        log.info({ jobId: job.id, lineId, number: portInParams.number }, 'Port-in line — skipping DID auto-assign');
+        log.info({ jobId: job.id, lineId, number: portInParams.number }, 'Port-in line — ported number stamped, skipping DID auto-assign');
       } else if (currentMeta.phone_number) {
         // A DID already went out with the create request (port-in technical
         // number) — assigning another would double-book inventory.
@@ -394,6 +428,19 @@ async function completeJob(
         log.error({ jobId: job.id, lineId, error: err instanceof Error ? err.message : String(err) }, 'Failed to update intl port-in status — continuing');
       }
     }
+  }
+
+  // Notify the customer (and admin) regardless of which path completed the
+  // job — direct processing, the reconcile cron, or the Annatel webhook.
+  // notify-provisioned is idempotent, so double-delivery of this event is safe.
+  try {
+    const { inngest } = await import('@/inngest/client');
+    await inngest.send({
+      name: 'provisioning/line.completed',
+      data: { lineId, providerLineId: providerLineId ?? null, jobId: job.id },
+    });
+  } catch (err) {
+    log.warn({ jobId: job.id, error: String(err) }, 'Failed to dispatch provisioning/line.completed');
   }
 
   log.info({ jobId: job.id, lineId }, 'Line provisioning completed');

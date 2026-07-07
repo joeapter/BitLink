@@ -25,6 +25,16 @@ export type SimStatus =
 
 export type SuspensionReason = 'billing' | 'voluntary' | 'block' | 'fraud' | 'admin' | 'freeze';
 
+// Port-in ownership authentication (SMS code to the ported number).
+// 'none' = no authentication exists for the number yet.
+export type NumberAuthenticationStatus =
+  | 'none'
+  | 'pending'
+  | 'completed'
+  | 'expired'
+  | 'overriden'
+  | 'locked';
+
 export type ProvisioningJobType =
   | 'create_line'
   | 'modify_line'

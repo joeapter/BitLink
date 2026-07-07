@@ -247,3 +247,60 @@ export function buildAdminSaleEmail(params: AdminSaleEmailParams): string {
   </div>
 </body></html>`;
 }
+
+// ── Line active (physical SIM / general activation notice) ──────────────────
+
+export function buildLineActiveEmail(params: {
+  fullName: string;
+  planName: string;
+  phoneNumber?: string | null;
+  portalUrl: string;
+}): string {
+  const firstName = params.fullName.split(' ')[0] ?? params.fullName;
+  return layout(`
+    ${h1(`Your line is active${params.phoneNumber ? ` — ${params.phoneNumber}` : ''}`)}
+    ${p(`Hi ${firstName},`)}
+    ${p(`Your BitLink <b>${params.planName}</b> line is now active${params.phoneNumber ? ` on ${mono(params.phoneNumber)}` : ''}. Calls, texts, and data are ready to go.`)}
+    ${p('You can see your line, usage, and billing anytime in your account:')}
+    ${btn('Open my account', params.portalUrl)}
+    ${p('Questions? Reply to this email or message us on WhatsApp — a real person answers.')}
+  `);
+}
+
+// ── Admin copy: line provisioned (with resend-ready activation details) ─────
+
+export function buildAdminProvisionedEmail(params: {
+  fullName: string;
+  email: string;
+  planName: string;
+  phoneNumber?: string | null;
+  isEsim: boolean;
+  activationCode?: string | null;
+  lineId: string;
+  adminUrl: string;
+}): string {
+  const rows = [
+    ['Customer', params.fullName],
+    ['Email', `<a href="mailto:${params.email}" style="color:${BRAND_COLOR};">${params.email}</a>`],
+    ['Plan', params.planName],
+    ['Number', params.phoneNumber ?? 'pending'],
+    ['SIM type', params.isEsim ? 'eSIM' : 'Physical SIM'],
+  ]
+    .map(
+      ([k, v]) =>
+        `<tr><td style="padding:6px 0;font-size:13px;color:#94a3b8;width:110px;">${k}</td><td style="padding:6px 0;font-size:13px;color:#050606;font-weight:600;">${v}</td></tr>`,
+    )
+    .join('');
+
+  return layout(`
+    ${h1(`Line provisioned — ${params.fullName}`)}
+    <table cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:16px;">${rows}</table>
+    ${
+      params.isEsim && params.activationCode
+        ? `${p('<b>eSIM activation code</b> (forward to the customer if they lose their email):')}
+           <p style="margin:0 0 16px;"><span style="font-family:monospace;background:#f1f5f9;padding:8px 10px;border-radius:8px;font-size:12px;color:#050606;display:inline-block;word-break:break-all;">${params.activationCode}</span></p>`
+        : ''
+    }
+    ${btn('Open line in admin', `${params.adminUrl}/admin/lines/${params.lineId}`)}
+  `);
+}

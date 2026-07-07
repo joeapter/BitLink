@@ -53,36 +53,9 @@ export const provisionLine = inngest.createFunction(
 
     log.info({ jobId, status: result.status }, 'Provision complete');
 
-    // Fire notification event if line successfully provisioned
-    if (result.status === 'COMPLETED') {
-      try {
-        const admin = createSupabaseAdminClient();
-        if (admin) {
-          const { data: job } = await admin
-            .from('provisioning_jobs')
-            .select('line_id, provider_job_id')
-            .eq('id', jobId)
-            .single();
-
-          if (job?.line_id) {
-            const { data: line } = await admin
-              .from('telecom_lines')
-              .select('provider_line_id')
-              .eq('id', job.line_id)
-              .single();
-
-            if (line?.provider_line_id) {
-              await inngest.send({
-                name: 'provisioning/line.completed',
-                data: { lineId: job.line_id, providerLineId: line.provider_line_id, jobId },
-              });
-            }
-          }
-        }
-      } catch (err) {
-        log.warn({ error: String(err) }, 'Failed to dispatch provisioning/line.completed');
-      }
-    }
+    // provisioning/line.completed is dispatched from completeJob() in the
+    // orchestrator — the single choke point shared by this path, the
+    // reconcile cron, and the Annatel webhook.
 
     return { jobId, ...result };
   },

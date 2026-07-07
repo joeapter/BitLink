@@ -14,6 +14,7 @@ export type {
   OtaParams,
   OtaStatus,
   PortabilityCheck,
+  NumberAuthenticationStatus,
   PortInParams,
   PortInResult,
   PortInStatus,
@@ -46,6 +47,7 @@ import type {
   OtaParams,
   OtaStatus,
   PortabilityCheck,
+  NumberAuthenticationStatus,
   PortInParams,
   PortInResult,
   PortInStatus,
@@ -96,7 +98,7 @@ export interface TelecomProvider {
   listLinePlans(providerLineId: string): Promise<LinePlanInfo[]>;
   listPlansCatalog(): Promise<PlanCatalogEntry[]>;
   addTopup(providerLineId: string, topupName: string): Promise<void>;
-  getAvailableEsimIccId(): Promise<string | null>;
+  getAvailableEsimIccId(excludeIccIds?: string[]): Promise<string | null>;
   getAvailableDid(usedNumbers?: string[]): Promise<string | null>;
 
   // ── Usage & balance ──────────────────────────────────────────
@@ -112,6 +114,13 @@ export interface TelecomProvider {
   listForwards(providerLineId: string): Promise<LineForward[]>;
   addForward(providerLineId: string, destination: string): Promise<LineForward>;
   removeForward(providerLineId: string, forwardId: string): Promise<void>;
+
+  // ── Port-in number authentication (SMS ownership proof) ──────
+  // Required before a port-in create is accepted; a completed
+  // authentication is valid for 15 days.
+  createNumberAuthentication(phoneNumber: string): Promise<NumberAuthenticationStatus>;
+  verifyNumberAuthentication(phoneNumber: string, code: string): Promise<boolean>;
+  getNumberAuthenticationStatus(phoneNumber: string): Promise<NumberAuthenticationStatus>;
 
   // ── Portability ──────────────────────────────────────────────
   checkPortability(phoneNumber: string): Promise<PortabilityCheck>;

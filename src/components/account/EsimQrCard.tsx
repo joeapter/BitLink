@@ -1,3 +1,4 @@
+import QRCode from "qrcode";
 import { QrCode } from "lucide-react";
 
 interface Props {
@@ -5,8 +6,15 @@ interface Props {
   iccId?: string;
 }
 
-export function EsimQrCard({ activationCode, iccId }: Props) {
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=8&data=${encodeURIComponent(activationCode)}`;
+// Server component — the QR is generated locally as a data URL. No external
+// QR service: the activation code never leaves our infrastructure, and the
+// image can't fail to load because a third party is slow or blocked.
+export async function EsimQrCard({ activationCode, iccId }: Props) {
+  const qrDataUrl = await QRCode.toDataURL(activationCode, {
+    width: 320,
+    margin: 1,
+    errorCorrectionLevel: "M",
+  });
 
   return (
     <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4">
@@ -19,10 +27,10 @@ export function EsimQrCard({ activationCode, iccId }: Props) {
       </p>
 
       <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-        {/* QR image */}
+        {/* QR image — locally generated data URL */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={qrUrl}
+          src={qrDataUrl}
           alt="eSIM QR code"
           width={160}
           height={160}

@@ -10,6 +10,7 @@ import type {
   OtaParams,
   OtaStatus,
   PortabilityCheck,
+  NumberAuthenticationStatus,
   PortInParams,
   PortInResult,
   PortInStatus,
@@ -383,12 +384,29 @@ export class AnnatelProvider implements TelecomProvider {
     }
   }
 
-  async getAvailableEsimIccId(): Promise<string | null> {
+  async getAvailableEsimIccId(excludeIccIds: string[] = []): Promise<string | null> {
+    // The sim_manager listing has no availability filter and keeps consumed
+    // SIMs in the list — callers must pass ICCIDs already used by our lines,
+    // or every order would pick the same first SIM.
     try {
-      const result = await this.client.get<{ data: Array<{ icc_id: string }> }>(
-        '/api/operational/sim_manager/sims?page[size]=1',
-      );
-      return result?.data?.[0]?.icc_id ?? null;
+      const excluded = new Set(excludeIccIds);
+      let page = 1;
+      while (page <= 20) {
+        const qs = new URLSearchParams({
+          'filter[type]': 'esim',
+          'page[number]': String(page),
+          'page[size]': '100',
+        });
+        const result = await this.client.get<{
+          data: Array<{ icc_id: string }>;
+          meta?: { total: number };
+        }>(`/api/operational/sim_manager/sims?${qs}`);
+        const available = (result.data ?? []).find((s) => !excluded.has(s.icc_id));
+        if (available) return available.icc_id;
+        if ((result.data ?? []).length < 100) break;
+        page++;
+      }
+      return null;
     } catch {
       return null;
     }
@@ -485,6 +503,50 @@ export class AnnatelProvider implements TelecomProvider {
 
   async removeForward(providerLineId: string, forwardId: string): Promise<void> {
     await this.client.delete(`${LINES_BASE}/${providerLineId}/forwards/${forwardId}`);
+  }
+
+  // ── Port-in number authentication (SMS ownership proof) ────────────────────
+  // Endpoints confirmed live Jul 2026: POST creates the authentication and
+  // triggers the SMS; PUT with the code (as a string!) completes it; the list
+  // endpoint filters by number. A completed authentication is valid 15 days
+  // and is required before a port-in bulk_request is accepted.
+
+  async createNumberAuthentication(phoneNumber: string): Promise<NumberAuthenticationStatus> {
+    const result = await this.client.post<{ status: string }>(
+      '/api/operational/show_me_white_paw/authentications',
+      {
+        authentication_context: 'port_in',
+        authentication_type: 'sms_code',
+        locale: 'en_US',
+        number: phoneNumber,
+      },
+    );
+    return (result.status as NumberAuthenticationStatus) ?? 'pending';
+  }
+
+  async verifyNumberAuthentication(phoneNumber: string, code: string): Promise<boolean> {
+    try {
+      await this.client.put(
+        `/api/operational/show_me_white_paw/authentications/${encodeURIComponent(phoneNumber)}`,
+        {
+          authentication_context: 'port_in',
+          authentication_type: 'sms_code',
+          code: String(code),
+        },
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async getNumberAuthenticationStatus(phoneNumber: string): Promise<NumberAuthenticationStatus> {
+    const qs = new URLSearchParams({ 'filter[number]': phoneNumber, 'page[size]': '5' });
+    const result = await this.client.get<{ data: Array<{ number: string; status: string }> }>(
+      `/api/operational/show_me_white_paw/authentications?${qs}`,
+    );
+    const match = (result.data ?? []).find((a) => a.number === phoneNumber);
+    return (match?.status as NumberAuthenticationStatus) ?? 'none';
   }
 
   // ── Portability ───────────────────────────────────────────────────────────

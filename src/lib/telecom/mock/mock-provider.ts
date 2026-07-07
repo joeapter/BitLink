@@ -13,6 +13,7 @@ import type {
   OtaParams,
   OtaStatus,
   PortabilityCheck,
+  NumberAuthenticationStatus,
   PortInParams,
   PortInResult,
   PortInStatus,
@@ -232,8 +233,22 @@ export class MockTelecomProvider implements TelecomProvider {
     return '+972551234567';
   }
 
-  async getAvailableEsimIccId(): Promise<string | null> {
+  async getAvailableEsimIccId(_excludeIccIds?: string[]): Promise<string | null> {
     return '89000000000000000001';
+  }
+
+  // ── Port-in number authentication (mock: instant success) ─────────────────
+  async createNumberAuthentication(_phoneNumber: string): Promise<NumberAuthenticationStatus> {
+    await this.tick();
+    return 'pending';
+  }
+  async verifyNumberAuthentication(_phoneNumber: string, _code: string): Promise<boolean> {
+    await this.tick();
+    return true;
+  }
+  async getNumberAuthenticationStatus(_phoneNumber: string): Promise<NumberAuthenticationStatus> {
+    await this.tick();
+    return 'completed';
   }
 
   async listBarrings(_providerLineId: string): Promise<LineBarring[]> { await this.tick(); return []; }
