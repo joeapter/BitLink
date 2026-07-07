@@ -11,6 +11,7 @@ import { ingestCdrs } from '@/inngest/functions/ingest-cdrs';
 import { notifyCheckout } from '@/inngest/functions/notify-checkout';
 import { notifyProvisioned } from '@/inngest/functions/notify-provisioned';
 import { referralBonusesCron } from '@/inngest/functions/referral-bonuses';
+import { notifySalesRepCommission, notifySalesRepWelcome } from '@/inngest/functions/notify-sales-rep';
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -23,5 +24,7 @@ export const { GET, POST, PUT } = serve({
     notifyCheckout,
     notifyProvisioned,
     referralBonusesCron,
+    notifySalesRepWelcome,
+    notifySalesRepCommission,
   ],
 });

@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { MakeSalesRepButton } from "@/components/admin/MakeSalesRepButton";
 import { getAdminDb } from "@/lib/db/admin";
 import { formatDate } from "@/lib/utils";
 import { makeSalesRepAction } from "@/lib/admin/sales-rep-actions";
@@ -89,7 +90,7 @@ export default async function AdminCustomersPage({
                         ) : customer.user_id ? (
                           <form action={makeSalesRepAction}>
                             <input type="hidden" name="customerId" value={customer.id} />
-                            <Button type="submit" variant="secondary" size="sm">Make rep</Button>
+                            <MakeSalesRepButton />
                           </form>
                         ) : (
                           <span className="text-xs font-semibold text-slate-400">Needs login</span>
