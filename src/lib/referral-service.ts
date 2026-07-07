@@ -371,7 +371,9 @@ export async function processMonthlyReferralBonuses(db: DbClient, date = new Dat
         .eq("id", referredLineId)
         .maybeSingle();
 
-      if (referredLine?.status === "active") {
+      // Paused referred lines still count — decided Jul 2026: the $10/mo pause
+      // covers the bonus cost, and the site makes no promise either way.
+      if (referredLine && ["active", "paused"].includes(referredLine.status as string)) {
         activeReferrals.push({
           referredLineId,
           salesRepId: (referral.sales_rep_id ?? null) as string | null,
