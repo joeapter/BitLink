@@ -47,7 +47,12 @@ export default async function LoginPage({
           <Button type="submit" size="lg" className="mt-6 w-full">
             Sign in
           </Button>
-          <p className="mt-5 text-center text-sm text-muted-slate">
+          <p className="mt-4 text-center text-sm">
+            <Link href="/forgot-password" className="font-semibold text-link-blue">
+              Forgot your password?
+            </Link>
+          </p>
+          <p className="mt-3 text-center text-sm text-muted-slate">
             New to BitLink?{" "}
             <Link href="/signup" className="font-semibold text-ink">
               Create an account

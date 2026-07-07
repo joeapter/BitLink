@@ -4,7 +4,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createCheckoutSession, getStripe } from "@/lib/stripe/server";
 import { getPlan } from "@/lib/plans";
-import { absoluteUrl, isValidIsraeliMobile } from "@/lib/utils";
+import { absoluteUrl, normalizeIsraeliMobile } from "@/lib/utils";
+import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import { logger } from "@/lib/logger";
 import { resolveAccountCustomer } from "@/lib/db/account";
 
@@ -80,11 +81,26 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 
   // Malformed numbers 422 at Annatel AFTER payment — reject them here instead.
-  if (isPortIn && portInNumber && !isValidIsraeliMobile(portInNumber)) {
+  const normalizedPortNumber = isPortIn && portInNumber ? normalizeIsraeliMobile(portInNumber) : null;
+  if (isPortIn && !normalizedPortNumber) {
     return NextResponse.json(
       { error: "That does not look like a valid Israeli mobile number. Use the format 05x-xxx-xxxx." },
       { status: 400 },
     );
+  }
+
+  // Ports also require a completed SMS ownership authentication — refuse to
+  // take payment until the number has been verified.
+  if (isPortIn && normalizedPortNumber) {
+    const authStatus = await getTelecomProvider()
+      .getNumberAuthenticationStatus(normalizedPortNumber)
+      .catch(() => "none" as const);
+    if (authStatus !== "completed") {
+      return NextResponse.json(
+        { error: 'Please verify the number first — tap "Text me a verification code" and enter the code we send.' },
+        { status: 400 },
+      );
+    }
   }
 
   if (wantsIntlNumber && intlNumberSource === "port" && !intlPortNumber?.trim()) {
@@ -167,7 +183,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     isKosher: plan.isKosher,
     isEsim,
     isPortIn,
-    portInNumber: isPortIn ? (portInNumber ?? null) : null,
+    portInNumber: isPortIn ? normalizedPortNumber : null,
     portInIdNumber: isPortIn
       ? (process.env.PORT_IN_DEFAULT_ID?.trim() ?? process.env.ANNATEL_DEFAULT_IDENTITY_NUMBER?.trim() ?? null)
       : null,

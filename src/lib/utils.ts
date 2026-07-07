@@ -37,12 +37,22 @@ export function absoluteUrl(path = "") {
   return `${siteUrl}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-// Accepts an Israeli mobile number in any common format: 05x-xxx-xxxx,
-// +9725xxxxxxxx, 9725xxxxxxxx. Used to validate port-in numbers BEFORE payment
-// so malformed numbers never reach Annatel after money has changed hands.
-export function isValidIsraeliMobile(value: string): boolean {
+// Normalizes an Israeli mobile number to E.164 (+9725XXXXXXXX) from any common
+// format: 05x-xxx-xxxx, 5x-xxx-xxxx (no leading 0), 9725…, +9725…. Returns
+// null when the input can't be a valid Israeli mobile.
+export function normalizeIsraeliMobile(value: string): string | null {
   const cleaned = value.replace(/[\s\-().]/g, "");
-  return /^(\+972|972|0)5\d{8}$/.test(cleaned);
+  if (/^\+9725\d{8}$/.test(cleaned)) return cleaned;
+  if (/^9725\d{8}$/.test(cleaned)) return `+${cleaned}`;
+  if (/^05\d{8}$/.test(cleaned)) return `+972${cleaned.slice(1)}`;
+  if (/^5\d{8}$/.test(cleaned)) return `+972${cleaned}`;
+  return null;
+}
+
+// Used to validate port-in numbers BEFORE payment so malformed numbers never
+// reach Annatel after money has changed hands.
+export function isValidIsraeliMobile(value: string): boolean {
+  return normalizeIsraeliMobile(value) !== null;
 }
 
 export function initials(name?: string | null) {

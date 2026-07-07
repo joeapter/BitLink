@@ -23,7 +23,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getStripe, createCheckoutSession } from '@/lib/stripe/server';
-import { isValidIsraeliMobile } from '@/lib/utils';
+import { normalizeIsraeliMobile } from '@/lib/utils';
+import { getTelecomProvider } from '@/lib/telecom/provider.registry';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
@@ -81,11 +82,27 @@ export async function POST(request: NextRequest): Promise<Response> {
   // Reject malformed Israeli port-in numbers BEFORE payment — Annatel requires
   // a valid mobile number and 422s the provisioning request otherwise, which
   // strands a paid order in a failed state.
-  if (isPortIn && (!portInNumber || !isValidIsraeliMobile(portInNumber))) {
+  const normalizedPortNumber = isPortIn && portInNumber ? normalizeIsraeliMobile(portInNumber) : null;
+  if (isPortIn && !normalizedPortNumber) {
     return NextResponse.json(
       { error: 'That does not look like a valid Israeli mobile number. Use the format 05x-xxx-xxxx.' },
       { status: 400 },
     );
+  }
+
+  // Ports also require a completed SMS ownership authentication (valid 15
+  // days at the provider) — provisioning is rejected without one, so we
+  // refuse to take payment until it exists.
+  if (isPortIn && normalizedPortNumber) {
+    const authStatus = await getTelecomProvider()
+      .getNumberAuthenticationStatus(normalizedPortNumber)
+      .catch(() => 'none' as const);
+    if (authStatus !== 'completed') {
+      return NextResponse.json(
+        { error: 'Please verify the number first — tap "Text me a verification code" and enter the code we send.' },
+        { status: 400 },
+      );
+    }
   }
 
   // Filled server-side — never exposed to the client.
@@ -269,7 +286,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       isKosher,
       isEsim,
       isPortIn,
-      portInNumber: portInNumber ?? null,
+      portInNumber: normalizedPortNumber,
       portInIdNumber,
       wantsIntlNumber,
       intlNumberCountry: intlNumberCountry ?? null,

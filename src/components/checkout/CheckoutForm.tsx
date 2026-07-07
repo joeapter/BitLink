@@ -9,6 +9,7 @@ import { Select } from "@/components/ui/Select";
 import { CheckoutSummary } from "./CheckoutSummary";
 import { EmbeddedStripeCheckout } from "./EmbeddedStripeCheckout";
 import { EsimCompatibilityModal } from "./EsimCompatibilityModal";
+import { PortNumberVerification } from "./PortNumberVerification";
 
 type SimType = "esim" | "physical";
 type NumberChoice = "new" | "port-in";
@@ -26,6 +27,7 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
   const [error, setError] = useState<string | null>(null);
   const [feeWaived, setFeeWaived] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [verifiedPortNumber, setVerifiedPortNumber] = useState<string | null>(null);
 
   useEffect(() => {
     const check = () => {
@@ -65,6 +67,11 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
     setError(null);
 
     const isPortIn = numberChoice === "port-in";
+    if (isPortIn && !verifiedPortNumber) {
+      setLoading(false);
+      setError("Verify the number you're porting first — we text a code to it.");
+      return;
+    }
     // Read the waiver fresh at submit time — the mounted state can be stale
     // if the unlock happened after this form loaded.
     const waived = feeWaived || localStorage.getItem("bl_staff") === "1";
@@ -81,7 +88,7 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
         isKosher: selectedPlan.isKosher,
         isEsim: effectiveSimType === "esim",
         isPortIn,
-        portInNumber: isPortIn ? formData.get("portInNumber") : null,
+        portInNumber: isPortIn ? verifiedPortNumber : null,
         skipActivationFee: waived,
         wantsIntlNumber,
         intlNumberCountry: wantsIntlNumber ? intlCountry : undefined,
@@ -238,17 +245,8 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
           </div>
 
           {numberChoice === "port-in" && (
-            <div className="mt-3 grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <Input
-                label="Current Israeli number"
-                name="portInNumber"
-                type="tel"
-                placeholder="05X-XXX-XXXX"
-                required
-              />
-              <p className="text-xs text-amber-800">
-                Your current number stays active throughout the transfer process.
-              </p>
+            <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <PortNumberVerification onVerified={setVerifiedPortNumber} />
             </div>
           )}
         </fieldset>

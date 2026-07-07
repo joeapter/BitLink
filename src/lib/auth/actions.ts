@@ -38,6 +38,48 @@ export async function loginAction(formData: FormData) {
   redirect(next ?? (await authenticatedRedirectPath(supabase, null)));
 }
 
+export async function requestPasswordResetAction(formData: FormData) {
+  if (!hasSupabasePublicEnv()) {
+    redirect(`/forgot-password?error=${encodeMessage("Password reset is temporarily unavailable. Please contact BitLink support.")}`);
+  }
+
+  const email = String(formData.get("email") ?? "").trim();
+  if (email) {
+    const supabase = await createSupabaseServerClient();
+    // The recovery link goes through /auth/callback which exchanges the code
+    // for a session, then lands on /reset-password to set the new password.
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: absoluteUrl("/auth/callback?next=/reset-password"),
+    });
+  }
+
+  // Same response whether or not the account exists — no account enumeration.
+  redirect(`/login?message=${encodeMessage("If an account exists for that email, a password reset link is on its way.")}`);
+}
+
+export async function updatePasswordAction(formData: FormData) {
+  if (!hasSupabasePublicEnv()) {
+    redirect(`/reset-password?error=${encodeMessage("Password reset is temporarily unavailable. Please contact BitLink support.")}`);
+  }
+
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+  if (password.length < 8) {
+    redirect(`/reset-password?error=${encodeMessage("Password must be at least 8 characters.")}`);
+  }
+  if (password !== confirm) {
+    redirect(`/reset-password?error=${encodeMessage("Passwords do not match.")}`);
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    redirect(`/reset-password?error=${encodeMessage(error.message)}`);
+  }
+
+  redirect(`/account?message=${encodeMessage("Password updated.")}`);
+}
+
 export async function signupAction(formData: FormData) {
   if (!hasSupabasePublicEnv()) {
     redirect(`/signup?error=${encodeMessage("Account creation is temporarily unavailable. Please contact BitLink support.")}`);
