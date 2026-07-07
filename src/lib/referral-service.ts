@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { sendEmail } from "@/lib/email/send";
+import { buildSalesRepCommissionEmail, buildSalesRepWelcomeEmail } from "@/lib/email/templates";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import { withProviderContext } from "@/lib/telecom/provider-context";
 import {
@@ -22,6 +24,7 @@ type SalesRepRow = {
   status: string;
   payout_amount_agorot: number;
   currency: string;
+  welcome_email_sent_at?: string | null;
 };
 
 type CustomerReferralRow = {
@@ -29,7 +32,16 @@ type CustomerReferralRow = {
   user_id: string | null;
   referral_code: string | null;
   referred_by: string | null;
+  full_name?: string | null;
+  email?: string | null;
 };
+
+type ContactRow = {
+  full_name: string | null;
+  email: string | null;
+};
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://bitlink.co.il";
 
 function nowIso() {
   return new Date().toISOString();
@@ -38,7 +50,7 @@ function nowIso() {
 async function getCustomer(db: DbClient, customerId: string): Promise<CustomerReferralRow | null> {
   const { data } = await db
     .from("customers")
-    .select("id, user_id, referral_code, referred_by")
+    .select("id, user_id, referral_code, referred_by, full_name, email")
     .eq("id", customerId)
     .maybeSingle();
   return (data as CustomerReferralRow | null) ?? null;
@@ -47,7 +59,7 @@ async function getCustomer(db: DbClient, customerId: string): Promise<CustomerRe
 async function findSalesRepByCode(db: DbClient, referralCode: string): Promise<SalesRepRow | null> {
   const { data } = await db
     .from("sales_reps")
-    .select("id, profile_id, customer_id, referral_code, status, payout_amount_agorot, currency")
+    .select("id, profile_id, customer_id, referral_code, status, payout_amount_agorot, currency, welcome_email_sent_at")
     .eq("referral_code", referralCode)
     .eq("status", "active")
     .maybeSingle();
@@ -57,10 +69,112 @@ async function findSalesRepByCode(db: DbClient, referralCode: string): Promise<S
 async function findCustomerByCode(db: DbClient, referralCode: string): Promise<CustomerReferralRow | null> {
   const { data } = await db
     .from("customers")
-    .select("id, user_id, referral_code, referred_by")
+    .select("id, user_id, referral_code, referred_by, full_name, email")
     .eq("referral_code", referralCode)
     .maybeSingle();
   return (data as CustomerReferralRow | null) ?? null;
+}
+
+function referralLink(referralCode: string): string {
+  return `${BASE_URL}/checkout?referral=${encodeURIComponent(referralCode)}`;
+}
+
+async function getProfileContact(db: DbClient, profileId: string): Promise<ContactRow | null> {
+  const { data } = await db.from("profiles").select("full_name, email").eq("id", profileId).maybeSingle();
+  return (data as ContactRow | null) ?? null;
+}
+
+async function getCustomerContact(db: DbClient, customerId?: string | null): Promise<ContactRow | null> {
+  if (!customerId) return null;
+  const { data } = await db.from("customers").select("full_name, email").eq("id", customerId).maybeSingle();
+  return (data as ContactRow | null) ?? null;
+}
+
+async function sendSalesRepWelcomeNotification(
+  db: DbClient,
+  params: {
+    salesRepId: string;
+    fullName: string | null;
+    email: string | null;
+    referralCode: string;
+    payoutAmountAgorot: number;
+  },
+): Promise<boolean> {
+  if (!params.email) {
+    await db
+      .from("sales_reps")
+      .update({ welcome_email_error: "missing_email", updated_at: nowIso() })
+      .eq("id", params.salesRepId);
+    return false;
+  }
+
+  const sent = await sendEmail({
+    to: params.email,
+    subject: "You're now a BitLink Sales Rep",
+    html: buildSalesRepWelcomeEmail({
+      fullName: params.fullName ?? "there",
+      referralLink: referralLink(params.referralCode),
+      payoutAmountAgorot: params.payoutAmountAgorot,
+    }),
+  });
+
+  await db
+    .from("sales_reps")
+    .update({
+      welcome_email_sent_at: sent ? nowIso() : null,
+      welcome_email_error: sent ? null : "send_failed",
+      updated_at: nowIso(),
+    })
+    .eq("id", params.salesRepId);
+
+  return sent;
+}
+
+async function sendSalesRepCommissionNotification(
+  db: DbClient,
+  params: {
+    commissionId: string;
+    salesRep: SalesRepRow;
+    referredCustomerId: string;
+    amountAgorot: number;
+  },
+): Promise<boolean> {
+  const [profile, repCustomer, referredCustomer] = await Promise.all([
+    getProfileContact(db, params.salesRep.profile_id),
+    getCustomerContact(db, params.salesRep.customer_id),
+    getCustomerContact(db, params.referredCustomerId),
+  ]);
+
+  const email = profile?.email ?? repCustomer?.email ?? null;
+  if (!email) {
+    await db
+      .from("sales_rep_commissions")
+      .update({ notification_email_error: "missing_email", updated_at: nowIso() })
+      .eq("id", params.commissionId);
+    return false;
+  }
+
+  const sent = await sendEmail({
+    to: email,
+    subject: "New BitLink referral commission",
+    html: buildSalesRepCommissionEmail({
+      fullName: profile?.full_name ?? repCustomer?.full_name ?? "there",
+      referredFullName: referredCustomer?.full_name ?? referredCustomer?.email ?? "Your referral",
+      amountAgorot: params.amountAgorot,
+      accountUrl: `${BASE_URL}/account/referrals`,
+    }),
+  });
+
+  await db
+    .from("sales_rep_commissions")
+    .update({
+      notification_email_sent_at: sent ? nowIso() : null,
+      notification_email_error: sent ? null : "send_failed",
+      updated_at: nowIso(),
+    })
+    .eq("id", params.commissionId);
+
+  return sent;
 }
 
 export async function ensureCustomerReferralCode(db: DbClient, customerId: string): Promise<string | null> {
@@ -89,10 +203,10 @@ export async function makeCustomerSalesRep(
     customerId: string;
     createdBy: string;
   },
-): Promise<{ salesRepId: string | null; error?: string }> {
+): Promise<{ salesRepId: string | null; referralCode?: string; emailSent?: boolean; error?: string }> {
   const { data: customer } = await db
     .from("customers")
-    .select("id, user_id, referral_code")
+    .select("id, user_id, referral_code, full_name, email")
     .eq("id", params.customerId)
     .maybeSingle();
 
@@ -105,6 +219,14 @@ export async function makeCustomerSalesRep(
     normalizeReferralCode(customer.referral_code as string | null) ??
     (await ensureCustomerReferralCode(db, params.customerId)) ??
     generateReferralCode("REP");
+
+  const { data: existingRep } = await db
+    .from("sales_reps")
+    .select("id, status, welcome_email_sent_at")
+    .eq("profile_id", userId)
+    .maybeSingle();
+
+  const shouldSendWelcome = existingRep?.status !== "active" || !existingRep?.welcome_email_sent_at;
 
   const { data, error } = await db
     .from("sales_reps")
@@ -126,15 +248,27 @@ export async function makeCustomerSalesRep(
 
   if (error) return { salesRepId: null, error: error.message };
 
+  const salesRepId = (data?.id as string | undefined) ?? (existingRep?.id as string | undefined) ?? null;
+
   await db.from("audit_logs").insert({
     actor_user_id: params.createdBy,
     action: "sales_rep_enabled",
     entity_type: "customer",
     entity_id: params.customerId,
-    metadata: { salesRepId: data?.id ?? null, referralCode },
+    metadata: { salesRepId, referralCode },
   });
 
-  return { salesRepId: (data?.id as string | undefined) ?? null };
+  const emailSent = salesRepId && shouldSendWelcome
+    ? await sendSalesRepWelcomeNotification(db, {
+        salesRepId,
+        fullName: (customer.full_name as string | null) ?? null,
+        email: (customer.email as string | null) ?? null,
+        referralCode,
+        payoutAmountAgorot: SALES_REP_PAYOUT_AGOROT,
+      })
+    : undefined;
+
+  return { salesRepId, referralCode, emailSent };
 }
 
 export async function recordReferralForLine(
@@ -214,7 +348,7 @@ export async function recordReferralForCustomerLine(
   if (salesRep?.id && referralId) {
     const { data: existingCommission } = await db
       .from("sales_rep_commissions")
-      .select("id")
+      .select("id, notification_email_sent_at")
       .eq("sales_rep_id", salesRep.id)
       .eq("referred_line_id", params.referredLineId)
       .maybeSingle();
@@ -230,17 +364,39 @@ export async function recordReferralForCustomerLine(
           updated_at: activeAt,
         })
         .eq("id", existingCommission.id);
+
+      if (!existingCommission.notification_email_sent_at) {
+        await sendSalesRepCommissionNotification(db, {
+          commissionId: existingCommission.id as string,
+          salesRep,
+          referredCustomerId: params.referredCustomerId,
+          amountAgorot: salesRep.payout_amount_agorot,
+        });
+      }
     } else {
-      await db.from("sales_rep_commissions").insert({
-        sales_rep_id: salesRep.id,
-        referral_id: referralId,
-        referred_customer_id: params.referredCustomerId,
-        referred_line_id: params.referredLineId,
-        amount_agorot: salesRep.payout_amount_agorot,
-        currency: salesRep.currency || SALES_REP_CURRENCY,
-        status: "pending",
-        earned_at: activeAt,
-      });
+      const { data: commission } = await db
+        .from("sales_rep_commissions")
+        .insert({
+          sales_rep_id: salesRep.id,
+          referral_id: referralId,
+          referred_customer_id: params.referredCustomerId,
+          referred_line_id: params.referredLineId,
+          amount_agorot: salesRep.payout_amount_agorot,
+          currency: salesRep.currency || SALES_REP_CURRENCY,
+          status: "pending",
+          earned_at: activeAt,
+        })
+        .select("id")
+        .maybeSingle();
+
+      if (commission?.id) {
+        await sendSalesRepCommissionNotification(db, {
+          commissionId: commission.id as string,
+          salesRep,
+          referredCustomerId: params.referredCustomerId,
+          amountAgorot: salesRep.payout_amount_agorot,
+        });
+      }
     }
   }
 

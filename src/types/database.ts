@@ -138,6 +138,8 @@ export type Database = {
           status: string;
           payout_amount_agorot: number;
           currency: string;
+          welcome_email_sent_at: string | null;
+          welcome_email_error: string | null;
           created_by: string | null;
           created_at: string;
           updated_at: string;
@@ -180,6 +182,8 @@ export type Database = {
           earned_at: string;
           paid_at: string | null;
           payment_id: string | null;
+          notification_email_sent_at: string | null;
+          notification_email_error: string | null;
           notes: string | null;
           created_at: string;
           updated_at: string;

@@ -4,6 +4,23 @@
 const BRAND_COLOR = '#00A3A3';
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bitlink.co.il';
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatIls(amountAgorot: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'ILS',
+    minimumFractionDigits: 2,
+  }).format(amountAgorot / 100);
+}
+
 function layout(body: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -264,6 +281,65 @@ export function buildLineActiveEmail(params: {
     ${p('You can see your line, usage, and billing anytime in your account:')}
     ${btn('Open my account', params.portalUrl)}
     ${p('Questions? Reply to this email or message us on WhatsApp — a real person answers.')}
+  `);
+}
+
+// ── Sales rep notifications ─────────────────────────────────────────────────
+
+export function buildSalesRepWelcomeEmail(params: {
+  fullName: string;
+  referralLink: string;
+  payoutAmountAgorot: number;
+}): string {
+  const firstName = escapeHtml(params.fullName.split(' ')[0] ?? params.fullName);
+  const payout = formatIls(params.payoutAmountAgorot);
+  const referralLink = escapeHtml(params.referralLink);
+
+  return layout(`
+    ${h1(`You're now a BitLink Sales Rep, ${firstName}`)}
+    ${p(`Your BitLink referral link is live. Share it with anyone who needs an Israeli phone plan.`)}
+
+    <div style="background:#f8fafc;border-radius:12px;padding:20px;margin:20px 0;">
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">Your referral link</p>
+      <p style="margin:0;font-size:13px;line-height:1.6;word-break:break-all;color:#050606;">${referralLink}</p>
+    </div>
+
+    ${p(`You earn <strong>${payout}</strong> — 30 shekels — for each qualified referral commission added to your BitLink Sales Rep account.`)}
+    ${p('You will get an email each time a new referral commission is added, including the name of the person you referred.')}
+
+    <div style="text-align:center;margin:28px 0;">
+      ${btn('Share your referral link', params.referralLink)}
+    </div>
+
+    ${p('You can track referrals, commissions, and payments from your BitLink account portal.')}
+  `);
+}
+
+export function buildSalesRepCommissionEmail(params: {
+  fullName: string;
+  referredFullName: string;
+  amountAgorot: number;
+  accountUrl: string;
+}): string {
+  const firstName = escapeHtml(params.fullName.split(' ')[0] ?? params.fullName);
+  const referredFullName = escapeHtml(params.referredFullName);
+  const amount = formatIls(params.amountAgorot);
+
+  return layout(`
+    ${h1(`New referral commission, ${firstName}`)}
+    ${p(`<strong>${referredFullName}</strong> signed up with your BitLink referral link and now has an active line.`)}
+    ${p(`We added <strong>${amount}</strong> to your BitLink Sales Rep balance.`)}
+
+    <div style="background:#ecfeff;border-left:3px solid ${BRAND_COLOR};border-radius:0 12px 12px 0;padding:16px 20px;margin:20px 0;">
+      <p style="margin:0;font-size:14px;color:#0f766e;font-weight:700;">Commission added</p>
+      <p style="margin:6px 0 0;font-size:14px;color:#0f766e;">This commission is now visible on your account under Referrals.</p>
+    </div>
+
+    <div style="text-align:center;margin:28px 0;">
+      ${btn('View referrals', params.accountUrl)}
+    </div>
+
+    ${p('Thanks for sending people to BitLink.')}
   `);
 }
 
