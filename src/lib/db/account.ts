@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getStripe } from "@/lib/stripe/server";
 import { plans } from "@/lib/plans";
 import { REFERRAL_CAP, REFERRAL_BONUS_GB } from "@/lib/referrals";
 
@@ -154,6 +155,25 @@ export async function getAccountSnapshot(userId: string, userEmail?: string | nu
       nextBillingDate: (sub?.current_period_end ?? null) as string | null,
     };
   });
+
+  // The local subscriptions table rarely carries current_period_end — pull the
+  // real renewal date from Stripe (it lives on the subscription ITEM in this
+  // API version). Live fetch keeps it correct across renewals and pauses.
+  const stripeClient = getStripe();
+  if (stripeClient) {
+    await Promise.all(
+      lineBillings.map(async (billing) => {
+        try {
+          const sub = await stripeClient.subscriptions.retrieve(billing.stripeSubscriptionId);
+          const periodEnd = sub.items?.data?.[0]?.current_period_end;
+          if (periodEnd) billing.nextBillingDate = new Date(periodEnd * 1000).toISOString();
+          if (sub.status) billing.subscriptionStatus = sub.status;
+        } catch {
+          // keep whatever the DB had
+        }
+      }),
+    );
+  }
 
   let planName = "No active plan";
   let planSlug: string | null = null;

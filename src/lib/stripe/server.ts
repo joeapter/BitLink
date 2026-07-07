@@ -98,6 +98,9 @@ export async function createCheckoutSession(
     allow_promotion_codes: true,
     billing_address_collection: 'auto',
     phone_number_collection: { enabled: true },
+    // Card-first checkout: Link otherwise takes over the top of the form for
+    // recognized emails. Checkout only supports auto/never — no "second".
+    wallet_options: { link: { display: 'never' } },
     metadata: sharedMetadata,
     subscription_data: {
       metadata: sharedMetadata,

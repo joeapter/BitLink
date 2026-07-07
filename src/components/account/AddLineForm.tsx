@@ -9,6 +9,7 @@ import { Select } from "@/components/ui/Select";
 import { CheckoutSummary } from "@/components/checkout/CheckoutSummary";
 import { EmbeddedStripeCheckout } from "@/components/checkout/EmbeddedStripeCheckout";
 import { EsimCompatibilityModal } from "@/components/checkout/EsimCompatibilityModal";
+import { OrderInfoPanel } from "@/components/checkout/OrderInfoPanel";
 import { PortNumberVerification } from "@/components/checkout/PortNumberVerification";
 
 type SimType = "esim" | "physical";
@@ -113,7 +114,23 @@ export function AddLineForm({
 
   if (clientSecret) {
     return (
-      <div className="mx-auto max-w-3xl">
+      <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+        <div className="grid gap-4">
+          <OrderInfoPanel
+            info={{ fullName: customerName ?? "", email: customerEmail ?? "", phone: "" }}
+            planName={selectedPlan.name}
+            simType={effectiveSimType}
+            portNumber={numberChoice === "port-in" ? verifiedPortNumber : null}
+            hasIntlNumber={wantsIntlNumber}
+          />
+          <CheckoutSummary
+            plan={selectedPlan}
+            isPortIn={numberChoice === "port-in"}
+            feeWaived={feeWaived}
+            hasIntlNumber={wantsIntlNumber}
+            intlIsPortIn={wantsIntlNumber && intlSource === "port"}
+          />
+        </div>
         <EmbeddedStripeCheckout clientSecret={clientSecret} onBack={() => setClientSecret(null)} />
       </div>
     );

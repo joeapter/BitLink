@@ -31,11 +31,9 @@ export function EmbeddedStripeCheckout({
           Back to order details
         </button>
       ) : null}
-      <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-soft">
-        <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
-          <EmbeddedCheckout />
-        </EmbeddedCheckoutProvider>
-      </div>
+      <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
+        <EmbeddedCheckout />
+      </EmbeddedCheckoutProvider>
     </div>
   );
 }

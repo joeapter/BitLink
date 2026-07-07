@@ -9,6 +9,7 @@ import { Select } from "@/components/ui/Select";
 import { CheckoutSummary } from "./CheckoutSummary";
 import { EmbeddedStripeCheckout } from "./EmbeddedStripeCheckout";
 import { EsimCompatibilityModal } from "./EsimCompatibilityModal";
+import { OrderInfoPanel } from "./OrderInfoPanel";
 import { PortNumberVerification } from "./PortNumberVerification";
 
 type SimType = "esim" | "physical";
@@ -28,6 +29,7 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
   const [feeWaived, setFeeWaived] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [verifiedPortNumber, setVerifiedPortNumber] = useState<string | null>(null);
+  const [orderInfo, setOrderInfo] = useState<{ fullName: string; email: string; phone: string } | null>(null);
 
   useEffect(() => {
     const check = () => {
@@ -107,6 +109,11 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
 
     // Embedded checkout keeps payment on-site; hosted URL is the fallback.
     if (payload.clientSecret) {
+      setOrderInfo({
+        fullName: String(formData.get("fullName") ?? ""),
+        email: String(formData.get("email") ?? ""),
+        phone: String(formData.get("phone") ?? ""),
+      });
       setClientSecret(payload.clientSecret);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
@@ -116,7 +123,23 @@ export function CheckoutForm({ initialPlanSlug }: { initialPlanSlug: PlanSlug })
 
   if (clientSecret) {
     return (
-      <div className="mx-auto max-w-3xl">
+      <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+        <div className="grid gap-4">
+          <OrderInfoPanel
+            info={orderInfo}
+            planName={selectedPlan.name}
+            simType={effectiveSimType}
+            portNumber={numberChoice === "port-in" ? verifiedPortNumber : null}
+            hasIntlNumber={wantsIntlNumber}
+          />
+          <CheckoutSummary
+            plan={selectedPlan}
+            isPortIn={numberChoice === "port-in"}
+            feeWaived={feeWaived}
+            hasIntlNumber={wantsIntlNumber}
+            intlIsPortIn={wantsIntlNumber && intlSource === "port"}
+          />
+        </div>
         <EmbeddedStripeCheckout clientSecret={clientSecret} onBack={() => setClientSecret(null)} />
       </div>
     );

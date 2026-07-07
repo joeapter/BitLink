@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ButtonLink } from "@/components/ui/Button";
@@ -20,6 +21,14 @@ const links = [
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const pathname = usePathname();
+
+  // Close the overlay on ANY navigation — this component lives in the root
+  // layout, so it survives route changes; without this, tapping the bottom
+  // buttons (Sign in / Choose plan) navigated underneath a still-open menu.
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (!hasSupabasePublicEnv()) return;
@@ -80,7 +89,7 @@ export function MobileNav() {
               ))}
             </nav>
 
-            <div className="relative z-10 mt-auto grid gap-3 pt-10">
+            <div className="relative z-10 mt-auto grid gap-3 pt-10" onClickCapture={() => setOpen(false)}>
               <ButtonLink href="/plans" size="lg">
                 Choose your plan
               </ButtonLink>

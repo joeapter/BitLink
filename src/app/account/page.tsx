@@ -14,9 +14,14 @@ export const metadata: Metadata = {
 export default async function AccountPage() {
   const user = await requireUser();
   const snapshot = await getAccountSnapshot(user.id, user.email);
-  const nextBillingDate = snapshot.subscription?.current_period_end
-    ? new Date(snapshot.subscription.current_period_end).toLocaleDateString()
-    : null;
+  // Prefer the live Stripe renewal date (enriched onto lineBillings); the
+  // local subscription row rarely carries current_period_end.
+  const earliestBillingIso = snapshot.lineBillings
+    .map((b) => b.nextBillingDate)
+    .filter((d): d is string => Boolean(d))
+    .sort()[0];
+  const nextBillingIso = snapshot.subscription?.current_period_end ?? earliestBillingIso ?? null;
+  const nextBillingDate = nextBillingIso ? new Date(nextBillingIso).toLocaleDateString() : null;
   const referralLink = snapshot.customer?.referral_code
     ? `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://bitlink.co.il"}/signup?referral=${snapshot.customer.referral_code}`
     : null;
