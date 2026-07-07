@@ -191,27 +191,10 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
     // resolvedIccId now held in local scope; propagated to completeJob via createLine result
   }
 
-  // Annatel requires a DID in the create request for port-in orders — the line
-  // starts on a technical number that the ported number later replaces.
-  let prePickedDid = payload.phoneNumber;
-  if (payload.portInParams && !prePickedDid) {
-    prePickedDid = (await provider.getAvailableDid(await collectUsedNumbers(admin))) ?? undefined;
-    if (!prePickedDid) {
-      const errMsg = 'No available DID for the port-in technical number';
-      const failed = transition(submitted, 'FAILED', { error: errMsg });
-      await jobsRepo.updateJob(admin, job.id, {
-        status: 'failed',
-        status_transitions: failed.status_transitions,
-        updated_at: failed.updated_at,
-        error: errMsg,
-      });
-      if (job.line_id) {
-        await applyLineTransition(admin, job.line_id, 'FAILED', { jobId: job.id, error: errMsg });
-      }
-      await notifyAdminOfJobFailure(job, errMsg);
-      return { status: 'FAILED', error: errMsg };
-    }
-  }
+  // Annatel confirmed Jul 7 2026: a create request is either a port-in or a
+  // DID assignment, never both. For port-in creates, put the ported number only
+  // in port_in_request_params.number and omit dids entirely.
+  const createPhoneNumber = payload.portInParams ? undefined : payload.phoneNumber;
 
   let result;
   try {
@@ -227,7 +210,7 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
           payload.identityNumber ??
           process.env.ANNATEL_DEFAULT_IDENTITY_NUMBER?.trim() ??
           '341280188',
-        phoneNumber: prePickedDid,
+        phoneNumber: createPhoneNumber,
         portInParams: payload.portInParams,
         metadata: payload.metadata,
       }),
@@ -258,11 +241,11 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
     if (result.providerLineId) {
       lineUpdates.provider_line_id = result.providerLineId;
     }
-    if (prePickedDid) {
+    if (createPhoneNumber) {
       // DID went out in the create request — record it now so completeJob
       // (which may run in a later invocation) knows not to assign another.
       const existingMeta = ((await linesRepo.getLine(admin, job.line_id))?.metadata ?? {}) as Record<string, unknown>;
-      lineUpdates.metadata = { ...existingMeta, phone_number: prePickedDid };
+      lineUpdates.metadata = { ...existingMeta, phone_number: createPhoneNumber };
     }
     await linesRepo.updateLine(admin, job.line_id, lineUpdates);
     await applyLineTransition(admin, job.line_id, 'PROVISIONING', { jobId: job.id });
@@ -314,7 +297,14 @@ async function completeJob(
   if (providerLineId) {
     try {
       const currentMeta = ((await linesRepo.getLine(admin, lineId))?.metadata ?? {}) as Record<string, unknown>;
-      if (currentMeta.phone_number) {
+      const portInParams = payload.portInParams as { number?: string } | undefined;
+      if (portInParams) {
+        lineUpdates.metadata = {
+          ...currentMeta,
+          pending_port_in_number: portInParams.number ?? currentMeta.pending_port_in_number,
+        };
+        log.info({ jobId: job.id, lineId, number: portInParams.number }, 'Port-in line — skipping DID auto-assign');
+      } else if (currentMeta.phone_number) {
         // A DID already went out with the create request (port-in technical
         // number) — assigning another would double-book inventory.
         log.info({ jobId: job.id, lineId, did: currentMeta.phone_number }, 'Line already has a number — skipping DID auto-assign');
