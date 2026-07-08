@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ButtonLink } from "@/components/ui/Button";
 import { TextWithLinks } from "@/components/ui/TextWithLinks";
+import { DeviceCompatibilityChecker } from "@/components/guides/DeviceCompatibilityChecker";
 import { getGuide, guides } from "@/lib/guides";
 import {
   breadcrumbJsonLd,
@@ -57,7 +58,10 @@ function guideJsonLd(guide: NonNullable<ReturnType<typeof getGuide>>) {
           "@id": organizationId,
         },
         articleBody: stripInlineLinks(
-          [guide.intro, ...guide.sections.flatMap((section) => section.paragraphs)].join("\n\n"),
+          [
+            guide.intro,
+            ...guide.sections.flatMap((section) => [...section.paragraphs, ...(section.steps ?? [])]),
+          ].join("\n\n"),
         ),
       },
     ],
@@ -108,8 +112,51 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
                   <TextWithLinks text={paragraph} />
                 </p>
               ))}
+              {section.steps?.length ? (
+                <ol className="mt-4 grid gap-3">
+                  {section.steps.map((step, index) => (
+                    <li key={index} className="flex gap-3 text-base leading-7 text-muted-slate">
+                      <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-ink text-xs font-semibold text-white">
+                        {index + 1}
+                      </span>
+                      <span className="min-w-0">
+                        <TextWithLinks text={step} />
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
             </section>
           ))}
+
+          {guide.deviceCompatibility ? (
+            <section className="mb-12">
+              <h2 className="text-balance text-2xl font-semibold tracking-normal text-ink sm:text-3xl">
+                Phones that support eSIM
+              </h2>
+              <div className="mt-5 overflow-hidden rounded-xl border border-ink/10">
+                <table className="w-full text-left text-sm">
+                  <tbody className="divide-y divide-ink/8">
+                    {guide.deviceCompatibility.groups.map((group) => (
+                      <tr key={group.brand} className="align-top">
+                        <th scope="row" className="w-40 bg-[#f8fbfc] p-4 font-semibold text-ink">
+                          {group.brand}
+                        </th>
+                        <td className="p-4 text-muted-slate">
+                          <p className="leading-6 text-ink">{group.models}</p>
+                          {group.caveat ? <p className="mt-1.5 text-xs leading-5 text-slate-500">{group.caveat}</p> : null}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-3 text-xs text-slate-400">{guide.deviceCompatibility.updatedNote}</p>
+              <div className="mt-6">
+                <DeviceCompatibilityChecker />
+              </div>
+            </section>
+          ) : null}
 
           <section className="mb-12 rounded-lg border border-ink/10 bg-[#f8fbfc] p-7 sm:p-8">
             <h2 className="text-2xl font-semibold tracking-normal text-ink">Quick answers</h2>

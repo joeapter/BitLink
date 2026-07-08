@@ -10,6 +10,8 @@ export type Guide = {
   sections: Array<{
     heading: string;
     paragraphs: string[];
+    // Optional ordered list rendered under the paragraphs (e.g. install steps).
+    steps?: string[];
   }>;
   faq: Array<{
     question: string;
@@ -19,6 +21,16 @@ export type Guide = {
     href: string;
     label: string;
   }>;
+  // Opt-in device compatibility block: a table plus the "confirm my model"
+  // widget. Only the eSIM guide uses it.
+  deviceCompatibility?: {
+    updatedNote: string;
+    groups: Array<{
+      brand: string;
+      models: string;
+      caveat?: string;
+    }>;
+  };
 };
 
 export const guides: Guide[] = [
@@ -146,6 +158,178 @@ export const guides: Guide[] = [
       { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
       { href: "/israel-esim", label: "Israel eSIM" },
       { href: "/keep-your-number", label: "Porting your number" },
+    ],
+  },
+  {
+    slug: "esim-israel",
+    title: "How to set up an eSIM in Israel",
+    metaTitle: "How to Set Up an eSIM in Israel — iPhone, Samsung & Pixel",
+    metaDescription:
+      "A clear guide to eSIM in Israel: how it works, how long activation takes, which phones support eSIM, and step-by-step install for iPhone, Samsung Galaxy, and Google Pixel.",
+    datePublished: "2026-07-08",
+    dateModified: "2026-07-08",
+    readingTime: "8 min read",
+    intro:
+      "An eSIM is a digital SIM card built into your phone — instead of inserting a plastic card, you activate service by scanning a QR code. For anyone coming to Israel, moving here, learning here, or switching Israeli providers, it means getting connected without shipping, store visits, or a tiny card to lose. This guide covers how eSIM works, how long it takes, which phones support it, and exactly how to install one on an iPhone, Samsung Galaxy, or Google Pixel.",
+    sections: [
+      {
+        heading: "What is an eSIM?",
+        paragraphs: [
+          "An eSIM does the same job as a regular SIM card — it tells the mobile network who you are, what plan you have, and which number is yours — but it's built into the device instead of being a plastic chip you slot in. Your phone downloads a secure \"SIM profile\" from your provider, and once it's installed, the phone connects to the network exactly as it would with a physical card.",
+          "In short: a physical SIM is a card you insert; an eSIM is a digital profile you download. The phone service works identically — only the way it gets onto your device changes.",
+        ],
+      },
+      {
+        heading: "How eSIM activation works with BitLink",
+        paragraphs: [
+          "The whole flow is built to be simple. You [choose a plan](/plans), pay through secure checkout, and BitLink provisions your Israeli line. The eSIM activation QR code is then emailed to you — usually within a few minutes of payment — and you scan it straight from your phone's settings. No waiting for a card to ship, no store visit.",
+          "Because activation is digital, you can do it from anywhere. Many people set their Israeli line up from home before they fly, so their phone is already connected the moment they land. If your device doesn't support eSIM, the same plans ship as a physical SIM instead — nothing about pricing or data changes.",
+        ],
+      },
+      {
+        heading: "How long does activation take?",
+        paragraphs: [
+          "The eSIM install itself is quick — scanning the QR code and downloading the profile usually takes only a few minutes. The overall timing depends on the type of order:",
+        ],
+        steps: [
+          "New Israeli number — the fastest path. Once your order is processed and the eSIM is ready, install is normally just a few minutes.",
+          "Porting an Israeli number — [transferring your existing number](/keep-your-number) generally completes within 5 to 10 minutes, since both carriers run on Israeli infrastructure. Keep your old SIM active until the transfer finishes.",
+          "Porting a US, UK, or Canadian number — this involves coordination with your carrier abroad and takes up to 3 business days. Your old number keeps working the whole time.",
+          "Second line — many people keep their home number active and add an Israeli eSIM alongside it. This is one of eSIM's most useful features.",
+        ],
+      },
+      {
+        heading: "Travel eSIM vs. a real Israeli plan",
+        paragraphs: [
+          "Not every eSIM is the same. Many travel eSIMs are data-only: they give you internet, but no Israeli phone number, calls, or SMS. That matters in Israel, where a real number is what banks, delivery apps, Bit, Pango, appointment systems, and WhatsApp all verify against.",
+          "If you only need data for a short trip, a travel eSIM may be enough. If you need actual Israeli phone service — a number people can call and text, that receives verification codes — a full mobile plan is the better fit. The [Israel eSIM page](/israel-esim) has a side-by-side comparison of exactly what each one can and can't do.",
+        ],
+      },
+      {
+        heading: "Does my phone support eSIM?",
+        paragraphs: [
+          "Most newer premium phones support eSIM, but not all do. Before ordering, check three things: your phone must support eSIM (look for an EID number or an \"Add eSIM\" option in settings), it should be unlocked (phones locked to a foreign carrier may reject another provider's eSIM), and its software should be up to date. The list below covers the most common compatible models — and if you're unsure, we'll confirm your exact model before you order.",
+        ],
+      },
+      {
+        heading: "Installing an eSIM on iPhone",
+        paragraphs: ["The wording shifts slightly by iOS version, but the flow is:"],
+        steps: [
+          "Connect your iPhone to Wi-Fi.",
+          "Open Settings → Cellular (or Mobile Service).",
+          "Tap Add eSIM, then Use QR Code.",
+          "Scan the QR code from your BitLink email.",
+          "Follow the prompts, then label the line \"BitLink\" or \"Israel.\"",
+          "Choose which line handles calls, SMS, and mobile data.",
+        ],
+      },
+      {
+        heading: "Installing an eSIM on Samsung Galaxy",
+        paragraphs: ["On most recent Galaxy phones:"],
+        steps: [
+          "Connect to Wi-Fi.",
+          "Open Settings → Connections → SIM Manager.",
+          "Tap Add eSIM.",
+          "Scan your BitLink QR code and follow the prompts.",
+          "Choose which SIM handles calls, messages, and data.",
+        ],
+      },
+      {
+        heading: "Installing an eSIM on Google Pixel",
+        paragraphs: ["On most recent Pixel phones:"],
+        steps: [
+          "Connect to Wi-Fi.",
+          "Open Settings → Network & internet → SIMs.",
+          "Tap Add SIM, then choose the eSIM setup option.",
+          "Scan your QR code and follow the on-screen steps.",
+          "Set your preferred SIM for data, calls, and texts.",
+        ],
+      },
+      {
+        heading: "Keeping your home number and adding an Israeli eSIM",
+        paragraphs: [
+          "Most modern phones support Dual SIM — running two lines at once, typically one physical SIM plus one eSIM, or two eSIMs. That lets you keep your US, UK, or Canadian number active while adding a BitLink Israeli line: set mobile data to the Israeli eSIM, and keep the home line available for calls, iMessage, WhatsApp, or verification codes.",
+          "One tip: if you keep your foreign line active, turn off data roaming on it so you don't get surprise charges. If people back home need an easy way to reach you, a [US, Canadian, or UK number add-on](/us-number-in-israel) gives them a local number that rings your Israeli phone.",
+        ],
+      },
+      {
+        heading: "Common eSIM problems and quick fixes",
+        paragraphs: [
+          "QR code not working — make sure you're on Wi-Fi, the camera can read the code clearly, and the code hasn't already been used (most are one-time). \"This eSIM cannot be added\" usually means the phone is locked, the code was already used, or the device doesn't support eSIM.",
+          "Installed but no data — check the eSIM line is switched on, then confirm mobile data is assigned to the right line. Calls work but no internet, or data works but no calls, almost always comes down to which line your phone is set to use for each. If anything's stuck, [message support on WhatsApp](/support) with your model and what you're seeing.",
+        ],
+      },
+      {
+        heading: "Before you erase your old phone",
+        paragraphs: [
+          "If you're switching phones or porting a number, don't wipe or reset the old device until the new line is fully working. Test mobile data, incoming and outgoing calls, SMS if your plan includes it, and WhatsApp and any bank or verification apps. Keep the old phone nearby until everything checks out — an eSIM has no card to move back, so a fresh profile may be needed if something goes wrong.",
+        ],
+      },
+    ],
+    deviceCompatibility: {
+      updatedNote: "Compatible models as of July 2026. Some regional variants differ — send us your exact model and we'll confirm.",
+      groups: [
+        {
+          brand: "Apple iPhone",
+          models:
+            "iPhone XS, XS Max, and XR and all newer — 11, 12, 13, 14, 15, and 16 series, plus iPhone SE (2020) and SE (2022).",
+          caveat: "iPhones bought in mainland China have no eSIM. US iPhone 14 and newer are eSIM-only (no physical tray).",
+        },
+        {
+          brand: "Samsung Galaxy",
+          models:
+            "Galaxy S20 and newer (S20–S24 series), Note 20, every Z Flip and Z Fold, and select A-series such as A54 and A55.",
+          caveat: "A few regional variants ship without eSIM — worth confirming your exact model.",
+        },
+        {
+          brand: "Google Pixel",
+          models: "Pixel 3 and newer — 3, 3a, 4, 4a, 5, 6, 7, 8, and 9 series (standard and Pro).",
+          caveat: "Pixel 3 from some carriers or regions lacks eSIM.",
+        },
+        {
+          brand: "Other brands",
+          models:
+            "Motorola Razr (2019+), recent Sony Xperia, Oppo Find, Rakuten, and many other recent flagships increasingly support eSIM.",
+          caveat: "Support varies by exact model and region — send us your model and we'll confirm.",
+        },
+      ],
+    },
+    faq: [
+      {
+        question: "What is the best eSIM for Israel?",
+        answer:
+          "It depends what you need. For short-term data only, a travel data eSIM may be enough. If you need a real Israeli number, calls, SMS, and local support — for banks, deliveries, apps, and everyday life — a full Israeli mobile plan is the better choice. BitLink plans start at $14.99/month and every one includes a real Israeli number.",
+      },
+      {
+        question: "Can I get an Israeli phone number with an eSIM?",
+        answer:
+          "Yes — every BitLink plan includes a real Israeli number, delivered by eSIM on compatible devices. Just note that many travel eSIMs are data-only, so always check whether a plan actually includes a number, calls, and SMS.",
+      },
+      {
+        question: "Can I install the eSIM before I arrive in Israel?",
+        answer:
+          "Usually yes. Once BitLink has issued your eSIM and your phone has Wi-Fi, you can install it from anywhere — many people set it up before travelling so their Israeli line is live the moment they land.",
+      },
+      {
+        question: "Can I keep my American number and use an Israeli eSIM?",
+        answer:
+          "In most cases, yes. Modern dual-SIM phones let you keep your American line active while adding an Israeli eSIM — use the Israeli line for local data and calls, and keep the American number available for texts, iMessage, WhatsApp, or verification codes.",
+      },
+      {
+        question: "Do I need Wi-Fi to install an eSIM?",
+        answer:
+          "Usually, yes — your phone needs an internet connection to download the eSIM profile, and Wi-Fi is the easiest way. That's why it's simplest to install before you leave, or on hotel/airport Wi-Fi when you arrive.",
+      },
+      {
+        question: "What if my phone doesn't support eSIM?",
+        answer:
+          "Then you'll want a physical SIM instead — BitLink ships the same plans as a physical SIM with no change to pricing or data. If you're not sure whether your phone supports eSIM, tell us your model and we'll confirm before you order.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/israel-esim", label: "Israel eSIM plans" },
+      { href: "/keep-your-number", label: "Keep your number" },
+      { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
     ],
   },
 ];
