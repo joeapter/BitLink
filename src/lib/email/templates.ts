@@ -284,6 +284,38 @@ export function buildLineActiveEmail(params: {
   `);
 }
 
+// ── Admin-created customer login ─────────────────────────────────────────────
+
+export function buildCustomerLoginCreatedEmail(params: {
+  fullName: string;
+  email: string;
+  password: string;
+  loginUrl: string;
+}): string {
+  const fullName = escapeHtml(params.fullName || 'there');
+  const firstName = fullName.split(' ')[0] ?? fullName;
+  const email = escapeHtml(params.email);
+  const password = escapeHtml(params.password);
+
+  return layout(`
+    ${h1(`Your BitLink account is ready, ${firstName}`)}
+    ${p('We created your BitLink login so you can manage your lines, activation details, referrals, and billing anytime.')}
+
+    <div style="background:#f8fafc;border-radius:12px;padding:20px;margin:20px 0;">
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">Login details</p>
+      <p style="margin:0 0 8px;font-size:14px;color:#050606;">Email: ${mono(email)}</p>
+      <p style="margin:0;font-size:14px;color:#050606;">Password: ${mono(password)}</p>
+    </div>
+
+    <div style="text-align:center;margin:28px 0;">
+      ${btn('Log in to BitLink', params.loginUrl)}
+    </div>
+
+    ${p('For security, you can change this password anytime by using the forgot-password link on the login page.')}
+    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972587939426" style="color:' + BRAND_COLOR + ';">+972-58-793-9426</a>.')}
+  `);
+}
+
 // ── Sales rep notifications ─────────────────────────────────────────────────
 
 export function buildSalesRepWelcomeEmail(params: {

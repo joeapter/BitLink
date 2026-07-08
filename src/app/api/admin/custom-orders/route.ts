@@ -5,6 +5,8 @@ import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { absoluteUrl, normalizeIsraeliMobile } from '@/lib/utils';
 import { generateReferralCode } from '@/lib/referrals';
 import { getPlan, type PlanSlug } from '@/lib/plans';
+import { sendEmail } from '@/lib/email/send';
+import { buildCustomerLoginCreatedEmail } from '@/lib/email/templates';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -31,6 +33,7 @@ const bodySchema = z.object({
     fullName: z.string().trim().min(2).optional(),
     email: z.string().trim().email().optional(),
     phone: z.string().trim().optional(),
+    accountPassword: z.string().min(8).max(128).optional(),
   }),
   note: z.string().trim().max(1000).optional(),
   lines: z.array(lineSchema).min(1).max(20),
@@ -38,6 +41,47 @@ const bodySchema = z.object({
 
 function buildToken() {
   return crypto.randomUUID().replaceAll('-', '').slice(0, 24);
+}
+
+async function findAuthUserByEmail(
+  admin: NonNullable<ReturnType<typeof createSupabaseAdminClient>>,
+  email: string,
+) {
+  const { data, error } = await admin.auth.admin.listUsers();
+  if (error) throw error;
+  return data.users.find((user) => user.email?.toLowerCase() === email.toLowerCase()) ?? null;
+}
+
+async function upsertCustomerProfile(
+  admin: NonNullable<ReturnType<typeof createSupabaseAdminClient>>,
+  params: { userId: string; fullName: string | null; email: string; phone: string | null },
+) {
+  const { data: existingProfile } = await admin
+    .from('profiles')
+    .select('id')
+    .eq('id', params.userId)
+    .maybeSingle();
+
+  if (existingProfile?.id) {
+    await admin
+      .from('profiles')
+      .update({
+        full_name: params.fullName,
+        email: params.email,
+        phone: params.phone,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', params.userId);
+    return;
+  }
+
+  await admin.from('profiles').insert({
+    id: params.userId,
+    full_name: params.fullName,
+    email: params.email,
+    phone: params.phone,
+    role: 'customer',
+  });
 }
 
 export async function POST(request: NextRequest): Promise<Response> {
@@ -65,6 +109,9 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 
   let customerId = parsed.data.customer.id ?? null;
+  let loginEmailSent: boolean | null = null;
+  let loginEmailWarning: string | null = null;
+
   if (customerId) {
     const { data: customer, error } = await admin
       .from('customers')
@@ -80,19 +127,67 @@ export async function POST(request: NextRequest): Promise<Response> {
       return NextResponse.json({ error: 'Enter an email for the new customer.' }, { status: 400 });
     }
 
+    const accountPassword = parsed.data.customer.accountPassword ?? '';
+    if (accountPassword.length < 8) {
+      return NextResponse.json({ error: 'Enter a login password with at least 8 characters.' }, { status: 400 });
+    }
+
+    const fullName = parsed.data.customer.fullName ?? null;
+    const phone = parsed.data.customer.phone ?? null;
     const { data: existing } = await admin
       .from('customers')
-      .select('id')
+      .select('id, user_id')
       .ilike('email', email)
       .maybeSingle();
+
+    let userId = (existing?.user_id as string | null | undefined) ?? null;
+    let createdLogin = false;
+    if (!userId) {
+      let existingAuthUserId: string | null = null;
+      try {
+        existingAuthUserId = (await findAuthUserByEmail(admin, email))?.id ?? null;
+      } catch {
+        return NextResponse.json({ error: 'Could not check existing login accounts.' }, { status: 503 });
+      }
+
+      if (existingAuthUserId) {
+        userId = existingAuthUserId;
+        loginEmailWarning = 'This email already had a login account, so the password was not changed or emailed.';
+      } else {
+        const { data: newUser, error: createUserError } = await admin.auth.admin.createUser({
+          email,
+          password: accountPassword,
+          email_confirm: true,
+          user_metadata: {
+            full_name: fullName,
+            phone,
+            source: 'admin_custom_order',
+          },
+        });
+
+        if (createUserError || !newUser.user) {
+          return NextResponse.json({ error: createUserError?.message ?? 'Could not create the customer login.' }, { status: 503 });
+        }
+
+        userId = newUser.user.id;
+        createdLogin = true;
+      }
+
+      if (userId) {
+        await upsertCustomerProfile(admin, { userId, fullName, email, phone });
+      }
+    } else {
+      loginEmailWarning = 'This email already had a BitLink login, so the password was not changed or emailed.';
+    }
 
     if (existing?.id) {
       customerId = existing.id as string;
       await admin
         .from('customers')
         .update({
-          full_name: parsed.data.customer.fullName ?? null,
-          phone: parsed.data.customer.phone ?? null,
+          user_id: userId ?? existing.user_id ?? null,
+          full_name: fullName,
+          phone,
           updated_at: new Date().toISOString(),
         })
         .eq('id', customerId);
@@ -100,9 +195,10 @@ export async function POST(request: NextRequest): Promise<Response> {
       const { data: created, error } = await admin
         .from('customers')
         .insert({
-          full_name: parsed.data.customer.fullName ?? null,
+          user_id: userId,
+          full_name: fullName,
           email,
-          phone: parsed.data.customer.phone ?? null,
+          phone,
           referral_code: generateReferralCode(),
         })
         .select('id')
@@ -112,6 +208,22 @@ export async function POST(request: NextRequest): Promise<Response> {
         return NextResponse.json({ error: 'Could not create the customer.' }, { status: 503 });
       }
       customerId = created.id as string;
+    }
+
+    if (createdLogin) {
+      loginEmailSent = await sendEmail({
+        to: email,
+        subject: 'Your BitLink login details',
+        html: buildCustomerLoginCreatedEmail({
+          fullName: fullName ?? 'there',
+          email,
+          password: accountPassword,
+          loginUrl: absoluteUrl(`/login?email=${encodeURIComponent(email)}`),
+        }),
+      });
+      if (!loginEmailSent) {
+        loginEmailWarning = 'The customer login was created, but the credentials email could not be sent.';
+      }
     }
   }
 
@@ -185,6 +297,8 @@ export async function POST(request: NextRequest): Promise<Response> {
       id: order.id,
       token: order.token,
       url: absoluteUrl(`/pay/${order.token}`),
+      loginEmailSent,
+      loginEmailWarning,
     });
   } catch (err) {
     return NextResponse.json(

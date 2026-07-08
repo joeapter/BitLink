@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Copy, Loader2, Plus, Trash2 } from "lucide-react";
+import { Copy, KeyRound, Loader2, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -61,6 +61,13 @@ function lineLabel(line: BuilderLine) {
   return parts.join(" - ");
 }
 
+function generateCustomerPassword() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
+  const values = new Uint32Array(14);
+  crypto.getRandomValues(values);
+  return Array.from(values, (value) => chars[value % chars.length]).join("");
+}
+
 export function CustomOrderBuilder({
   customers,
   initialCustomerId,
@@ -73,17 +80,20 @@ export function CustomOrderBuilder({
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [accountPassword, setAccountPassword] = useState("");
   const [note, setNote] = useState("");
   const [lines, setLines] = useState<BuilderLine[]>([newLine()]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdUrl, setCreatedUrl] = useState<string | null>(null);
+  const [loginEmailNotice, setLoginEmailNotice] = useState<{ tone: "success" | "warning"; message: string } | null>(null);
 
   const selectedCustomer = customers.find((customer) => customer.id === customerId);
   const total = useMemo(
     () => lines.reduce((sum, line) => sum + dollarsToCents(line.customPrice), 0),
     [lines],
   );
+  const newCustomerIncomplete = customerMode === "new" && (!email.trim() || accountPassword.length < 8);
 
   function updateLine(id: string, patch: Partial<BuilderLine>) {
     setLines((current) =>
@@ -104,6 +114,7 @@ export function CustomOrderBuilder({
     setBusy(true);
     setError(null);
     setCreatedUrl(null);
+    setLoginEmailNotice(null);
 
     const response = await fetch("/api/admin/custom-orders", {
       method: "POST",
@@ -111,7 +122,7 @@ export function CustomOrderBuilder({
       body: JSON.stringify({
         customer: customerMode === "existing"
           ? { id: customerId }
-          : { fullName, email, phone },
+          : { fullName, email, phone, accountPassword },
         note,
         lines: lines.map((line) => ({
           planSlug: line.planSlug,
@@ -127,7 +138,12 @@ export function CustomOrderBuilder({
       }),
     });
 
-    const payload = (await response.json()) as { url?: string; error?: string };
+    const payload = (await response.json()) as {
+      url?: string;
+      error?: string;
+      loginEmailSent?: boolean | null;
+      loginEmailWarning?: string | null;
+    };
     setBusy(false);
 
     if (!response.ok || !payload.url) {
@@ -136,6 +152,11 @@ export function CustomOrderBuilder({
     }
 
     setCreatedUrl(payload.url);
+    if (payload.loginEmailWarning) {
+      setLoginEmailNotice({ tone: "warning", message: payload.loginEmailWarning });
+    } else if (payload.loginEmailSent) {
+      setLoginEmailNotice({ tone: "success", message: "Login email sent with the customer's BitLink account details." });
+    }
   }
 
   async function copyLink() {
@@ -185,10 +206,30 @@ export function CustomOrderBuilder({
               ))}
             </Select>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <Input label="Full name" value={fullName} onChange={(event) => setFullName(event.target.value)} />
               <Input label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
               <Input label="Phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} />
+              <div className="grid gap-2">
+                <Input
+                  label="Create password"
+                  type="text"
+                  autoComplete="new-password"
+                  value={accountPassword}
+                  onChange={(event) => setAccountPassword(event.target.value)}
+                  placeholder="8+ characters"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="justify-self-start"
+                  onClick={() => setAccountPassword(generateCustomerPassword())}
+                >
+                  <KeyRound className="h-4 w-4" aria-hidden="true" />
+                  Generate
+                </Button>
+              </div>
             </div>
           )}
           <Input label="Internal note" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional" />
@@ -328,6 +369,17 @@ export function CustomOrderBuilder({
         {createdUrl ? (
           <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
             <p className="text-sm font-semibold text-emerald-800">Payment link created</p>
+            {loginEmailNotice ? (
+              <p
+                className={`mt-2 rounded-xl px-3 py-2 text-xs font-semibold ${
+                  loginEmailNotice.tone === "warning"
+                    ? "bg-amber-50 text-amber-800"
+                    : "bg-white/70 text-emerald-800"
+                }`}
+              >
+                {loginEmailNotice.message}
+              </p>
+            ) : null}
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <a href={createdUrl} className="break-all font-mono text-xs text-emerald-900 hover:underline" target="_blank" rel="noreferrer">
                 {createdUrl}
@@ -349,7 +401,7 @@ export function CustomOrderBuilder({
             <Plus className="h-4 w-4" aria-hidden="true" />
             Add another line
           </Button>
-          <Button type="button" onClick={createOrder} disabled={busy || (customerMode === "existing" && !customerId)}>
+          <Button type="button" onClick={createOrder} disabled={busy || (customerMode === "existing" && !customerId) || newCustomerIncomplete}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
             Create payment link
           </Button>
