@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { EmbeddedStripeCheckout } from "@/components/checkout/EmbeddedStripeCheckout";
 import { PortNumberVerification } from "@/components/checkout/PortNumberVerification";
-import { formatMoney } from "@/lib/utils";
+import { formatMoney, normalizeIsraeliMobile } from "@/lib/utils";
 import { getPlan, type PlanSlug } from "@/lib/plans";
 
 type PayLine = {
@@ -25,13 +25,20 @@ function lineDescription(line: PayLine) {
   const plan = getPlan(line.planSlug);
   const items = [
     line.isEsim ? "eSIM" : "Physical SIM",
-    line.isPortIn && line.portNumber ? `Port ${line.portNumber}` : "New Israeli number",
+    line.isPortIn && line.portNumber ? `Port ${formatIsraeliPortDisplay(line.portNumber)}` : "New Israeli number",
   ];
   if (line.wantsIntlNumber) {
     const country = (line.intlCountry ?? "us").toUpperCase();
     items.push(line.intlSource === "port" ? `${country} number port` : `${country} number`);
   }
   return `${plan.name} - ${items.join(" - ")}`;
+}
+
+function formatIsraeliPortDisplay(value: string) {
+  const normalized = normalizeIsraeliMobile(value);
+  if (!normalized) return value;
+  const local = `0${normalized.slice(4)}`;
+  return `${local.slice(0, 3)}-${local.slice(3, 6)}-${local.slice(6)}`;
 }
 
 export function CustomOrderPayClient({

@@ -18,10 +18,15 @@ function digitsOnly(value: string): string {
   return value.replace(/\D/g, "");
 }
 
-// Accepts "0587939426" or "587939426" — the leading 0 is stripped in code.
+// Accepts "+972587939426", "972587939426", "0587939426", or "587939426".
+// The field itself shows the local 9 digits because the UI renders +972
+// separately as a fixed prefix.
 function toLocalDigits(value: string): string {
-  const digits = digitsOnly(value);
-  return digits.startsWith("0") ? digits.slice(1) : digits;
+  let digits = digitsOnly(value);
+  if (digits.startsWith("00972")) digits = digits.slice(2);
+  if (digits.startsWith("9725")) return digits.slice(3);
+  if (digits.startsWith("05")) return digits.slice(1);
+  return digits;
 }
 
 export function PortNumberVerification({
