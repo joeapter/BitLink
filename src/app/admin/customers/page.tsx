@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Input } from "@/components/ui/Input";
@@ -56,7 +57,7 @@ export default async function AdminCustomersPage({
       <section className="overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-soft">
         {customers.length ? (
           <div className="overflow-x-auto">
-            <table className="min-w-[940px] w-full text-left text-sm">
+            <table className="min-w-[1040px] w-full text-left text-sm">
               <thead className="bg-slate-50 text-muted-slate">
                 <tr>
                   <th className="px-5 py-4 font-semibold">Customer</th>
@@ -64,6 +65,7 @@ export default async function AdminCustomersPage({
                   <th className="px-5 py-4 font-semibold">Stripe</th>
                   <th className="px-5 py-4 font-semibold">Referral</th>
                   <th className="px-5 py-4 font-semibold">Sales rep</th>
+                  <th className="px-5 py-4 font-semibold">Order</th>
                   <th className="px-5 py-4 font-semibold">Created</th>
                 </tr>
               </thead>
@@ -95,6 +97,14 @@ export default async function AdminCustomersPage({
                         ) : (
                           <span className="text-xs font-semibold text-slate-400">Needs login</span>
                         )}
+                      </td>
+                      <td className="px-5 py-4">
+                        <Link
+                          href={`/admin/custom-orders?customer=${customer.id}`}
+                          className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-link-blue/30 bg-[#e6fbff] px-3 py-1.5 text-xs font-semibold text-ink shadow-sm transition hover:bg-[#d8f7fd]"
+                        >
+                          Build order
+                        </Link>
                       </td>
                       <td className="px-5 py-4 text-slate-500">{formatDate(customer.created_at)}</td>
                     </tr>

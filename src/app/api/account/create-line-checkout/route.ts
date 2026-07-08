@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import type Stripe from "stripe";
+import { inngest } from "@/inngest/client";
+import { provisionSubscriptionLines } from "@/lib/custom-orders/provision-lines";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createCheckoutSession, getStripe } from "@/lib/stripe/server";
+import { addLinesToExistingSubscription } from "@/lib/stripe/custom-orders";
+import { upsertSubscription } from "@/lib/db/subscriptions";
 import { getPlan } from "@/lib/plans";
 import { absoluteUrl, normalizeIsraeliMobile } from "@/lib/utils";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
@@ -25,6 +30,28 @@ const bodySchema = z.object({
   intlNumberSource: z.enum(["new", "port"]).optional(),
   intlPortNumber: z.string().nullable().optional(),
 });
+
+async function getActiveStripeSubscription(
+  admin: NonNullable<ReturnType<typeof createSupabaseAdminClient>>,
+  stripe: Stripe,
+  customerId: string,
+): Promise<Stripe.Subscription | null> {
+  const { data: subscriptionRow } = await admin
+    .from("subscriptions")
+    .select("stripe_subscription_id, status")
+    .eq("customer_id", customerId)
+    .not("stripe_subscription_id", "is", null)
+    .in("status", ["active", "trialing"])
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  const stripeSubscriptionId = subscriptionRow?.stripe_subscription_id as string | undefined;
+  if (!stripeSubscriptionId) return null;
+
+  const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+  return ["active", "trialing"].includes(subscription.status) ? subscription : null;
+}
 
 export async function POST(request: NextRequest): Promise<Response> {
   const supabase = await createSupabaseServerClient();
@@ -116,7 +143,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   const { data: planRow, error: planError } = await admin
     .from("plans")
-    .select("id, slug, name, stripe_price_id")
+    .select("id, slug, name, stripe_price_id, monthly_price_cents")
     .eq("slug", planSlug)
     .eq("active", true)
     .maybeSingle();
@@ -168,6 +195,85 @@ export async function POST(request: NextRequest): Promise<Response> {
       { onConflict: "stripe_customer_id", ignoreDuplicates: false },
     ),
   ]);
+
+  const existingSubscription = await getActiveStripeSubscription(admin, stripe, customer.id);
+  if (existingSubscription) {
+    const token = `account_${crypto.randomUUID().replaceAll("-", "").slice(0, 24)}`;
+    const monthlyPriceCents =
+      Number(planRow.monthly_price_cents ?? plan.priceCents) +
+      (wantsIntlNumber ? 999 : 0);
+    const customLine = {
+      planSlug,
+      isEsim,
+      isPortIn,
+      portNumber: isPortIn ? normalizedPortNumber : null,
+      wantsIntlNumber,
+      intlCountry: wantsIntlNumber ? (intlNumberCountry ?? "us") : null,
+      intlSource: wantsIntlNumber ? (intlNumberSource ?? "new") : null,
+      intlPortNumber: wantsIntlNumber && intlNumberSource === "port" ? (intlPortNumber ?? null) : null,
+      customPriceCents: monthlyPriceCents,
+    };
+
+    try {
+      const [item] = await addLinesToExistingSubscription(stripe, {
+        subscriptionId: existingSubscription.id,
+        token,
+        lines: [customLine],
+      });
+      if (!item) throw new Error("Stripe did not return a subscription item for the new line.");
+
+      const refreshedSubscription = await stripe.subscriptions.retrieve(existingSubscription.id, {
+        expand: ["items.data.price.product"],
+      });
+      await upsertSubscription(admin, customer.id, refreshedSubscription);
+
+      const result = await provisionSubscriptionLines(admin, [
+        {
+          line: customLine,
+          index: 0,
+          subscriptionItem: item,
+          stripeSubscriptionId: existingSubscription.id,
+          stripeCustomerId,
+          customerRecordId: customer.id,
+          customerEmail: customer.email,
+          userId: user.id,
+          customOrderToken: token,
+          source: "account_add_line",
+        },
+      ]);
+
+      await admin.from("orders").insert({
+        customer_id: customer.id,
+        payment_status: "paid",
+        order_status: "processing",
+        provisioning_status: "payment_confirmed",
+      });
+
+      if (result.jobIds.length) {
+        await inngest.send(
+          result.jobIds.map((jobId) => ({
+            name: "provisioning/line.create" as const,
+            data: { jobId },
+          })),
+        );
+      }
+
+      log.info(
+        { userId: user.id, customerId: customer.id, planSlug, subscriptionId: existingSubscription.id },
+        "Line added to existing subscription with proration",
+      );
+      return NextResponse.json({ added: true, lineIds: result.lineIds, jobIds: result.jobIds });
+    } catch (err) {
+      log.error(
+        { userId: user.id, customerId: customer.id, error: err instanceof Error ? err.message : String(err) },
+        "Failed to add line to existing subscription",
+      );
+      return NextResponse.json(
+        { error: "We could not add this line to your existing subscription. Please contact support." },
+        { status: 503 },
+      );
+    }
+  }
 
   const session = await createCheckoutSession(stripe, {
     stripePriceId: planRow.stripe_price_id,

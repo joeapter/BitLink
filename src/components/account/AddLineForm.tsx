@@ -34,6 +34,7 @@ export function AddLineForm({
   const [intlSource, setIntlSource] = useState<IntlSource>("new");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [feeWaived, setFeeWaived] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [verifiedPortNumber, setVerifiedPortNumber] = useState<string | null>(null);
@@ -70,6 +71,7 @@ export function AddLineForm({
   async function onSubmit(formData: FormData) {
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
     const isPortIn = numberChoice === "port-in";
     if (isPortIn && !verifiedPortNumber) {
@@ -95,11 +97,19 @@ export function AddLineForm({
       }),
     });
 
-    const payload = (await response.json()) as { url?: string; clientSecret?: string; error?: string };
+    const payload = (await response.json()) as { url?: string; clientSecret?: string; added?: boolean; error?: string };
     setLoading(false);
 
-    if (!response.ok || (!payload.url && !payload.clientSecret)) {
+    if (!response.ok || (!payload.url && !payload.clientSecret && !payload.added)) {
       setError(payload.error ?? "Line checkout could not be started.");
+      return;
+    }
+
+    if (payload.added) {
+      setSuccess("Your new line was added to your existing monthly bill and activation has started.");
+      setTimeout(() => {
+        window.location.href = "/account/lines";
+      }, 1000);
       return;
     }
 
@@ -301,6 +311,12 @@ export function AddLineForm({
         {error ? (
           <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700">
             {error}
+          </div>
+        ) : null}
+
+        {success ? (
+          <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800">
+            {success}
           </div>
         ) : null}
 

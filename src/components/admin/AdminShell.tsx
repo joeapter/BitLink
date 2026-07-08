@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Activity, BarChart3, Building2, CreditCard, Handshake, Headphones, Home, Phone, RadioTower, Receipt, Settings, Share2, ShoppingCart, Users, Webhook } from "lucide-react";
+import { Activity, BarChart3, Building2, CreditCard, FilePlus2, Handshake, Headphones, Home, Phone, RadioTower, Receipt, Settings, Share2, ShoppingCart, Users, Webhook } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
 import { BrandMark } from "@/components/brand/BrandMark";
 
@@ -9,6 +9,7 @@ const links = [
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/lines", label: "Lines", icon: Phone },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
+  { href: "/admin/custom-orders", label: "Custom Orders", icon: FilePlus2 },
   { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard },
   { href: "/admin/provisioning", label: "Provisioning", icon: RadioTower },
   { href: "/admin/plans", label: "Plans", icon: BarChart3 },

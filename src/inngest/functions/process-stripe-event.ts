@@ -22,6 +22,7 @@ import { updateStripeEventStatus } from '@/lib/db/stripe-events';
 import {
   createSubscriber,
   getSubscriberByStripeSubscription,
+  getSubscribersByStripeSubscription,
   updateSubscriber,
 } from '@/lib/db/subscribers';
 import { upsertSubscription, updateSubscriptionFromStripe } from '@/lib/db/subscriptions';
@@ -30,6 +31,9 @@ import { getLine } from '@/lib/db/lines';
 import { getTelecomProvider } from '@/lib/telecom/provider.registry';
 import { withProviderContext } from '@/lib/telecom/provider-context';
 import { getAnnatelPlanName } from '@/lib/plans';
+import { getStripeClient } from '@/lib/stripe/client';
+import { normalizeCustomOrderLines } from '@/lib/stripe/custom-orders';
+import { provisionSubscriptionLines } from '@/lib/custom-orders/provision-lines';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ fn: 'process-stripe-event' });
@@ -56,9 +60,168 @@ function stripeStatusToSubscriberStatus(stripeStatus: string): string {
 type HandlerResult =
   | { skipped: true; reason: string }
   | { subscriberId: string; jobId: string; lineId: string }
+  | { subscriberIds: string[]; jobIds: string[]; lineIds: string[] }
   | { updated: true; subscriberId: string }
+  | { updated: true; subscriberIds: string[] }
   | { cancelled: true; subscriberId: string }
+  | { cancelled: true; subscriberIds: string[] }
   | { suspended: true; subscriberId: string };
+
+type SubscriptionItemWithExpandedProduct = Stripe.SubscriptionItem & {
+  price: Stripe.Price & {
+    product: string | (Stripe.Product & { deleted?: false }) | { deleted: true; id: string };
+  };
+};
+
+function subscriptionItemLineIndex(item: SubscriptionItemWithExpandedProduct): number | null {
+  const itemIndex = item.metadata?.custom_order_line_index;
+  if (itemIndex !== undefined) {
+    const parsed = Number(itemIndex);
+    return Number.isInteger(parsed) ? parsed : null;
+  }
+
+  const product = item.price.product;
+  if (typeof product !== 'string' && !('deleted' in product)) {
+    const productIndex = product.metadata?.custom_order_line_index;
+    if (productIndex !== undefined) {
+      const parsed = Number(productIndex);
+      return Number.isInteger(parsed) ? parsed : null;
+    }
+  }
+
+  return null;
+}
+
+async function handleCustomOrderCheckoutCompleted(
+  admin: SupabaseClient,
+  session: Stripe.Checkout.Session,
+  stripeEventRecordId: string,
+): Promise<HandlerResult> {
+  const token = session.metadata?.custom_order_token ?? null;
+  const stripeSubscriptionId =
+    typeof session.subscription === 'string' ? session.subscription : null;
+  const stripeCustomerId =
+    typeof session.customer === 'string' ? session.customer : null;
+
+  if (!token || !stripeSubscriptionId || !stripeCustomerId) {
+    return { skipped: true, reason: 'custom_order_missing_metadata' };
+  }
+
+  const { data: order, error: orderError } = await admin
+    .from('custom_line_orders')
+    .select('id, token, customer_id, lines, status')
+    .eq('token', token)
+    .maybeSingle();
+
+  if (orderError || !order) {
+    log.warn({ token, sessionId: session.id }, 'Custom order not found for checkout');
+    return { skipped: true, reason: 'custom_order_not_found' };
+  }
+
+  const customerRecordId = (order.customer_id ?? session.metadata?.customer_record_id ?? null) as string | null;
+  const { data: customer } = customerRecordId
+    ? await admin
+        .from('customers')
+        .select('id, user_id, full_name, email, phone')
+        .eq('id', customerRecordId)
+        .maybeSingle()
+    : { data: null };
+
+  if (customerRecordId) {
+    await Promise.all([
+      admin
+        .from('customers')
+        .update({ stripe_customer_id: stripeCustomerId, updated_at: new Date().toISOString() })
+        .eq('id', customerRecordId),
+      admin.from('stripe_customers').upsert(
+        {
+          customer_id: customerRecordId,
+          stripe_customer_id: stripeCustomerId,
+          stripe_email: (customer?.email ?? session.customer_details?.email ?? null) as string | null,
+          livemode: session.livemode ?? false,
+          synced_at: new Date().toISOString(),
+        },
+        { onConflict: 'stripe_customer_id', ignoreDuplicates: false },
+      ),
+    ]);
+  }
+
+  const stripe = getStripeClient();
+  const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId, {
+    expand: ['items.data.price.product'],
+  });
+  await upsertSubscription(admin, customerRecordId, subscription);
+
+  const lines = normalizeCustomOrderLines(order.lines);
+  const items = subscription.items.data as SubscriptionItemWithExpandedProduct[];
+  const itemByIndex = new Map<number, SubscriptionItemWithExpandedProduct>();
+  for (const item of items) {
+    const index = subscriptionItemLineIndex(item);
+    if (index !== null) itemByIndex.set(index, item);
+  }
+
+  const inputs = lines.map((line, index) => {
+    const item = itemByIndex.get(index) ?? items[index];
+    if (!item) {
+      throw new Error(`Missing Stripe subscription item for custom order line ${index + 1}`);
+    }
+    return {
+      line,
+      index,
+      subscriptionItem: item,
+      stripeSubscriptionId,
+      stripeCustomerId,
+      customerRecordId,
+      customerEmail: (customer?.email ?? session.customer_details?.email ?? null) as string | null,
+      userId: (customer?.user_id ?? null) as string | null,
+      originatingStripeEventId: stripeEventRecordId,
+      customOrderToken: token,
+      source: 'stripe_custom_order' as const,
+    };
+  });
+
+  const result = await provisionSubscriptionLines(admin, inputs);
+
+  await admin
+    .from('custom_line_orders')
+    .update({
+      status: 'provisioning',
+      stripe_checkout_session_id: session.id,
+      stripe_subscription_id: stripeSubscriptionId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', order.id);
+
+  const { data: existingOrder } = await admin
+    .from('orders')
+    .select('id')
+    .eq('stripe_checkout_session_id', session.id)
+    .maybeSingle();
+
+  if (!existingOrder) {
+    await admin.from('orders').insert({
+      customer_id: customerRecordId,
+      stripe_checkout_session_id: session.id,
+      payment_status: 'paid',
+      order_status: 'processing',
+      provisioning_status: 'payment_confirmed',
+    });
+  }
+
+  if (customerRecordId && lines[0]) {
+    await inngest.send({
+      name: 'checkout/completed',
+      data: { customerRecordId, planSlug: lines[0].planSlug, isEsim: lines[0].isEsim },
+    }).catch((err) => log.warn({ error: String(err) }, 'Failed to dispatch checkout/completed'));
+  }
+
+  log.info(
+    { token, stripeSubscriptionId, jobs: result.jobIds.length, lines: result.lineIds.length },
+    'Custom multi-line order paid and queued for provisioning',
+  );
+
+  return result;
+}
 
 /**
  * checkout.session.completed — primary creation path for subscriptions via Checkout.
@@ -371,8 +534,8 @@ async function handleSubscriptionChange(
   // Upsert full subscription record with period dates
   await upsertSubscription(admin, customerRecordId, subscription);
 
-  const subscriber = await getSubscriberByStripeSubscription(admin, subscription.id);
-  if (!subscriber) {
+  const subscribers = await getSubscribersByStripeSubscription(admin, subscription.id);
+  if (!subscribers.length) {
     if (eventType === 'customer.subscription.created') {
       log.info(
         { stripeSubscriptionId: subscription.id },
@@ -383,13 +546,16 @@ async function handleSubscriptionChange(
   }
 
   const newStatus = stripeStatusToSubscriberStatus(subscription.status);
-  const updates: Parameters<typeof updateSubscriber>[2] = { status: newStatus };
-  if (newStatus === 'active' && !subscriber.activatedAt) {
-    updates.activatedAt = new Date().toISOString();
+  const activatedAt = new Date().toISOString();
+  for (const subscriber of subscribers) {
+    const updates: Parameters<typeof updateSubscriber>[2] = { status: newStatus };
+    if (newStatus === 'active' && !subscriber.activatedAt) {
+      updates.activatedAt = activatedAt;
+    }
+    await updateSubscriber(admin, subscriber.id, updates);
   }
-  await updateSubscriber(admin, subscriber.id, updates);
 
-  return { updated: true, subscriberId: subscriber.id };
+  return { updated: true, subscriberIds: subscribers.map((subscriber) => subscriber.id) };
 }
 
 /**
@@ -403,12 +569,13 @@ async function handleSubscriptionDeleted(
 ): Promise<HandlerResult> {
   await updateSubscriptionFromStripe(admin, subscription);
 
-  const subscriber = await getSubscriberByStripeSubscription(admin, subscription.id);
-  if (!subscriber) return { skipped: true, reason: 'no_subscriber' };
+  const subscribers = await getSubscribersByStripeSubscription(admin, subscription.id);
+  if (!subscribers.length) return { skipped: true, reason: 'no_subscriber' };
 
   // Terminate the Annatel line so the DID returns to the number bank.
   // Only attempt if the line was actually provisioned (has a telecomLineId).
-  if (subscriber.telecomLineId) {
+  for (const subscriber of subscribers) {
+    if (!subscriber.telecomLineId) continue;
     const line = await getLine(admin, subscriber.telecomLineId);
     if (line?.provider_line_id && line.status !== 'terminated') {
       try {
@@ -436,15 +603,15 @@ async function handleSubscriptionDeleted(
         );
       }
     }
+
+    await updateSubscriber(admin, subscriber.id, {
+      status: 'cancelled',
+      cancelledAt: new Date().toISOString(),
+    });
   }
 
-  await updateSubscriber(admin, subscriber.id, {
-    status: 'cancelled',
-    cancelledAt: new Date().toISOString(),
-  });
-
-  log.info({ subscriberId: subscriber.id, stripeSubscriptionId: subscription.id }, 'Subscriber cancelled');
-  return { cancelled: true, subscriberId: subscriber.id };
+  log.info({ subscriberIds: subscribers.map((subscriber) => subscriber.id), stripeSubscriptionId: subscription.id }, 'Subscribers cancelled');
+  return { cancelled: true, subscriberIds: subscribers.map((subscriber) => subscriber.id) };
 }
 
 /**
@@ -464,16 +631,18 @@ async function handlePaymentFailed(
     : null;
   if (!stripeSubscriptionId) return { skipped: true, reason: 'no_subscription_on_invoice' };
 
-  const subscriber = await getSubscriberByStripeSubscription(admin, stripeSubscriptionId);
-  if (!subscriber) return { skipped: true, reason: 'no_subscriber' };
+  const subscribers = await getSubscribersByStripeSubscription(admin, stripeSubscriptionId);
+  if (!subscribers.length) return { skipped: true, reason: 'no_subscriber' };
 
-  await updateSubscriber(admin, subscriber.id, { status: 'suspended' });
+  for (const subscriber of subscribers) {
+    await updateSubscriber(admin, subscriber.id, { status: 'suspended' });
+  }
 
   log.warn(
-    { subscriberId: subscriber.id, stripeSubscriptionId },
-    'Payment failed — subscriber suspended',
+    { subscriberIds: subscribers.map((subscriber) => subscriber.id), stripeSubscriptionId },
+    'Payment failed — subscribers suspended',
   );
-  return { suspended: true, subscriberId: subscriber.id };
+  return { suspended: true, subscriberId: subscribers[0].id };
 }
 
 // ── Inngest function ──────────────────────────────────────────────────────────
@@ -517,6 +686,13 @@ export const processStripeEvent = inngest.createFunction(
     const handlerResult = await step.run('handle-event', async () => {
       switch (stripeEvent.type) {
         case 'checkout.session.completed':
+          if ((stripeEvent.data.object as Stripe.Checkout.Session).metadata?.custom_order_token) {
+            return handleCustomOrderCheckoutCompleted(
+              admin,
+              stripeEvent.data.object as Stripe.Checkout.Session,
+              recordId,
+            );
+          }
           return handleCheckoutCompleted(
             admin,
             stripeEvent.data.object as Stripe.Checkout.Session,
@@ -559,6 +735,20 @@ export const processStripeEvent = inngest.createFunction(
         log.info(
           { jobId: (handlerResult as { jobId: string }).jobId },
           'Provisioning job dispatched to Inngest',
+        );
+      });
+    }
+    if (handlerResult && 'jobIds' in handlerResult && handlerResult.jobIds.length) {
+      await step.run('dispatch-provisioning-jobs', async () => {
+        await inngest.send(
+          handlerResult.jobIds.map((jobId) => ({
+            name: 'provisioning/line.create' as const,
+            data: { jobId },
+          })),
+        );
+        log.info(
+          { jobIds: handlerResult.jobIds },
+          'Provisioning jobs dispatched to Inngest',
         );
       });
     }

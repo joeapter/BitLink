@@ -78,7 +78,7 @@ export function BillingPanel({
         {lineBillings.length ? (
           <div className="mt-6 grid gap-3">
             {lineBillings.map((line) => (
-              <div key={line.stripeSubscriptionId} className="rounded-[1.5rem] bg-slate-50 p-4">
+              <div key={line.stripeSubscriptionItemId ?? line.lineId ?? line.stripeSubscriptionId} className="rounded-[1.5rem] bg-slate-50 p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-ink">{line.planName}</p>
@@ -95,7 +95,7 @@ export function BillingPanel({
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-slate">
-                  <span>Subscription {line.stripeSubscriptionId.slice(0, 12)}</span>
+                  <span>{line.stripeSubscriptionItemId ? `Item ${line.stripeSubscriptionItemId.slice(0, 12)}` : `Subscription ${line.stripeSubscriptionId.slice(0, 12)}`}</span>
                   {line.nextBillingDate ? (
                     <span>Next bill {new Date(line.nextBillingDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
                   ) : null}

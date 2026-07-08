@@ -13,6 +13,7 @@ type AccountDbClient =
 export type AccountLineBilling = {
   lineId: string | null;
   stripeSubscriptionId: string;
+  stripeSubscriptionItemId: string | null;
   planSlug: string;
   planName: string;
   priceCents: number;
@@ -229,7 +230,7 @@ export async function getAccountSnapshot(userId: string, userEmail?: string | nu
       .order("created_at", { ascending: false }),
     db
       .from("subscribers")
-      .select("telecom_line_id, stripe_subscription_id, plan_slug, status")
+      .select("telecom_line_id, stripe_subscription_id, stripe_subscription_item_id, plan_slug, monthly_price_cents, status")
       .eq("customer_id", customer.id)
       .order("created_at", { ascending: false }),
   ]);
@@ -246,9 +247,10 @@ export async function getAccountSnapshot(userId: string, userEmail?: string | nu
     return {
       lineId: (subscriber.telecom_line_id ?? null) as string | null,
       stripeSubscriptionId: subscriber.stripe_subscription_id as string,
+      stripeSubscriptionItemId: (subscriber.stripe_subscription_item_id ?? null) as string | null,
       planSlug: subscriber.plan_slug as string,
       planName: plan.name,
-      priceCents: plan.priceCents,
+      priceCents: Number(subscriber.monthly_price_cents ?? plan.priceCents),
       currency: plan.currency,
       subscriberStatus: subscriber.status as string,
       subscriptionStatus: (sub?.status ?? null) as string | null,
@@ -265,7 +267,10 @@ export async function getAccountSnapshot(userId: string, userEmail?: string | nu
       lineBillings.map(async (billing) => {
         try {
           const sub = await stripeClient.subscriptions.retrieve(billing.stripeSubscriptionId);
-          const periodEnd = sub.items?.data?.[0]?.current_period_end;
+          const item = billing.stripeSubscriptionItemId
+            ? sub.items?.data?.find((subItem) => subItem.id === billing.stripeSubscriptionItemId)
+            : sub.items?.data?.[0];
+          const periodEnd = item?.current_period_end;
           if (periodEnd) billing.nextBillingDate = new Date(periodEnd * 1000).toISOString();
           if (sub.status) billing.subscriptionStatus = sub.status;
         } catch {

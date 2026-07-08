@@ -52,13 +52,18 @@ async function getSubscriptionForLine(lineId: string, customerId: string) {
 
   const { data: subscriber } = await admin
     .from("subscribers")
-    .select("stripe_subscription_id, plan_slug")
+    .select("id, stripe_subscription_id, stripe_subscription_item_id, plan_slug")
     .eq("telecom_line_id", lineId)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
   if (subscriber?.stripe_subscription_id) {
-    return { stripeSubscriptionId: subscriber.stripe_subscription_id as string, planSlug: subscriber.plan_slug as string | null };
+    return {
+      subscriberId: subscriber.id as string,
+      stripeSubscriptionId: subscriber.stripe_subscription_id as string,
+      stripeSubscriptionItemId: (subscriber.stripe_subscription_item_id ?? null) as string | null,
+      planSlug: subscriber.plan_slug as string | null,
+    };
   }
 
   const { data: subscription } = await admin
@@ -75,7 +80,12 @@ async function getSubscriptionForLine(lineId: string, customerId: string) {
       const { data: planRow } = await admin.from("plans").select("slug").eq("id", subscription.plan_id).maybeSingle();
       planSlug = (planRow?.slug as string | undefined) ?? null;
     }
-    return { stripeSubscriptionId: subscription.stripe_subscription_id as string, planSlug };
+    return {
+      subscriberId: null,
+      stripeSubscriptionId: subscription.stripe_subscription_id as string,
+      stripeSubscriptionItemId: null,
+      planSlug,
+    };
   }
 
   return null;
@@ -128,18 +138,20 @@ export async function pauseLineAction(_prev: PauseActionState, formData: FormDat
   if (subscription.status === "canceled") {
     return { error: `This subscription is no longer active. ${SUPPORT_HINT}` };
   }
-  const item = subscription.items.data[0];
+  const item = subInfo.stripeSubscriptionItemId
+    ? subscription.items.data.find((subItem) => subItem.id === subInfo.stripeSubscriptionItemId)
+    : subscription.items.data[0];
   if (!item) return { error: `We couldn't read your subscription details. ${SUPPORT_HINT}` };
 
   const provider = getTelecomProvider();
   await provider.suspendLine(line.provider_line_id, "freeze");
 
   try {
-    await stripe.subscriptions.update(subInfo.stripeSubscriptionId, {
-      items: [{ id: item.id, price: pausePriceId }],
+    await stripe.subscriptionItems.update(item.id, {
+      price: pausePriceId,
       proration_behavior: "none",
       metadata: {
-        ...subscription.metadata,
+        ...item.metadata,
         bitlink_paused: "true",
         bitlink_paused_plan_slug: subInfo.planSlug ?? "",
         bitlink_paused_price_id: item.price.id,
@@ -155,7 +167,9 @@ export async function pauseLineAction(_prev: PauseActionState, formData: FormDat
   const pausedAt = new Date().toISOString();
   const metadata = { ...((line.metadata as Record<string, unknown>) ?? {}), paused_at: pausedAt, paused_plan_slug: subInfo.planSlug };
   await admin.from("telecom_lines").update({ status: "paused", metadata, updated_at: pausedAt }).eq("id", lineId);
-  await admin.from("subscribers").update({ status: "paused", updated_at: pausedAt }).eq("stripe_subscription_id", subInfo.stripeSubscriptionId);
+  const subscriberUpdate = admin.from("subscribers").update({ status: "paused", updated_at: pausedAt });
+  if (subInfo.subscriberId) await subscriberUpdate.eq("id", subInfo.subscriberId);
+  else await subscriberUpdate.eq("stripe_subscription_id", subInfo.stripeSubscriptionId);
   await logCustomerAction(user.id, "line_paused", lineId, {
     providerLineId: line.provider_line_id,
     stripeSubscriptionId: subInfo.stripeSubscriptionId,
@@ -196,19 +210,20 @@ export async function resumeLineAction(_prev: PauseActionState, formData: FormDa
   if (!planPriceId) return { error: `We couldn't determine your plan's price. ${SUPPORT_HINT}` };
 
   const subscription = await stripe.subscriptions.retrieve(subInfo.stripeSubscriptionId);
-  const item = subscription.items.data[0];
+  const item = subInfo.stripeSubscriptionItemId
+    ? subscription.items.data.find((subItem) => subItem.id === subInfo.stripeSubscriptionItemId)
+    : subscription.items.data[0];
   if (!item) return { error: `We couldn't read your subscription details. ${SUPPORT_HINT}` };
 
   const provider = getTelecomProvider();
   await provider.reactivateLine(line.provider_line_id);
 
   try {
-    await stripe.subscriptions.update(subInfo.stripeSubscriptionId, {
-      items: [{ id: item.id, price: planPriceId }],
+    await stripe.subscriptionItems.update(item.id, {
+      price: planPriceId,
       proration_behavior: "none",
-      billing_cycle_anchor: "now",
       metadata: {
-        ...subscription.metadata,
+        ...item.metadata,
         bitlink_paused: "",
         bitlink_paused_plan_slug: "",
         bitlink_paused_price_id: "",
@@ -224,7 +239,9 @@ export async function resumeLineAction(_prev: PauseActionState, formData: FormDa
   const resumedAt = new Date().toISOString();
   const metadata = { ...lineMeta, paused_at: null, paused_plan_slug: null, resumed_at: resumedAt };
   await admin.from("telecom_lines").update({ status: "active", metadata, updated_at: resumedAt }).eq("id", lineId);
-  await admin.from("subscribers").update({ status: "active", updated_at: resumedAt }).eq("stripe_subscription_id", subInfo.stripeSubscriptionId);
+  const subscriberUpdate = admin.from("subscribers").update({ status: "active", updated_at: resumedAt });
+  if (subInfo.subscriberId) await subscriberUpdate.eq("id", subInfo.subscriberId);
+  else await subscriberUpdate.eq("stripe_subscription_id", subInfo.stripeSubscriptionId);
   await logCustomerAction(user.id, "line_resumed", lineId, {
     providerLineId: line.provider_line_id,
     stripeSubscriptionId: subInfo.stripeSubscriptionId,

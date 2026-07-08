@@ -67,6 +67,25 @@ export type Database = {
         Insert: Partial<Database["public"]["Tables"]["orders"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["orders"]["Row"]>;
       };
+      custom_line_orders: {
+        Row: {
+          id: string;
+          token: string;
+          customer_id: string | null;
+          created_by: string | null;
+          lines: Json;
+          note: string | null;
+          status: string;
+          stripe_checkout_session_id: string | null;
+          stripe_subscription_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["custom_line_orders"]["Row"]> & {
+          token: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["custom_line_orders"]["Row"]>;
+      };
       subscriptions: {
         Row: {
           id: string;
@@ -495,8 +514,10 @@ export type Database = {
           id: string;
           customer_id: string | null;
           stripe_subscription_id: string;
+          stripe_subscription_item_id: string | null;
           stripe_customer_id: string;
           plan_slug: string;
+          monthly_price_cents: number | null;
           telecom_line_id: string | null;
           provisioning_job_id: string | null;
           originating_stripe_event_id: string | null;

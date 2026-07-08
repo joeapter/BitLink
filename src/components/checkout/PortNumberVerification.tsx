@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { CheckCircle2, Loader2, MessageSquareText } from "lucide-react";
 
 // Port-in ownership verification: fixed +972 prefix field, "text me a code"
@@ -26,10 +26,17 @@ function toLocalDigits(value: string): string {
 
 export function PortNumberVerification({
   onVerified,
+  initialNumber,
+  lockedNumber = false,
+  label = "Current Israeli number",
 }: {
   onVerified: (e164Number: string | null) => void;
+  initialNumber?: string | null;
+  lockedNumber?: boolean;
+  label?: string;
 }) {
-  const [localDigits, setLocalDigits] = useState("");
+  const fieldId = useId();
+  const [localDigits, setLocalDigits] = useState(initialNumber ? toLocalDigits(initialNumber).slice(0, 9) : "");
   const [step, setStep] = useState<Step>("enter");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -40,6 +47,7 @@ export function PortNumberVerification({
   const e164 = `+972${localDigits}`;
 
   function handleNumberChange(value: string) {
+    if (lockedNumber) return;
     setLocalDigits(toLocalDigits(value).slice(0, 9));
     if (step !== "enter") {
       setStep("enter");
@@ -111,27 +119,27 @@ export function PortNumberVerification({
   return (
     <div className="grid gap-3">
       <div>
-        <label className="text-sm font-medium text-ink" htmlFor="portInNumberLocal">
-          Current Israeli number
+        <label className="text-sm font-medium text-ink" htmlFor={fieldId}>
+          {label}
         </label>
         <div className="mt-1.5 flex">
           <span className="inline-flex items-center rounded-l-xl border border-r-0 border-ink/15 bg-slate-100 px-3 text-sm font-semibold text-slate-600">
             +972
           </span>
           <input
-            id="portInNumberLocal"
+            id={fieldId}
             type="tel"
             inputMode="numeric"
             autoComplete="tel-national"
             placeholder="58-793-9426"
             value={localDigits}
             onChange={(e) => handleNumberChange(e.target.value)}
-            disabled={step === "verified"}
+            disabled={step === "verified" || lockedNumber}
             className="w-full rounded-r-xl border border-ink/15 bg-white px-3 py-2.5 text-sm text-ink outline-none transition focus:border-link-blue disabled:bg-slate-50 disabled:text-slate-500"
           />
         </div>
         <p className="mt-1 text-xs text-amber-800">
-          Type it with or without the leading 0 — we handle both.
+          {lockedNumber ? "We will text the verification code to this number." : "Type it with or without the leading 0 — we handle both."}
         </p>
       </div>
 
