@@ -1,21 +1,22 @@
 "use client";
 
-import { useTransition } from "react";
+import { useActionState } from "react";
 import type { LinePlanInfo } from "@/types/telecom";
-import { replaceLinePlanAction } from "@/lib/admin/line-actions";
-import { BarChart3, ArrowRightLeft } from "lucide-react";
+import { changeLinePlanAdminAction, type AdminPlanChangeState } from "@/lib/admin/line-actions";
+import { BarChart3, ArrowRightLeft, Loader2 } from "lucide-react";
 import { plans } from "@/lib/plans";
+import { formatMoney } from "@/lib/utils";
 
 interface Props {
   lineId: string;
-  providerLineId: string;
   plans: LinePlanInfo[];
+  isKosher: boolean;
+  currentPlanSlug: string | null;
 }
 
-export function LinePlansCard({ lineId, providerLineId, plans: linePlans }: Props) {
-  const [pending, startTransition] = useTransition();
-
-  const allPlanNames = plans.map((p) => p.slug);
+export function LinePlansCard({ lineId, plans: linePlans, isKosher, currentPlanSlug }: Props) {
+  const [state, formAction, pending] = useActionState<AdminPlanChangeState, FormData>(changeLinePlanAdminAction, null);
+  const availablePlans = plans.filter((plan) => plan.isKosher === isKosher);
 
   return (
     <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
@@ -43,39 +44,53 @@ export function LinePlansCard({ lineId, providerLineId, plans: linePlans }: Prop
                 )}
               </div>
 
-              {/* Plan replace form */}
-              <form
-                action={(fd) => startTransition(() => { void replaceLinePlanAction(fd); })}
-                className="mt-3 flex gap-2"
-              >
-                <input type="hidden" name="lineId" value={lineId} />
-                <input type="hidden" name="providerLineId" value={providerLineId} />
-                <input type="hidden" name="linePlanId" value={plan.id} />
-                <select
-                  name="newPlanName"
-                  className="flex-1 rounded-xl border border-ink/10 bg-white px-3 py-2 text-xs font-semibold text-ink outline-none focus:border-link-blue"
-                >
-                  {allPlanNames.map((name) => (
-                    <option key={name} value={name} selected={name === plan.planName}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="submit"
-                  disabled={pending}
-                  className="flex items-center gap-1.5 rounded-xl bg-link-blue px-3 py-2 text-xs font-semibold text-white hover:bg-link-blue/90 disabled:opacity-50"
-                >
-                  <ArrowRightLeft className="h-3 w-3" />
-                  Replace
-                </button>
-              </form>
+              {plan.isMain ? (
+                <form action={formAction} className="mt-4 grid gap-3 lg:grid-cols-[1fr_1fr_auto] lg:items-end">
+                  <input type="hidden" name="lineId" value={lineId} />
+                  <input type="hidden" name="linePlanId" value={plan.id} />
+                  <label className="grid gap-1.5 text-xs font-semibold text-ink">
+                    <span>BitLink plan</span>
+                    <select
+                      name="newPlanSlug"
+                      defaultValue={currentPlanSlug ?? availablePlans[0]?.slug}
+                      className="h-10 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink outline-none focus:border-link-blue"
+                    >
+                      {availablePlans.map((item) => (
+                        <option key={item.slug} value={item.slug}>
+                          {item.name} - {formatMoney(item.priceCents, item.currency)}/mo
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="grid gap-1.5 text-xs font-semibold text-ink">
+                    <span>Billing</span>
+                    <select
+                      name="billingMode"
+                      defaultValue="paid"
+                      className="h-10 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink outline-none focus:border-link-blue"
+                    >
+                      <option value="paid">Update Stripe billing</option>
+                      <option value="carrier_only">Carrier only / free upgrade</option>
+                    </select>
+                  </label>
+                  <button
+                    type="submit"
+                    disabled={pending}
+                    className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-link-blue px-3 text-xs font-semibold text-white hover:bg-link-blue/90 disabled:opacity-50"
+                  >
+                    {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <ArrowRightLeft className="h-3.5 w-3.5" aria-hidden="true" />}
+                    {pending ? "Changing" : "Change"}
+                  </button>
+                </form>
+              ) : null}
             </div>
           ))
         ) : (
           <p className="text-sm text-muted-slate">No plans found for this line.</p>
         )}
       </div>
+      {state?.error ? <p className="mt-4 rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">{state.error}</p> : null}
+      {state?.success ? <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">{state.success}</p> : null}
     </section>
   );
 }

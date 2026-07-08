@@ -6,6 +6,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import { retryProvisioningJob } from "@/lib/provisioning/orchestrator";
 import { inngest } from "@/inngest/client";
+import { changeLinePlan, type PlanChangeResult } from "@/lib/line-plan-change";
 
 function getProvider() {
   return getTelecomProvider();
@@ -131,6 +132,36 @@ export async function terminateLineAction(formData: FormData) {
 }
 
 // ── Plan operations ───────────────────────────────────────────────────────────
+
+export type AdminPlanChangeState = PlanChangeResult | null;
+
+export async function changeLinePlanAdminAction(
+  _prev: AdminPlanChangeState,
+  formData: FormData,
+): Promise<AdminPlanChangeState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const newPlanSlug = String(formData.get('newPlanSlug') ?? '');
+  const billingModeRaw = String(formData.get('billingMode') ?? 'paid');
+  const linePlanId = String(formData.get('linePlanId') ?? '') || null;
+
+  if (!lineId || !newPlanSlug) return { error: 'Missing required fields.' };
+
+  const admin = getAdmin();
+  const result = await changeLinePlan({
+    admin,
+    lineId,
+    newPlanSlug,
+    billingMode: billingModeRaw === 'carrier_only' ? 'carrier_only' : 'paid',
+    actorUserId: user.id,
+    linePlanId,
+  });
+
+  revalidatePath(`/admin/lines/${lineId}`);
+  revalidatePath('/admin/lines');
+  revalidatePath('/admin/subscriptions');
+  return result;
+}
 
 export async function replaceLinePlanAction(formData: FormData) {
   const { user } = await requireAdmin();

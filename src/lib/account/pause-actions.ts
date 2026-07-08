@@ -206,14 +206,15 @@ export async function resumeLineAction(_prev: PauseActionState, formData: FormDa
   const planSlug = (lineMeta.paused_plan_slug as string | undefined) || subInfo.planSlug;
   if (!planSlug) return { error: `We couldn't determine which plan to restore. ${SUPPORT_HINT}` };
 
-  const planPriceId = await resolvePlanPriceId(planSlug);
-  if (!planPriceId) return { error: `We couldn't determine your plan's price. ${SUPPORT_HINT}` };
-
   const subscription = await stripe.subscriptions.retrieve(subInfo.stripeSubscriptionId);
   const item = subInfo.stripeSubscriptionItemId
     ? subscription.items.data.find((subItem) => subItem.id === subInfo.stripeSubscriptionItemId)
     : subscription.items.data[0];
   if (!item) return { error: `We couldn't read your subscription details. ${SUPPORT_HINT}` };
+
+  const storedPriceId = item.metadata?.bitlink_paused_price_id?.trim();
+  const planPriceId = storedPriceId || await resolvePlanPriceId(planSlug);
+  if (!planPriceId) return { error: `We couldn't determine your plan's price. ${SUPPORT_HINT}` };
 
   const provider = getTelecomProvider();
   await provider.reactivateLine(line.provider_line_id);

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AlertTriangle, BarChart2, Phone, RefreshCw, Shield, Wifi, Zap } from "lucide-react";
+import { AlertTriangle, Phone, Shield } from "lucide-react";
 import { getAdminDb } from "@/lib/db/admin";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import type { LineDetail } from "@/types/telecom";
@@ -142,8 +142,9 @@ export default async function AdminLineDetailPage({ params }: Props) {
           {liveDetail && (
             <LinePlansCard
               lineId={line.id}
-              providerLineId={providerLineId!}
               plans={liveDetail.plans}
+              isKosher={Boolean(line.is_kosher)}
+              currentPlanSlug={(metadata.plan_slug as string | undefined) ?? null}
             />
           )}
 
