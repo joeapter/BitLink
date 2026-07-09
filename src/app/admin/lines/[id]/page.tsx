@@ -10,6 +10,7 @@ import { LineBalanceCard } from "@/components/admin/LineBalanceCard";
 import { LinePlansCard } from "@/components/admin/LinePlansCard";
 import { LineForwardsCard } from "@/components/admin/LineForwardsCard";
 import { LineBarringsCard } from "@/components/admin/LineBarringsCard";
+import { AddIntlNumberCard } from "@/components/admin/AddIntlNumberCard";
 import { retryProvisioningJobAction } from "@/lib/admin/line-actions";
 import { EsimActivationCard } from "@/components/admin/EsimActivationCard";
 import { Button } from "@/components/ui/Button";
@@ -158,6 +159,28 @@ export default async function AdminLineDetailPage({ params }: Props) {
               currentPlanSlug={(metadata.plan_slug as string | undefined) ?? null}
             />
           )}
+
+          {/* International number add-on (for lines already active/suspended) */}
+          {providerLineId && ["active", "suspended"].includes(line.status) && (() => {
+            const intlNumberMeta = metadata.intl_number as
+              | { country: string; number: string; status: string; billing_mode?: string }
+              | undefined;
+            return (
+              <AddIntlNumberCard
+                lineId={line.id}
+                existingIntlNumber={
+                  intlNumberMeta
+                    ? {
+                        country: intlNumberMeta.country,
+                        number: intlNumberMeta.number,
+                        status: intlNumberMeta.status,
+                        billingMode: intlNumberMeta.billing_mode,
+                      }
+                    : null
+                }
+              />
+            );
+          })()}
 
           {/* Call forwarding */}
           {providerLineId && (

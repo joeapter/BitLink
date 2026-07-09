@@ -5,6 +5,7 @@ import { LineUsageMeter } from "@/components/account/LineUsageMeter";
 import { EsimQrCard } from "@/components/account/EsimQrCard";
 import { PauseLineCard } from "@/components/account/PauseLineCard";
 import { PlanChangeCard } from "@/components/account/PlanChangeCard";
+import { AddIntlNumberCard } from "@/components/account/AddIntlNumberCard";
 import { requireUser } from "@/lib/auth/server";
 import { getAccountSnapshot } from "@/lib/db/account";
 
@@ -49,6 +50,17 @@ export default async function AccountLinesPage() {
               lineId={line.id}
               status={line.status}
               pausedAt={(meta.paused_at as string | undefined) ?? null}
+            />
+            {/* US/CA/UK number add-on for an already-active line */}
+            <AddIntlNumberCard
+              lineId={line.id}
+              status={line.status}
+              existingNumber={
+                (meta.intl_number as { number?: string; status?: string } | undefined)?.status === "assigned" ||
+                (meta.intl_number as { number?: string; status?: string } | undefined)?.status === "reserved"
+                  ? ((meta.intl_number as { number?: string }).number ?? null)
+                  : null
+              }
             />
           </div>
         );

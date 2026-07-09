@@ -8,6 +8,7 @@ import { retryProvisioningJob } from "@/lib/provisioning/orchestrator";
 import { inngest } from "@/inngest/client";
 import { changeLinePlan, type PlanChangeResult } from "@/lib/line-plan-change";
 import { sendProvisionedNotifications } from "@/lib/notifications/send-provisioned";
+import { addIntlNumberToLine, type AddIntlNumberResult } from "@/lib/custom-orders/international-numbers";
 
 function getProvider() {
   return getTelecomProvider();
@@ -177,6 +178,39 @@ export async function replaceLinePlanAction(formData: FormData) {
   await logAction(user.id, 'line_plan_replaced', lineId, { providerLineId, linePlanId, newPlanName });
   revalidatePath(`/admin/lines/${lineId}`);
   return { success: true };
+}
+
+// ── International number operations ──────────────────────────────────────────
+
+export type AdminAddIntlNumberState = AddIntlNumberResult | null;
+
+export async function addIntlNumberToLineAdminAction(
+  _prev: AdminAddIntlNumberState,
+  formData: FormData,
+): Promise<AdminAddIntlNumberState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const country = String(formData.get('country') ?? '') as 'us' | 'canada' | 'uk';
+  const number = String(formData.get('number') ?? '');
+  const billingModeRaw = String(formData.get('billingMode') ?? 'paid');
+
+  if (!lineId || !number || !['us', 'canada', 'uk'].includes(country)) {
+    return { error: 'Choose a number before adding it.' };
+  }
+
+  const admin = getAdmin();
+  const result = await addIntlNumberToLine({
+    admin,
+    lineId,
+    country,
+    number,
+    billingMode: billingModeRaw === 'free' ? 'free' : 'paid',
+    actorUserId: user.id,
+  });
+
+  revalidatePath(`/admin/lines/${lineId}`);
+  revalidatePath('/admin/lines');
+  return result;
 }
 
 // ── Barring operations ────────────────────────────────────────────────────────
