@@ -1,6 +1,10 @@
 // Durable Inngest function for async line provisioning.
 //
 // Flow:
+//   0. If the job carries a future next_retry_at (set by an explicit admin
+//      retry's exponential backoff), sleep until that moment first — this is
+//      what makes the "Scheduled" time shown in admin an honest promise
+//      instead of a value that's overwritten within milliseconds.
 //   1. process-job: PENDING → SUBMITTED → SYNCING → (COMPLETED if sync provider)
 //   2. If SYNCING (async provider): sleep 30s then poll provider once
 //      The reconcile cron picks up anything still stuck after that.
@@ -28,6 +32,23 @@ export const provisionLine = inngest.createFunction(
   async ({ event, step }) => {
     const { jobId } = event.data as { jobId: string };
     log.info({ jobId }, 'Provisioning job picked up');
+
+    const scheduledFor = await step.run('check-schedule', async () => {
+      const admin = createSupabaseAdminClient();
+      if (!admin) return null;
+      const { data } = await admin
+        .from('provisioning_jobs')
+        .select('status, next_retry_at')
+        .eq('id', jobId)
+        .maybeSingle();
+      if (data?.status !== 'pending' || !data.next_retry_at) return null;
+      return new Date(data.next_retry_at).getTime() > Date.now() ? data.next_retry_at : null;
+    });
+
+    if (scheduledFor) {
+      log.info({ jobId, scheduledFor }, 'Honoring retry backoff — sleeping until scheduled time');
+      await step.sleepUntil('respect-retry-backoff', scheduledFor);
+    }
 
     const result = await step.run('process-job', async () => {
       return processProvisioningJob(jobId);
