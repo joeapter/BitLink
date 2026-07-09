@@ -7,6 +7,7 @@ import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import { retryProvisioningJob } from "@/lib/provisioning/orchestrator";
 import { inngest } from "@/inngest/client";
 import { changeLinePlan, type PlanChangeResult } from "@/lib/line-plan-change";
+import { sendProvisionedNotifications } from "@/lib/notifications/send-provisioned";
 
 function getProvider() {
   return getTelecomProvider();
@@ -273,6 +274,58 @@ export async function recycleEsimProfileAction(formData: FormData): Promise<void
   const provider = getProvider();
   await provider.recycleEsimProfile(simId);
   await logAction(user.id, 'esim_profile_recycled', lineId, { simId });
+  revalidatePath(`/admin/lines/${lineId}`);
+}
+
+// ── Provisioned-notification recovery ────────────────────────────────────────
+
+export type ResendState = { error?: string; success?: string } | null;
+
+// Bypasses the idempotency stamp (force: true) — this is an explicit admin
+// resend, not the automatic one-time notification.
+export async function resendProvisionedEmailAction(
+  _prev: ResendState,
+  formData: FormData,
+): Promise<ResendState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const providerLineId = String(formData.get('providerLineId') ?? '') || null;
+  if (!lineId) return { error: 'Missing line reference.' };
+
+  const admin = getAdmin();
+  const result = await sendProvisionedNotifications(admin, lineId, providerLineId, { force: true });
+
+  if (result.skipped) {
+    return { error: `Could not send: ${result.reason.replaceAll('_', ' ')}.` };
+  }
+
+  await logAction(user.id, 'provisioned_email_resent', lineId, {});
+  revalidatePath(`/admin/lines/${lineId}`);
+  return { success: 'Activation email resent to the customer.' };
+}
+
+// Manual override for "hide the QR once installed" — there is no automatic
+// signal from Annatel for first network registration today, so this gives
+// admins explicit control instead of the QR showing forever.
+export async function markEsimInstalledAction(formData: FormData): Promise<void> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  if (!lineId) return;
+
+  const admin = getAdmin();
+  const { data: line } = await admin.from('telecom_lines').select('metadata').eq('id', lineId).maybeSingle();
+  await admin
+    .from('telecom_lines')
+    .update({
+      metadata: {
+        ...((line?.metadata ?? {}) as object),
+        esim_activated_at: new Date().toISOString(),
+      } as never,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', lineId);
+
+  await logAction(user.id, 'esim_marked_installed', lineId, {});
   revalidatePath(`/admin/lines/${lineId}`);
 }
 

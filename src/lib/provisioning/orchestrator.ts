@@ -446,6 +446,11 @@ async function completeJob(
   // Notify the customer (and admin) regardless of which path completed the
   // job — direct processing, the reconcile cron, or the Annatel webhook.
   // notify-provisioned is idempotent, so double-delivery of this event is safe.
+  //
+  // If the Inngest dispatch itself fails (this happened silently once before —
+  // a customer's eSIM sat ready for hours with no email, and the only trace
+  // was a log.warn nobody saw), send the notification synchronously right here
+  // as a fallback so the customer is never silently missed again.
   try {
     const { inngest } = await import('@/inngest/client');
     await inngest.send({
@@ -453,7 +458,27 @@ async function completeJob(
       data: { lineId, providerLineId: providerLineId ?? null, jobId: job.id },
     });
   } catch (err) {
-    log.warn({ jobId: job.id, error: String(err) }, 'Failed to dispatch provisioning/line.completed');
+    const errMsg = err instanceof Error ? err.message : String(err);
+    log.error({ jobId: job.id, error: errMsg }, 'Failed to dispatch provisioning/line.completed — sending fallback notification directly');
+    try {
+      const { sendProvisionedNotifications } = await import('@/lib/notifications/send-provisioned');
+      await sendProvisionedNotifications(admin, lineId, providerLineId ?? null);
+    } catch (fallbackErr) {
+      const fallbackMsg = fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr);
+      log.error({ jobId: job.id, error: fallbackMsg }, 'Fallback notification also failed — customer was NOT notified');
+      await sendEmail({
+        to: 'joe@bitlink.co.il',
+        subject: `⚠ Line provisioned but customer NOT notified — ${lineId}`,
+        html: [
+          `<p>Line <b>${lineId}</b> completed provisioning successfully, but BOTH the event dispatch and the direct fallback failed to notify the customer.</p>`,
+          `<p><b>Dispatch error:</b> ${errMsg}</p>`,
+          `<p><b>Fallback error:</b> ${fallbackMsg}</p>`,
+          `<p><a href="https://www.bitlink.co.il/admin/lines/${lineId}">Open the line in admin</a> to resend manually.</p>`,
+        ].join(''),
+      }).catch(() => {
+        // last resort — nothing more we can do if even this send fails
+      });
+    }
   }
 
   log.info({ jobId: job.id, lineId }, 'Line provisioning completed');

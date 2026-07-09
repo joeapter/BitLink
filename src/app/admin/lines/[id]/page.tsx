@@ -11,9 +11,11 @@ import { LinePlansCard } from "@/components/admin/LinePlansCard";
 import { LineForwardsCard } from "@/components/admin/LineForwardsCard";
 import { LineBarringsCard } from "@/components/admin/LineBarringsCard";
 import { retryProvisioningJobAction } from "@/lib/admin/line-actions";
+import { EsimActivationCard } from "@/components/admin/EsimActivationCard";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatDate, formatDateTime } from "@/lib/utils";
+import QRCode from "qrcode";
 
 export const metadata: Metadata = { title: "Line Detail" };
 export const dynamic = "force-dynamic";
@@ -37,6 +39,15 @@ export default async function AdminLineDetailPage({ params }: Props) {
 
   const customer = line.customers as { full_name?: string; email?: string; phone?: string } | null;
   const providerLineId = line.provider_line_id as string | null;
+
+  // Generated once here (server-side) so EsimActivationCard, a client
+  // component (it needs useActionState for the resend button), can just
+  // render the data URL rather than doing its own async work.
+  const lineMeta = (line.metadata ?? {}) as Record<string, unknown>;
+  const pendingActivationCode = lineMeta.esim_activation_code as string | undefined;
+  const esimQrDataUrl = pendingActivationCode && !lineMeta.esim_activated_at
+    ? await QRCode.toDataURL(pendingActivationCode, { width: 300, margin: 1, errorCorrectionLevel: "M" })
+    : null;
   const { data: latestJob } = await db
     .from("provisioning_jobs")
     .select("id, status, error, attempt_count, max_attempts, updated_at, next_retry_at")
@@ -313,6 +324,23 @@ export default async function AdminLineDetailPage({ params }: Props) {
               </div>
             </section>
           )}
+
+          {(() => {
+            const meta = (line.metadata ?? {}) as Record<string, unknown>;
+            const isEsim = meta.is_esim === true || meta.is_esim === "1" || meta.is_esim === 1;
+            const activationCode = meta.esim_activation_code as string | undefined;
+            const installedAt = meta.esim_activated_at as string | undefined;
+            if (!isEsim || !activationCode || installedAt || !providerLineId) return null;
+            return (
+              <EsimActivationCard
+                lineId={line.id}
+                providerLineId={providerLineId}
+                activationCode={activationCode}
+                qrDataUrl={esimQrDataUrl ?? ""}
+                iccId={meta.esim_icc_id as string | undefined}
+              />
+            );
+          })()}
 
           {providerLineId && (
             <LineActionsPanel
