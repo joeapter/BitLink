@@ -39,7 +39,7 @@ export default async function AdminLineDetailPage({ params }: Props) {
   const providerLineId = line.provider_line_id as string | null;
   const { data: latestJob } = await db
     .from("provisioning_jobs")
-    .select("id, status, error, attempt_count, max_attempts, updated_at")
+    .select("id, status, error, attempt_count, max_attempts, updated_at, next_retry_at")
     .eq("line_id", id)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -277,6 +277,19 @@ export default async function AdminLineDetailPage({ params }: Props) {
                   <span className="text-muted-slate">Status</span>
                   <StatusBadge status={latestJob.status} />
                 </div>
+                {latestJob.status === "pending" && latestJob.next_retry_at ? (
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-muted-slate">Scheduled</span>
+                    <span className="font-mono text-xs text-ink">
+                      {new Date(latestJob.next_retry_at).toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                ) : null}
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-muted-slate">Attempts</span>
                   <span className="font-mono text-xs text-ink">
