@@ -316,6 +316,7 @@ async function handleCheckoutCompleted(
   const intlPortNumber = session.metadata?.intl_port_number || null;
   const intlNumberCountry = session.metadata?.intl_number_country || 'us';
   const intlNumberSource = session.metadata?.intl_number_source || 'port';
+  const intlChosenNumber = session.metadata?.intl_chosen_number || null;
 
   const { data: existingLine } = await admin
     .from('telecom_lines')
@@ -449,7 +450,8 @@ async function handleCheckoutCompleted(
           intl_number: {
             country: intlNumberCountry,
             source: 'new',
-            status: 'awaiting_fulfillment',
+            number: intlChosenNumber,
+            status: intlChosenNumber ? 'reserved' : 'awaiting_fulfillment',
             requested_at: new Date().toISOString(),
           },
         } as never,

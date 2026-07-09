@@ -20,6 +20,10 @@ export type CustomOrderLine = {
   intlCountry: 'us' | 'canada' | 'uk' | null;
   intlSource: 'new' | 'port' | null;
   intlPortNumber: string | null;
+  // Number the customer picked from international_dids inventory at checkout
+  // time (intlSource === 'new' only) — see IntlNumberPicker + the checkout
+  // route's reservation step.
+  intlChosenNumber: string | null;
   customPriceCents: number;
 };
 
@@ -41,6 +45,9 @@ export function normalizeCustomOrderLines(value: unknown): CustomOrderLine[] {
       intlSource: wantsIntlNumber ? intlSource : null,
       intlPortNumber: wantsIntlNumber && intlSource === 'port'
         ? ((row.intlPortNumber ?? row.intl_port_number ?? null) as string | null)
+        : null,
+      intlChosenNumber: wantsIntlNumber && intlSource === 'new'
+        ? ((row.intlChosenNumber ?? row.intl_chosen_number ?? null) as string | null)
         : null,
       customPriceCents: Number(row.customPriceCents ?? row.custom_price_cents ?? plan.priceCents),
     };
@@ -71,6 +78,7 @@ function lineProductMetadata(token: string, line: CustomOrderLine, index: number
     intl_country: line.intlCountry ?? '',
     intl_source: line.intlSource ?? '',
     intl_port_number: line.intlPortNumber ?? '',
+    intl_chosen_number: line.intlChosenNumber ?? '',
     source: 'bitlink_admin_custom',
   };
 }

@@ -7,6 +7,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createCheckoutSession, getStripe } from "@/lib/stripe/server";
 import { addLinesToExistingSubscription } from "@/lib/stripe/custom-orders";
+import { releaseIntlNumbers, reserveIntlNumber } from "@/lib/custom-orders/international-numbers";
 import { upsertSubscription } from "@/lib/db/subscriptions";
 import { getPlan } from "@/lib/plans";
 import { absoluteUrl, normalizeIsraeliMobile } from "@/lib/utils";
@@ -29,6 +30,7 @@ const bodySchema = z.object({
   intlNumberCountry: z.enum(["us", "canada", "uk"]).optional(),
   intlNumberSource: z.enum(["new", "port"]).optional(),
   intlPortNumber: z.string().nullable().optional(),
+  intlChosenNumber: z.string().nullable().optional(),
 });
 
 async function getActiveStripeSubscription(
@@ -134,10 +136,37 @@ export async function POST(request: NextRequest): Promise<Response> {
     return NextResponse.json({ error: "Enter the international number you want to port." }, { status: 400 });
   }
 
+  const wantsNewIntlNumber = wantsIntlNumber && (intlNumberSource ?? "new") === "new";
+  if (wantsNewIntlNumber && !parsed.data.intlChosenNumber?.trim()) {
+    return NextResponse.json({ error: "Choose your international number before continuing." }, { status: 400 });
+  }
+
+  // Reserved for the lifetime of this request; released if anything below
+  // fails before the line is actually created/billed.
+  const reservationToken = `account_${crypto.randomUUID().replaceAll("-", "").slice(0, 24)}`;
+  const chosenIntlNumber = wantsNewIntlNumber ? parsed.data.intlChosenNumber!.trim() : null;
+  if (chosenIntlNumber) {
+    const reserved = await reserveIntlNumber(admin, {
+      number: chosenIntlNumber,
+      country: intlNumberCountry ?? "us",
+      reservationToken,
+    });
+    if (!reserved) {
+      return NextResponse.json({ error: "That number was just taken — pick another." }, { status: 409 });
+    }
+  }
+
+  async function releaseIfReserved() {
+    if (chosenIntlNumber && admin) {
+      await releaseIntlNumbers(admin, { numbers: [chosenIntlNumber], reservationToken }).catch(() => {});
+    }
+  }
+
   const customer = await resolveAccountCustomer(admin, user.id, user.email);
 
   if (!customer?.id || !customer.email) {
     log.warn({ userId: user.id }, "Customer record not found for add-line checkout");
+    await releaseIfReserved();
     return NextResponse.json({ error: "We could not find your BitLink customer record." }, { status: 404 });
   }
 
@@ -150,6 +179,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   if (planError || !planRow?.stripe_price_id) {
     log.warn({ planSlug, error: planError?.message }, "Plan unavailable for add-line checkout");
+    await releaseIfReserved();
     return NextResponse.json({ error: "This plan is not available for checkout." }, { status: 503 });
   }
 
@@ -211,6 +241,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       intlCountry: wantsIntlNumber ? (intlNumberCountry ?? "us") : null,
       intlSource: wantsIntlNumber ? (intlNumberSource ?? "new") : null,
       intlPortNumber: wantsIntlNumber && intlNumberSource === "port" ? (intlPortNumber ?? null) : null,
+      intlChosenNumber: chosenIntlNumber,
       customPriceCents: monthlyPriceCents,
     };
 
@@ -268,6 +299,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         { userId: user.id, customerId: customer.id, error: err instanceof Error ? err.message : String(err) },
         "Failed to add line to existing subscription",
       );
+      await releaseIfReserved();
       return NextResponse.json(
         { error: "We could not add this line to your existing subscription. Please contact support." },
         { status: 503 },
@@ -275,7 +307,9 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
   }
 
-  const session = await createCheckoutSession(stripe, {
+  let session;
+  try {
+    session = await createCheckoutSession(stripe, {
     stripePriceId: planRow.stripe_price_id,
     activationFeePriceId: parsed.data.skipActivationFee
       ? null
@@ -297,6 +331,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     intlNumberCountry: wantsIntlNumber ? (intlNumberCountry ?? "us") : null,
     intlNumberSource: wantsIntlNumber ? (intlNumberSource ?? "new") : null,
     intlPortNumber: wantsIntlNumber && intlNumberSource === "port" ? (intlPortNumber ?? null) : null,
+    intlChosenNumber: chosenIntlNumber,
     customerRecordId: customer.id,
     userId: user.id,
     successUrl: absoluteUrl("/checkout/success?session_id={CHECKOUT_SESSION_ID}"),
@@ -304,7 +339,15 @@ export async function POST(request: NextRequest): Promise<Response> {
     // Embedded (on-site) checkout when the publishable key is configured;
     // hosted redirect otherwise.
     uiMode: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() ? "embedded" : "hosted",
-  });
+    });
+  } catch (err) {
+    log.error(
+      { userId: user.id, customerId: customer.id, error: err instanceof Error ? err.message : String(err) },
+      "Failed to create add-line checkout session",
+    );
+    await releaseIfReserved();
+    return NextResponse.json({ error: "Line checkout could not be started." }, { status: 503 });
+  }
 
   log.info({ userId: user.id, customerId: customer.id, planSlug, sessionId: session.id }, "Add-line checkout created");
   return NextResponse.json(

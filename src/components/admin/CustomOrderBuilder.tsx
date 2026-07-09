@@ -5,6 +5,7 @@ import { Copy, KeyRound, Loader2, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { IntlNumberPicker } from "@/components/checkout/IntlNumberPicker";
 import { formatMoney } from "@/lib/utils";
 import { getPlan, plans, type PlanSlug } from "@/lib/plans";
 
@@ -28,6 +29,7 @@ type BuilderLine = {
   intlCountry: IntlCountry;
   intlSource: IntlSource;
   intlPortNumber: string;
+  intlChosenNumber: string;
   customPrice: string;
 };
 
@@ -43,6 +45,7 @@ function newLine(): BuilderLine {
     intlCountry: "us",
     intlSource: "new",
     intlPortNumber: "",
+    intlChosenNumber: "",
     customPrice: (plan.priceCents / 100).toFixed(2),
   };
 }
@@ -133,6 +136,7 @@ export function CustomOrderBuilder({
           intlCountry: line.wantsIntlNumber ? line.intlCountry : null,
           intlSource: line.wantsIntlNumber ? line.intlSource : null,
           intlPortNumber: line.wantsIntlNumber && line.intlSource === "port" ? line.intlPortNumber : null,
+          intlChosenNumber: line.wantsIntlNumber && line.intlSource === "new" ? (line.intlChosenNumber || null) : null,
           customPriceCents: dollarsToCents(line.customPrice),
         })),
       }),
@@ -354,6 +358,33 @@ export function CustomOrderBuilder({
                       />
                     ) : null}
                   </div>
+                ) : null}
+
+                {line.wantsIntlNumber && line.intlSource === "new" ? (
+                  line.intlChosenNumber ? (
+                    <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
+                      <span>Picked: {line.intlChosenNumber}</span>
+                      <button
+                        type="button"
+                        onClick={() => updateLine(line.id, { intlChosenNumber: "" })}
+                        className="text-xs font-semibold text-emerald-700 underline decoration-dotted"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-4 rounded-2xl border border-ink/10 bg-slate-50 p-4">
+                      <p className="mb-3 text-xs text-muted-slate">
+                        Optional — pick a number now, or leave blank and the customer chooses one on the payment link.
+                      </p>
+                      <IntlNumberPicker
+                        endpoint={`/api/admin/international-numbers?country=${line.intlCountry}`}
+                        country={line.intlCountry}
+                        label="Pick a number for this line"
+                        onChosen={(number) => updateLine(line.id, { intlChosenNumber: number ?? "" })}
+                      />
+                    </div>
+                  )
                 ) : null}
               </div>
             );

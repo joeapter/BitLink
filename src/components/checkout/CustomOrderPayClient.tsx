@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CheckCircle2, Loader2, LockKeyhole, Phone, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Globe2, Loader2, LockKeyhole, Phone, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { EmbeddedStripeCheckout } from "@/components/checkout/EmbeddedStripeCheckout";
+import { IntlNumberPicker } from "@/components/checkout/IntlNumberPicker";
 import { PortNumberVerification } from "@/components/checkout/PortNumberVerification";
 import { formatMoney, normalizeIsraeliMobile } from "@/lib/utils";
 import { getPlan, type PlanSlug } from "@/lib/plans";
@@ -18,6 +19,7 @@ type PayLine = {
   intlCountry: "us" | "canada" | "uk" | null;
   intlSource: "new" | "port" | null;
   intlPortNumber: string | null;
+  intlChosenNumber: string | null;
   customPriceCents: number;
 };
 
@@ -55,6 +57,7 @@ export function CustomOrderPayClient({
   lines: PayLine[];
 }) {
   const [verifiedPorts, setVerifiedPorts] = useState<Record<number, string | null>>({});
+  const [chosenIntlNumbers, setChosenIntlNumbers] = useState<Record<number, string | null>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -64,8 +67,16 @@ export function CustomOrderPayClient({
     () => lines.map((line, index) => line.isPortIn ? index : -1).filter((index) => index >= 0),
     [lines],
   );
+  const newIntlNumberLineIndexes = useMemo(
+    () => lines
+      .map((line, index) => (line.wantsIntlNumber && line.intlSource === "new" && !line.intlChosenNumber ? index : -1))
+      .filter((index) => index >= 0),
+    [lines],
+  );
   const total = lines.reduce((sum, line) => sum + line.customPriceCents, 0);
   const allPortsVerified = portLineIndexes.every((index) => Boolean(verifiedPorts[index]));
+  const allIntlNumbersChosen = newIntlNumberLineIndexes.every((index) => Boolean(chosenIntlNumbers[index]));
+  const canSubmit = allPortsVerified && allIntlNumbersChosen;
 
   async function startPayment() {
     setBusy(true);
@@ -77,6 +88,9 @@ export function CustomOrderPayClient({
       body: JSON.stringify({
         verifiedPortNumbers: Object.fromEntries(
           Object.entries(verifiedPorts).filter(([, value]) => Boolean(value)),
+        ),
+        chosenIntlNumbers: Object.fromEntries(
+          Object.entries(chosenIntlNumbers).filter(([, value]) => Boolean(value)),
         ),
       }),
     });
@@ -181,6 +195,33 @@ export function CustomOrderPayClient({
                   New Israeli number will be assigned during activation.
                 </div>
               )}
+
+              {line.wantsIntlNumber && line.intlSource === "new" && line.intlChosenNumber ? (
+                <div className="mt-4 flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
+                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                  Your {(line.intlCountry ?? "us").toUpperCase()} number: {line.intlChosenNumber}
+                </div>
+              ) : line.wantsIntlNumber && line.intlSource === "new" ? (
+                <div className="mt-4 rounded-2xl border border-link-blue/20 bg-[#f4fafc] p-4">
+                  <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
+                    <Globe2 className="h-4 w-4 text-link-blue" aria-hidden="true" />
+                    Choose your {(line.intlCountry ?? "us").toUpperCase()} number
+                  </div>
+                  <IntlNumberPicker
+                    endpoint={`/api/custom-orders/${token}/available-numbers?country=${line.intlCountry ?? "us"}`}
+                    country={line.intlCountry ?? "us"}
+                    label="Pick the number your family and friends will dial"
+                    onChosen={(number) => setChosenIntlNumbers((current) => ({ ...current, [index]: number }))}
+                  />
+                </div>
+              ) : null}
+
+              {line.wantsIntlNumber && line.intlSource === "port" && line.intlPortNumber ? (
+                <div className="mt-4 flex items-center gap-2 rounded-2xl border border-ink/10 bg-slate-50 p-4 text-sm text-muted-slate">
+                  <Globe2 className="h-4 w-4 shrink-0 text-link-blue" aria-hidden="true" />
+                  Porting {line.intlPortNumber} — BitLink will process this after activation.
+                </div>
+              ) : null}
             </div>
           ))}
         </div>
@@ -195,15 +236,15 @@ export function CustomOrderPayClient({
           type="button"
           size="lg"
           onClick={startPayment}
-          disabled={busy || !allPortsVerified}
+          disabled={busy || !canSubmit}
           className="mt-6"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <ShieldCheck className="h-4 w-4" aria-hidden="true" />}
           Continue to secure payment
         </Button>
-        {!allPortsVerified ? (
+        {!canSubmit ? (
           <p className="mt-2 text-xs font-semibold text-amber-800">
-            Verify every ported number before payment.
+            {!allPortsVerified ? "Verify every ported number before payment." : "Choose a number for every international add-on before payment."}
           </p>
         ) : null}
       </section>

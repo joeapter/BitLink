@@ -62,7 +62,10 @@ function buildLineMetadata(input: ProvisionSubscriptionLineInput, correlationId:
       metadata.intl_number = {
         country: line.intlCountry ?? 'us',
         source: 'new',
-        status: 'awaiting_fulfillment',
+        number: line.intlChosenNumber ?? null,
+        // Older orders predating the number picker have no intlChosenNumber —
+        // those still fall back to manual admin fulfillment.
+        status: line.intlChosenNumber ? 'reserved' : 'awaiting_fulfillment',
         requested_at: now,
       };
     }

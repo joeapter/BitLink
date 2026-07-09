@@ -358,6 +358,29 @@ async function completeJob(
       log.error({ jobId: job.id, lineId, error: err instanceof Error ? err.message : String(err) }, 'DID assignment failed — continuing');
     }
 
+    // Attach a reserved international add-on number (US/CA/UK), if the
+    // customer picked one at checkout — same assignDid() call used for the
+    // primary Israeli DID above, attaching a second number to the same line.
+    try {
+      const metaForIntl = ((lineUpdates.metadata ?? (await linesRepo.getLine(admin, lineId))?.metadata ?? {}) as Record<string, unknown>);
+      const intlNumber = metaForIntl.intl_number as Record<string, unknown> | undefined;
+      if (intlNumber && intlNumber.status === 'reserved' && intlNumber.number) {
+        const number = intlNumber.number as string;
+        await provider.assignDid(providerLineId, number);
+        await admin
+          .from('international_dids')
+          .update({ status: 'assigned', assigned_line_id: lineId, assigned_at: new Date().toISOString() })
+          .eq('number', number);
+        lineUpdates.metadata = {
+          ...metaForIntl,
+          intl_number: { ...intlNumber, status: 'assigned', assigned_at: new Date().toISOString() },
+        };
+        log.info({ jobId: job.id, lineId, number }, 'International add-on number assigned');
+      }
+    } catch (err) {
+      log.error({ jobId: job.id, lineId, error: err instanceof Error ? err.message : String(err) }, 'Intl number assignment failed — continuing, admin can retry manually');
+    }
+
     // Fetch and store eSIM activation code if applicable
     if (payload.metadata && (payload.metadata as Record<string, unknown>).is_esim) {
       try {

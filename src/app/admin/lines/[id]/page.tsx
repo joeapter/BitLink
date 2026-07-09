@@ -203,9 +203,21 @@ export default async function AdminLineDetailPage({ params }: Props) {
           {/* DIDs + pending port-ins */}
           {(() => {
             const intlPortIn = metadata.intl_port_in as Record<string, unknown> | undefined;
+            const intlNumber = metadata.intl_number as Record<string, unknown> | undefined;
             const hasDids = liveDetail && liveDetail.dids.length > 0;
             const hasPortIn = Boolean(intlPortIn?.number);
-            if (!hasDids && !hasPortIn) return null;
+            const hasIntlNumber = Boolean(intlNumber?.status);
+            if (!hasDids && !hasPortIn && !hasIntlNumber) return null;
+            const intlNumberStatusColors: Record<string, string> = {
+              awaiting_fulfillment: 'bg-amber-50 text-amber-700 border-amber-200',
+              reserved:             'bg-blue-50 text-blue-700 border-blue-200',
+              assigned:             'bg-emerald-50 text-emerald-700 border-emerald-200',
+            };
+            const intlNumberStatusLabel: Record<string, string> = {
+              awaiting_fulfillment: 'Needs manual number (admin)',
+              reserved:             'Reserved — activating',
+              assigned:             'Assigned',
+            };
             const portInStatusColors: Record<string, string> = {
               awaiting_israeli_line: 'bg-amber-50 text-amber-700 border-amber-200',
               manual_pending:        'bg-orange-50 text-orange-700 border-orange-200',
@@ -270,6 +282,28 @@ export default async function AdminLineDetailPage({ params }: Props) {
                         {intlPortIn!.attempted_at ? <span>Last attempted {formatDateTime(intlPortIn!.attempted_at as string)}</span> : null}
                         {intlPortIn!.annatel_bur_id ? <span className="font-mono">BUR: {String(intlPortIn!.annatel_bur_id)}</span> : null}
                       </div>
+                    </div>
+                  )}
+                  {hasIntlNumber && (
+                    <div className="rounded-xl border p-3">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <span className="font-semibold text-ink">
+                            {(intlNumber!.number as string | undefined) ?? "Not yet chosen"}
+                          </span>
+                          <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-[0.65rem] font-semibold uppercase text-slate-500">
+                            {(intlNumber!.country as string | undefined)?.toUpperCase() ?? 'INTL'} New
+                          </span>
+                        </div>
+                        <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${intlNumberStatusColors[intlNumber!.status as string] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                          {intlNumberStatusLabel[intlNumber!.status as string] ?? String(intlNumber!.status)}
+                        </span>
+                      </div>
+                      {intlNumber!.requested_at ? (
+                        <p className="mt-2 text-[0.65rem] text-muted-slate">
+                          Requested {formatDateTime(intlNumber!.requested_at as string)}
+                        </p>
+                      ) : null}
                     </div>
                   )}
                 </div>

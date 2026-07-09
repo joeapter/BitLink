@@ -6,6 +6,7 @@ import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { provisionSubscriptionLines } from '@/lib/custom-orders/provision-lines';
 import { upsertSubscription } from '@/lib/db/subscriptions';
 import { addLinesToExistingSubscription, createCustomOrderSession, normalizeCustomOrderLines } from '@/lib/stripe/custom-orders';
+import { releaseIntlNumbers, reserveIntlNumber } from '@/lib/custom-orders/international-numbers';
 import { getStripe } from '@/lib/stripe/server';
 import { getTelecomProvider } from '@/lib/telecom/provider.registry';
 import { absoluteUrl, normalizeIsraeliMobile } from '@/lib/utils';
@@ -18,6 +19,7 @@ const log = logger.child({ route: 'custom-orders/[token]/checkout' });
 
 const bodySchema = z.object({
   verifiedPortNumbers: z.record(z.string(), z.string()).default({}),
+  chosenIntlNumbers: z.record(z.string(), z.string()).default({}),
 });
 
 async function getActiveStripeSubscription(
@@ -122,6 +124,60 @@ export async function POST(
         { error: `Line ${index + 1}: SMS verification is not complete yet.` },
         { status: 400 },
       );
+    }
+  }
+
+  // New intl add-on numbers are picked by the customer, not the admin who
+  // built the order — reserve their choice atomically (available -> reserved)
+  // so two payment links can't both grab the same number. Anything reserved
+  // here is released back to available if we bail out before payment starts.
+  const reservedNumbers: string[] = [];
+  let linesChanged = false;
+
+  async function releaseReservedNumbers() {
+    if (!admin) return;
+    await releaseIntlNumbers(admin, { numbers: reservedNumbers, reservationToken: token });
+  }
+
+  for (const [index, line] of lines.entries()) {
+    if (!line.wantsIntlNumber || line.intlSource !== 'new') continue;
+    // Prefer a number the admin already pre-picked in the builder; otherwise
+    // require the customer to choose one here before payment.
+    const chosen = line.intlChosenNumber || parsed.data.chosenIntlNumbers[String(index)];
+    if (!chosen) {
+      return Response.json(
+        { error: `Line ${index + 1}: choose a ${(line.intlCountry ?? 'us').toUpperCase()} number before payment.` },
+        { status: 400 },
+      );
+    }
+
+    const reserved = await reserveIntlNumber(admin, {
+      number: chosen,
+      country: line.intlCountry ?? 'us',
+      reservationToken: token,
+    });
+
+    if (!reserved) {
+      await releaseReservedNumbers();
+      return Response.json(
+        { error: `Line ${index + 1}: that number was just taken — pick another.` },
+        { status: 409 },
+      );
+    }
+
+    reservedNumbers.push(chosen);
+    lines[index] = { ...line, intlChosenNumber: chosen };
+    linesChanged = true;
+  }
+
+  if (linesChanged) {
+    const { error: linesUpdateError } = await admin
+      .from('custom_line_orders')
+      .update({ lines: lines as never, updated_at: new Date().toISOString() })
+      .eq('id', order.id);
+    if (linesUpdateError) {
+      await releaseReservedNumbers();
+      return Response.json({ error: 'Could not save your number choice. Try again.' }, { status: 503 });
     }
   }
 
@@ -263,6 +319,7 @@ export async function POST(
     );
   } catch (err) {
     log.error({ token, error: err instanceof Error ? err.message : String(err) }, 'Failed to create custom checkout');
+    await releaseReservedNumbers().catch(() => {});
     return Response.json({ error: 'Payment could not be started.' }, { status: 503 });
   }
 }

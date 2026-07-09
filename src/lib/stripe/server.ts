@@ -35,6 +35,7 @@ export interface CreateCheckoutSessionParams {
   intlNumberCountry?: string | null;
   intlNumberSource?: string | null;
   intlPortNumber?: string | null;
+  intlChosenNumber?: string | null;
   customerRecordId: string | null;
   userId: string | null;
   successUrl?: string;
@@ -75,6 +76,7 @@ export async function createCheckoutSession(
     intl_number_country: params.intlNumberCountry ?? '',
     intl_number_source: params.intlNumberSource ?? '',
     intl_port_number: params.intlPortNumber ?? '',
+    intl_chosen_number: params.intlChosenNumber ?? '',
     source: 'bitlink_web',
   };
 

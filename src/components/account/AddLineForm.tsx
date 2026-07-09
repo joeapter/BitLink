@@ -9,6 +9,7 @@ import { Select } from "@/components/ui/Select";
 import { CheckoutSummary } from "@/components/checkout/CheckoutSummary";
 import { EmbeddedStripeCheckout } from "@/components/checkout/EmbeddedStripeCheckout";
 import { EsimCompatibilityModal } from "@/components/checkout/EsimCompatibilityModal";
+import { IntlNumberPicker } from "@/components/checkout/IntlNumberPicker";
 import { OrderInfoPanel } from "@/components/checkout/OrderInfoPanel";
 import { PortNumberVerification } from "@/components/checkout/PortNumberVerification";
 
@@ -38,6 +39,7 @@ export function AddLineForm({
   const [feeWaived, setFeeWaived] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [verifiedPortNumber, setVerifiedPortNumber] = useState<string | null>(null);
+  const [chosenIntlNumber, setChosenIntlNumber] = useState<string | null>(null);
 
   useEffect(() => {
     const check = () => {
@@ -79,6 +81,11 @@ export function AddLineForm({
       setError("Verify the number you're porting first — we text a code to it.");
       return;
     }
+    if (wantsIntlNumber && intlSource === "new" && !chosenIntlNumber) {
+      setLoading(false);
+      setError("Choose your international number before continuing.");
+      return;
+    }
     // Read the waiver fresh at submit time — mounted state can be stale.
     const waived = feeWaived || localStorage.getItem("bl_staff") === "1";
     const response = await fetch("/api/account/create-line-checkout", {
@@ -94,6 +101,7 @@ export function AddLineForm({
         intlNumberCountry: wantsIntlNumber ? intlCountry : undefined,
         intlNumberSource: wantsIntlNumber ? intlSource : undefined,
         intlPortNumber: wantsIntlNumber && intlSource === "port" ? formData.get("intlPortNumber") : null,
+        intlChosenNumber: wantsIntlNumber && intlSource === "new" ? chosenIntlNumber : null,
       }),
     });
 
@@ -284,12 +292,26 @@ export function AddLineForm({
           {wantsIntlNumber ? (
             <div className="mt-3 grid gap-3 rounded-2xl border border-link-blue/20 bg-link-blue/5 p-4">
               <div className="grid gap-3 sm:grid-cols-2">
-                <Select label="Country" value={intlCountry} onChange={(event) => setIntlCountry(event.target.value as IntlCountry)}>
+                <Select
+                  label="Country"
+                  value={intlCountry}
+                  onChange={(event) => {
+                    setIntlCountry(event.target.value as IntlCountry);
+                    setChosenIntlNumber(null);
+                  }}
+                >
                   <option value="us">US</option>
                   <option value="canada">Canada</option>
                   <option value="uk">UK</option>
                 </Select>
-                <Select label="Number" value={intlSource} onChange={(event) => setIntlSource(event.target.value as IntlSource)}>
+                <Select
+                  label="Number"
+                  value={intlSource}
+                  onChange={(event) => {
+                    setIntlSource(event.target.value as IntlSource);
+                    setChosenIntlNumber(null);
+                  }}
+                >
                   <option value="new">Assign me one</option>
                   <option value="port">Port my existing</option>
                 </Select>
@@ -303,7 +325,14 @@ export function AddLineForm({
                     <p className="mt-0.5">International number ports are processed manually after the Israeli line is active.</p>
                   </div>
                 </div>
-              ) : null}
+              ) : (
+                <IntlNumberPicker
+                  endpoint={`/api/account/international-numbers?country=${intlCountry}`}
+                  country={intlCountry}
+                  label="Pick the number your family and friends will dial"
+                  onChosen={setChosenIntlNumber}
+                />
+              )}
             </div>
           ) : null}
         </div>
@@ -320,7 +349,12 @@ export function AddLineForm({
           </div>
         ) : null}
 
-        <Button type="submit" size="lg" disabled={loading} className="mt-6">
+        <Button
+          type="submit"
+          size="lg"
+          disabled={loading || (wantsIntlNumber && intlSource === "new" && !chosenIntlNumber)}
+          className="mt-6"
+        >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <PlusCircle className="h-4 w-4" aria-hidden="true" />}
           Continue to payment
         </Button>

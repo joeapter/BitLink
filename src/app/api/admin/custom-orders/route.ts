@@ -24,6 +24,7 @@ const lineSchema = z.object({
   intlCountry: intlCountrySchema.nullable().optional(),
   intlSource: intlSourceSchema.nullable().optional(),
   intlPortNumber: z.string().nullable().optional(),
+  intlChosenNumber: z.string().nullable().optional(),
   customPriceCents: z.number().int().min(100).max(200_000),
 });
 
@@ -236,10 +237,11 @@ export async function POST(request: NextRequest): Promise<Response> {
     intlCountry: 'us' | 'canada' | 'uk' | null;
     intlSource: 'new' | 'port' | null;
     intlPortNumber: string | null;
+    intlChosenNumber: string | null;
     customPriceCents: number;
   }>;
   try {
-    lines = parsed.data.lines.map((line, index) => {
+    lines = await Promise.all(parsed.data.lines.map(async (line, index) => {
       const plan = getPlan(line.planSlug);
       const normalizedPort = line.isPortIn && line.portNumber
         ? normalizeIsraeliMobile(line.portNumber)
@@ -253,6 +255,23 @@ export async function POST(request: NextRequest): Promise<Response> {
         throw new Error(`Line ${index + 1}: enter the US/Canada/UK number to port.`);
       }
 
+      const wantsNewIntlNumber = line.wantsIntlNumber && (line.intlSource ?? 'new') === 'new';
+      let intlChosenNumber: string | null = null;
+      if (wantsNewIntlNumber && line.intlChosenNumber?.trim()) {
+        const candidate = line.intlChosenNumber.trim();
+        const { data: available } = await admin
+          .from('international_dids')
+          .select('number')
+          .eq('number', candidate)
+          .eq('country', line.intlCountry ?? 'us')
+          .eq('status', 'available')
+          .maybeSingle();
+        if (!available) {
+          throw new Error(`Line ${index + 1}: that number is no longer available — pick another.`);
+        }
+        intlChosenNumber = candidate;
+      }
+
       return {
         planSlug: line.planSlug as PlanSlug,
         isEsim: plan.isKosher ? false : line.isEsim,
@@ -264,9 +283,10 @@ export async function POST(request: NextRequest): Promise<Response> {
         intlPortNumber: line.wantsIntlNumber && (line.intlSource ?? 'new') === 'port'
           ? line.intlPortNumber!.trim()
           : null,
+        intlChosenNumber,
         customPriceCents: line.customPriceCents,
       };
-    });
+    }));
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'Invalid line options.' },
