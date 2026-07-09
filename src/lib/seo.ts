@@ -295,6 +295,56 @@ export function stripInlineLinks(text: string) {
   return text.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, "$1");
 }
 
+export interface TestimonialReview {
+  author: string;
+  ratingValue: number;
+  reviewBody: string;
+}
+
+// Emits its own Organization node (sharing organizationId) carrying
+// aggregateRating + review — kept separate from the sitewide siteJsonLd
+// Organization declaration in layout.tsx so review markup only appears on
+// pages that actually render the testimonials, not on every page.
+export function testimonialsJsonLd(reviews: TestimonialReview[]): JsonLd {
+  const average = reviews.reduce((sum, r) => sum + r.ratingValue, 0) / reviews.length;
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": organizationId,
+        name: "BitLink Ltd.",
+        url: SITE_URL,
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: average.toFixed(1),
+          bestRating: "5",
+          worstRating: "1",
+          reviewCount: reviews.length,
+        },
+        review: reviews.map((r) => ({
+          "@type": "Review",
+          author: {
+            "@type": "Person",
+            name: r.author,
+          },
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: r.ratingValue,
+            bestRating: 5,
+            worstRating: 1,
+          },
+          reviewBody: r.reviewBody,
+          itemReviewed: {
+            "@id": organizationId,
+          },
+        })),
+      },
+    ],
+  };
+}
+
 export function faqPageJsonLd(items: Array<{ question: string; answer: string }>): JsonLd {
   return {
     "@context": "https://schema.org",

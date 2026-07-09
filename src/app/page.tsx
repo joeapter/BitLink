@@ -4,13 +4,14 @@ import { ArrowRight, CreditCard, Headphones, RadioTower, Smartphone } from "luci
 import { HumanSupportSection } from "@/components/marketing/HumanSupportSection";
 import { LiquidHero } from "@/components/marketing/LiquidHero";
 import { ReferralBand } from "@/components/marketing/ReferralBand";
+import { Testimonials, testimonials } from "@/components/marketing/Testimonials";
 import { TrustRibbon } from "@/components/marketing/TrustRibbon";
 import { AddOnCard } from "@/components/plans/AddOnCard";
 import { PlanSelector } from "@/components/plans/PlanSelector";
 import { ButtonLink } from "@/components/ui/Button";
 import { TextWithLinks } from "@/components/ui/TextWithLinks";
 import { faqItems } from "@/lib/public-content";
-import { createPageMetadata, faqPageJsonLd, jsonLdScriptProps } from "@/lib/seo";
+import { createPageMetadata, faqPageJsonLd, jsonLdScriptProps, testimonialsJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
   // The root segment doesn't inherit the layout title template, so the brand
@@ -89,6 +90,10 @@ export default function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(faqPageJsonLd(homeFaqItems))} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScriptProps(testimonialsJsonLd(testimonials))}
+      />
       <LiquidHero />
 
       <section className="border-b border-ink/10 bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
@@ -227,6 +232,7 @@ export default function Home() {
 
       <ReferralBand />
       <TrustRibbon />
+      <Testimonials />
 
       <section className="bg-white px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.72fr_1fr]">
