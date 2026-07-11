@@ -9,6 +9,7 @@ import { inngest } from "@/inngest/client";
 import { changeLinePlan, type PlanChangeResult } from "@/lib/line-plan-change";
 import { sendProvisionedNotifications } from "@/lib/notifications/send-provisioned";
 import { addIntlNumberToLine, type AddIntlNumberResult } from "@/lib/custom-orders/international-numbers";
+import { grantTopup, cancelTopupGrant, type GrantTopupResult } from "@/lib/topups/grant-topup";
 
 function getProvider() {
   return getTelecomProvider();
@@ -210,6 +211,53 @@ export async function addIntlNumberToLineAdminAction(
 
   revalidatePath(`/admin/lines/${lineId}`);
   revalidatePath('/admin/lines');
+  return result;
+}
+
+// ── Topup grants ──────────────────────────────────────────────────────────────
+
+export type AdminGrantTopupState = GrantTopupResult | null;
+
+export async function grantTopupAdminAction(
+  _prev: AdminGrantTopupState,
+  formData: FormData,
+): Promise<AdminGrantTopupState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const topupId = String(formData.get('topupId') ?? '');
+  const frequency = String(formData.get('frequency') ?? 'once') === 'monthly' ? 'monthly' : 'once';
+  const billingMode = String(formData.get('billingMode') ?? 'paid') === 'free' ? 'free' : 'paid';
+
+  if (!lineId || !topupId) return { error: 'Choose a topup before adding it.' };
+
+  const admin = getAdmin();
+  const result = await grantTopup({
+    admin,
+    lineId,
+    topupId,
+    frequency,
+    billingMode,
+    source: 'admin',
+    actorUserId: user.id,
+  });
+
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
+}
+
+export async function cancelTopupGrantAdminAction(
+  _prev: AdminGrantTopupState,
+  formData: FormData,
+): Promise<AdminGrantTopupState> {
+  const { user } = await requireAdmin();
+  const grantId = String(formData.get('grantId') ?? '');
+  const lineId = String(formData.get('lineId') ?? '');
+  if (!grantId) return { error: 'Missing grant reference.' };
+
+  const admin = getAdmin();
+  const result = await cancelTopupGrant({ admin, grantId, actorUserId: user.id });
+
+  if (lineId) revalidatePath(`/admin/lines/${lineId}`);
   return result;
 }
 

@@ -1,4 +1,5 @@
 export type TopUpId =
+  | "data-5gb"
   | "data-10gb"
   | "data-20gb"
   | "data-50gb"
@@ -18,6 +19,18 @@ export type TopUp = {
 };
 
 export const topups: TopUp[] = [
+  {
+    id: "data-5gb",
+    name: "+5GB Data",
+    description: "Add 5GB of high-speed 5G data, valid for 30 days.",
+    priceCents: 599,
+    currency: "USD",
+    stripeEnvKey: "STRIPE_PRICE_TOPUP_DATA_5GB",
+    // Same Annatel plan already proven in production via the monthly referral
+    // bonus grant (see REFERRAL_BONUS_DEFAULT_TOPUP_NAME in lib/referrals.ts).
+    annatelPlanName: "PLAN_DATA_SUPP_5GB",
+    forKosher: false,
+  },
   {
     id: "data-10gb",
     name: "+10GB Data",

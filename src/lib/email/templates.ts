@@ -37,7 +37,7 @@ function layout(body: string): string {
         <!-- Logo / header -->
         <tr><td style="padding-bottom:24px;text-align:center;">
           <a href="${BASE_URL}" style="text-decoration:none;">
-            <span style="font-size:24px;font-weight:800;color:#050606;letter-spacing:-0.5px;">Bit<span style="color:${BRAND_COLOR};">L</span>ink</span>
+            <img src="${BASE_URL}/assets/logo-v2.png" alt="BitLink" width="160" height="53" style="display:inline-block;width:160px;height:53px;" />
           </a>
         </td></tr>
 
@@ -312,6 +312,37 @@ export function buildCustomerLoginCreatedEmail(params: {
     </div>
 
     ${p('For security, you can change this password anytime by using the forgot-password link on the login page.')}
+    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972587939426" style="color:' + BRAND_COLOR + ';">+972-58-793-9426</a>.')}
+  `);
+}
+
+// ── Free topup gift (admin-granted, no charge) ───────────────────────────────
+
+export function buildFreeTopupGiftEmail(params: {
+  fullName: string;
+  topupLabel: string;
+  recurring: boolean;
+}): string {
+  const fullName = escapeHtml(params.fullName || 'there');
+  const firstName = fullName.split(' ')[0] ?? fullName;
+  const topupLabel = escapeHtml(params.topupLabel);
+
+  return layout(`
+    ${h1(`A little gift from BitLink, ${firstName}!`)}
+    ${p(`We appreciate having you with us — so we've added <strong>${topupLabel}</strong> to your line, on the house.`)}
+    ${p(
+      params.recurring
+        ? `This isn&rsquo;t a one-time thing — <strong>${topupLabel}</strong> will keep landing on your line automatically every month, no action needed from you.`
+        : `It&rsquo;s already on your line and ready to use.`,
+    )}
+    <div style="background:#f0fdf4;border-left:3px solid #22c55e;border-radius:0 12px 12px 0;padding:16px 20px;margin:20px 0;">
+      <p style="margin:0;font-size:14px;color:#15803d;font-weight:600;">No charge, nothing to do</p>
+      <p style="margin:6px 0 0;font-size:14px;color:#15803d;">This is a gift — it will never appear as a charge on your bill.</p>
+    </div>
+    ${p('You can check your current data balance anytime in your account.')}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn('Open my account', `${BASE_URL}/account/lines`)}
+    </div>
     ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972587939426" style="color:' + BRAND_COLOR + ';">+972-58-793-9426</a>.')}
   `);
 }

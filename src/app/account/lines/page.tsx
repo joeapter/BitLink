@@ -6,6 +6,7 @@ import { EsimQrCard } from "@/components/account/EsimQrCard";
 import { PauseLineCard } from "@/components/account/PauseLineCard";
 import { PlanChangeCard } from "@/components/account/PlanChangeCard";
 import { AddIntlNumberCard } from "@/components/account/AddIntlNumberCard";
+import { TopupCard } from "@/components/account/TopupCard";
 import { requireUser } from "@/lib/auth/server";
 import { getAccountSnapshot } from "@/lib/db/account";
 
@@ -62,6 +63,8 @@ export default async function AccountLinesPage() {
                   : null
               }
             />
+            {/* One-time data/minute topups, charged immediately */}
+            <TopupCard lineId={line.id} status={line.status} isKosher={line.is_kosher} />
           </div>
         );
       })}

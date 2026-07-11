@@ -11,6 +11,7 @@ import { LinePlansCard } from "@/components/admin/LinePlansCard";
 import { LineForwardsCard } from "@/components/admin/LineForwardsCard";
 import { LineBarringsCard } from "@/components/admin/LineBarringsCard";
 import { AddIntlNumberCard } from "@/components/admin/AddIntlNumberCard";
+import { AddTopupCard } from "@/components/admin/AddTopupCard";
 import { retryProvisioningJobAction } from "@/lib/admin/line-actions";
 import { EsimActivationCard } from "@/components/admin/EsimActivationCard";
 import { Button } from "@/components/ui/Button";
@@ -56,6 +57,13 @@ export default async function AdminLineDetailPage({ params }: Props) {
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
+
+  const { data: topupGrantRows } = await db
+    .from("line_topup_grants")
+    .select("id, label, frequency, billing_mode, created_at")
+    .eq("line_id", id)
+    .eq("status", "active")
+    .order("created_at", { ascending: false });
 
   // Fetch live data from Annatel if line is provisioned
   let liveDetail: LineDetail | null = null;
@@ -181,6 +189,21 @@ export default async function AdminLineDetailPage({ params }: Props) {
               />
             );
           })()}
+
+          {/* Topups — free/paid, one-time/monthly grants */}
+          {providerLineId && ["active", "suspended"].includes(line.status) && (
+            <AddTopupCard
+              lineId={line.id}
+              isKosher={Boolean(line.is_kosher)}
+              activeGrants={(topupGrantRows ?? []).map((grant) => ({
+                id: grant.id as string,
+                label: grant.label as string,
+                frequency: grant.frequency as "once" | "monthly",
+                billingMode: grant.billing_mode as "free" | "paid",
+                createdAt: grant.created_at as string,
+              }))}
+            />
+          )}
 
           {/* Call forwarding */}
           {providerLineId && (
