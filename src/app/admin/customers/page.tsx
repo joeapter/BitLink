@@ -8,6 +8,7 @@ import { MakeSalesRepButton } from "@/components/admin/MakeSalesRepButton";
 import { getAdminDb } from "@/lib/db/admin";
 import { formatDate } from "@/lib/utils";
 import { makeSalesRepAction } from "@/lib/admin/sales-rep-actions";
+import { getPlan } from "@/lib/plans";
 
 export const metadata: Metadata = {
   title: "Admin Customers",
@@ -41,6 +42,24 @@ export default async function AdminCustomersPage({
     : [];
   const salesRepByCustomer = new Map(salesReps.map((rep) => [rep.customer_id, rep]));
 
+  const lines = db && customerIds.length
+    ? (
+        await db
+          .from("telecom_lines")
+          .select("customer_id, status, metadata")
+          .in("customer_id", customerIds)
+          .neq("status", "terminated")
+      ).data ?? []
+    : [];
+  const plansByCustomer = new Map<string, string[]>();
+  for (const line of lines) {
+    const planSlug = (line.metadata as Record<string, unknown> | null)?.plan_slug as string | undefined;
+    if (!planSlug) continue;
+    const existing = plansByCustomer.get(line.customer_id as string) ?? [];
+    existing.push(getPlan(planSlug).name);
+    plansByCustomer.set(line.customer_id as string, existing);
+  }
+
   return (
     <div className="grid gap-6">
       <section className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -57,10 +76,11 @@ export default async function AdminCustomersPage({
       <section className="overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-soft">
         {customers.length ? (
           <div className="overflow-x-auto">
-            <table className="min-w-[1040px] w-full text-left text-sm">
+            <table className="min-w-[1180px] w-full text-left text-sm">
               <thead className="bg-slate-50 text-muted-slate">
                 <tr>
                   <th className="px-5 py-4 font-semibold">Customer</th>
+                  <th className="px-5 py-4 font-semibold">Plan</th>
                   <th className="px-5 py-4 font-semibold">Phone</th>
                   <th className="px-5 py-4 font-semibold">Stripe</th>
                   <th className="px-5 py-4 font-semibold">Referral</th>
@@ -72,11 +92,25 @@ export default async function AdminCustomersPage({
               <tbody className="divide-y divide-ink/8">
                 {customers.map((customer) => {
                   const salesRep = salesRepByCustomer.get(customer.id);
+                  const customerPlans = plansByCustomer.get(customer.id) ?? [];
                   return (
                     <tr key={customer.id}>
                       <td className="px-5 py-4">
                         <div className="font-semibold text-ink">{customer.full_name ?? "Unnamed customer"}</div>
                         <div className="text-xs text-muted-slate">{customer.email}</div>
+                      </td>
+                      <td className="px-5 py-4">
+                        {customerPlans.length ? (
+                          <div className="flex flex-wrap gap-1">
+                            {customerPlans.map((name, i) => (
+                              <span key={i} className="rounded-full bg-link-blue/10 px-2 py-0.5 text-xs font-semibold text-link-blue">
+                                {name}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-slate">—</span>
+                        )}
                       </td>
                       <td className="px-5 py-4 text-slate-600">{customer.phone ?? "—"}</td>
                       <td className="px-5 py-4">

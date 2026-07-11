@@ -5,6 +5,7 @@ import { getAdminDb } from "@/lib/db/admin";
 import { formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { getPlan } from "@/lib/plans";
 
 export const metadata: Metadata = { title: "Admin Lines" };
 
@@ -60,10 +61,11 @@ export default async function AdminLinesPage() {
       <section className="overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-soft">
         {lines.length ? (
           <div className="overflow-x-auto">
-            <table className="min-w-[820px] w-full text-left text-sm">
+            <table className="min-w-[960px] w-full text-left text-sm">
               <thead className="bg-slate-50 text-muted-slate">
                 <tr>
                   <th className="px-5 py-4 font-semibold">Customer</th>
+                  <th className="px-5 py-4 font-semibold">Plan</th>
                   <th className="px-5 py-4 font-semibold">Line ID</th>
                   <th className="px-5 py-4 font-semibold">Provider line</th>
                   <th className="px-5 py-4 font-semibold">Status</th>
@@ -76,11 +78,21 @@ export default async function AdminLinesPage() {
                 {lines.map((line) => {
                   const customer = line.customers as { full_name?: string; email?: string; phone?: string } | null;
                   const hasProvider = !!line.provider_line_id;
+                  const planSlug = (line.metadata as Record<string, unknown> | null)?.plan_slug as string | undefined;
                   return (
                     <tr key={line.id} className="hover:bg-slate-50/60">
                       <td className="px-5 py-4">
                         <div className="font-semibold text-ink">{customer?.full_name ?? "—"}</div>
                         <div className="text-xs text-muted-slate">{customer?.email ?? ""}</div>
+                      </td>
+                      <td className="px-5 py-4">
+                        {planSlug ? (
+                          <span className="rounded-full bg-link-blue/10 px-2 py-0.5 text-xs font-semibold text-link-blue">
+                            {getPlan(planSlug).name}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-slate">—</span>
+                        )}
                       </td>
                       <td className="px-5 py-4 font-mono text-xs text-slate-500">{line.id.slice(0, 8)}…</td>
                       <td className="px-5 py-4">

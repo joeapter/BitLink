@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, CreditCard, Phone, RadioTower, Share2, Users } from "lucide-react";
+import { AlertTriangle, CreditCard, Globe2, Phone, RadioTower, Share2, Users } from "lucide-react";
 import { AdminMetric } from "@/components/admin/AdminMetric";
 import { ProvisioningQueue } from "@/components/admin/ProvisioningQueue";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -27,6 +27,20 @@ export default async function AdminPage() {
         <AdminMetric label="Provisioning queue" value={overview.metrics.provisioningQueue} icon={RadioTower} tone="amber" />
         <AdminMetric label="Failed payments" value={overview.metrics.failedPayments} icon={AlertTriangle} tone="red" />
       </section>
+
+      {overview.linesByPlan.length > 0 && (
+        <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
+          <h2 className="text-lg font-semibold text-ink">Active lines by plan</h2>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {overview.linesByPlan.map((item) => (
+              <div key={item.name} className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">{item.name}</p>
+                <p className="mt-1 text-2xl font-semibold text-ink">{item.count}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div>
@@ -77,6 +91,32 @@ export default async function AdminPage() {
                       </div>
                       <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusColor}`}>
                         {(pi?.status as string)?.replace(/_/g, ' ')}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {overview.intlNumberQueue.length > 0 && (
+            <div className="rounded-[2rem] border border-orange-200 bg-orange-50 p-6 shadow-soft">
+              <h2 className="flex items-center gap-2 text-xl font-semibold text-orange-900">
+                <Globe2 className="h-5 w-5" aria-hidden="true" />
+                New number needs manual fulfillment
+              </h2>
+              <div className="mt-4 grid gap-3">
+                {overview.intlNumberQueue.map((line) => {
+                  const n = (line.metadata as Record<string, unknown>)?.intl_number as Record<string, unknown>;
+                  const customer = line.customers as { full_name?: string; email?: string } | null;
+                  return (
+                    <Link key={line.id} href={`/admin/lines/${line.id}`} className="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm hover:shadow transition-shadow">
+                      <div>
+                        <p className="text-sm font-semibold text-ink">{(n?.country as string | undefined)?.toUpperCase() ?? 'INTL'} number requested</p>
+                        <p className="text-xs text-muted-slate">{customer?.full_name ?? customer?.email ?? 'Unknown'}</p>
+                      </div>
+                      <span className="rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-800">
+                        Needs a number picked
                       </span>
                     </Link>
                   );
