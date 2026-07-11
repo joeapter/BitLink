@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CheckCircle2, Globe2, Loader2, LockKeyhole, Phone, ShieldCheck } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Globe2, Loader2, LockKeyhole, Phone, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { EmbeddedStripeCheckout } from "@/components/checkout/EmbeddedStripeCheckout";
@@ -139,9 +139,21 @@ export function CustomOrderPayClient({
 
   if (clientSecret) {
     return (
-      <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-        <OrderSummary customerName={customerName} customerEmail={customerEmail} lines={lines} total={total} />
-        <EmbeddedStripeCheckout clientSecret={clientSecret} onBack={() => setClientSecret(null)} />
+      <div className="overflow-hidden rounded-4xl border border-ink/10 bg-white shadow-soft lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch">
+        <div className="p-6 sm:p-8">
+          <OrderSummary customerName={customerName} customerEmail={customerEmail} lines={lines} total={total} />
+        </div>
+        <div className="border-t border-ink/10 p-6 sm:p-8 lg:border-l lg:border-t-0">
+          <button
+            type="button"
+            onClick={() => setClientSecret(null)}
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2 text-xs font-semibold text-ink transition hover:bg-slate-50"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+            Back to order details
+          </button>
+          <EmbeddedStripeCheckout clientSecret={clientSecret} bare />
+        </div>
       </div>
     );
   }

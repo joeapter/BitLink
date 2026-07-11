@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, PlusCircle } from "lucide-react";
+import { ArrowLeft, Loader2, PlusCircle } from "lucide-react";
 import { plans, type PlanSlug } from "@/lib/plans";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -132,8 +132,8 @@ export function AddLineForm({
 
   if (clientSecret) {
     return (
-      <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-        <div className="grid gap-4">
+      <div className="overflow-hidden rounded-4xl border border-ink/10 bg-white shadow-soft lg:grid lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch">
+        <div className="grid gap-4 p-6 sm:p-8">
           <OrderInfoPanel
             info={{ fullName: customerName ?? "", email: customerEmail ?? "", phone: "" }}
             planName={selectedPlan.name}
@@ -149,7 +149,17 @@ export function AddLineForm({
             intlIsPortIn={wantsIntlNumber && intlSource === "port"}
           />
         </div>
-        <EmbeddedStripeCheckout clientSecret={clientSecret} onBack={() => setClientSecret(null)} />
+        <div className="border-t border-ink/10 p-6 sm:p-8 lg:border-l lg:border-t-0">
+          <button
+            type="button"
+            onClick={() => setClientSecret(null)}
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2 text-xs font-semibold text-ink transition hover:bg-slate-50"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+            Back to order details
+          </button>
+          <EmbeddedStripeCheckout clientSecret={clientSecret} bare />
+        </div>
       </div>
     );
   }
