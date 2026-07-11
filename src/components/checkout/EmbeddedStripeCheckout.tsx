@@ -31,9 +31,15 @@ export function EmbeddedStripeCheckout({
           Back to order details
         </button>
       ) : null}
-      <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
-        <EmbeddedCheckout />
-      </EmbeddedCheckoutProvider>
+      {/* Stripe's embedded form renders narrower than this column on wide
+          screens — constrain + center so it reads as one intentional card
+          instead of floating in extra whitespace. Visual-only: the provider/
+          clientSecret wiring below is unchanged. */}
+      <div className="mx-auto w-full max-w-[480px] overflow-hidden rounded-2xl border border-ink/10 shadow-soft">
+        <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
+          <EmbeddedCheckout />
+        </EmbeddedCheckoutProvider>
+      </div>
     </div>
   );
 }
