@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, CreditCard, Globe2, Phone, RadioTower, Share2, Users } from "lucide-react";
+import { AlertTriangle, CreditCard, DollarSign, Globe2, Phone, RadioTower, Share2, Users } from "lucide-react";
 import { AdminMetric } from "@/components/admin/AdminMetric";
 import { ProvisioningQueue } from "@/components/admin/ProvisioningQueue";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getAdminOverview } from "@/lib/db/admin";
+import { getMonthlyRevenue } from "@/lib/stripe/revenue";
+import { formatMoney } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Admin",
 };
 
 export default async function AdminPage() {
-  const overview = await getAdminOverview();
+  const [overview, revenue] = await Promise.all([getAdminOverview(), getMonthlyRevenue()]);
+  const monthLabel = new Date().toLocaleDateString("en-US", { month: "long", timeZone: "UTC" });
 
   return (
     <div className="grid gap-6">
@@ -28,19 +31,49 @@ export default async function AdminPage() {
         <AdminMetric label="Failed payments" value={overview.metrics.failedPayments} icon={AlertTriangle} tone="red" />
       </section>
 
-      {overview.linesByPlan.length > 0 && (
-        <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
-          <h2 className="text-lg font-semibold text-ink">Active lines by plan</h2>
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {overview.linesByPlan.map((item) => (
-              <div key={item.name} className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">{item.name}</p>
-                <p className="mt-1 text-2xl font-semibold text-ink">{item.count}</p>
+      <section className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
+            <DollarSign className="h-4 w-4 text-link-blue" aria-hidden="true" />
+            Revenue this month ({monthLabel})
+          </h2>
+          {revenue ? (
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">Total</p>
+                <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(revenue.totalCents)}</p>
               </div>
-            ))}
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">Subscriptions</p>
+                <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(revenue.recurringCents)}</p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">One-time</p>
+                <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(revenue.oneTimeCents)}</p>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-muted-slate">Stripe is not configured.</p>
+          )}
+          <p className="mt-3 text-xs text-muted-slate">
+            Pulled live from paid Stripe invoices this month. One-time includes activation fees and topup purchases.
+          </p>
+        </div>
+
+        {overview.linesByPlan.length > 0 && (
+          <div className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
+            <h2 className="text-lg font-semibold text-ink">Active lines by plan</h2>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {overview.linesByPlan.map((item) => (
+                <div key={item.name} className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">{item.name}</p>
+                  <p className="mt-1 text-2xl font-semibold text-ink">{item.count}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div>

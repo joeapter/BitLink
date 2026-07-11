@@ -411,6 +411,26 @@ async function completeJob(
     jobId: job.id,
   });
 
+  // orders.provisioning_status has no FK to a specific line — it's only ever
+  // stamped 'payment_confirmed' at purchase time (checkout webhook, custom
+  // orders, account add-line) and otherwise relied on an admin to advance it
+  // by hand, so it silently piled up forever. Best available correlation is
+  // customer_id: once any of a customer's lines goes active, their still-
+  // pending orders are, in practice, the one(s) that order was waiting on.
+  try {
+    const freshLine = await linesRepo.getLine(admin, lineId);
+    const customerId = freshLine?.customer_id as string | null | undefined;
+    if (customerId) {
+      await admin
+        .from('orders')
+        .update({ provisioning_status: 'active', updated_at: new Date().toISOString() })
+        .eq('customer_id', customerId)
+        .eq('provisioning_status', 'payment_confirmed');
+    }
+  } catch (err) {
+    log.error({ jobId: job.id, lineId, error: err instanceof Error ? err.message : String(err) }, 'Failed to auto-advance orders.provisioning_status — continuing');
+  }
+
   try {
     const referralResult = await recordReferralForLine(admin, lineId);
     if (referralResult.referralId) {
