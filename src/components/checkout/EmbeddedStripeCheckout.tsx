@@ -13,11 +13,24 @@ const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
 export function EmbeddedStripeCheckout({
   clientSecret,
   onBack,
+  bare = false,
 }: {
   clientSecret: string;
   onBack?: () => void;
+  // When true, renders just the Stripe embed with no card/border/back-link —
+  // the caller supplies its own surrounding layout (see CheckoutForm.tsx,
+  // which merges this into a single two-panel card with its own back button).
+  bare?: boolean;
 }) {
   if (!stripePromise) return null;
+
+  const embed = (
+    <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
+      <EmbeddedCheckout />
+    </EmbeddedCheckoutProvider>
+  );
+
+  if (bare) return embed;
 
   return (
     <div>
@@ -36,9 +49,7 @@ export function EmbeddedStripeCheckout({
           instead of floating in extra whitespace. Visual-only: the provider/
           clientSecret wiring below is unchanged. */}
       <div className="mx-auto w-full max-w-[480px] overflow-hidden rounded-2xl border border-ink/10 shadow-soft">
-        <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
-          <EmbeddedCheckout />
-        </EmbeddedCheckoutProvider>
+        {embed}
       </div>
     </div>
   );
