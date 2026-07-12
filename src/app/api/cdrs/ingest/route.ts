@@ -15,6 +15,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { parseCdrFile, normalizePhone, type ParsedCdr } from '@/lib/cdr/parse';
+import { sendEmail } from '@/lib/email/send';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
@@ -75,6 +76,25 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 
   if (!parsed.length) {
+    // Header-only files parsing to zero is normal. Files WITH data rows all
+    // parsing to zero means the format changed again — that exact failure ran
+    // silently for a month once (relay marks files processed regardless), so
+    // this time it emails immediately instead of only logging.
+    const filesWithDataRows = body.files.filter(
+      (f) => (f.content ?? '').split('\n').filter((l) => l.trim()).length > 1,
+    );
+    if (filesWithDataRows.length > 0) {
+      log.error({ files: filesWithDataRows.map((f) => f.name).slice(0, 5) }, 'CDR files contained data rows but ZERO records parsed — format change?');
+      await sendEmail({
+        to: 'joe@bitlink.co.il',
+        subject: '⚠ CDR ingest: files have data but nothing parsed',
+        html: [
+          `<p>The CDR relay delivered <b>${filesWithDataRows.length}</b> file(s) containing data rows, but the parser produced <b>zero</b> records — Annatel's file format may have changed.</p>`,
+          `<p>Example files: ${filesWithDataRows.slice(0, 3).map((f) => f.name).join(', ')}</p>`,
+          `<p>Usage data is NOT being recorded until this is fixed. (The relay marks files processed regardless, but re-ingestion is safe — records dedup on uid.)</p>`,
+        ].join(''),
+      }).catch(() => {});
+    }
     return NextResponse.json({ received: body.files.length, stored: 0, message: 'No parseable records' });
   }
 
