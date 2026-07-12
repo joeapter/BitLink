@@ -425,6 +425,101 @@ export const guides: Guide[] = [
       { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
     ],
   },
+  {
+    slug: "kosher-phones-israel-explained",
+    title: "Kosher phones in Israel, explained: devices, certification, and plans",
+    metaTitle: "Kosher Phones in Israel: Certification, Devices & Plans",
+    metaDescription:
+      "What makes a phone kosher, who certifies it (Vaadat Harabanim), what a kosher line includes, and how English speakers get one — plans from $19.99/month.",
+    datePublished: "2026-07-12",
+    dateModified: "2026-07-12",
+    readingTime: "7 min read",
+    intro:
+      "A kosher phone is two things working together: a certified device built for calling only, and a kosher phone line from the carrier. Getting one in Israel as an English speaker usually means navigating Hebrew-first stores and paperwork — this guide explains the whole system plainly: what certification actually covers, who Vaadat Harabanim is, what a kosher line does and deliberately doesn't include, and what it costs. BitLink's kosher plans run $19.99–$24.99/month in USD, VAT included, on lines recognized by Vaadat Harabanim L'inyanei Tikshoret.",
+    sections: [
+      {
+        heading: "What makes a phone kosher: the two-part system",
+        paragraphs: [
+          "Kosher phone service has two components, and both are required. The first is the device — a certified kosher phone, built for calling: no browser, no app store, no open internet access, and in most models no text messaging. The second is the line — the SIM and phone number from the carrier, provisioned as a kosher line with data and SMS excluded at the network level, not just switched off in settings.",
+          "The distinction matters because neither half works alone. A certified device on a regular line isn't a kosher setup, and a kosher line in a smartphone isn't either — the device won't be accepted where kosher phones are expected, and in practice a kosher SIM is designed for kosher hardware. When yeshivos or communities say they require a kosher phone, they mean both together.",
+        ],
+      },
+      {
+        heading: "Who certifies it: Vaadat Harabanim, explained",
+        paragraphs: [
+          "Kosher phone service in Israel is overseen by Vaadat Harabanim L'inyanei Tikshoret — the Rabbinical Committee for Communications, registered association no. 580440824. The committee sets the standards for what qualifies as kosher service and recognizes the lines that meet them. BitLink's kosher lines carry that recognition.",
+          "Practically, recognition means the line behaves the way kosher-phone communities and institutions expect a kosher number to behave — which is what a yeshiva office or a mashgiach is actually checking when they ask about a student's phone. If a school or community wants the certification details confirmed in writing before signup, [BitLink support](/support) provides them.",
+        ],
+      },
+      {
+        heading: "What a kosher line includes — and deliberately doesn't",
+        paragraphs: [
+          "[Kosher Basic](/plans/kosher-basic) is $19.99/month and includes 5,000 minutes of calling to Israeli numbers. [Kosher+](/plans/kosher-plus) is $24.99/month and adds 150 minutes of calling to US and Canadian numbers. Both are voice-only: no mobile data, no SMS, on a physical SIM. Prices are in USD with VAT included, and plans are monthly with no long-term contract.",
+          "The exclusions are the product, not a gap in it. A kosher line carries no data or SMS because that's what the certification requires — it isn't a stripped-down data plan, it's a different category of service. If you need internet on your line, a kosher-certified device can't use it anyway; the honest comparison is BitLink's [standard plans](/plans) from $14.99/month, which require a standard (non-kosher) phone.",
+          "One technical consequence worth knowing in advance: kosher plans activate on a physical SIM only. Kosher devices aren't built for eSIM, so there's no scan-a-QR-code shortcut — the SIM has to physically reach the phone, which makes timing part of the plan (more below).",
+        ],
+      },
+      {
+        heading: "Getting one as an English speaker: the actual steps",
+        paragraphs: [
+          "The traditional route runs through Hebrew-speaking carriers and phone stores, which is exactly where English-speaking families get stuck. The BitLink route is online and in English, in this order:",
+        ],
+        steps: [
+          "Get the certified device. The certification lives in the hardware, and requirements can be institution-specific — if the phone is for a yeshiva or seminary student, confirm what the school accepts before buying. Kosher phones are widely available in religious neighborhoods in Israel, and some families buy one after arrival.",
+          "Choose the line: Kosher Basic ($19.99/month) for calling within Israel, or Kosher+ ($24.99/month) if calls to the US or Canada are part of regular life.",
+          "Order online — checkout is in USD with a regular US, UK, or Canadian card, so a parent can pay from abroad while the phone is used in Israel.",
+          "Coordinate SIM timing. Because kosher plans are physical-SIM only, [message support](/support) with your arrival or start date and the team will time delivery around it — this is the step that rewards planning a week or two ahead.",
+          "Insert the SIM and call. There's no app setup or QR scanning on a kosher device — once the SIM is in and the line is active, it just works.",
+        ],
+      },
+      {
+        heading: "Staying connected with family abroad",
+        paragraphs: [
+          "A kosher line doesn't have to mean being hard to reach from America. In the outbound direction, Kosher+ includes 150 minutes per month of calling to US and Canadian numbers directly from the kosher phone. In the inbound direction, a [US or Canadian local number](/us-number-in-israel) can be added to either kosher plan for $9.99/month — family dials a number that's local to them, and it rings the kosher phone in Israel like any other call. No calling cards, no international dialing, and nothing about the setup affects the line's kosher status.",
+          "Support itself is in English — WhatsApp, phone, and email — so the parent managing the account from abroad can handle billing or plan changes directly, without the phone's user needing to be involved at all.",
+        ],
+      },
+      {
+        heading: "The costs, all of them",
+        paragraphs: [
+          "The line: $19.99/month (Kosher Basic) or $24.99/month (Kosher+), VAT included, no contract, cancel anytime. The optional US/Canada number add-on: $9.99/month. The device: bought separately, since certification is hardware-level — prices vary by model and where you buy.",
+          "There are no activation surprises, and each plan's full contract is published on its page before checkout. If the line is for a student and the school has a BitLink signup link, use it — signups are tracked and the institution is supported through BitLink's partner program at no cost to the school.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "What is a kosher phone?",
+        answer:
+          "A kosher phone is a certified device built for calling only — no browser, no app store, no open internet, and in most models no text messaging — used together with a kosher phone line from the carrier, which excludes data and SMS at the network level. Both parts are required: the device certification and the line. In Israel the standards are overseen by Vaadat Harabanim L'inyanei Tikshoret, the Rabbinical Committee for Communications.",
+      },
+      {
+        question: "Are BitLink's kosher lines rabbinically certified?",
+        answer:
+          "Yes — BitLink's kosher lines are recognized by Vaadat Harabanim L'inyanei Tikshoret (registered association no. 580440824), the body that oversees kosher phone service in Israel. Both Kosher Basic and Kosher+ run on these recognized lines. If a school, community, or mashgiach wants the certification details confirmed before signup, support can provide them in writing.",
+      },
+      {
+        question: "Can a kosher phone plan include data or WhatsApp?",
+        answer:
+          "No. Kosher lines are voice-only by definition — no mobile data and no SMS — because that's what the certification requires, and kosher-certified devices can't use data anyway. If you need internet or WhatsApp on your line, the right comparison is a standard plan (from $14.99/month at BitLink) with a standard phone, not a kosher plan.",
+      },
+      {
+        question: "Do kosher phones work with eSIM?",
+        answer:
+          "No — kosher plans activate on a physical SIM only, because kosher devices aren't built for eSIM. That makes delivery timing the one step that needs planning: order a week or two before you need the line and coordinate the SIM's arrival with support around your date.",
+      },
+      {
+        question: "How can family in the US call a kosher phone in Israel affordably?",
+        answer:
+          "Add a US or Canadian local number to the kosher plan for $9.99/month — family dials a local number and it rings the kosher phone in Israel, costing them what any local call costs. For calling out, Kosher+ ($24.99/month) includes 150 minutes to US and Canadian numbers each month from the kosher phone itself.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/kosher-phone-plans-israel", label: "Kosher phone plans" },
+      { href: "/yeshiva-seminary-phone-plans", label: "Yeshiva & seminary phone plans" },
+      { href: "/guides/yeshiva-seminary-phone-checklist", label: "Student phone checklist" },
+    ],
+  },
 ];
 
 export function getGuide(slug: string) {
