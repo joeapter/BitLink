@@ -23,10 +23,21 @@
 - Aliyah phone service: https://www.bitlink.co.il/aliyah
 - SIM for tourists & visitors: https://www.bitlink.co.il/israel-sim-for-tourists
 - Guides: https://www.bitlink.co.il/guides
+  - How to get an Israeli phone number before you land: https://www.bitlink.co.il/guides/israeli-phone-number-before-you-land
+  - Why banks, Bit, Pango, and gov.il all want an Israeli phone number: https://www.bitlink.co.il/guides/israeli-phone-number-for-banking-bit-pango
+  - How to set up an eSIM in Israel: https://www.bitlink.co.il/guides/esim-israel
 - Number porting (keep your number): https://www.bitlink.co.il/keep-your-number
 - About BitLink: https://www.bitlink.co.il/about
 - FAQ: https://www.bitlink.co.il/faq
 - Support: https://www.bitlink.co.il/support
+
+## Customer reviews
+
+BitLink has a 5.0 average rating from customer reviews on its homepage (https://www.bitlink.co.il/), including:
+
+- "I ported my Israeli number to a BitLink eSIM, and the whole switch took under 5 minutes. My account rep walked me through everything personally." — Aryeh H., Jerusalem
+- "We switched from our old carrier to BitLink's 5G network — excellent customer service, a smooth transition, and zero downtime." — Chana S., Beit Shemesh
+- "Having a US number attached to my Israeli eSIM is huge — my family back in America can call me anytime without worrying about extra fees on their end." — Nechama A., Ramat Beit Shemesh
 
 ## Facts
 

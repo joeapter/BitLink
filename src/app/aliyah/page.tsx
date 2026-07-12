@@ -118,7 +118,7 @@ export default function AliyahPage() {
                 Your phone works when you land. Your work does too.
               </h1>
               <p className="mt-5 text-lg leading-8 text-slate-700">
-                Aliyah comes with enough moving parts. Your phone service should already be moving with you: an Israeli number, reliable data, and a setup that keeps clients, family, and the next call within reach.
+                BitLink phone plans for aliyah run $14.99–$39.99/month in USD, VAT included, with a real Israeli number on every plan. Max 5G at $39.99/month is built for the first year: 120GB of 5G data plus 150 minutes of calling to US and Canadian numbers included, and a US, Canadian, or UK local number can be added to any plan for $9.99/month so family back home can call you locally. Activation is by eSIM — usually live within minutes of checkout, often before you board — or by physical SIM.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <ButtonLink href={`/plans/${workPlan.slug}`} size="lg">
@@ -129,6 +129,38 @@ export default function AliyahPage() {
                   Talk through your setup
                 </ButtonLink>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-white px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+          <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.72fr_1fr]">
+            <div>
+              <p className="text-sm font-semibold text-link-blue">Aliyah phone questions</p>
+              <h2 className="mt-3 text-balance text-4xl font-semibold tracking-normal text-ink">
+                The three questions every oleh asks.
+              </h2>
+              <p className="mt-4 text-sm leading-6 text-muted-slate">
+                More detail on porting, plans, and setup lives in the olim guide and FAQ.
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <ButtonLink href="/israeli-phone-plans-for-olim" variant="secondary">
+                  Olim plan guide
+                </ButtonLink>
+                <ButtonLink href="/faq" variant="ghost">
+                  Full FAQ
+                </ButtonLink>
+              </div>
+            </div>
+            <div className="divide-y divide-ink/8 rounded-lg border border-ink/10 bg-white shadow-soft">
+              {aliyahFaqItems.map((item) => (
+                <article key={item.question} className="p-6 sm:p-7">
+                  <h3 className="text-lg font-semibold tracking-normal text-ink">{item.question}</h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-slate">
+                    <TextWithLinks text={item.answer} />
+                  </p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
@@ -239,38 +271,6 @@ export default function AliyahPage() {
                   <p className="text-sm font-semibold text-muted-slate">{label}</p>
                   <p className="mt-2 text-2xl font-semibold text-ink">{value}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-white px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-          <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.72fr_1fr]">
-            <div>
-              <p className="text-sm font-semibold text-link-blue">Aliyah phone questions</p>
-              <h2 className="mt-3 text-balance text-4xl font-semibold tracking-normal text-ink">
-                The three questions every oleh asks.
-              </h2>
-              <p className="mt-4 text-sm leading-6 text-muted-slate">
-                More detail on porting, plans, and setup lives in the olim guide and FAQ.
-              </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink href="/israeli-phone-plans-for-olim" variant="secondary">
-                  Olim plan guide
-                </ButtonLink>
-                <ButtonLink href="/faq" variant="ghost">
-                  Full FAQ
-                </ButtonLink>
-              </div>
-            </div>
-            <div className="divide-y divide-ink/8 rounded-lg border border-ink/10 bg-white shadow-soft">
-              {aliyahFaqItems.map((item) => (
-                <article key={item.question} className="p-6 sm:p-7">
-                  <h3 className="text-lg font-semibold tracking-normal text-ink">{item.question}</h3>
-                  <p className="mt-3 text-sm leading-6 text-muted-slate">
-                    <TextWithLinks text={item.answer} />
-                  </p>
-                </article>
               ))}
             </div>
           </div>
