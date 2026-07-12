@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { WebAnalytics } from "@/components/layout/WebAnalytics";
 import { Footer } from "@/components/layout/Footer";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import {
@@ -77,18 +77,24 @@ export default function RootLayout({
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <Footer />
-        <Analytics />
+        <WebAnalytics />
         <SpeedInsights />
         {/* Native script tags rendered server-side — Next's client-side script
             injection throws "Invalid or unexpected token" on this site (both
             @next/third-parties and next/script inline), which is why GA4
-            collected nothing. Parse-time execution has no injection step. */}
+            collected nothing. Parse-time execution has no injection step.
+
+            The path guard must run in the browser: this layout is one shared
+            server component (and public pages are statically prerendered), so
+            the server never knows which path is being served. On /admin and
+            /account loads gtag is simply never configured — the library still
+            downloads but sends nothing without a config call. */}
         {gaMeasurementId ? (
           <>
             <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`} />
             <script
               dangerouslySetInnerHTML={{
-                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','${gaMeasurementId}');`,
+                __html: `(function(){if(/^\\/(admin|account)(\\/|$)/.test(location.pathname))return;window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','${gaMeasurementId}');})();`,
               }}
             />
           </>
