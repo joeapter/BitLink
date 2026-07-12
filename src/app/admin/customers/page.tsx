@@ -104,7 +104,7 @@ export default async function AdminCustomersPage({
         <Link
           href={q ? `/admin/customers?q=${encodeURIComponent(q)}` : "/admin/customers"}
           className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-            view === "active" ? "bg-ink text-white" : "bg-white text-slate-600 hover:bg-slate-100"
+            view === "active" ? "bg-ink text-white!" : "bg-white text-slate-600 hover:bg-slate-100"
           }`}
         >
           Active
@@ -112,7 +112,7 @@ export default async function AdminCustomersPage({
         <Link
           href={`/admin/customers?view=archived${q ? `&q=${encodeURIComponent(q)}` : ""}`}
           className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-            view === "archived" ? "bg-ink text-white" : "bg-white text-slate-600 hover:bg-slate-100"
+            view === "archived" ? "bg-ink text-white!" : "bg-white text-slate-600 hover:bg-slate-100"
           }`}
         >
           Archived ({archivedCount})
