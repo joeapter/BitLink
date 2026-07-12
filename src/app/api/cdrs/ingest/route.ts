@@ -1,16 +1,20 @@
 // POST /api/cdrs/ingest
 //
-// Receives CDR file payloads from the VPS relay agent.
-// Authenticated via CDRS_INGEST_SECRET header — only the VPS knows this key.
+// Receives CDR file payloads from the VPS relay agent (vps-relay/cdr-relay.js,
+// which pulls Annatel's FTP every 4 hours). Authenticated via the
+// CDRS_INGEST_SECRET header — only the VPS knows this key.
 //
 // Body: { files: Array<{ name: string; content: string }> }
-//   content is the raw CDR file text (UTF-8)
+//   content is the raw decompressed CDR file text (UTF-8)
 //
-// The VPS relay script pulls from Annatel FTP every 4 hours and POSTs here.
-// This endpoint stores records to cdr_records and fires Inngest for aggregation.
+// Parsing lives in lib/cdr/parse.ts (format verified against real files).
+// Line mapping: outgoing records carry the Annatel provider line UUID in
+// `account`; incoming records only carry the subscriber's phone number, which
+// is matched against telecom_lines.metadata->>phone_number.
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { parseCdrFile, normalizePhone, type ParsedCdr } from '@/lib/cdr/parse';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
@@ -20,101 +24,11 @@ const log = logger.child({ route: 'cdrs/ingest' });
 
 interface CdrFile {
   name: string;
-  content: string; // raw CSV text
+  content: string;
 }
 
 interface IngestBody {
   files: CdrFile[];
-}
-
-interface CdrRow {
-  telecom_line_id: string | null;
-  customer_id: string | null;
-  provider_line_id: string;
-  call_type: string;
-  duration_sec: number;
-  data_bytes: number;
-  sms_count: number;
-  direction: string;
-  destination: string | null;
-  occurred_at: string;
-}
-
-// ── CDR file parser ───────────────────────────────────────────────────────────
-// Annatel delivers two file types per run:
-//   cdr_bitlink_YYYYMMDDHHII.csv.gz          — outgoing (all TOR types)
-//   cdr_incoming_bitlink_YYYYMMDDHHII.csv.gz — incoming calls
-//
-// Outgoing columns: uid,setup_time,answer_time,tor,category,description,
-//   tenant,account,src,dst,orig_country,dest_country,uom,usage,cost,rate,
-//   is_roaming,is_international,call_direction
-//
-// Incoming columns: uid,answer_time,src,dst,usage
-
-function parseCdrFile(
-  filename: string,
-  content: string,
-): Omit<CdrRow, 'telecom_line_id' | 'customer_id'>[] {
-  const isIncoming = filename.includes('incoming');
-  const lines = content.split('\n').map((l) => l.trim()).filter(Boolean);
-  if (lines.length < 2) return []; // header-only or empty
-
-  const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
-  const get = (row: string[], name: string): string => {
-    const i = headers.indexOf(name);
-    return i >= 0 ? (row[i]?.trim() ?? '') : '';
-  };
-
-  const results: Omit<CdrRow, 'telecom_line_id' | 'customer_id'>[] = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const parts = lines[i].split(',');
-    if (parts.length < 3) continue;
-
-    // Timestamp: prefer answer_time, fall back to setup_time
-    const tsRaw = get(parts, 'answer_time') || get(parts, 'setup_time');
-    const ts = new Date(tsRaw);
-    if (isNaN(ts.getTime())) continue;
-
-    // Subscriber line ID:
-    //   outgoing → account field (Annatel's customer account identifier)
-    //   incoming → dst (the BitLink subscriber being called)
-    const subscriberId = isIncoming ? get(parts, 'dst') : get(parts, 'account');
-    if (!subscriberId) continue;
-
-    // Call type from tor (type of record) or uom
-    const tor = get(parts, 'tor').toLowerCase();
-    const uom = get(parts, 'uom').toLowerCase();
-    let callType: string;
-    if (tor === 'voice' || tor === 'call' || uom === 'sec') callType = 'voice';
-    else if (tor === 'data' || uom === 'byte' || uom === 'bytes' || uom === 'kb' || uom === 'mb') callType = 'data';
-    else if (tor === 'sms' || uom === 'sms') callType = 'sms';
-    else callType = isIncoming ? 'voice' : 'other'; // incoming-only file is always voice
-
-    const usageRaw = parseInt(get(parts, 'usage') || '0', 10) || 0;
-
-    // Direction: incoming file is always incoming; outgoing file check call_direction column
-    let direction: string;
-    if (isIncoming) {
-      direction = 'incoming';
-    } else {
-      const cd = get(parts, 'call_direction').toLowerCase();
-      direction = cd === 'incoming' ? 'incoming' : 'outgoing';
-    }
-
-    results.push({
-      provider_line_id: subscriberId,
-      call_type: callType,
-      duration_sec: callType === 'voice' ? usageRaw : 0,
-      data_bytes: callType === 'data' ? usageRaw : 0,
-      sms_count: callType === 'sms' ? 1 : 0,
-      direction,
-      destination: isIncoming ? get(parts, 'src') || null : get(parts, 'dst') || null,
-      occurred_at: ts.toISOString(),
-    });
-  }
-
-  return results;
 }
 
 function chunk<T>(arr: T[], size: number): T[][] {
@@ -122,8 +36,6 @@ function chunk<T>(arr: T[], size: number): T[][] {
   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
   return out;
 }
-
-// ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest): Promise<Response> {
   // Authenticate the VPS relay
@@ -157,51 +69,88 @@ export async function POST(request: NextRequest): Promise<Response> {
     return NextResponse.json({ error: 'Service unavailable' }, { status: 503 });
   }
 
-  // Parse all CDR records from all files
-  const parsed: Omit<CdrRow, 'telecom_line_id' | 'customer_id'>[] = [];
+  const parsed: ParsedCdr[] = [];
   for (const file of body.files) {
-    const records = parseCdrFile(file.name, file.content ?? '');
-    parsed.push(...records);
+    parsed.push(...parseCdrFile(file.name, file.content ?? ''));
   }
 
   if (!parsed.length) {
     return NextResponse.json({ received: body.files.length, stored: 0, message: 'No parseable records' });
   }
 
-  // Resolve provider_line_id → internal telecom_line id + customer_id
-  const providerIds = [...new Set(parsed.map((r) => r.provider_line_id))];
-  const { data: lineRows } = await admin
-    .from('telecom_lines')
-    .select('id, provider_line_id, customer_id')
-    .in('provider_line_id', providerIds);
+  // Resolve lines both ways (see header comment).
+  const providerIds = [
+    ...new Set(parsed.filter((r) => r.subscriberKeyType === 'provider_line_id').map((r) => r.subscriberKey)),
+  ];
+  const phoneKeys = [
+    ...new Set(parsed.filter((r) => r.subscriberKeyType === 'phone_number').map((r) => normalizePhone(r.subscriberKey))),
+  ];
 
-  const lineMap = new Map(
-    (lineRows ?? []).map((l) => [
-      l.provider_line_id as string,
-      { id: l.id as string, customerId: l.customer_id as string | null },
-    ]),
-  );
+  type LineRef = { id: string; customerId: string | null; providerLineId: string | null };
+  const byProviderId = new Map<string, LineRef>();
+  const byPhone = new Map<string, LineRef>();
 
-  // Build full rows with internal IDs
-  const rows: CdrRow[] = parsed.flatMap((r) => {
-    const line = lineMap.get(r.provider_line_id);
-    return [{
-      ...r,
+  if (providerIds.length) {
+    const { data } = await admin
+      .from('telecom_lines')
+      .select('id, provider_line_id, customer_id')
+      .in('provider_line_id', providerIds);
+    for (const l of data ?? []) {
+      byProviderId.set(l.provider_line_id as string, {
+        id: l.id as string,
+        customerId: (l.customer_id ?? null) as string | null,
+        providerLineId: l.provider_line_id as string,
+      });
+    }
+  }
+
+  if (phoneKeys.length) {
+    // Phone numbers live in jsonb metadata, so fetch candidates and match in
+    // memory — line count is small and this avoids a jsonb-expression index.
+    const { data } = await admin
+      .from('telecom_lines')
+      .select('id, provider_line_id, customer_id, metadata')
+      .not('metadata->>phone_number', 'is', null);
+    for (const l of data ?? []) {
+      const phone = normalizePhone(String((l.metadata as Record<string, unknown>)?.phone_number ?? ''));
+      if (!phone) continue;
+      byPhone.set(phone, {
+        id: l.id as string,
+        customerId: (l.customer_id ?? null) as string | null,
+        providerLineId: (l.provider_line_id ?? null) as string | null,
+      });
+    }
+  }
+
+  const rows = parsed.map((r) => {
+    const line =
+      r.subscriberKeyType === 'provider_line_id'
+        ? byProviderId.get(r.subscriberKey)
+        : byPhone.get(normalizePhone(r.subscriberKey));
+    return {
+      uid: r.uid,
       telecom_line_id: line?.id ?? null,
       customer_id: line?.customerId ?? null,
-    }];
+      provider_line_id: line?.providerLineId ?? r.subscriberKey,
+      call_type: r.call_type,
+      duration_sec: r.duration_sec,
+      data_bytes: r.data_bytes,
+      sms_count: r.sms_count,
+      direction: r.direction,
+      destination: r.destination,
+      occurred_at: r.occurred_at,
+      raw_filename: r.raw_filename,
+    };
   });
 
-  // Batch upsert (idempotent on line+timestamp+type+direction)
+  const unmapped = rows.filter((r) => !r.telecom_line_id).length;
+
   let stored = 0;
   let errors = 0;
   for (const batch of chunk(rows, 500)) {
     const { error } = await admin
       .from('cdr_records')
-      .upsert(batch, {
-        onConflict: 'provider_line_id,occurred_at,call_type,direction',
-        ignoreDuplicates: true,
-      });
+      .upsert(batch, { onConflict: 'uid', ignoreDuplicates: true });
 
     if (error) {
       log.warn({ error: error.message }, 'CDR batch upsert partial error');
@@ -211,12 +160,13 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
   }
 
-  log.info({ files: body.files.length, parsed: parsed.length, stored, errors }, 'CDR ingest complete');
+  log.info({ files: body.files.length, parsed: parsed.length, stored, unmapped, errors }, 'CDR ingest complete');
 
   return NextResponse.json({
     received: body.files.length,
     parsed: parsed.length,
     stored,
+    unmapped,
     errors,
   });
 }
