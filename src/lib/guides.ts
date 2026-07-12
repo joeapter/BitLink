@@ -520,6 +520,109 @@ export const guides: Guide[] = [
       { href: "/guides/yeshiva-seminary-phone-checklist", label: "Student phone checklist" },
     ],
   },
+  {
+    slug: "airport-sim-trap-israel",
+    title: "The airport SIM trap: don't give the bank a number you're about to lose",
+    metaTitle: "The Airport SIM Trap in Israel — Keep Your Number",
+    metaDescription:
+      "Airport SIMs are often registered to the kiosk, not to you, and idle numbers expire in 6–12 months. How olim lose the number their bank knows — and how to avoid it.",
+    datePublished: "2026-07-12",
+    dateModified: "2026-07-12",
+    readingTime: "7 min read",
+    intro:
+      "It's one of the most common phone problems olim run into, and almost nobody warns about it: you land, buy a SIM at the airport, give that number to the bank and Misrad HaPnim — and months later discover the number was never really yours. Porting an Israeli number is normally fast and free, but only if the number is registered to you, and airport and kiosk SIMs often aren't. Add expiry clocks that recycle idle prepaid numbers within 6–12 months, and the number every Israeli institution knows you by can simply disappear. Here's exactly how the trap works, what to do if you're already in it, and how to skip it entirely.",
+    sections: [
+      {
+        heading: "The pattern, and why it catches smart people",
+        paragraphs: [
+          "The airport SIM isn't a dumb purchase — it works immediately, and on arrival day that's worth a lot. You walk out of the arrivals hall with a working Israeli number, and the errands begin: the bank wants an Israeli mobile number for SMS codes, Misrad HaPnim wants one for the file, Kupat Cholim, gov.il, Bit, Pango — within two weeks, that number is your identity across every Israeli system.",
+          "The trap springs later, when you go to set up a permanent plan and want to keep the number everything is registered to. That's when you learn the two things nobody mentioned at the counter.",
+        ],
+      },
+      {
+        heading: "Problem one: the number may not be registered to you",
+        paragraphs: [
+          "Israeli number porting itself is fast and regulated — moving a number between carriers typically completes within minutes. But a port has to prove ownership, and that means the details on the port request must match how the number was originally registered.",
+          "Here's the catch: many SIMs sold through airport counters, kiosks, and resellers are registered to the seller's business details — or effectively to no one — rather than to your passport. Sellers of prepaid Israeli SIMs openly advise customers to visit a service center and re-register the SIM in their own name, warning that otherwise you can lose the number. If the registration was never yours, there's nothing for a port to verify, and the number can't follow you.",
+        ],
+      },
+      {
+        heading: "Problem two: idle prepaid numbers expire",
+        paragraphs: [
+          "Prepaid numbers run on a clock. 019 — the brand sold in the Ben Gurion arrivals hall — is documented by its resellers as lapsing after six months without use; most other Israeli prepaid brands hold an inactive number for roughly a year before disconnecting it and recycling the number.",
+          "For a visitor who goes home and comes back, or an oleh who eventually switches phones and lets the old SIM sit in a drawer, this is the second way the number dies — quietly, with no notice, taking every SMS verification it was attached to along with it.",
+        ],
+      },
+      {
+        heading: "What losing the number actually costs",
+        paragraphs: [
+          "This is why the trap hurts more than a normal carrier switch. When the number your institutions know stops being yours, each one has to be updated separately: the bank (often an in-person branch visit, since you can no longer receive its SMS codes), gov.il identity verification, Kupat Cholim, Bit, Pango, delivery apps, and every WhatsApp contact from your first months in Israel. It's not one errand — it's the whole first-week list, again, in reverse.",
+        ],
+      },
+      {
+        heading: "Buying at the airport anyway? Do these three things",
+        paragraphs: [
+          "Sometimes the airport SIM is the practical choice in the moment. If that's you, three steps protect the number:",
+        ],
+        steps: [
+          "At purchase, insist the SIM is registered to YOUR passport — your name, your document number — not sold loose or under the store's details. If the seller won't or can't, assume the number is temporary.",
+          "Keep the receipt and the SIM packaging. If ownership is ever questioned, proof of purchase is what a service center will ask for.",
+          "Within your first weeks, visit the provider's own service center and confirm the registration is in your name. That confirmation is the difference between a portable number and a disposable one.",
+        ],
+      },
+      {
+        heading: "Already stuck? The honest rescue path",
+        paragraphs: [
+          "If your airport-SIM number is already registered everywhere and you're not sure you own it, here's the attempt — with the honest caveat that it doesn't always succeed:",
+        ],
+        steps: [
+          "Go to the issuing provider's service center in person, with your passport and any proof of purchase.",
+          "Ask them to confirm — or fix — the registration so the number is in your name. If the SIM was sold under a reseller's details, this is the step that decides everything, and it's at the provider's discretion.",
+          "Once the number is registered to you, keep the line active and port whenever you're ready — an Israeli port completes in minutes, to any carrier.",
+          "If the registration can't be fixed, stop investing in the number: update the bank first (SMS codes gate everything else), then gov.il, Kupat Cholim, and payment apps, and let the old number go.",
+        ],
+      },
+      {
+        heading: "The skip-the-trap path: own your number from the first hour",
+        paragraphs: [
+          "The trap only exists because the number came from a counter transaction with no real registration. The alternative is starting with a line that's yours before you land: [BitLink](/plans) signup happens online with no Israeli paperwork at all — no Teudat Zehut, and no passport either. Checkout takes a name, email, phone number, and a regular US, UK, or Canadian card, charged in USD with VAT included. On an eSIM-compatible phone, the activation QR code arrives within minutes and your Israeli number is live before your flight boards.",
+          "That means the number you give the bank on day three is the same number you'll have in year five — no migration, no re-registration circuit. And it stays flexible in both directions: if you leave Israel for a stretch, [pause the line for $10/month](/israel-sim-for-tourists) and the number waits for you; and if you ever want to move to another Israeli carrier, every BitLink line is deliberately left open for porting out — no blocks, no release process, no exit fee. The number is simply yours.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Can I keep my airport SIM number in Israel?",
+        answer:
+          "Sometimes. Israeli law supports porting, and if the SIM was registered to your own passport at purchase, the number can move to any carrier in minutes. The problem is that airport and kiosk SIMs are often registered to the seller's details or effectively to no one — and a port must match the original registration to prove ownership. Check at the provider's service center: if the registration is (or can be put) in your name, the number is portable; if not, it isn't really yours to keep.",
+      },
+      {
+        question: "How long before an unused Israeli prepaid number expires?",
+        answer:
+          "It varies by brand, but the clocks are real: 019 — the brand sold at the Ben Gurion arrivals store — is documented as lapsing after six months without use, and most other Israeli prepaid brands disconnect a number after roughly twelve months of inactivity and eventually recycle it. If institutions know you by that number, its expiry takes your SMS verification access with it.",
+      },
+      {
+        question: "Do I need a Teudat Zehut or passport to get an Israeli phone number?",
+        answer:
+          "At mainstream Israeli carriers, a postpaid plan generally assumes a Teudat Zehut plus Israeli bank or credit details, and prepaid SIMs are registered against a passport. BitLink requires neither: signup is online with just a name, email, phone number, and a payment card — no Israeli documents, which is why it works before you've landed and before any klita paperwork exists.",
+      },
+      {
+        question: "Can I pay for an Israeli phone plan with a foreign credit card?",
+        answer:
+          "With BitLink, yes — plans are priced and charged in US dollars with VAT included, and a regular US, UK, or Canadian debit or credit card works. That's also why a parent abroad can pay for a student's or new oleh's line directly. Traditional Israeli carriers typically expect Israeli billing details for postpaid plans.",
+      },
+      {
+        question: "Can I port my BitLink number to another Israeli carrier later?",
+        answer:
+          "Yes — any time, to any Israeli carrier. BitLink deliberately leaves every line open for porting out, with no blocks, no release process, and no exit fee, and an Israeli port completes in minutes. Your number is yours: BitLink keeps customers with service, not with a locked door.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get your number before you land" },
+      { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
+      { href: "/keep-your-number", label: "Number porting" },
+    ],
+  },
 ];
 
 export function getGuide(slug: string) {

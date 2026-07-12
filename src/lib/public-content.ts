@@ -351,6 +351,11 @@ export const landingPages = {
         answer:
           "Max 5G, at $39.99/month, is built for exactly that: 120GB of data plus 150 minutes of calling to US and Canadian numbers included at no extra cost, alongside 5,000 Israeli minutes and 1,000 SMS. If family calls you more than you call them, adding a US, Canadian, or UK local number for $9.99/month lets them dial a number that's local to them instead of an international one, on any plan including Basic or Student 5G. For olim without a specific calling pattern yet, Student 5G at $34.99/month with 50GB of data is a reasonable starting point, and BitLink support can help you switch plans later if your usage changes once you're settled.",
       },
+      {
+        question: "Should I just buy a SIM at the airport when I land?",
+        answer:
+          "It works on day one, but it's the most common way olim lose their number later. Airport and kiosk SIMs are often registered to the seller rather than to you — and an Israeli number port has to match the original registration, so a number that was never registered to you usually can't follow you to a real plan. Idle prepaid numbers also expire within roughly 6–12 months. Since the bank, Misrad HaPnim, and gov.il will all know you by whatever number you give them in week one, it's worth starting with a number you actually own — [the airport SIM trap guide](/guides/airport-sim-trap-israel) covers the full mechanics, including what to do if you're already registered everywhere with an airport number.",
+      },
     ],
     planSlugs: ["max-5g", "student-5g", "basic"],
     relatedLinks: [
@@ -427,6 +432,11 @@ export const landingPages = {
         question: "Can I start the porting process before I arrive in Israel?",
         answer:
           "Yes — and for international numbers it's actually the smart order of operations. [Message support](/support) before you travel: the team confirms your current US, UK, or Canadian carrier supports porting, tells you exactly which details to gather (usually an account number and transfer PIN), and maps the steps around your arrival date. Israeli number ports happen once your BitLink line is active, which itself takes only minutes by eSIM — so even that can be done on the day you land.",
+      },
+      {
+        question: "Can I port my number out of BitLink later?",
+        answer:
+          "Yes — any time, to any Israeli carrier, and BitLink deliberately keeps that door open. Every BitLink line is left open for porting out: no blocks, no release process to chase, no exit fee, and an Israeli port completes in minutes. This matters more than it sounds — many prepaid and kiosk SIMs in Israel are registered in a way that makes the number effectively unportable later ([the airport SIM trap](/guides/airport-sim-trap-israel) explains how people get stuck). BitLink's position is simple: your number is yours, and we'd rather keep customers with good service than with a locked door.",
       },
     ],
     planSlugs: ["student-5g", "max-5g", "basic"],

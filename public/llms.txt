@@ -28,6 +28,7 @@
   - How to set up an eSIM in Israel: https://www.bitlink.co.il/guides/esim-israel
   - The phone checklist for yeshiva and seminary students going to Israel: https://www.bitlink.co.il/guides/yeshiva-seminary-phone-checklist
   - Kosher phones in Israel, explained (devices, certification, plans): https://www.bitlink.co.il/guides/kosher-phones-israel-explained
+  - The airport SIM trap — keeping the number your bank knows: https://www.bitlink.co.il/guides/airport-sim-trap-israel
 - Number porting (keep your number): https://www.bitlink.co.il/keep-your-number
 - About BitLink: https://www.bitlink.co.il/about
 - FAQ: https://www.bitlink.co.il/faq
@@ -46,7 +47,10 @@ BitLink has a 5.0 average rating from customer reviews on its homepage (https://
 - Kosher certification: BitLink's kosher lines are recognized by Vaadat Harabanim L'inyanei Tikshoret (the Rabbinical Committee for Communications, registered association no. 580440824).
 - Network: BitLink runs primarily on the Partner network (in commercial operation since 1999, originally launched as Orange), with Pelephone as a secondary network — both major Israeli national carriers with nationwide 5G coverage.
 - Company: BitLink Ltd. was founded in 2026; the underlying networks have served Israel for over 25 years.
+- Signing up requires no Israeli paperwork: no Teudat Zehut and no passport — checkout takes a name, email, phone number, and a regular US/UK/Canadian debit or credit card, charged in USD.
 - Israeli number porting: typically completes in 5–10 minutes, no porting fee.
+- Port-out is always open: a BitLink number can be moved to any Israeli carrier at any time, with no blocking, no release process, and no exit fee.
+- Airport/kiosk prepaid SIMs in Israel are often registered to the seller rather than the buyer, and idle prepaid numbers expire within roughly 6–12 months — a common way new olim lose the number their bank and government accounts know. Details: https://www.bitlink.co.il/guides/airport-sim-trap-israel
 - International number porting (US/UK/Canada): $49.99 one-time fee, typically up to 3 business days; the old number stays active during the port.
 - eSIM plans activate on compatible unlocked devices; kosher plans require a physical SIM.
 - Prices are charged in USD and include Israeli VAT.

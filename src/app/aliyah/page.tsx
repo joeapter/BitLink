@@ -73,6 +73,11 @@ const aliyahFaqItems = [
     answer:
       "BitLink plans run $14.99–$39.99 per month in USD with VAT included and no long-term contract. [Max 5G](/plans/max-5g) at $39.99/month is the one built for the first year of aliyah — 120GB of data plus 150 minutes of calling to US and Canadian numbers included, for staying close to family while everything else is new. There are no setup surprises: each plan's full contract is published on its page before you pay.",
   },
+  {
+    question: "Is an airport SIM good enough for my first weeks?",
+    answer:
+      "It'll work that day — the risk comes later. Kiosk SIMs are frequently registered to the seller, not to you, which means the number often can't be ported to a permanent plan, and idle prepaid numbers expire within months. Meanwhile your bank, Misrad HaPnim, and Kupat Cholim will all be keyed to that number from week one. Better order of operations: land with a number you own — no Teudat Zehut or passport needed to [sign up with BitLink](/plans), and it's live before your flight. [The airport SIM trap](/guides/airport-sim-trap-israel) explains the whole issue.",
+  },
 ];
 
 const essentials = [
@@ -138,7 +143,7 @@ export default function AliyahPage() {
             <div>
               <p className="text-sm font-semibold text-link-blue">Aliyah phone questions</p>
               <h2 className="mt-3 text-balance text-4xl font-semibold tracking-normal text-ink">
-                The three questions every oleh asks.
+                The questions every oleh asks.
               </h2>
               <p className="mt-4 text-sm leading-6 text-muted-slate">
                 More detail on porting, plans, and setup lives in the olim guide and FAQ.
