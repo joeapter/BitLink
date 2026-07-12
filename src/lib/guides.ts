@@ -332,6 +332,99 @@ export const guides: Guide[] = [
       { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
     ],
   },
+  {
+    slug: "yeshiva-seminary-phone-checklist",
+    title: "The phone checklist for yeshiva and seminary students going to Israel",
+    metaTitle: "Yeshiva & Seminary Phone Checklist for Israel",
+    metaDescription:
+      "The phone checklist for yeshiva & seminary students in Israel: school policy first, kosher vs. smartphone paths, plans from $19.99/mo, set up before the flight.",
+    datePublished: "2026-07-12",
+    dateModified: "2026-07-12",
+    readingTime: "6 min read",
+    intro:
+      "If you're headed to yeshiva or seminary in Israel — or you're the parent organizing it — the phone is one job that shouldn't wait for landing day. The short version: confirm the school's phone policy first, because it decides everything else. Kosher programs need a certified kosher phone on a recognized kosher line (from $19.99/month); smartphone programs fit Student 5G ($34.99/month, 50GB); and on an eSIM-compatible phone the Israeli number can be live before the flight. Prices are in USD with VAT included, parents can pay from abroad, and support answers in English. Here's the whole thing as a checklist, in order.",
+    sections: [
+      {
+        heading: "Start with the school's phone policy — it decides everything",
+        paragraphs: [
+          "Phone rules vary more than most families expect. Many chareidi yeshivos require a certified kosher device on a recognized kosher line — a smartphone isn't an option, filtered or not. Many seminaries and yeshivos permit smartphones, sometimes with a filtering requirement. A few don't mind either way. The school office's answer determines which device to bring and which plan to buy, so get it in writing before spending money on either.",
+          "If the policy is ambiguous — \"kosher preferred\" or \"filtered smartphones considered\" — [ask BitLink support](/support) which plans students at that specific program typically use. It's a question the team answers all the time.",
+        ],
+      },
+      {
+        heading: "The checklist, in order",
+        paragraphs: [
+          "Working backwards from an Elul or September arrival, here's the timeline that avoids every common scramble:",
+        ],
+        steps: [
+          "Four weeks out — email the school office and get the phone policy in writing: kosher-only, smartphone with a filter, or unrestricted.",
+          "Three weeks out — sort the device. Kosher path: buy a certified kosher phone (the certification lives in the device; the kosher line comes from the carrier). Smartphone path: confirm the phone is unlocked and eSIM-compatible — a carrier-locked phone is the most common arrival-day surprise, and unlocking through a US carrier can take days.",
+          "Two weeks out — order the plan. Kosher plans activate on a physical SIM only, so coordinate delivery timing with [support](/support) around the flight date. Smartphone plans can technically wait, but there's no advantage to waiting.",
+          "A few days before the flight — eSIM users: check out online, the activation QR code arrives by email within minutes, and you install it from home Wi-Fi. The Israeli number is live before boarding.",
+          "Landing day — nothing to do. The phone picks up the Israeli network on arrival, and the driver, the madrich or madricha, and family all reach the same number from the first hour.",
+          "First week — SMS verification codes from delivery apps and Israeli services just work, because the number already exists. No kiosk queue, no first-Shabbos phone crisis.",
+        ],
+      },
+      {
+        heading: "Which plan fits which student",
+        paragraphs: [
+          "For kosher programs: [Kosher Basic](/plans/kosher-basic) is $19.99/month with 5,000 minutes to Israeli numbers, voice-only on a physical SIM. [Kosher+](/plans/kosher-plus) is $24.99/month and adds 150 minutes of calling to US and Canadian numbers — the right pick if the student will be calling home rather than only receiving calls. Both run on lines recognized by Vaadat Harabanim L'inyanei Tikshoret (registered association no. 580440824), which is the recognition yeshivos and kosher-phone communities look for.",
+          "For smartphone programs: [Student 5G](/plans/student-5g) at $34.99/month — 50GB of 5G data, 5,000 minutes, 1,000 SMS — is BitLink's most popular plan and fits most students. [Max 5G](/plans/max-5g) at $39.99/month doubles the data to 120GB and includes 150 US/Canada minutes, for heavy streamers or anyone using the phone as a hotspot. Basic at $14.99/month includes 1GB, which most students outgrow within the first week — it's a fit for genuinely light use only.",
+          "Every plan is monthly with no long-term contract, so a student who picks wrong can switch without penalty once real usage is clear.",
+        ],
+      },
+      {
+        heading: "For parents: paying and staying in touch from abroad",
+        paragraphs: [
+          "Plans are priced and charged in US dollars with VAT included, so a parent pays with their own card and sees the same predictable amount every month — no shekel conversion moving with the exchange rate. Many families keep the account entirely in the parent's hands while the line runs on the student's phone in Israel.",
+          "For staying in touch, a [US, Canadian, or UK local number](/us-number-in-israel) can be added to any plan — including the kosher plans — for $9.99/month. Family dials a number that's local to them, and it rings the student's phone in Israel; no international dialing, no calling cards. In the other direction, Kosher+ and Max 5G both include 150 minutes of outbound calling to US and Canadian numbers.",
+          "Support is in English by WhatsApp, phone, and email — so a parent can sort out a billing question or a setup issue directly, without the student translating from a dorm hallway.",
+        ],
+      },
+      {
+        heading: "The three mistakes that cost the most",
+        paragraphs: [
+          "Waiting for the airport kiosk. It solves the problem hours after it was needed, at tourist prices, with contracts in Hebrew — and the errands that need an Israeli number start immediately.",
+          "Flying with a locked phone. US carrier-financed phones are often locked to that carrier, and another provider's eSIM won't install on them. Confirm the unlock before flying; home carriers can take days to process it, and it's much harder to fix from a dorm in Jerusalem.",
+          "Buying a kosher device before confirming what the school accepts. Certification requirements can be specific to the institution. Policy first, then device, then line — in that order.",
+        ],
+      },
+      {
+        heading: "If the school works with BitLink",
+        paragraphs: [
+          "Some yeshivos, seminaries, and shuls have their own BitLink signup link to share with incoming students — signups are tracked and the institution is supported through BitLink's partner program, at no cost to the school. If your school has one, use their link; if you're an administrator who wants one, [reach out through support](/support).",
+          "One more practical tip for students arriving with friends: BitLink's referral program adds 5GB of bonus data per month to the referrer's plan for each active referral, up to 25GB. A group of roommates signing up through each other's links raises everyone's monthly data at no cost.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "What phone should a student bring to yeshiva or seminary in Israel?",
+        answer:
+          "It depends on the school's policy, not the carrier. Kosher-only programs require a certified kosher device, which pairs with a voice-only kosher line like Kosher Basic ($19.99/month) or Kosher+ ($24.99/month). Programs that allow smartphones need an unlocked, eSIM-compatible phone — most iPhones from the XS onward and most recent Android flagships qualify — paired with a plan like Student 5G. Confirm the policy in writing and confirm the phone is unlocked before flying.",
+      },
+      {
+        question: "Should the Israeli number be set up before or after the flight?",
+        answer:
+          "Before, whenever possible. On an eSIM-compatible smartphone, checkout and activation take minutes and can be done from home days before the flight, so the number is live on landing. Kosher plans use a physical SIM, which takes more lead time — order about two weeks out and coordinate delivery timing with support around the arrival date.",
+      },
+      {
+        question: "Can parents pay for a student's Israeli phone plan from the US?",
+        answer:
+          "Yes — this is one of the main reasons families choose BitLink. Checkout is online and priced in US dollars with VAT included, so a parent pays with their own US, UK, or Canadian card and sees a predictable USD charge each month. Support is in English by WhatsApp, phone, and email, so parents can manage the account directly from abroad.",
+      },
+      {
+        question: "How can family call the student without international charges?",
+        answer:
+          "Add a US, Canadian, or UK local number to the student's plan for $9.99/month — family dials a local number and it rings the student's phone in Israel, at local-call cost on their end. It works on every plan, including the kosher plans. For calls in the other direction, Kosher+ and Max 5G include 150 minutes of calling to US and Canadian numbers each month.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/yeshiva-seminary-phone-plans", label: "Yeshiva & seminary phone plans" },
+      { href: "/kosher-phone-plans-israel", label: "Kosher phone plans" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+    ],
+  },
 ];
 
 export function getGuide(slug: string) {
