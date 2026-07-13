@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { guides } from "@/lib/guides";
+import { partnerPages } from "@/lib/partner-pages";
 import { plans } from "@/lib/plans";
 import { canonicalUrl } from "@/lib/seo";
 
@@ -91,6 +92,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(guide.dateModified),
       changeFrequency: "monthly" as const,
       priority: 0.7,
+    })),
+    ...Object.keys(partnerPages).map((slug) => ({
+      url: canonicalUrl(`/partners/${slug}`),
+      lastModified: new Date("2026-07-13"),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
     })),
     {
       url: canonicalUrl("/about"),

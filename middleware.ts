@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { getSupabasePublicEnv, hasSupabasePublicEnv } from "@/lib/supabase/env";
+import { partnerOrgCodes } from "@/lib/partner-org-codes";
 
 export async function middleware(request: NextRequest) {
   if (!hasSupabasePublicEnv()) {
@@ -27,8 +28,12 @@ export async function middleware(request: NextRequest) {
 
   await supabase.auth.getUser();
 
-  // Persist org referral code across sessions — set cookie on any page hit with ?org=
-  const orgCode = request.nextUrl.searchParams.get("org");
+  // Persist org referral code across sessions — set cookie on any page hit with
+  // ?org=, or on a partner landing page (/partners/<slug>), which carries the
+  // org's attribution in the path itself so partners share a clean URL.
+  const partnerMatch = request.nextUrl.pathname.match(/^\/partners\/([^/]+)\/?$/);
+  const partnerCode = partnerMatch ? partnerOrgCodes[partnerMatch[1]] : undefined;
+  const orgCode = request.nextUrl.searchParams.get("org") ?? partnerCode;
   if (orgCode && /^ORG-[0-9A-F]{8}$/i.test(orgCode)) {
     response.cookies.set("bl_org", orgCode.toUpperCase(), {
       maxAge: 60 * 60 * 24 * 30,
