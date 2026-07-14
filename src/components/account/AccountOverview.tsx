@@ -10,6 +10,7 @@ type ReferralStats = {
 
 export function AccountOverview({
   planName,
+  planDetail,
   subscriptionStatus,
   activationStatus,
   nextBillingDate,
@@ -17,6 +18,7 @@ export function AccountOverview({
   referralStats,
 }: {
   planName: string;
+  planDetail?: string | null;
   subscriptionStatus?: string | null;
   activationStatus?: string | null;
   nextBillingDate?: string | null;
@@ -31,7 +33,7 @@ export function AccountOverview({
             <p className="text-sm font-semibold text-soft-cyan">Current plan</p>
             <h1 className="mt-3 text-4xl font-semibold tracking-normal">{planName}</h1>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-200">
-              Your account shows subscription, payment, activation, billing, and referral status in one place.
+              {planDetail ?? "Your account shows subscription, payment, activation, billing, and referral status in one place."}
             </p>
           </div>
           <div className="grid gap-2">

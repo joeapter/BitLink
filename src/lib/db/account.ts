@@ -47,6 +47,59 @@ export type AccountSalesRepSummary = {
   commissions: AccountSalesRepCommission[];
 };
 
+const INACTIVE_BILLING_STATUSES = new Set([
+  "canceled",
+  "cancelled",
+  "incomplete_expired",
+  "terminated",
+  "unpaid",
+]);
+
+function lineWord(count: number) {
+  return count === 1 ? "line" : "lines";
+}
+
+function summarizeLineBillings(lineBillings: AccountLineBilling[]) {
+  const currentBillings = lineBillings.filter((billing) => {
+    const subscriberStatus = billing.subscriberStatus?.toLowerCase();
+    const subscriptionStatus = billing.subscriptionStatus?.toLowerCase();
+    return !INACTIVE_BILLING_STATUSES.has(subscriberStatus) &&
+      (!subscriptionStatus || !INACTIVE_BILLING_STATUSES.has(subscriptionStatus));
+  });
+
+  if (!currentBillings.length) return null;
+
+  const byPlan = new Map<string, { count: number; slug: string }>();
+  for (const billing of currentBillings) {
+    const existing = byPlan.get(billing.planName);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      byPlan.set(billing.planName, { count: 1, slug: billing.planSlug });
+    }
+  }
+
+  const entries = [...byPlan.entries()];
+  if (entries.length === 1) {
+    const [planName, summary] = entries[0];
+    return {
+      planName,
+      planSlug: summary.slug,
+      planDetail: `${currentBillings.length} ${lineWord(currentBillings.length)} on this plan.`,
+    };
+  }
+
+  const planDetail = entries
+    .map(([planName, summary]) => `${summary.count} ${lineWord(summary.count)} ${planName}`)
+    .join(" · ");
+
+  return {
+    planName: `${currentBillings.length} active line ${currentBillings.length === 1 ? "plan" : "plans"}`,
+    planSlug: entries[0]?.[1].slug ?? null,
+    planDetail,
+  };
+}
+
 async function getSalesRepSummary(db: AccountDbClient, userId: string): Promise<AccountSalesRepSummary | null> {
   const { data: rep } = await db
     .from("sales_reps")
@@ -175,6 +228,7 @@ export async function getAccountSnapshot(userId: string, userEmail?: string | nu
       order: null,
       planName: "No active plan",
       planSlug: null,
+      planDetail: null,
       provisioningEvents: [],
       supportTickets: [],
       referrals: [],
@@ -282,15 +336,22 @@ export async function getAccountSnapshot(userId: string, userEmail?: string | nu
 
   let planName = "No active plan";
   let planSlug: string | null = null;
+  let planDetail: string | null = null;
   const planId = subscription?.plan_id ?? order?.plan_id;
 
-  if (planId) {
+  const lineBillingSummary = summarizeLineBillings(lineBillings);
+  if (lineBillingSummary) {
+    planName = lineBillingSummary.planName;
+    planSlug = lineBillingSummary.planSlug;
+    planDetail = lineBillingSummary.planDetail;
+  } else if (planId) {
     const { data: planRow } = await supabase.from("plans").select("name, slug").eq("id", planId).maybeSingle();
     planName = planRow?.name ?? planName;
     planSlug = planRow?.slug ?? null;
   } else if (order?.stripe_checkout_session_id) {
     planName = plans[1].name;
     planSlug = plans[1].slug;
+    planDetail = "Your line is attached to this checkout order.";
   }
 
   const referralList = referrals ?? [];
@@ -303,6 +364,7 @@ export async function getAccountSnapshot(userId: string, userEmail?: string | nu
     order,
     planName,
     planSlug,
+    planDetail,
     provisioningEvents: provisioningEvents ?? [],
     supportTickets: supportTickets ?? [],
     referrals: referralList,

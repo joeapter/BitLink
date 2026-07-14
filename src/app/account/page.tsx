@@ -38,6 +38,7 @@ export default async function AccountPage() {
     <div className="grid gap-6">
       <AccountOverview
         planName={snapshot.planName}
+        planDetail={snapshot.planDetail}
         subscriptionStatus={snapshot.subscription?.status ?? snapshot.order?.payment_status}
         activationStatus={snapshot.order?.provisioning_status}
         nextBillingDate={nextBillingDate}
