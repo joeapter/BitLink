@@ -107,7 +107,7 @@ export const guides: Guide[] = [
     metaDescription:
       "Israeli banks, Bit, Pango, Kupat Cholim, and gov.il verify you by SMS to an Israeli mobile number. Here's what breaks without one — and how to fix it before it matters.",
     datePublished: "2026-07-05",
-    dateModified: "2026-07-05",
+    dateModified: "2026-07-13",
     readingTime: "5 min read",
     intro:
       "Israel runs on SMS verification — and almost none of it accepts a foreign number. Banks, the Bit payment app, Pango parking, Kupat Cholim, delivery companies, and government services all confirm you're you by texting a code to an Israeli mobile number. If you arrive without one, you'll discover this at the least convenient moments possible. Here's the map of what needs an Israeli number, why data-only eSIMs don't help, and the ten-minute fix.",
@@ -139,6 +139,21 @@ export const guides: Guide[] = [
         paragraphs: [
           "Every [BitLink plan](/plans) includes a real Israeli mobile number, from $14.99/month with VAT included and no contract. On an eSIM-compatible phone the whole setup happens online before you land — the [step-by-step guide](/guides/israeli-phone-number-before-you-land) walks through it. Verification codes, bank callbacks, Bit, Pango, and delivery apps then work exactly as they do for anyone else in the country.",
           "For new olim specifically, this is worth doing before the klita paperwork starts rather than during it — the [olim plan guide](/israeli-phone-plans-for-olim) covers which plan fits the first year.",
+        ],
+      },
+      {
+        heading: "Get it from day one — and keep it",
+        paragraphs: [
+          "One caution that follows directly from everything above: because every one of these services keys itself to your number, the number you give them in week one should be one you'll still own in year five. That's exactly where airport and kiosk prepaid SIMs go wrong — they're often registered to the seller rather than to you, and idle prepaid numbers expire within months, taking your SMS verification access with them. [The airport SIM trap](/guides/airport-sim-trap-israel) covers the full mechanics; [getting your number before you land](/guides/israeli-phone-number-before-you-land) covers the clean way in. Same principle either way: register everything to a number you actually own, starting on day one.",
+        ],
+      },
+      {
+        heading: "The services mentioned in this guide",
+        paragraphs: [
+          "[Bit](https://www.bitpay.co.il) — Israel's most widely used peer-to-peer payment app, run by Bank Hapoalim. Splitting bills, paying the plumber, gan fees: in practice it's how money moves between people in Israel, and it requires both an Israeli mobile number and an Israeli bank account.",
+          "[Pango](https://www.pango.co.il) — the dominant app for paying street parking (Cellopark is the alternative). Registration is keyed to an Israeli mobile number; without it, street parking means hunting for a meter that may not exist.",
+          "[gov.il](https://www.gov.il) — the Israeli government's unified services portal: appointments, official records, national insurance, and more. Identity verification for many services runs on SMS codes to an Israeli mobile number.",
+          "The kupot cholim — Israel's four health funds: [Clalit](https://www.clalit.co.il), [Maccabi](https://www.maccabi4u.co.il), [Meuhedet](https://www.meuhedet.co.il), and [Leumit](https://www.leumit.co.il). Every oleh registers with one; appointment booking, reminders, and their apps all key off an Israeli mobile number.",
         ],
       },
     ],
