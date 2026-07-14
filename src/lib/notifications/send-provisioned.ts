@@ -12,6 +12,7 @@ import {
   buildAdminProvisionedEmail,
 } from '@/lib/email/templates';
 import { plans } from '@/lib/plans';
+import { toLpaString } from '@/lib/esim';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ fn: 'send-provisioned-notifications' });
@@ -19,13 +20,6 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bitlink.co.il';
 const ADMIN_NOTIFY_EMAIL = 'joe@bitlink.co.il';
 
 type AdminClient = NonNullable<ReturnType<typeof createSupabaseAdminClient>>;
-
-// iOS/Android only accept the full LPA string; older stored codes may be bare.
-function toLpaString(activationCode: string, smDpPlus?: string | null): string {
-  if (activationCode.startsWith('LPA:')) return activationCode;
-  if (smDpPlus) return `LPA:1$${smDpPlus}$${activationCode}`;
-  return activationCode;
-}
 
 export type SendProvisionedResult =
   | { skipped: true; reason: string }

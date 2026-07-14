@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import QRCode from "qrcode";
+import { toLpaString } from "@/lib/esim";
 
 export const metadata: Metadata = { title: "Line Detail" };
 export const dynamic = "force-dynamic";
@@ -44,9 +45,13 @@ export default async function AdminLineDetailPage({ params }: Props) {
 
   // Generated once here (server-side) so EsimActivationCard, a client
   // component (it needs useActionState for the resend button), can just
-  // render the data URL rather than doing its own async work.
+  // render the data URL rather than doing its own async work. Normalized to
+  // the full LPA string — phones reject QR codes without the LPA: prefix.
   const lineMeta = (line.metadata ?? {}) as Record<string, unknown>;
-  const pendingActivationCode = lineMeta.esim_activation_code as string | undefined;
+  const rawActivationCode = lineMeta.esim_activation_code as string | undefined;
+  const pendingActivationCode = rawActivationCode
+    ? toLpaString(rawActivationCode, lineMeta.esim_sm_dp_plus as string | undefined)
+    : undefined;
   const esimQrDataUrl = pendingActivationCode && !lineMeta.esim_activated_at
     ? await QRCode.toDataURL(pendingActivationCode, { width: 300, margin: 1, errorCorrectionLevel: "M" })
     : null;
@@ -408,14 +413,13 @@ export default async function AdminLineDetailPage({ params }: Props) {
           {(() => {
             const meta = (line.metadata ?? {}) as Record<string, unknown>;
             const isEsim = meta.is_esim === true || meta.is_esim === "1" || meta.is_esim === 1;
-            const activationCode = meta.esim_activation_code as string | undefined;
             const installedAt = meta.esim_activated_at as string | undefined;
-            if (!isEsim || !activationCode || installedAt || !providerLineId) return null;
+            if (!isEsim || !pendingActivationCode || installedAt || !providerLineId) return null;
             return (
               <EsimActivationCard
                 lineId={line.id}
                 providerLineId={providerLineId}
-                activationCode={activationCode}
+                activationCode={pendingActivationCode}
                 qrDataUrl={esimQrDataUrl ?? ""}
                 iccId={meta.esim_icc_id as string | undefined}
               />

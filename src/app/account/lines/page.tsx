@@ -9,6 +9,7 @@ import { AddIntlNumberCard } from "@/components/account/AddIntlNumberCard";
 import { TopupCard } from "@/components/account/TopupCard";
 import { requireUser } from "@/lib/auth/server";
 import { getAccountSnapshot } from "@/lib/db/account";
+import { toLpaString } from "@/lib/esim";
 
 export const metadata: Metadata = { title: "Lines" };
 export const dynamic = "force-dynamic";
@@ -30,9 +31,10 @@ export default async function AccountLinesPage() {
 
         return (
           <div key={line.id}>
-            {/* eSIM QR — shown until first network registration */}
+            {/* eSIM QR — shown until first network registration. Normalized to
+                the full LPA string; phones reject codes without the prefix. */}
             {showQr && (
-              <EsimQrCard activationCode={activationCode} />
+              <EsimQrCard activationCode={toLpaString(activationCode, (meta.esim_sm_dp_plus as string | undefined) ?? null)} />
             )}
             {/* Usage meters — only for active provisioned lines */}
             {line.status === "active" && line.provider_line_id && (
