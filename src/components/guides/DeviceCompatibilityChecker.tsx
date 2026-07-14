@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { CheckCircle2, Loader2, MessageCircle, Smartphone } from "lucide-react";
 import { submitEsimCheckAction, type EsimCheckState } from "@/lib/support/esim-check";
 
-const WHATSAPP_NUMBER = "972587939426";
+const WHATSAPP_NUMBER = "972555195335";
 
 export function DeviceCompatibilityChecker() {
   const [model, setModel] = useState("");

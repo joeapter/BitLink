@@ -810,7 +810,7 @@ export const faqItems = [
       "Yes — [porting an existing US, UK, or Canadian number](/keep-your-number) onto your BitLink line is available, and BitLink is upfront about the real cost and timeline rather than glossing over it. International porting carries an additional $49.99 fee on top of your plan price and typically takes up to 3 business days to complete, since it involves coordination with your current international carrier rather than just BitLink's own network. During that window your old number stays active until the port finishes, so there's usually no gap in service. This is different from porting an Israeli number, which is far faster. If keeping your existing international number matters to you, [reach out to the team](/support) before checkout — they'll confirm your carrier supports porting and walk you through the steps so there are no surprises.",
     action: {
       label: "Find out more",
-      href: "https://wa.me/972587939426?text=I%20would%20like%20more%20info%20about%20Porting%20My%20existing%20international%20number",
+      href: "https://wa.me/972555195335?text=I%20would%20like%20more%20info%20about%20Porting%20My%20existing%20international%20number",
     },
   },
   {

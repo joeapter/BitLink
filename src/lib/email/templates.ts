@@ -120,7 +120,7 @@ export function buildWelcomeEmail(params: WelcomeEmailParams): string {
     <div style="text-align:center;margin:28px 0;">
       ${btn('Open your account', loginUrl)}
     </div>
-    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972587939426" style="color:' + BRAND_COLOR + ';">+972-58-793-9426</a>.')}
+    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">+972-55-519-5335</a>.')}
   `);
 }
 
@@ -160,7 +160,7 @@ export function buildEsimReadyEmail(params: EsimReadyEmailParams): string {
     </div>
 
     ${p('Once installed, your eSIM QR will be removed from your portal to keep things tidy. If you need it again, just contact support.')}
-    ${p('Need help installing? <a href="https://wa.me/972587939426" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> and we\'ll walk you through it.')}
+    ${p('Need help installing? <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> and we\'ll walk you through it.')}
   `);
 }
 
@@ -185,7 +185,7 @@ export function buildSimShippedEmail(params: SimShippedEmailParams): string {
     <div style="text-align:center;margin:28px 0;">
       ${btn('Track in account portal', portalUrl)}
     </div>
-    ${p('Questions? <a href="https://wa.me/972587939426" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> anytime.')}
+    ${p('Questions? <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> anytime.')}
   `);
 }
 
@@ -312,7 +312,7 @@ export function buildCustomerLoginCreatedEmail(params: {
     </div>
 
     ${p('For security, you can change this password anytime by using the forgot-password link on the login page.')}
-    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972587939426" style="color:' + BRAND_COLOR + ';">+972-58-793-9426</a>.')}
+    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">+972-55-519-5335</a>.')}
   `);
 }
 
@@ -343,7 +343,7 @@ export function buildFreeTopupGiftEmail(params: {
     <div style="text-align:center;margin:28px 0;">
       ${btn('Open my account', `${BASE_URL}/account/lines`)}
     </div>
-    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972587939426" style="color:' + BRAND_COLOR + ';">+972-58-793-9426</a>.')}
+    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">+972-55-519-5335</a>.')}
   `);
 }
 

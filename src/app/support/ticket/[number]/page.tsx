@@ -49,7 +49,7 @@ export default async function SupportTicketPage({ params }: Props) {
       .join("\n")
   );
 
-  const waUrl = `https://wa.me/972587939426?text=${waMessage}`;
+  const waUrl = `https://wa.me/972555195335?text=${waMessage}`;
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#eef5f8_100%)] px-4 py-20 sm:px-6 lg:px-8">

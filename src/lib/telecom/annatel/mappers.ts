@@ -52,7 +52,7 @@ function normalizePortAuthenticationType(value: unknown): 'sms_code' | 'ivr' {
 }
 
 // Annatel expects MSISDNs in E.164 (+972…) — confirmed from its own DID
-// responses. Local formats like 0587939426 are rejected with a 422.
+// responses. Local formats like 0555195335 are rejected with a 422.
 function normalizeMsisdn(value: string): string {
   const cleaned = value.replace(/[\s\-().]/g, '');
   if (cleaned.startsWith('+')) return cleaned;

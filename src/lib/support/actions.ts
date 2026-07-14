@@ -22,7 +22,7 @@ export async function createPublicSupportTicketAction(formData: FormData) {
 
   const db = createSupabaseAdminClient();
   if (!db) {
-    redirect(errorParam("Support is temporarily unavailable. Please WhatsApp us directly at +972 58-793-9426."));
+    redirect(errorParam("Support is temporarily unavailable. Please WhatsApp us directly at +972 55-519-5335."));
   }
 
   const { data: ticket, error } = await db

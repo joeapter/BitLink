@@ -75,7 +75,7 @@ export default async function SupportPage({
           {/* Contact cards */}
           <div className="grid content-start gap-4">
             <a
-              href="https://wa.me/972587939426?text=Hi%20BitLink%20support%2C%20I%20need%20help%20with%20my%20plan."
+              href="https://wa.me/972555195335?text=Hi%20BitLink%20support%2C%20I%20need%20help%20with%20my%20plan."
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-5 hover:border-green-400/40 hover:bg-green-50/40 transition-colors"
@@ -97,12 +97,12 @@ export default async function SupportPage({
             </a>
 
             <a
-              href="tel:+972587939426"
+              href="tel:+972555195335"
               className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-5 hover:border-link-blue/30 hover:bg-blue-50/40 transition-colors"
             >
               <Phone className="h-5 w-5 text-link-blue" aria-hidden="true" />
               <h2 className="mt-4 text-lg font-semibold text-ink">Call us</h2>
-              <p className="mt-1 text-sm leading-6 text-link-blue">+972 58-793-9426</p>
+              <p className="mt-1 text-sm leading-6 text-link-blue">+972 55-519-5335</p>
             </a>
 
             <div className="rounded-lg border border-ink/10 bg-amber-50/60 p-5">

@@ -61,7 +61,7 @@ export default function TermsPage() {
             <p className="font-semibold">BitLink Ltd. — 341280188</p>
             <p>HaRashar Hirsch 4/1 — Israel</p>
             <p>
-              Phone / WhatsApp: +972-58-793-9426 · Email:{" "}
+              Phone / WhatsApp: +972-55-519-5335 · Email:{" "}
               <a href="mailto:support@bitlink.co.il" className="text-link-blue">support@bitlink.co.il</a>
             </p>
             <p>Website: <a href="https://www.bitlink.co.il" className="text-link-blue">www.bitlink.co.il</a></p>
@@ -255,7 +255,7 @@ export default function TermsPage() {
         <Clause n="20.3">Complaints may be submitted by:
           <ul className="mt-2 list-disc pl-6">
             <li>Email: <a href="mailto:support@bitlink.co.il" className="text-link-blue">support@bitlink.co.il</a></li>
-            <li>WhatsApp: +972-58-793-9426</li>
+            <li>WhatsApp: +972-55-519-5335</li>
             {/* ⚠️ TODO: Add postal address once available */}
           </ul>
         </Clause>
@@ -277,7 +277,7 @@ export default function TermsPage() {
         <Clause n="22.1">The subscriber is entitled to cancel their contract at any time and to request the termination of services by request addressed to the company by the following means (preferably by email):
           <ul className="mt-2 list-disc pl-6">
             <li>Email: <a href="mailto:support@bitlink.co.il" className="text-link-blue">support@bitlink.co.il</a></li>
-            <li>WhatsApp: +972-58-793-9426</li>
+            <li>WhatsApp: +972-55-519-5335</li>
             {/* ⚠️ TODO: Add phone and postal address */}
           </ul>
         </Clause>

@@ -18,7 +18,7 @@ function digitsOnly(value: string): string {
   return value.replace(/\D/g, "");
 }
 
-// Accepts "+972587939426", "972587939426", "0587939426", or "587939426".
+// Accepts "+972555195335", "972555195335", "0555195335", or "555195335".
 // The field itself shows the local 9 digits because the UI renders +972
 // separately as a fixed prefix.
 function toLocalDigits(value: string): string {
@@ -136,7 +136,7 @@ export function PortNumberVerification({
             type="tel"
             inputMode="numeric"
             autoComplete="tel-national"
-            placeholder="58-793-9426"
+            placeholder="55-519-5335"
             value={localDigits}
             onChange={(e) => handleNumberChange(e.target.value)}
             disabled={step === "verified" || lockedNumber}

@@ -22,7 +22,7 @@ export async function submitEsimCheckAction(
 
   const db = createSupabaseAdminClient();
   if (!db) {
-    return { error: "We couldn't submit that right now — please WhatsApp us at +972 58-793-9426." };
+    return { error: "We couldn't submit that right now — please WhatsApp us at +972 55-519-5335." };
   }
 
   const isEmail = contact.includes("@");
@@ -45,7 +45,7 @@ export async function submitEsimCheckAction(
     .single();
 
   if (error || !ticket?.ticket_number) {
-    return { error: "Something went wrong. Please WhatsApp us directly at +972 58-793-9426." };
+    return { error: "Something went wrong. Please WhatsApp us directly at +972 55-519-5335." };
   }
 
   sendEmail({

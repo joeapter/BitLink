@@ -3,7 +3,7 @@
 
 import type { SupportOutboundMessage, SupportChannelResult } from "./types";
 
-const SUPPORT_NUMBER = "972587939426"; // BitLink support WhatsApp (no + or dashes)
+const SUPPORT_NUMBER = "972555195335"; // BitLink support WhatsApp (no + or dashes)
 
 export function buildCustomerWaUrl(msg: SupportOutboundMessage): SupportChannelResult {
   const to = msg.to.replace(/[^0-9]/g, "");

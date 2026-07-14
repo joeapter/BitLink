@@ -34,9 +34,9 @@ const companyLinks = [
 ];
 
 const contactRows = [
-  { label: "From Israel", href: "tel:+972587939426", value: "058-793-9426" },
-  { label: "From USA", href: "tel:+13473445733", value: "347-344-5733" },
-  { label: "Whatsapp", href: "https://wa.me/972587939426", value: "+972-58-793-9426" },
+  { label: "From Israel", href: "tel:+972555195335", value: "055-519-5335" },
+  { label: "From USA", href: "tel:+19295978919", value: "929-597-8919" },
+  { label: "Whatsapp", href: "https://wa.me/972555195335", value: "+972-55-519-5335" },
   { label: "Email", href: "mailto:support@bitlink.co.il", value: "Support@bitlink.co.il" },
 ];
 
