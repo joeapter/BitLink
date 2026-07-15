@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect } from "react";
-import { sendGAEvent } from "@next/third-parties/google";
+
+// Uses window.gtag from the inline bootstrap in app/layout.tsx directly.
+// sendGAEvent from @next/third-parties is a silent no-op here: it only works
+// when that package's <GoogleAnalytics /> component initialized GA, and this
+// site can't use it (see the script comments in layout.tsx).
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
 
 export function PurchaseEvent({
   transactionId,
@@ -17,11 +26,13 @@ export function PurchaseEvent({
   planName: string;
 }) {
   useEffect(() => {
+    if (typeof window.gtag !== "function") return;
+
     const dedupeKey = `bl_ga_purchase_${transactionId}`;
     if (sessionStorage.getItem(dedupeKey)) return;
     sessionStorage.setItem(dedupeKey, "1");
 
-    sendGAEvent("event", "purchase", {
+    window.gtag("event", "purchase", {
       transaction_id: transactionId,
       value,
       currency,

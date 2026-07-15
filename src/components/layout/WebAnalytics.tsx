@@ -4,8 +4,8 @@ import { Analytics } from "@vercel/analytics/next";
 
 // Drop internal surfaces from Vercel Web Analytics so traffic numbers reflect
 // visitors, not our own admin/portal sessions. GA4 gets the same exclusion via
-// the inline gtag guard in app/layout.tsx. Unlike that guard (initial-load
-// only), beforeSend also catches client-side navigations into these routes.
+// the ga-disable flag in app/layout.tsx; both cover client-side navigations
+// into and out of these routes, not just the landing path.
 const EXCLUDED_PATHS = /^\/(admin|account)(\/|$)/;
 
 export function WebAnalytics() {

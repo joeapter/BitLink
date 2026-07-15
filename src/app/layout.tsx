@@ -86,15 +86,23 @@ export default function RootLayout({
 
             The path guard must run in the browser: this layout is one shared
             server component (and public pages are statically prerendered), so
-            the server never knows which path is being served. On /admin and
-            /account loads gtag is simply never configured — the library still
-            downloads but sends nothing without a config call. */}
+            the server never knows which path is being served.
+
+            /admin and /account are excluded via window['ga-disable-<id>'],
+            gtag's documented kill switch, checked per hit. A load-time-only
+            path check is not enough: gtag's enhanced measurement fires
+            page_views on client-side navigations, so a session entering on a
+            public page leaked hits when it navigated into /admin. The flag is
+            re-synced by patching pushState/replaceState — this inline script
+            runs before the async gtag.js, so gtag's own history wrapper wraps
+            ours and the flag is already correct when it fires. Config always
+            runs; the flag decides per path what actually sends. */}
         {gaMeasurementId ? (
           <>
             <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`} />
             <script
               dangerouslySetInnerHTML={{
-                __html: `(function(){if(/^\\/(admin|account)(\\/|$)/.test(location.pathname))return;window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','${gaMeasurementId}');})();`,
+                __html: `(function(){var d='ga-disable-${gaMeasurementId}';function sync(){window[d]=/^\\/(admin|account)(\\/|$)/.test(location.pathname);}sync();var ps=history.pushState;history.pushState=function(){var r=ps.apply(this,arguments);sync();return r;};var rs=history.replaceState;history.replaceState=function(){var r=rs.apply(this,arguments);sync();return r;};addEventListener('popstate',sync);window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','${gaMeasurementId}');})();`,
               }}
             />
           </>
