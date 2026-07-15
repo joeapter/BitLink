@@ -35,6 +35,115 @@ export type Guide = {
 
 export const guides: Guide[] = [
   {
+    slug: "us-phone-number-before-aliyah",
+    title: "What should I do with my US phone number before making Aliyah?",
+    metaTitle: "US Phone Number Before Aliyah: What to Do",
+    metaDescription:
+      "Keep, port, or park your US number before Aliyah. Checklist for banks, WhatsApp, iMessage, 2FA, and getting an Israeli number before you land.",
+    datePublished: "2026-07-15",
+    dateModified: "2026-07-15",
+    readingTime: "7 min read",
+    intro:
+      "Your US phone number is probably attached to more than calls. Banks, credit cards, tax accounts, WhatsApp, iMessage, Apple ID, Google, insurance, brokerages, schools, and random two-factor logins may all still use it. So the answer before Aliyah is not \"cancel it and figure it out later.\" The clean move is to keep your US number reachable during the transition, get a real Israeli number before or right when you land, and only then decide whether to keep, port, or park the American number long term.",
+    sections: [
+      {
+        heading: "The short answer: do not cancel it first",
+        paragraphs: [
+          "The worst time to discover a bank still texts your old number is after the number is gone. A US number often becomes part of your identity layer: password resets, fraud alerts, account recovery, WhatsApp re-verification, and calls from people who have had that number saved for years. If you cancel it too early, the problem is not just missed calls — it can become a locked-account problem.",
+          "For most people making Aliyah, the safer setup is temporary overlap: keep the US number working while you activate an Israeli number. Then move the important accounts one by one. Once everything is tested, you can decide whether the US number is still worth paying for.",
+        ],
+      },
+      {
+        heading: "Before the flight: the phone-number checklist",
+        paragraphs: [
+          "Do this while your current US SIM still works. It is much easier to receive one more text at home than to beg a bank for manual recovery from Israel.",
+        ],
+        steps: [
+          "Make a list of every account that may use your US number: banks, credit cards, brokerage, retirement, IRS or tax software, health insurance, Apple ID, Google, WhatsApp, email, school portals, and work tools.",
+          "Log into each one and add a backup recovery method where possible: authenticator app, passkey, backup email, trusted device, or printed recovery codes.",
+          "Decide where the US number should live after the move: keep the current carrier, move it to a lower-cost service, port it, or replace it with a new local US number that rings in Israel.",
+          "Test the new setup before cancelling anything. Send yourself verification texts, receive a voice call, and confirm the accounts that matter most still let you in.",
+          "Keep the old US plan active until the Israeli number is working and the most important US logins have been tested at least once from Israel.",
+        ],
+      },
+      {
+        heading: "Your three real choices for the US number",
+        paragraphs: [
+          "Choice one: keep your existing US carrier for a while. This is the least disruptive option because banks and contacts already know the number. The downside is cost, roaming risk, and the fact that a US plan may be overkill once you live in Israel. If you keep it, turn off data roaming on that line and use your Israeli line for mobile data.",
+          "Choice two: park or port the number to a cheaper US-based service. This can work well for people who only need occasional texts and calls, but treat it as a test, not an assumption. Some financial institutions are picky about VoIP or forwarding numbers, and you do not want to learn that after the original line is cancelled.",
+          "Choice three: keep the number connected to your Israel setup. If the exact number matters — family, banks, clients, old contacts — [porting your US, UK, or Canadian number to BitLink](/keep-your-number) keeps that number reachable while your main mobile life runs on an Israeli line. If you do not need the old number itself, a fresh [US, Canadian, or UK local number](/us-number-in-israel) can be added instead so people back home call a familiar local number that rings your phone in Israel.",
+        ],
+      },
+      {
+        heading: "WhatsApp: keep it, switch it, or run two accounts?",
+        paragraphs: [
+          "This is the part people overthink, because WhatsApp feels like the number. Your conversations are not simply erased because you move countries. But the number attached to the account still matters for re-verification, new contacts, and how people find you.",
+          "If you are making Israel your main home, switching WhatsApp to your Israeli number is usually cleaner over time. Israeli landlords, schools, doctors, delivery drivers, government offices, and service providers expect an Israeli mobile number and often message by WhatsApp. Use WhatsApp's own change-number flow so the account moves properly and contacts can be notified.",
+          "If you are emotionally or practically attached to the US WhatsApp account, you can keep it and add a second WhatsApp setup for the Israeli number, depending on your phone and app setup. Some people use WhatsApp Business for the second number. That is workable, but be honest about the tradeoff: you will be managing two identities, and new Israeli contacts will usually expect the Israeli one.",
+        ],
+      },
+      {
+        heading: "iMessage and FaceTime",
+        paragraphs: [
+          "iMessage and FaceTime are usually less dramatic than WhatsApp because they can also work through your Apple ID email address. Still, if your US number is attached to iMessage, do not cancel the line until you have checked your Apple settings and added your Israeli number after it is active.",
+          "The practical move is simple: keep your Apple ID signed in, activate the Israeli line, then check which numbers and emails can send and receive iMessages and FaceTime calls. Tell close family which contact method you want them to use before you turn off the old line.",
+        ],
+      },
+      {
+        heading: "You still need an Israeli number",
+        paragraphs: [
+          "Keeping a US number does not replace an Israeli number. Israel runs a lot of daily life through an 05 mobile number: banks, Bit, Pango, Kupat Cholim, deliveries, appointment reminders, and local WhatsApp messages. A US number can keep your American life reachable, but it will not be the right number for most Israeli forms.",
+          "That is why the clean setup is two tracks: keep the US number stable while you transition, and get a real Israeli number early. With [BitLink](/plans), an eSIM-compatible phone can be activated online with a real Israeli number before you land, and the [step-by-step guide](/guides/israeli-phone-number-before-you-land) explains the setup.",
+        ],
+      },
+      {
+        heading: "The safest plan for most olim",
+        paragraphs: [
+          "If you want the low-drama version, do this: keep your US number active for the first part of the move, activate your Israeli number before landing, move Israeli services onto the Israeli number immediately, and slowly audit the US accounts that still need the American number.",
+          "After a month or two, the answer usually becomes obvious. If banks, clients, or family still rely on the old number, keep or port it. If almost nobody uses it, replace it with a cheaper local-number add-on or let it go after you are sure every important login has another recovery path.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Should I cancel my US phone plan before Aliyah?",
+        answer:
+          "No — not until you have tested everything that depends on that number. Keep the US number active while you set up your Israeli number, update important accounts, and confirm banks, credit cards, Apple ID, Google, WhatsApp, and email recovery still work.",
+      },
+      {
+        question: "Can I use Google Voice or another VoIP service for bank texts?",
+        answer:
+          "Sometimes, but do not rely on it blindly. Some banks and services accept VoIP numbers and some do not, especially for security codes. If you move your number to any low-cost or VoIP service, test your most important logins before cancelling your original mobile plan.",
+      },
+      {
+        question: "Will WhatsApp stop working if I move to Israel?",
+        answer:
+          "Not just because you move. The risk is losing access to the number tied to the account when WhatsApp needs to verify you again. If you plan to switch WhatsApp to your Israeli number, use WhatsApp's change-number flow. If you keep the US WhatsApp, make sure that number remains reachable.",
+      },
+      {
+        question: "Should I switch WhatsApp to my Israeli number?",
+        answer:
+          "For long-term Aliyah, usually yes. Local services, schools, landlords, doctors, and delivery people expect an Israeli mobile number, and WhatsApp is part of daily Israeli life. Some people keep the US WhatsApp as a second account, but your Israeli number should become the main local contact.",
+      },
+      {
+        question: "Do I need an Israeli phone number if I keep my US number?",
+        answer:
+          "Yes. A US number is useful for American banks and people back home, but Israeli banks, Bit, Pango, Kupat Cholim, deliveries, and local forms generally expect an Israeli 05 mobile number. The two numbers solve different problems.",
+      },
+      {
+        question: "Can I have both a US number and an Israeli number on one phone?",
+        answer:
+          "In most cases, yes. Modern unlocked phones with Dual SIM or eSIM can run two lines side by side. Many olim use the Israeli line for data, calls, local SMS, and Israeli WhatsApp, while keeping the US number available for banks and old contacts.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get an Israeli number before you land" },
+      { href: "/keep-your-number", label: "Keep your US number" },
+      { href: "/us-number-in-israel", label: "US number in Israel" },
+    ],
+  },
+  {
     slug: "israeli-phone-number-before-you-land",
     title: "How to get an Israeli phone number before you land",
     metaTitle: "Get an Israeli Phone Number Before You Land",
