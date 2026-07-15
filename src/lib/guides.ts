@@ -39,18 +39,18 @@ export const guides: Guide[] = [
     title: "What should I do with my US phone number before making Aliyah?",
     metaTitle: "US Phone Number Before Aliyah: What to Do",
     metaDescription:
-      "Keep, port, or park your US number before Aliyah. Checklist for banks, WhatsApp, iMessage, 2FA, and getting an Israeli number before you land.",
+      "Keep, port, or park your US number before aliyah. Checklist for banks, WhatsApp, iMessage, 2FA, and getting an Israeli number before you land.",
     datePublished: "2026-07-15",
     dateModified: "2026-07-15",
     readingTime: "7 min read",
     intro:
-      "Your US phone number is probably attached to more than calls. Banks, credit cards, tax accounts, WhatsApp, iMessage, Apple ID, Google, insurance, brokerages, schools, and random two-factor logins may all still use it. So the answer before Aliyah is not \"cancel it and figure it out later.\" The clean move is to keep your US number reachable during the transition, get a real Israeli number before or right when you land, and only then decide whether to keep, port, or park the American number long term.",
+      "Your US phone number is probably attached to more than calls. Banks, credit cards, tax accounts, WhatsApp, iMessage, Apple ID, Google, insurance, brokerages, schools, and random two-factor logins may all still use it. So the answer before aliyah is not \"cancel it and figure it out later.\" The clean move is to keep your US number reachable during the transition, get a real Israeli number before or right when you land, and only then decide whether to keep, port, or park the American number long term.",
     sections: [
       {
         heading: "The short answer: do not cancel it first",
         paragraphs: [
           "The worst time to discover a bank still texts your old number is after the number is gone. A US number often becomes part of your identity layer: password resets, fraud alerts, account recovery, WhatsApp re-verification, and calls from people who have had that number saved for years. If you cancel it too early, the problem is not just missed calls — it can become a locked-account problem.",
-          "For most people making Aliyah, the safer setup is temporary overlap: keep the US number working while you activate an Israeli number. Then move the important accounts one by one. Once everything is tested, you can decide whether the US number is still worth paying for.",
+          "For most people making aliyah, the safer setup is temporary overlap: keep the US number working while you activate an Israeli number. Then move the important accounts one by one. Once everything is tested, you can decide whether the US number is still worth paying for.",
         ],
       },
       {
@@ -93,7 +93,7 @@ export const guides: Guide[] = [
         heading: "You still need an Israeli number",
         paragraphs: [
           "Keeping a US number does not replace an Israeli number. Israel runs a lot of daily life through an 05 mobile number: banks, Bit, Pango, Kupat Cholim, deliveries, appointment reminders, and local WhatsApp messages. A US number can keep your American life reachable, but it will not be the right number for most Israeli forms.",
-          "That is why the clean setup is two tracks: keep the US number stable while you transition, and get a real Israeli number early. With [BitLink](/plans), an eSIM-compatible phone can be activated online with a real Israeli number before you land, and the [step-by-step guide](/guides/israeli-phone-number-before-you-land) explains the setup.",
+          "That is why the clean setup is two tracks: keep the US number stable while you transition, and get a real Israeli number early. With [BitLink](/plans), an eSIM-compatible phone can be activated online with a real Israeli number before you land, and the [step-by-step guide](/guides/israeli-phone-number-before-you-land) explains the setup. One warning while you're at it: make sure the Israeli number is registered to you — airport and kiosk SIMs often aren't, and [the airport SIM trap](/guides/airport-sim-trap-israel) explains how people lose the number their bank knows.",
         ],
       },
       {
