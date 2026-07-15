@@ -19,6 +19,88 @@ export type PartnerPage = {
   content: LandingPageContent;
 };
 
+const sharfmansPage: PartnerPage = {
+  orgName: "Sharfmans",
+  orgType: "seminary",
+  content: {
+    slug: "/partners/sharfmans",
+    metaTitle: "Phone Plans for Sharfmans Students",
+    metaDescription:
+      "BitLink is a phone partner for Sharfmans families: seminary-year plans from $14.99/month in USD, paid from abroad with no Israeli paperwork, live before the flight.",
+    eyebrow: "BitLink × Sharfmans",
+    h1: "Her phone, sorted before the seminary year starts.",
+    intro:
+      "This is the Sharfmans partner page with BitLink — orders placed from here are linked to the seminary automatically, nothing to type at checkout. A seminary year runs on a working Israeli number: the plans are $14.99–$39.99/month in USD with VAT included, parents pay from home with a regular US, UK, or Canadian card (no Teudat Zehut, no Israeli paperwork), and on an eSIM phone the number is live before the flight — she lands connected. Support is in English, from real people, on WhatsApp.",
+    primaryCta: {
+      href: "/plans",
+      label: "See the plans",
+    },
+    secondaryCta: {
+      href: "/support",
+      label: "Ask us anything",
+    },
+    highlights: [
+      {
+        title: "Landing day already handled",
+        body: "Order from home, install the eSIM over Wi-Fi before the flight, and her Israeli number works from the arrivals hall — rides, roommates, and madrichot all reachable from hour one.",
+      },
+      {
+        title: "The bill stays with you",
+        body: "USD pricing, VAT included, charged to your own card — a predictable amount every month, managed from home without needing your daughter to handle billing in Israel.",
+      },
+      {
+        title: "Every signup counts for Sharfmans",
+        body: "Orders from this page are tracked to the seminary through BitLink's partner program — same prices as everywhere on the site, at no cost to your family.",
+      },
+    ],
+    details: [
+      {
+        title: "The plan most seminary students land on",
+        body: "Student 5G — $34.99/month for 50GB of 5G data, 5,000 Israel minutes, and 1,000 SMS — fits a typical seminary year of navigation, group chats, and video calls home. Heavier streamers (or anyone hotspotting a laptop) fit Max 5G's 120GB at $39.99/month, which also includes 150 minutes of calling to US and Canadian numbers.",
+      },
+      {
+        title: "If the program has phone guidelines",
+        body: "Some programs ask for filtering or specific device rules — check what applies for her year before buying anything. Both standard and kosher paths exist at BitLink, and support can tell you what students in similar programs typically use.",
+      },
+      {
+        title: "Calls home, without international rates",
+        body: "Add a US or Canadian local number to her line for $9.99/month — you dial a local number, it rings her phone in Israel, and it costs you what a local call costs. In the other direction, Max 5G includes 150 minutes of calling to the US and Canada.",
+      },
+    ],
+    qaBlocks: [
+      {
+        question: "What phone plan do seminary students in Israel actually need?",
+        answer:
+          "For most, [Student 5G](/plans/student-5g) at $34.99/month: 50GB of data covers daily maps, group chats, and moderate streaming, with 5,000 Israel minutes and 1,000 SMS alongside. Light users can start at $14.99 with Basic, though 1GB rarely survives a seminary schedule. Everything is monthly with no commitment, so switching plans mid-year when real usage becomes clear costs nothing.",
+      },
+      {
+        question: "How do we set it up before she flies?",
+        answer:
+          "Order online any time before the flight — checkout takes minutes, in USD, with your own card and no Israeli documents. On an eSIM-compatible phone the activation QR code arrives by email within minutes; install it over home Wi-Fi and the Israeli number is live before boarding. The [phone checklist for students](/guides/yeshiva-seminary-phone-checklist) lays out the full timeline, including the device questions to settle first.",
+      },
+      {
+        question: "Can we manage the line from the US all year?",
+        answer:
+          "Yes — the account, billing, plan changes, and support all work from abroad. Support is in English by WhatsApp, phone, and email, so if anything comes up mid-year, you can sort it directly without your daughter spending her seder time on hold with an Israeli call center.",
+      },
+      {
+        question: "What happens to her number at the end of the year?",
+        answer:
+          "Whatever suits: cancel (plans are monthly, no exit fees), pause for $10/month if she's coming back — the number and everything registered to it stays hers — or keep it running if she's staying. And every BitLink line is left open for porting out to any Israeli carrier, so the number is genuinely hers either way.",
+      },
+    ],
+    planSlugs: ["student-5g", "max-5g", "basic"],
+    relatedLinks: [
+      { href: "/guides/yeshiva-seminary-phone-checklist", label: "Student phone checklist" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+      { href: "/us-number-in-israel", label: "US number add-on" },
+    ],
+    finalHeading: "Not sure which plan fits her year?",
+    finalBody:
+      "Message us what her program allows and how she uses her phone — a real person will point you to the right plan before you pay anything.",
+  },
+};
+
 export const partnerPages: Record<string, PartnerPage> = {
   "neveh-zion": {
     orgName: "Neveh Zion",
@@ -101,6 +183,7 @@ export const partnerPages: Record<string, PartnerPage> = {
         "Ask anything — device compatibility, the right plan for your son's year, or timing around the flight. A real person answers, in English.",
     },
   },
+  sharfmans: sharfmansPage,
 };
 
 export function getPartnerPage(slug: string): PartnerPage | undefined {

@@ -8,4 +8,12 @@
 
 export const partnerOrgCodes: Record<string, string> = {
   "neveh-zion": "ORG-34CC7856",
+  sharfmans: "ORG-75238222",
 };
+
+// Reverse lookup — lets the admin org page link to the partner page when one
+// exists instead of a bare ?org= URL.
+export function getPartnerSlugForOrgCode(code: string): string | undefined {
+  const normalized = code.toUpperCase();
+  return Object.keys(partnerOrgCodes).find((slug) => partnerOrgCodes[slug] === normalized);
+}

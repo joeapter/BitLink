@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { getAdminDb } from "@/lib/db/admin";
+import { getPartnerSlugForOrgCode } from "@/lib/partner-org-codes";
 import { formatMoney } from "@/lib/utils";
 import { updateOrganizationAction } from "../actions";
 
@@ -94,7 +95,7 @@ export default async function OrganizationDetailPage({
   const customerIds = customers.map((c) => c.id);
 
   // CDR records for all customers in the selected month
-  let cdrByCustomer: Record<string, Array<{ call_type: string; duration_sec: number; data_bytes: number; sms_count: number }>> = {};
+  const cdrByCustomer: Record<string, Array<{ call_type: string; duration_sec: number; data_bytes: number; sms_count: number }>> = {};
   if (customerIds.length > 0) {
     const { data: cdrRows } = await db
       .from("cdr_records")
@@ -172,7 +173,21 @@ export default async function OrganizationDetailPage({
   const totalProfitIls = customerRows.reduce((s, r) => s + r.profitIls, 0);
   const charityCheckIls = totalProfitIls * 0.1;
 
-  const signupLink = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/signup?org=${org.referral_code}`;
+  // Best link for the org to share, in preference order: their dedicated
+  // partner page (clean URL, attribution set by middleware) → a type-matched
+  // marketing landing page with ?org= → the plans page with ?org=. Never the
+  // bare signup form: the cookie is captured on ANY page hit, and a marketing
+  // page converts; a signup form shown cold doesn't.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const partnerSlug = getPartnerSlugForOrgCode(org.referral_code as string);
+  const landingByType: Record<string, string> = {
+    yeshiva: "/yeshiva-seminary-phone-plans",
+    seminary: "/yeshiva-seminary-phone-plans",
+    shul: "/israeli-phone-plans-for-olim",
+  };
+  const signupLink = partnerSlug
+    ? `${siteUrl}/partners/${partnerSlug}`
+    : `${siteUrl}${landingByType[org.type as string] ?? "/plans"}?org=${org.referral_code}`;
 
   return (
     <div className="grid gap-6">
