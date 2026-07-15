@@ -66,7 +66,7 @@ const aliyahFaqItems = [
   {
     question: "Can I keep my US, UK, or Canadian number when I make aliyah?",
     answer:
-      "Yes, two ways. You can [port your existing number to BitLink](/keep-your-number) for a one-time $49.99 — it takes up to 3 business days and your old number keeps working until the switch completes. Or you can keep things simple and add a [new US, Canadian, or UK local number](/us-number-in-israel) to your plan for $9.99/month, so family and clients dial a local number that rings your phone in Israel. Many olim do both: port the number everyone knows, and drop the old US plan entirely.",
+      "Yes, two ways. You can [port your existing number to BitLink](/keep-your-number) for a one-time $49.99 — it takes 3 to 5 business days and your old number keeps working until the switch completes. Or you can keep things simple and add a [new US, Canadian, or UK local number](/us-number-in-israel) to your plan for $9.99/month, so family and clients dial a local number that rings your phone in Israel. Many olim do both: port the number everyone knows, and drop the old US plan entirely.",
   },
   {
     question: "What does phone service cost after aliyah?",

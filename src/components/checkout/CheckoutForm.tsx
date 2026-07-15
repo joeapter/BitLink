@@ -375,7 +375,7 @@ export function CheckoutForm({
                   />
                   <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
                     <p className="font-semibold">One-time port fee: $49.99</p>
-                    <p className="mt-0.5">International number ports are processed manually and typically take 2–3 business days after your Israeli SIM is activated.</p>
+                    <p className="mt-0.5">International number ports are processed manually and typically take 3–5 business days after your Israeli SIM is activated.</p>
                   </div>
                 </div>
               )}

@@ -91,7 +91,7 @@ export function CheckoutSummary({
         {hasIntlNumber && intlIsPortIn && (
           <div className="flex gap-3">
             <Clock className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" aria-hidden="true" />
-            <span>International number ports are processed manually and typically take 2–3 business days.</span>
+            <span>International number ports are processed manually and typically take 3–5 business days.</span>
           </div>
         )}
       </div>

@@ -375,7 +375,7 @@ export const landingPages = {
     eyebrow: "Number porting",
     h1: "Keep your number. Switch to BitLink in minutes.",
     intro:
-      "Porting an Israeli mobile number to BitLink is free and typically completes in 5 to 10 minutes. Bringing a US, UK, or Canadian number takes up to 3 business days and a one-time $49.99 fee. Either way, your old number stays active until the moment the switch completes — so you're never unreachable in between.",
+      "Porting an Israeli mobile number to BitLink is free and typically completes in 5 to 10 minutes. Bringing a US, UK, or Canadian number takes 3 to 5 business days and a one-time $49.99 fee. Either way, your old number stays active until the moment the switch completes — so you're never unreachable in between.",
     primaryCta: {
       href: "/plans",
       label: "Choose your plan",
@@ -391,7 +391,7 @@ export const landingPages = {
       },
       {
         title: "US, UK & Canadian numbers welcome",
-        body: "International porting carries a one-time $49.99 fee and typically completes within 3 business days, coordinated with your current carrier.",
+        body: "International porting carries a one-time $49.99 fee and typically completes within 3 to 5 business days, coordinated with your current carrier.",
       },
       {
         title: "No gap in service",
@@ -405,7 +405,7 @@ export const landingPages = {
       },
       {
         title: "How an international port works",
-        body: "Reach out before checkout so the team can confirm your US, UK, or Canadian carrier supports porting. Once initiated, the port takes up to 3 business days, and you keep using your old number normally until it completes.",
+        body: "Reach out before checkout so the team can confirm your US, UK, or Canadian carrier supports porting. Once initiated, the port takes 3 to 5 business days, and you keep using your old number normally until it completes.",
       },
       {
         title: "What you'll need",
@@ -416,7 +416,7 @@ export const landingPages = {
       {
         question: "How long does porting my number to BitLink take?",
         answer:
-          "It depends on where the number lives. Porting an Israeli mobile number is fast — both your old carrier and BitLink operate on Israeli telecom infrastructure, so the switch typically completes within 5 to 10 minutes of being initiated and feels close to instant from your side. Porting an international number from the US, UK, or Canada involves coordination with your current carrier abroad, so it typically takes up to 3 business days. In both cases your old number stays active until the port finishes, so there's no window where people can't reach you. If timing matters — say you're landing on a specific date — [reach out to support](/support) and the team will help you sequence the port around your plans.",
+          "It depends on where the number lives. Porting an Israeli mobile number is fast — both your old carrier and BitLink operate on Israeli telecom infrastructure, so the switch typically completes within 5 to 10 minutes of being initiated and feels close to instant from your side. Porting an international number from the US, UK, or Canada involves coordination with your current carrier abroad, so it typically takes 3 to 5 business days. In both cases your old number stays active until the port finishes, so there's no window where people can't reach you. If timing matters — say you're landing on a specific date — [reach out to support](/support) and the team will help you sequence the port around your plans.",
       },
       {
         question: "What does it cost to keep my number?",
@@ -426,7 +426,7 @@ export const landingPages = {
       {
         question: "Does my old number stay active during the port?",
         answer:
-          "Yes. Number porting is designed so the old line keeps working until the new one takes over. For Israeli ports that window is minutes; for international ports it can be up to 3 business days — and through that whole period your existing SIM keeps receiving calls and messages as normal. The handover itself is the moment your number goes live on BitLink, and the team confirms with you once it's complete.",
+          "Yes. Number porting is designed so the old line keeps working until the new one takes over. For Israeli ports that window is minutes; for international ports it can be 3 to 5 business days — and through that whole period your existing SIM keeps receiving calls and messages as normal. The handover itself is the moment your number goes live on BitLink, and the team confirms with you once it's complete.",
       },
       {
         question: "Can I start the porting process before I arrive in Israel?",
@@ -764,7 +764,7 @@ export const plansFaqItems = [
   {
     question: "Can I keep my current phone number?",
     answer:
-      "Yes. Israeli numbers port to BitLink free, typically in 5–10 minutes. US, UK, and Canadian numbers can be ported for a one-time $49.99 fee, typically within 3 business days. See [how porting works](/keep-your-number) for the details.",
+      "Yes. Israeli numbers port to BitLink free, typically in 5–10 minutes. US, UK, and Canadian numbers can be ported for a one-time $49.99 fee, typically within 3 to 5 business days. See [how porting works](/keep-your-number) for the details.",
   },
 ];
 
@@ -807,7 +807,7 @@ export const faqItems = [
   {
     question: "Can I keep my international number?",
     answer:
-      "Yes — [porting an existing US, UK, or Canadian number](/keep-your-number) onto your BitLink line is available, and BitLink is upfront about the real cost and timeline rather than glossing over it. International porting carries an additional $49.99 fee on top of your plan price and typically takes up to 3 business days to complete, since it involves coordination with your current international carrier rather than just BitLink's own network. During that window your old number stays active until the port finishes, so there's usually no gap in service. This is different from porting an Israeli number, which is far faster. If keeping your existing international number matters to you, [reach out to the team](/support) before checkout — they'll confirm your carrier supports porting and walk you through the steps so there are no surprises.",
+      "Yes — [porting an existing US, UK, or Canadian number](/keep-your-number) onto your BitLink line is available, and BitLink is upfront about the real cost and timeline rather than glossing over it. International porting carries an additional $49.99 fee on top of your plan price and typically takes 3 to 5 business days to complete, since it involves coordination with your current international carrier rather than just BitLink's own network. During that window your old number stays active until the port finishes, so there's usually no gap in service. This is different from porting an Israeli number, which is far faster. If keeping your existing international number matters to you, [reach out to the team](/support) before checkout — they'll confirm your carrier supports porting and walk you through the steps so there are no surprises.",
     action: {
       label: "Find out more",
       href: "https://wa.me/972555195335?text=I%20would%20like%20more%20info%20about%20Porting%20My%20existing%20international%20number",

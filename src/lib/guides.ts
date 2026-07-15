@@ -71,7 +71,7 @@ export const guides: Guide[] = [
         paragraphs: [
           "Choice one: keep your existing US carrier for a while. This is the least disruptive option because banks and contacts already know the number. The downside is cost, roaming risk, and the fact that a US plan may be overkill once you live in Israel. If you keep it, turn off data roaming on that line and use your Israeli line for mobile data.",
           "Choice two: park or port the number to a cheaper US-based service. This can work well for people who only need occasional texts and calls, but treat it as a test, not an assumption. Some financial institutions are picky about VoIP or forwarding numbers, and you do not want to learn that after the original line is cancelled.",
-          "Choice three: keep the number connected to your Israel setup. If the exact number matters — family, banks, clients, old contacts — [porting your US, UK, or Canadian number to BitLink](/keep-your-number) keeps that number reachable while your main mobile life runs on an Israeli line. If you do not need the old number itself, a fresh [US, Canadian, or UK local number](/us-number-in-israel) can be added instead so people back home call a familiar local number that rings your phone in Israel.",
+          "Choice three: bring the number to Israel with you. This is the option most people don't realize exists, and it's often the best one. If the exact number matters — family, banks, clients, old contacts — [porting your US, UK, or Canadian number to BitLink](/keep-your-number) turns it into a real working number you carry on your phone in Israel. It keeps working on WhatsApp, family who only have your American number still reach you, and you stop paying a US carrier to hold it. You can run an Israeli number alongside it on the same phone and bill, so you get both without choosing. If you don't need the old number itself, a fresh [US, Canadian, or UK local number](/us-number-in-israel) can be added instead so people back home call a familiar local number that rings your phone in Israel.",
         ],
       },
       {
@@ -318,7 +318,7 @@ export const guides: Guide[] = [
         steps: [
           "New Israeli number — the fastest path. Once your order is processed and the eSIM is ready, install is normally just a few minutes.",
           "Porting an Israeli number — [transferring your existing number](/keep-your-number) generally completes within 5 to 10 minutes, since both carriers run on Israeli infrastructure. Keep your old SIM active until the transfer finishes.",
-          "Porting a US, UK, or Canadian number — this involves coordination with your carrier abroad and takes up to 3 business days. Your old number keeps working the whole time.",
+          "Porting a US, UK, or Canadian number — this involves coordination with your carrier abroad and takes 3 to 5 business days. Your old number keeps working the whole time.",
           "Second line — many people keep their home number active and add an Israeli eSIM alongside it. This is one of eSIM's most useful features.",
         ],
       },
@@ -803,6 +803,15 @@ export const guides: Guide[] = [
         ],
       },
       {
+        heading: "The option that skips the whole dilemma: bring your US number with you",
+        paragraphs: [
+          "Almost all of the agonizing above — switch or keep, one WhatsApp or two, will banks still text me — exists because people assume their US number has to stay in America. It doesn't have to. If the exact US number matters to you, you can [port it onto a BitLink line](/keep-your-number) and it becomes a real, working number you carry in Israel — no Google Voice, no forwarding tricks, no second carrier bill back home.",
+          "What that does to the WhatsApp question is the good part: your US number keeps working on WhatsApp, because it's still a live number — just one that now lives on your phone in Israel instead of on a US network. Family who only ever had your American number still reach you; the account they've always known keeps working. And you can add a separate Israeli number alongside it for local life, so you're not forced to choose between 'the number everyone in America has' and 'the number Israel expects.' You keep both, on one phone, on one bill.",
+          "One honest caveat on timing: porting a US number isn't the near-instant flip an Israeli-to-Israeli port is. Because it means coordinating with your US carrier abroad, it typically takes about three to five business days, and there's a one-time $49.99 fee. Your old number keeps working the whole time, so there's no gap — but plan for it as a few-day process, not a same-day one, and don't cancel the US line until the port has completed.",
+          "So the honest full menu is three options, not two: switch WhatsApp to a new Israeli number, keep it on your US number (from wherever that number lives), or bring the US number to Israel with you and stop maintaining a US plan at all. For a lot of olim who dreaded 'losing' their number, that third path is the one they wish they'd known about first.",
+        ],
+      },
+      {
         heading: "The setup that avoids all of this",
         paragraphs: [
           "Everything above gets easier when your Israeli number exists early and is genuinely yours. Activate a real Israeli line before you land — with [BitLink](/plans), an eSIM-compatible phone can be set up online before the flight, so the number is live when you arrive and ready for the WhatsApp switch on day one. The [before-you-land guide](/guides/israeli-phone-number-before-you-land) covers the activation, and the [US-number-before-aliyah guide](/guides/us-phone-number-before-aliyah) covers what to do with the American number itself.",
@@ -835,6 +844,11 @@ export const guides: Guide[] = [
         question: "Should I switch WhatsApp to my Israeli number or keep my US one?",
         answer:
           "For long-term aliyah, switching is usually cleaner — landlords, schools, doctors, delivery drivers, and officials all expect an Israeli mobile number and reach you by WhatsApp. Keep the US number only if your daily life is still mostly American, or run both at once if you straddle two countries.",
+      },
+      {
+        question: "Can I keep my US number on WhatsApp after moving to Israel?",
+        answer:
+          "Yes — and you don't have to give up the number to do it. If you port your US number to a BitLink line, it stays a real working number you carry in Israel, so it keeps working on WhatsApp exactly as before and family who only have your American number still reach you. You can add a separate Israeli number alongside it for local life, keeping both on one phone and one bill — no Google Voice or forwarding workarounds needed. Unlike an Israeli-to-Israeli port (minutes), a US port takes about three to five business days plus a one-time $49.99 fee, and your old number keeps working until it completes.",
       },
       {
         question: "Will my iMessage and FaceTime still work after I move?",
