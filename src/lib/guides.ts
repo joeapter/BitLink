@@ -747,6 +747,107 @@ export const guides: Guide[] = [
       { href: "/keep-your-number", label: "Number porting" },
     ],
   },
+  {
+    slug: "whatsapp-israeli-number-switch",
+    title: "Moving WhatsApp to your Israeli number (without losing your chats)",
+    metaTitle: "Switch WhatsApp to an Israeli Number — No Lost Chats",
+    metaDescription:
+      "How to move WhatsApp to your Israeli number without losing chats or groups, when to keep the US number, and how to run both at once. Step by step for olim.",
+    datePublished: "2026-07-15",
+    dateModified: "2026-07-15",
+    readingTime: "6 min read",
+    intro:
+      "In Israel, WhatsApp isn't a social app — it's the infrastructure. Landlords, doctors, delivery drivers, gan teachers, absorption coordinators, and half of officialdom expect to reach you on it. So the real question for a new oleh isn't whether to use WhatsApp, it's which number sits behind it. The good news: WhatsApp has a built-in Change Number tool that moves your account to a new number and keeps your chats and groups intact — no lost history. Here's exactly how it works, when to switch versus keep both, and the mistakes that actually cost people their messages.",
+    sections: [
+      {
+        heading: "First, the fear: will I lose my chats? (No.)",
+        paragraphs: [
+          "The single most common worry — the one that stops people from switching for months — is that changing the number wipes their history. It doesn't. WhatsApp has an official Change Number feature built for exactly this: it moves your existing account, chats, groups, and settings from your old number to your new one. Your conversations live on your phone and in your account, not on the phone number itself.",
+          "What the number actually controls is verification (the SMS or call WhatsApp uses to confirm it's you) and discoverability (how new people find you). That's why the number matters — but it's also why moving it correctly is a settings change, not a data loss event.",
+        ],
+      },
+      {
+        heading: "The clean switch: WhatsApp's Change Number tool",
+        paragraphs: [
+          "Do this once your Israeli line is active and can receive an SMS or call, and while your old number is still reachable — that overlap is what makes it painless. The exact wording shifts slightly by app version, but the flow is:",
+        ],
+        steps: [
+          "Make sure both numbers are usable right now: the Israeli line active in your phone, and the old number still able to receive a verification code (keep the old SIM or line live until this is done).",
+          "Open WhatsApp → Settings → Account → Change Number.",
+          "Enter your old number in the top field and your new Israeli number in the bottom field.",
+          "Choose whether to notify your contacts — you can notify all of them, just the ones you have chats with, or only selected contacts. Notifying the people you actually talk to saves them re-saving you later.",
+          "Verify the new Israeli number with the code WhatsApp sends it. Your account, chats, and groups move over; group admins don't need to re-add you.",
+          "Tell close family and any critical contacts directly, so anyone who might start a brand-new conversation has your Israeli number saved.",
+        ],
+      },
+      {
+        heading: "Switch, keep, or run both? Pick by how you actually live",
+        paragraphs: [
+          "Switch your main WhatsApp to the Israeli number if Israel is now home. This is the setup most long-term olim land on, because the daily friction is all on the Israeli side: the plumber, the school WhatsApp group, the Yad2 seller, and the delivery driver all expect an Israeli number, and giving them a US number every time gets old fast.",
+          "Keep your US number on WhatsApp only if your center of gravity is still American — you run a US business, most of your chats are with people back home, and you rarely need locals to WhatsApp you. Even then, know that new Israeli contacts will keep expecting an Israeli number.",
+          "Run both at once if you genuinely straddle two countries. Modern phones support two WhatsApp identities: either WhatsApp's own multi-account feature (Settings → tap your name/the arrow → Add account) or the classic approach of regular WhatsApp on one number and WhatsApp Business — a separate, free official app — on the other. It works well; just be honest that you're now managing two inboxes, and decide which number is your default answer to \"what's your WhatsApp?\"",
+        ],
+      },
+      {
+        heading: "The mistakes that actually cost people",
+        paragraphs: [
+          "Cancelling the old number before switching. If you kill the US line first and WhatsApp later asks it to re-verify, you can get locked out of the account tied to it. Always switch — or at least confirm the new number is working on WhatsApp — while the old number can still receive a code.",
+          "Trying to run WhatsApp on Google Voice. A number ported to Google Voice frequently can't activate a fresh WhatsApp account, and GV's call/SMS handling doesn't reliably deliver WhatsApp's verification. If your plan is 'port my US number to Google Voice and keep WhatsApp on it,' test it before you rely on it — this is a documented failure point.",
+          "Assuming a data-only Israel eSIM gives you a WhatsApp number. Travel eSIMs are data pipes with no phone number attached, so there's nothing for WhatsApp to verify or for locals to message. A real Israeli plan includes an actual number — the [difference between a travel eSIM and a real Israeli line](/israel-esim) matters here specifically.",
+        ],
+      },
+      {
+        heading: "iMessage and FaceTime, briefly",
+        paragraphs: [
+          "These worry people less once they understand the mechanism: iMessage and FaceTime run off your Apple ID, which is an email as much as a phone number. So even if your US number eventually goes away, iMessage and FaceTime keep working through your Apple ID email. Before you retire the old US line, open Settings and confirm your Israeli number and Apple ID email are both listed for iMessage and FaceTime, then tell family which one to use. In practice, once you're in Israel, almost everything shifts to WhatsApp anyway.",
+        ],
+      },
+      {
+        heading: "The setup that avoids all of this",
+        paragraphs: [
+          "Everything above gets easier when your Israeli number exists early and is genuinely yours. Activate a real Israeli line before you land — with [BitLink](/plans), an eSIM-compatible phone can be set up online before the flight, so the number is live when you arrive and ready for the WhatsApp switch on day one. The [before-you-land guide](/guides/israeli-phone-number-before-you-land) covers the activation, and the [US-number-before-aliyah guide](/guides/us-phone-number-before-aliyah) covers what to do with the American number itself.",
+          "One caution that trips people up specifically with WhatsApp: switch onto a number you actually own. Airport and kiosk SIMs are often registered to the seller, and if you build your WhatsApp, your bank, and your government logins on a number that later turns out not to be yours — and expires or can't be ported — you're rebuilding all of it. [The airport SIM trap](/guides/airport-sim-trap-israel) explains how that happens and how to avoid it.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Will I lose my WhatsApp chats if I change to an Israeli number?",
+        answer:
+          "No. WhatsApp's built-in Change Number tool (Settings → Account → Change Number) moves your account, chats, groups, and settings to the new number. Your history lives on your phone and in your account, not on the phone number. Do it while both the old and new numbers can still receive a verification code.",
+      },
+      {
+        question: "How do I switch my WhatsApp number when I move to Israel?",
+        answer:
+          "Activate your Israeli line, then open WhatsApp → Settings → Account → Change Number, enter your old number and your new Israeli number, choose whether to notify contacts, and verify the new number with the code sent to it. Groups carry over automatically and you keep your chats.",
+      },
+      {
+        question: "Can I have two WhatsApp accounts on one phone?",
+        answer:
+          "Yes. Most modern phones support two WhatsApp identities — either through WhatsApp's own add-account feature or by running regular WhatsApp on one number and WhatsApp Business (a separate free app) on the other. Many olim keep a US number on one and their Israeli number on the other.",
+      },
+      {
+        question: "Does WhatsApp work on a Google Voice number?",
+        answer:
+          "Often not reliably. A number ported to Google Voice frequently can't activate a fresh WhatsApp account, and GV doesn't consistently deliver WhatsApp's verification codes. If you're planning to keep WhatsApp on a Google Voice number, test it before you depend on it — it's a common failure point for olim.",
+      },
+      {
+        question: "Should I switch WhatsApp to my Israeli number or keep my US one?",
+        answer:
+          "For long-term aliyah, switching is usually cleaner — landlords, schools, doctors, delivery drivers, and officials all expect an Israeli mobile number and reach you by WhatsApp. Keep the US number only if your daily life is still mostly American, or run both at once if you straddle two countries.",
+      },
+      {
+        question: "Will my iMessage and FaceTime still work after I move?",
+        answer:
+          "Yes — both run off your Apple ID, which uses your email as well as your phone number, so they keep working even if the US number goes away. Before retiring the old line, confirm your Israeli number and Apple ID email are both listed for iMessage and FaceTime in Settings.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/us-phone-number-before-aliyah", label: "What to do with your US number" },
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get your number before you land" },
+      { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
+    ],
+  },
 ];
 
 export function getGuide(slug: string) {
