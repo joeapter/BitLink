@@ -90,7 +90,7 @@ export const guides: Guide[] = [
         paragraphs: [
           "Choice one: keep your existing US carrier for a while. This is the least disruptive option because banks and contacts already know the number. The downside is cost, roaming risk, and the fact that a US plan may be overkill once you live in Israel. If you keep it, turn off data roaming on that line and use your Israeli line for mobile data.",
           "Choice two: park or port the number to a cheaper US-based service. This can work well for people who only need occasional texts and calls, but treat it as a test, not an assumption. Some financial institutions are picky about VoIP or forwarding numbers, and you do not want to learn that after the original line is cancelled.",
-          "Choice three: bring the number to Israel with you. This is the option most people don't realize exists, and it's often the best one. If the exact number matters — family, banks, clients, old contacts — [porting your US, UK, or Canadian number to BitLink](/keep-your-number) turns it into a real working number you carry on your phone in Israel. It keeps working on WhatsApp, family who only have your American number still reach you, and you stop paying a US carrier to hold it. You can run an Israeli number alongside it on the same phone and bill, so you get both without choosing. If you don't need the old number itself, a fresh [US, Canadian, or UK local number](/us-number-in-israel) can be added instead so people back home call a familiar local number that rings your phone in Israel.",
+          "Choice three: bring the number to Israel with you. This is the option most people don't realize exists, and it's often the best one. If the exact number matters — family, banks, clients, old contacts — [porting your US, UK, or Canadian number to BitLink](/keep-your-number) turns it into a real working number you carry on your phone in Israel. It keeps working on WhatsApp, family who only have your American number still reach you, and you stop paying a US carrier to hold it. Bank and service verification texts keep arriving too — tested, with real Chase and Google codes landing on a BitLink US number in Israel. You can run an Israeli number alongside it on the same phone and bill, so you get both without choosing. If you don't need the old number itself, a fresh [US, Canadian, or UK local number](/us-number-in-israel) can be added instead so people back home call a familiar local number that rings your phone in Israel.",
         ],
       },
       {
@@ -132,7 +132,7 @@ export const guides: Guide[] = [
       {
         question: "Can I use Google Voice or another VoIP service for bank texts?",
         answer:
-          "Sometimes, but do not rely on it blindly. Some banks and services accept VoIP numbers and some do not, especially for security codes. If you move your number to any low-cost or VoIP service, test your most important logins before cancelling your original mobile plan.",
+          "Sometimes, but do not rely on it blindly. Some banks and services accept VoIP numbers and some do not, especially for security codes. If you move your number to any low-cost or VoIP service, test your most important logins before cancelling your original mobile plan. If bank texts are the worry keeping you on an expensive US plan, note that BitLink's US numbers — ported in, or the $9.99/month add-on — do receive bank and service verification texts; that's been tested with real Chase and Google codes.",
       },
       {
         question: "Will WhatsApp stop working if I move to Israel?",
@@ -206,7 +206,7 @@ export const guides: Guide[] = [
       {
         heading: "What about the number from home?",
         paragraphs: [
-          "Your Israeli number handles life in Israel; the question is what happens to the US, UK, or Canadian number everyone already has saved. Two clean options: [port it onto your BitLink line](/keep-your-number) for a one-time $49.99 so it keeps working from Israel, or add a [fresh US, Canadian, or UK local number](/us-number-in-israel) for $9.99/month so family can call you at local rates. Many people landing long-term do one of these and drop the old home plan entirely.",
+          "Your Israeli number handles life in Israel; the question is what happens to the US, UK, or Canadian number everyone already has saved. Two clean options: [port it onto your BitLink line](/keep-your-number) for a one-time $49.99 so it keeps working from Israel, or add a [fresh US, Canadian, or UK local number](/us-number-in-israel) for $9.99/month so family can call you at local rates. Both receive US verification texts — bank codes, Google codes — not just calls, so the logins tied to an American number keep working. Many people landing long-term do one of these and drop the old home plan entirely.",
         ],
       },
     ],
@@ -520,7 +520,7 @@ export const guides: Guide[] = [
         heading: "For parents: paying and staying in touch from abroad",
         paragraphs: [
           "Plans are priced and charged in US dollars with VAT included, so a parent pays with their own card and sees the same predictable amount every month — no shekel conversion moving with the exchange rate. Many families keep the account entirely in the parent's hands while the line runs on the student's phone in Israel.",
-          "For staying in touch, a [US, Canadian, or UK local number](/us-number-in-israel) can be added to any plan — including the kosher plans — for $9.99/month. Family dials a number that's local to them, and it rings the student's phone in Israel; no international dialing, no calling cards. In the other direction, Kosher+ and Max 5G both include 150 minutes of outbound calling to US and Canadian numbers.",
+          "For staying in touch, a [US, Canadian, or UK local number](/us-number-in-israel) can be added to any plan — including the kosher plans — for $9.99/month. Family dials a number that's local to them, and it rings the student's phone in Israel; no international dialing, no calling cards. On smartphone plans the number receives US verification texts as well, so a student's American bank login keeps working from Israel. In the other direction, Kosher+ and Max 5G both include 150 minutes of outbound calling to US and Canadian numbers.",
           "Support is in English by WhatsApp, phone, and email — so a parent can sort out a billing question or a setup issue directly, without the student translating from a dorm hallway.",
         ],
       },
@@ -825,7 +825,7 @@ export const guides: Guide[] = [
         heading: "The option that skips the whole dilemma: bring your US number with you",
         paragraphs: [
           "Almost all of the agonizing above — switch or keep, one WhatsApp or two, will banks still text me — exists because people assume their US number has to stay in America. It doesn't have to. If the exact US number matters to you, you can [port it onto a BitLink line](/keep-your-number) and it becomes a real, working number you carry in Israel — no Google Voice, no forwarding tricks, no second carrier bill back home.",
-          "What that does to the WhatsApp question is the good part: your US number keeps working on WhatsApp, because it's still a live number — just one that now lives on your phone in Israel instead of on a US network. Family who only ever had your American number still reach you; the account they've always known keeps working. And you can add a separate Israeli number alongside it for local life, so you're not forced to choose between 'the number everyone in America has' and 'the number Israel expects.' You keep both, on one phone, on one bill.",
+          "What that does to the WhatsApp question is the good part: your US number keeps working on WhatsApp, because it's still a live number — just one that now lives on your phone in Israel instead of on a US network. Family who only ever had your American number still reach you; the account they've always known keeps working. So do bank and verification texts — tested with real Chase and Google codes arriving on a BitLink US number in Israel — which answers the \"will banks still text me\" worry directly. And you can add a separate Israeli number alongside it for local life, so you're not forced to choose between 'the number everyone in America has' and 'the number Israel expects.' You keep both, on one phone, on one bill.",
           "One honest caveat on timing: porting a US number isn't the near-instant flip an Israeli-to-Israeli port is. Because it means coordinating with your US carrier abroad, it typically takes about three to five business days, and there's a one-time $49.99 fee. Your old number keeps working the whole time, so there's no gap — but plan for it as a few-day process, not a same-day one, and don't cancel the US line until the port has completed.",
           "So the honest full menu is three options, not two: switch WhatsApp to a new Israeli number, keep it on your US number (from wherever that number lives), or bring the US number to Israel with you and stop maintaining a US plan at all. For a lot of olim who dreaded 'losing' their number, that third path is the one they wish they'd known about first.",
         ],
@@ -948,7 +948,7 @@ export const guides: Guide[] = [
               ],
             },
           ],
-          note: "Carrier prices as of mid-2026 — roaming rates change, so check your carrier's international page before relying on them. And if bank verification texts to your US number are what's keeping you on roaming: dual SIM solves that — your US SIM stays in the phone and keeps receiving them alongside the Israeli line.",
+          note: "Carrier prices as of mid-2026 — roaming rates change, so check your carrier's international page before relying on them. And if bank verification texts to your US number are what's keeping you on roaming: dual SIM solves that — your US SIM stays in the phone and keeps receiving them — and so does porting the number to BitLink or adding a US line ($9.99/mo), both of which receive bank and verification texts (tested with real Chase and Google codes).",
         },
       },
       {
@@ -969,7 +969,7 @@ export const guides: Guide[] = [
         heading: "How do I keep my US number and get an Israeli one?",
         paragraphs: [
           "Modern phones run two lines at once, and that's the whole trick. Keep your US SIM in the phone so the number your bank and family know stays reachable, and add an Israeli eSIM as the working line — data, calls, local SMS, and the Israeli number every form asks for. On an eSIM-compatible phone, [the Israeli line can be live before your flight](/guides/israeli-phone-number-before-you-land): checkout online with a regular US card (no Israeli ID, no Israeli bank account), scan a QR code, done.",
-          "With the Israeli line handling data, you can drop the US line to its cheapest tier or turn roaming off entirely — it just needs to receive the occasional text, and that includes the ones that matter most: bank and verification codes keep arriving on the US SIM exactly as they always did, because the number never went anywhere. Longer term, some people [port the US number onto their Israeli line](/keep-your-number) or replace it with a [US number add-on](/us-number-in-israel) for $9.99/month, and stop paying an American carrier altogether.",
+          "With the Israeli line handling data, you can drop the US line to its cheapest tier or turn roaming off entirely — it just needs to receive the occasional text, and that includes the ones that matter most: bank and verification codes keep arriving on the US SIM exactly as they always did, because the number never went anywhere. Longer term, some people [port the US number onto their Israeli line](/keep-your-number) or replace it with a [US number add-on](/us-number-in-israel) for $9.99/month, and stop paying an American carrier altogether — both receive US bank and verification texts (tested with real Chase and Google codes), so dropping the US carrier doesn't mean losing the texts that matter.",
         ],
       },
       {
@@ -1004,7 +1004,7 @@ export const guides: Guide[] = [
       {
         question: "Can I keep my US number if I switch to an Israeli plan?",
         answer:
-          "Yes, three ways: keep the US SIM alongside the Israeli eSIM in the same phone (dual SIM), port the US number onto the Israeli line so it works from Israel, or replace it with a US local number added to the Israeli plan for $9.99/month. Most people run dual SIM first and decide later.",
+          "Yes, three ways: keep the US SIM alongside the Israeli eSIM in the same phone (dual SIM), port the US number onto the Israeli line so it works from Israel, or replace it with a US local number added to the Israeli plan for $9.99/month. All three keep US bank and verification texts arriving — the ported and add-on numbers have been tested with real Chase and Google codes. Most people run dual SIM first and decide later.",
       },
       {
         question: "Do I need to do anything before I fly?",
@@ -1060,7 +1060,7 @@ export const guides: Guide[] = [
       {
         heading: "How do I stay reachable for family back home?",
         paragraphs: [
-          "Run dual SIM: your home SIM stays in the phone so the number your family and your bank know keeps receiving texts, and the Israeli line does all the actual work. Turn roaming off on the home line and drop it to the cheapest tier that keeps the number alive — or skip paying a US carrier entirely and [port the number onto your BitLink line](/keep-your-number), or add a [US, Canadian, or UK local number](/us-number-in-israel) for $9.99/month so parents dial a local call and it rings in Israel.",
+          "Run dual SIM: your home SIM stays in the phone so the number your family and your bank know keeps receiving texts, and the Israeli line does all the actual work. Turn roaming off on the home line and drop it to the cheapest tier that keeps the number alive — or skip paying a US carrier entirely and [port the number onto your BitLink line](/keep-your-number), or add a [US, Canadian, or UK local number](/us-number-in-israel) for $9.99/month so parents dial a local call and it rings in Israel. Both routes receive US verification texts — real bank codes, tested — so nothing about your American logins breaks.",
           "One thing not to do for a gap year: don't move your WhatsApp to the Israeli number. That advice is for aliyah. You're going home in a year — keep WhatsApp on the number you'll still have at 20, and let the Israeli number handle SMS codes and local calls. WhatsApp works fine on Israeli data regardless of which number it's registered to.",
           "For parents: the plan is priced in dollars with VAT included, the card on file can be yours, and support answers in English on WhatsApp — so billing questions never route through a teenager's dorm hallway.",
         ],

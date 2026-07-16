@@ -194,7 +194,7 @@ export const landingPages = {
       {
         question: "How much does a phone plan cost in Israel?",
         answer:
-          "BitLink phone plans in Israel range from $14.99 to $39.99 per month, with no contract beyond the monthly term, VAT included, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS — a fit for light, occasional use. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, and is BitLink's most popular plan among students. Max 5G is $39.99/month with 120GB of data, 5,000 minutes, 1,000 SMS, and 150 minutes of calling to US and Canadian numbers, built for heavier daily use. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month so family back home can call you like a local call.",
+          "BitLink phone plans in Israel range from $14.99 to $39.99 per month, with no contract beyond the monthly term, VAT included, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS — a fit for light, occasional use. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, and is BitLink's most popular plan among students. Max 5G is $39.99/month with 120GB of data, 5,000 minutes, 1,000 SMS, and 150 minutes of calling to US and Canadian numbers, built for heavier daily use. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month — family back home calls you like a local call, and the number receives US verification texts too.",
       },
       {
         question: "How much data do I need for a semester in Israel?",
@@ -334,7 +334,7 @@ export const landingPages = {
       {
         question: "How much does a phone plan cost for new olim in Israel?",
         answer:
-          "BitLink phone plans range from $14.99 to $39.99 per month, with no long-term contract beyond the monthly term, VAT included, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS, a fit for light use while you're getting settled. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, BitLink's most popular plan for everyday use. Max 5G is $39.99/month with 120GB of data, 5,000 minutes, 1,000 SMS, and 150 minutes of calling to US and Canadian numbers built in, which tends to suit olim families staying in close touch with relatives abroad during the first year. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month.",
+          "BitLink phone plans range from $14.99 to $39.99 per month, with no long-term contract beyond the monthly term, VAT included, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS, a fit for light use while you're getting settled. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, BitLink's most popular plan for everyday use. Max 5G is $39.99/month with 120GB of data, 5,000 minutes, 1,000 SMS, and 150 minutes of calling to US and Canadian numbers built in, which tends to suit olim families staying in close touch with relatives abroad during the first year. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month — it receives US verification texts as well as calls.",
       },
       {
         question: "Do I need an Israeli phone number for banks, Kupat Cholim, and apps like Bit?",
@@ -405,7 +405,7 @@ export const landingPages = {
       },
       {
         title: "How an international port works",
-        body: "Reach out before checkout so the team can confirm your US, UK, or Canadian carrier supports porting. Once initiated, the port takes 3 to 5 business days, and you keep using your old number normally until it completes.",
+        body: "Reach out before checkout so the team can confirm your US, UK, or Canadian carrier supports porting. Once initiated, the port takes 3 to 5 business days, and you keep using your old number normally until it completes. Once live on BitLink, the ported number keeps receiving calls and US texts — including bank and service verification codes, tested with real Chase and Google codes.",
       },
       {
         title: "What you'll need",
@@ -432,6 +432,11 @@ export const landingPages = {
         question: "Can I start the porting process before I arrive in Israel?",
         answer:
           "Yes — and for international numbers it's actually the smart order of operations. [Message support](/support) before you travel: the team confirms your current US, UK, or Canadian carrier supports porting, tells you exactly which details to gather (usually an account number and transfer PIN), and maps the steps around your arrival date. Israeli number ports happen once your BitLink line is active, which itself takes only minutes by eSIM — so even that can be done on the day you land.",
+      },
+      {
+        question: "Will my US bank and verification texts still arrive after porting?",
+        answer:
+          "Yes. A number ported to BitLink stays a real, live mobile number — calls and SMS keep arriving on your phone in Israel, including the verification codes US banks and services send. This has been tested with real Chase and Google codes arriving on a BitLink US number. It's the key difference from parking a number on a VoIP or forwarding service, which financial institutions often refuse to text: a ported BitLink number keeps the logins that depend on it working. As with any port, test your most important accounts while your old plan is still active — good practice regardless of carrier.",
       },
       {
         question: "Can I port my number out of BitLink later?",
@@ -507,7 +512,7 @@ export const landingPages = {
       {
         question: "Can parents manage and pay for the line from the US?",
         answer:
-          "Yes — this is one of the main reasons families choose BitLink. Checkout is online and priced in US dollars with VAT included, so a parent pays with their own card and sees a predictable USD charge each month, not a shekel amount that moves with the exchange rate. Support is in English by WhatsApp, phone, and email, so a parent can ask questions or sort out an issue directly, without needing the student to translate. Adding a [US, Canadian, or UK local number](/us-number-in-israel) for $9.99/month also lets family call the student like a local call.",
+          "Yes — this is one of the main reasons families choose BitLink. Checkout is online and priced in US dollars with VAT included, so a parent pays with their own card and sees a predictable USD charge each month, not a shekel amount that moves with the exchange rate. Support is in English by WhatsApp, phone, and email, so a parent can ask questions or sort out an issue directly, without needing the student to translate. Adding a [US, Canadian, or UK local number](/us-number-in-israel) for $9.99/month also lets family call the student like a local call — and the number receives US verification texts, so a student's American bank login keeps working from Israel.",
       },
       {
         question: "Does BitLink work with schools directly?",
@@ -529,11 +534,11 @@ export const landingPages = {
     slug: "/us-number-in-israel",
     metaTitle: "US Number in Israel — $9.99/mo Add-On",
     metaDescription:
-      "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family dials a local number and your phone rings in Israel — no calling cards, no roaming.",
+      "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family dials a local number, your phone rings in Israel — and US bank & verification texts arrive too.",
     eyebrow: "US / Canada / UK number",
-    h1: "A US number that rings in Israel.",
+    h1: "A US number that rings — and texts — in Israel.",
     intro:
-      "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family and clients back home dial a number that's local to them — no international dialing, no calling cards — and the call rings your phone in Israel. It works on every plan, including kosher lines.",
+      "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family and clients back home dial a number that's local to them — no international dialing, no calling cards — and the call rings your phone in Israel. It works on every plan, including kosher lines. And it's not just calls: the number receives US text messages too, including the verification codes American banks and services send — tested with real Chase and Google codes arriving in Israel.",
     primaryCta: {
       href: "/plans",
       label: "Choose a plan",
@@ -577,6 +582,11 @@ export const landingPages = {
           b: "One BitLink account and bill",
         },
         {
+          label: "Bank & verification texts",
+          a: "Arrive on the US SIM you're still paying a carrier to keep alive",
+          b: "Arrive on the add-on number — tested with real Chase and Google codes",
+        },
+        {
           label: "Your existing US number",
           a: "Stays hostage to the old plan",
           b: "Can be ported to BitLink for a one-time $49.99 instead",
@@ -587,6 +597,10 @@ export const landingPages = {
       {
         title: "How it works",
         body: "The local number is provisioned alongside your Israeli line. When someone dials it from the US, Canada, or the UK, the call comes through to your phone in Israel — they never dial internationally, and you answer as usual.",
+      },
+      {
+        title: "Verification texts work too",
+        body: "The number receives US SMS — including the security codes banks and services send. We've tested this with real Chase and Google verification codes arriving on a BitLink US number in Israel. That's a meaningful difference from many VoIP and forwarding services, which financial institutions often refuse to text. As with any number change, test your most important logins while your old line is still active.",
       },
       {
         title: "Add-on or porting — which one?",
@@ -612,6 +626,11 @@ export const landingPages = {
         question: "Should I add a US number or port my old US number?",
         answer:
           "Ask one question: do people need to reach the number they already have saved? If yes — you've had the same cell number for 15 years and everyone from your dentist to your bank uses it — then [porting it to BitLink](/keep-your-number) for a one-time $49.99 keeps it alive on your Israeli line. If you just want family to have an easy way to call, the $9.99/month add-on gives them a fresh local number and skips the porting process entirely. They solve different problems, and some people do both.",
+      },
+      {
+        question: "Will I get bank verification texts on the US number?",
+        answer:
+          "Yes — the add-on number receives US text messages, including the verification codes banks and services send. This has been tested with real Chase Mobile and Google verification codes arriving on a BitLink US number in Israel. That matters because many VoIP and forwarding services fail exactly here: financial institutions often refuse to text them, which is how people get locked out of accounts after a move. As with any number change, test your most important logins before retiring the old line. (One exception by design: kosher lines are voice-only, so texts to the add-on don't apply there.)",
       },
       {
         question: "Does the add-on work with kosher plans?",

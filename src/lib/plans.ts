@@ -149,7 +149,7 @@ export const plans: BitLinkPlan[] = [
       {
         question: "Does Max 5G include international calling?",
         answer:
-          "It includes 150 minutes per month to US and Canadian numbers, on top of 5,000 minutes to Israeli numbers. If family calls you more than you call them, the US/Canada/UK local number add-on ($9.99/month) gives them a number that's local on their end, so they can reach you without international dialing at all.",
+          "It includes 150 minutes per month to US and Canadian numbers, on top of 5,000 minutes to Israeli numbers. If family calls you more than you call them, the US/Canada/UK local number add-on ($9.99/month) gives them a number that's local on their end, so they can reach you without international dialing at all. It receives US verification texts, too.",
       },
     ],
     stripeEnvKey: "STRIPE_PRICE_MAX_5G",
