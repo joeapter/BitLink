@@ -443,3 +443,21 @@ export function buildAdminProvisionedEmail(params: {
     ${btn('Open line in admin', `${params.adminUrl}/admin/lines/${params.lineId}`)}
   `);
 }
+
+// ── Review request (manual, admin-fired) ─────────────────────────────────────
+// Sent from the admin customer list AFTER Joe has personally confirmed the
+// customer is happy — deliberately not automated while the GBP listing is new.
+
+export function buildReviewRequestEmail(params: {
+  fullName: string;
+  reviewUrl: string;
+}): string {
+  const firstName = params.fullName.split(' ')[0] || 'there';
+  return layout(`
+    ${h1('Thank you for being with BitLink')}
+    ${p(`Hi ${firstName},`)}
+    ${p("Glad the line's treating you well. One small favor: BitLink is a new company, and honest reviews from real customers are how other families decide to trust us. If you have sixty seconds, it would genuinely help:")}
+    ${btn('Leave a Google review', params.reviewUrl)}
+    ${p('And if anything ever isn’t right, just reply to this email — a real person answers.')}
+  `);
+}

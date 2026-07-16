@@ -5,7 +5,9 @@ import Link from "next/link";
 import { Archive, ArchiveRestore, Loader2 } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { MakeSalesRepButton } from "@/components/admin/MakeSalesRepButton";
+import { RequestReviewButton } from "@/components/admin/RequestReviewButton";
 import { makeSalesRepAction } from "@/lib/admin/sales-rep-actions";
+import { sendReviewRequestAction } from "@/lib/admin/review-request-actions";
 import { archiveCustomersAction, unarchiveCustomersAction } from "@/lib/admin/customer-actions";
 import { formatDate } from "@/lib/utils";
 
@@ -19,6 +21,7 @@ export type CustomerRow = {
   user_id: string | null;
   created_at: string;
   plans: string[];
+  reviewRequestedAt: string | null;
   salesRep: { status: string; referral_code: string } | null;
 };
 
@@ -118,6 +121,7 @@ export function CustomerTable({ customers, view }: { customers: CustomerRow[]; v
               <th className="px-3 py-3 font-semibold">Referral</th>
               <th className="px-3 py-3 font-semibold">Sales rep</th>
               <th className="px-3 py-3 font-semibold">Order</th>
+              <th className="px-3 py-3 font-semibold">Review</th>
               <th className="px-3 py-3 font-semibold">Created</th>
               <th className="w-9 px-3 py-3" />
             </tr>
@@ -180,6 +184,20 @@ export function CustomerTable({ customers, view }: { customers: CustomerRow[]; v
                     >
                       Build order
                     </Link>
+                  </td>
+                  <td className="px-3 py-3">
+                    {customer.reviewRequestedAt ? (
+                      <span className="whitespace-nowrap text-xs text-muted-slate">
+                        Asked {formatDate(customer.reviewRequestedAt)}
+                      </span>
+                    ) : customer.email ? (
+                      <form action={sendReviewRequestAction}>
+                        <input type="hidden" name="customerId" value={customer.id} />
+                        <RequestReviewButton />
+                      </form>
+                    ) : (
+                      <span className="text-xs font-semibold text-slate-400">No email</span>
+                    )}
                   </td>
                   <td className="px-3 py-3 text-slate-500">{formatDate(customer.created_at)}</td>
                   <td className="px-3 py-3">

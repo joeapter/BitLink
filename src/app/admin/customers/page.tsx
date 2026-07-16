@@ -68,6 +68,26 @@ export default async function AdminCustomersPage({
     plansByCustomer.set(line.customer_id as string, existing);
   }
 
+  // Latest manual review-request per customer (see review-request-actions.ts)
+  const reviewLogs = db && customerIds.length
+    ? (
+        await db
+          .from("audit_logs")
+          .select("entity_id, created_at")
+          .eq("action", "review_request_sent")
+          .eq("entity_type", "customer")
+          .in("entity_id", customerIds)
+          .order("created_at", { ascending: false })
+      ).data ?? []
+    : [];
+  const reviewRequestedByCustomer = new Map<string, string>();
+  for (const log of reviewLogs) {
+    const entityId = log.entity_id as string;
+    if (!reviewRequestedByCustomer.has(entityId)) {
+      reviewRequestedByCustomer.set(entityId, log.created_at as string);
+    }
+  }
+
   const rows: CustomerRow[] = customers.map((customer) => ({
     id: customer.id as string,
     full_name: (customer.full_name ?? null) as string | null,
@@ -78,6 +98,7 @@ export default async function AdminCustomersPage({
     user_id: (customer.user_id ?? null) as string | null,
     created_at: customer.created_at as string,
     plans: plansByCustomer.get(customer.id as string) ?? [],
+    reviewRequestedAt: reviewRequestedByCustomer.get(customer.id as string) ?? null,
     salesRep: salesRepByCustomer.get(customer.id)
       ? {
           status: salesRepByCustomer.get(customer.id)!.status as string,

@@ -608,7 +608,7 @@ export const landingPages = {
       },
       {
         title: "Getting it set up",
-        body: "Choose your plan first, then ask support to attach the add-on to your line — WhatsApp is the fastest way. The team confirms the country and number details with you before anything is billed.",
+        body: "Choose your plan first. Once your line is active, add the number yourself from your account — pick the country (US, Canada, or UK), choose the exact number you want from a list, and it attaches immediately, prorated onto your existing monthly bill. Prefer a human? Support on WhatsApp can set it up with you instead.",
       },
     ],
     qaBlocks: [
