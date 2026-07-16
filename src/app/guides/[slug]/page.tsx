@@ -112,6 +112,40 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
                   <TextWithLinks text={paragraph} />
                 </p>
               ))}
+              {section.table ? (
+                <>
+                  <div className="mt-5 overflow-x-auto rounded-xl border border-ink/10">
+                    <table className="w-full min-w-140 text-left text-sm">
+                      <thead>
+                        <tr className="bg-[#f8fbfc]">
+                          {section.table.columns.map((column) => (
+                            <th key={column} scope="col" className="p-4 font-semibold text-ink">
+                              {column}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-ink/8">
+                        {section.table.rows.map((row, rowIndex) => (
+                          <tr key={rowIndex} className={row.highlight ? "bg-soft-cyan/15 align-top" : "align-top"}>
+                            {row.cells.map((cell, cellIndex) => (
+                              <td
+                                key={cellIndex}
+                                className={`p-4 leading-6 ${
+                                  cellIndex === 0 || row.highlight ? "font-semibold text-ink" : "text-muted-slate"
+                                }`}
+                              >
+                                <TextWithLinks text={cell} />
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {section.table.note ? <p className="mt-3 text-xs text-slate-400">{section.table.note}</p> : null}
+                </>
+              ) : null}
               {section.steps?.length ? (
                 <ol className="mt-4 grid gap-3">
                   {section.steps.map((step, index) => (

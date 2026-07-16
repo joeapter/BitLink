@@ -12,6 +12,17 @@ export type Guide = {
     paragraphs: string[];
     // Optional ordered list rendered under the paragraphs (e.g. install steps).
     steps?: string[];
+    // Optional comparison table rendered after the paragraphs. Order rows by
+    // an objective criterion (e.g. cost, descending) rather than by who we
+    // want seen first; set highlight on the BitLink row instead.
+    table?: {
+      columns: string[];
+      rows: Array<{
+        cells: string[];
+        highlight?: boolean;
+      }>;
+      note?: string;
+    };
   }>;
   faq: Array<{
     question: string;
@@ -897,6 +908,48 @@ export const guides: Guide[] = [
           "T-Mobile is the outlier: most current plans include international roaming in Israel at no extra charge — but the included data is throttled to roughly 256kbps, a speed at which maps stutter and video simply doesn't. Higher-tier plans include 5GB or 15GB of high-speed data per month; after that it's back to a crawl, or you buy an International Pass ($35 for 10 days/5GB, $50 for 30 days/15GB).",
           "For comparison: a real Israeli plan from [BitLink](/plans) runs $14.99 to $39.99 per month — full-speed 5G on an Israeli network, no daily meter running. A month of Verizon roaming costs roughly ten times BitLink's most popular plan.",
         ],
+        table: {
+          columns: ["Option", "Cost for a month", "Usable data", "Israeli number?"],
+          rows: [
+            {
+              cells: [
+                "Verizon TravelPass",
+                "~$360 ($12/day, charged each day the phone is used)",
+                "5GB/day at high speed, then slowed",
+                "No",
+              ],
+            },
+            {
+              cells: [
+                "AT&T International Day Pass",
+                "~$120 ($12/day, capped at 10 daily fees per cycle)",
+                "Unlimited high-speed",
+                "No",
+              ],
+            },
+            {
+              cells: ["T-Mobile International Pass", "$50 per 30 days", "15GB high-speed", "No"],
+            },
+            {
+              cells: [
+                "[BitLink Student 5G](/plans/student-5g)",
+                "$34.99/month",
+                "50GB of full-speed 5G",
+                "Yes — a real 05 number",
+              ],
+              highlight: true,
+            },
+            {
+              cells: [
+                "T-Mobile included roaming",
+                "$0",
+                "~256kbps — WhatsApp texts and email work; maps stutter, video won't play. Fine for a short visit, not a primary line",
+                "No",
+              ],
+            },
+          ],
+          note: "Carrier prices as of mid-2026 — roaming rates change, so check your carrier's international page before relying on them.",
+        },
       },
       {
         heading: "Can I roam on a US carrier for a semester or a year?",
