@@ -28,6 +28,7 @@ type PurchaseDetails = {
   currency: string;
   planSlug: string;
   planName: string;
+  hasIntlNumber: boolean;
 };
 
 async function getPurchaseDetails(sessionId: string | undefined): Promise<PurchaseDetails | null> {
@@ -46,6 +47,7 @@ async function getPurchaseDetails(sessionId: string | undefined): Promise<Purcha
       currency: (session.currency ?? "usd").toUpperCase(),
       planSlug,
       planName: getPlan(planSlug).name,
+      hasIntlNumber: session.metadata?.wants_intl_number === "1",
     };
   } catch {
     return null;
@@ -65,7 +67,15 @@ export default async function CheckoutSuccessPage({
 
   return (
     <section className="bg-white px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-      {purchase ? <PurchaseEvent {...purchase} /> : null}
+      {purchase ? (
+        <PurchaseEvent
+          transactionId={purchase.transactionId}
+          value={purchase.value}
+          currency={purchase.currency}
+          planSlug={purchase.planSlug}
+          planName={purchase.planName}
+        />
+      ) : null}
       <div className="mx-auto max-w-2xl">
 
         {/* Hero */}
@@ -105,6 +115,32 @@ export default async function CheckoutSuccessPage({
             </div>
           ))}
         </div>
+
+        {/* US/Canada/UK number: confirm it for buyers, one gentle nudge for
+            everyone else. Kosher plans excluded from the nudge — the add-on
+            works there, but the self-serve picker flow is smartphone-oriented. */}
+        {purchase?.hasIntlNumber ? (
+          <div className="mt-8 rounded-[1.5rem] border border-trust-green/30 bg-emerald-50 p-5 text-center">
+            <p className="font-semibold text-ink">Your US/Canada/UK number is part of this order</p>
+            <p className="mt-1 text-sm leading-6 text-muted-slate">
+              It gets set up alongside your Israeli line — you&apos;ll see both in your account, and family
+              can start calling as soon as activation completes.
+            </p>
+          </div>
+        ) : purchase && !getPlan(purchase.planSlug).isKosher ? (
+          <div className="mt-8 rounded-[1.5rem] border border-link-blue/20 bg-link-blue/5 p-5 text-center">
+            <p className="font-semibold text-ink">One thing worth adding: a US, Canadian, or UK number</p>
+            <p className="mt-1 text-sm leading-6 text-muted-slate">
+              $9.99/month on top of your plan — family back home dials a local number and your phone rings
+              in Israel, and it receives US verification texts (tested with real bank and Google codes).
+              Takes about a minute in{" "}
+              <a href="/account/lines" className="font-semibold text-link-blue hover:underline">
+                account → Lines
+              </a>{" "}
+              once your line is active, and you pick the exact number you want.
+            </p>
+          </div>
+        ) : null}
 
         <p className="mt-8 text-center text-sm text-muted-slate">
           Watch your line status live in{" "}

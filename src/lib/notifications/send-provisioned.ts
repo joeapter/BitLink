@@ -51,6 +51,9 @@ export async function sendProvisionedNotifications(
   if (!customer?.email) return { skipped: true, reason: 'no_email' };
 
   const meta = (line.metadata ?? {}) as Record<string, unknown>;
+  // Present when the order included the US/Canada/UK add-on (or one was
+  // attached since) — used to decide whether the emails should mention it.
+  const hasIntlNumber = Boolean(meta.intl_number) || Boolean(line.is_kosher);
 
   // Idempotency: this can be called more than once (multiple completion
   // paths, or an explicit admin resend). `force` bypasses it deliberately.
@@ -114,12 +117,13 @@ export async function sendProvisionedNotifications(
             activationCode,
             planName,
             portalUrl: `${BASE_URL}/account/lines`,
+            showIntlNumberNudge: !hasIntlNumber,
           }),
         }
       : {
           to: customer.email,
           subject: `Your BitLink line is active${phoneNumber ? ` — ${phoneNumber}` : ''}`,
-          html: buildLineActiveEmail({ fullName, planName, phoneNumber, portalUrl: `${BASE_URL}/account/lines` }),
+          html: buildLineActiveEmail({ fullName, planName, phoneNumber, portalUrl: `${BASE_URL}/account/lines`, showIntlNumberNudge: !hasIntlNumber }),
         },
   );
 

@@ -47,6 +47,7 @@ const bodySchema = z.object({
   intlNumberCountry: z.enum(['us', 'canada', 'uk']).optional(),
   intlNumberSource: z.enum(['new', 'port']).optional(),
   intlPortNumber: z.string().nullable().optional(),
+  intlChosenNumber: z.string().nullable().optional(),
   userId: z.string().uuid().nullable().optional(),
   referralCode: z.string().nullable().optional(),
   successUrl: z.string().optional(),
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   const {
     planSlug, fullName, email, phone, isKosher, isEsim,
     isPortIn, portInNumber, skipActivationFee,
-    wantsIntlNumber, intlNumberCountry, intlNumberSource, intlPortNumber,
+    wantsIntlNumber, intlNumberCountry, intlNumberSource, intlPortNumber, intlChosenNumber,
     userId, successUrl, cancelUrl,
   } = parsed.data;
   const referralCode = normalizeReferralCode(parsed.data.referralCode);
@@ -291,6 +292,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       intlNumberCountry: intlNumberCountry ?? null,
       intlNumberSource: intlNumberSource ?? null,
       intlPortNumber: intlPortNumber ?? null,
+      intlChosenNumber: (wantsIntlNumber && intlNumberSource === 'new') ? (intlChosenNumber ?? null) : null,
       customerRecordId,
       userId: userId ?? null,
       successUrl,

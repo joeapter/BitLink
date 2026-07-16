@@ -131,10 +131,19 @@ export interface EsimReadyEmailParams {
   activationCode: string;   // LPA string: LPA:1$smdp.address$token
   planName: string;
   portalUrl: string;
+  showIntlNumberNudge?: boolean;
+}
+
+// One-line add-on nudge for post-activation emails. Only shown when the line
+// doesn't already have a US/Canada/UK number (and never for kosher lines).
+function intlNumberNudge(portalUrl: string): string {
+  return p(
+    `One thing many customers add: a <strong>US, Canadian, or UK number</strong> on the same phone for $9.99/month — family dials a local number, and it receives US verification texts (tested with real bank and Google codes). Takes a minute in <a href="${portalUrl}" style="color:` + BRAND_COLOR + `;">your account</a>, and you pick the exact number.`,
+  );
 }
 
 export function buildEsimReadyEmail(params: EsimReadyEmailParams): string {
-  const { fullName, activationCode, planName, portalUrl } = params;
+  const { fullName, activationCode, planName, portalUrl, showIntlNumberNudge } = params;
   const firstName = fullName.split(' ')[0] ?? fullName;
 
   // QR code image via qrserver.com — no npm package needed
@@ -159,6 +168,7 @@ export function buildEsimReadyEmail(params: EsimReadyEmailParams): string {
       ${btn('View in account portal', portalUrl)}
     </div>
 
+    ${showIntlNumberNudge ? intlNumberNudge(portalUrl) : ''}
     ${p('Once installed, your eSIM QR will be removed from your portal to keep things tidy. If you need it again, just contact support.')}
     ${p('Need help installing? <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> and we\'ll walk you through it.')}
   `);
@@ -272,6 +282,7 @@ export function buildLineActiveEmail(params: {
   planName: string;
   phoneNumber?: string | null;
   portalUrl: string;
+  showIntlNumberNudge?: boolean;
 }): string {
   const firstName = params.fullName.split(' ')[0] ?? params.fullName;
   return layout(`
@@ -280,6 +291,7 @@ export function buildLineActiveEmail(params: {
     ${p(`Your BitLink <b>${params.planName}</b> line is now active${params.phoneNumber ? ` on ${mono(params.phoneNumber)}` : ''}. Calls, texts, and data are ready to go.`)}
     ${p('You can see your line, usage, and billing anytime in your account:')}
     ${btn('Open my account', params.portalUrl)}
+    ${params.showIntlNumberNudge ? intlNumberNudge(params.portalUrl) : ''}
     ${p('Questions? Reply to this email or message us on WhatsApp — a real person answers.')}
   `);
 }

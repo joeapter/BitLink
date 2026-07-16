@@ -30,6 +30,9 @@ export function CheckoutForm({
   const [wantsIntlNumber, setWantsIntlNumber] = useState(false);
   const [intlCountry, setIntlCountry] = useState<IntlCountry>("us");
   const [intlSource, setIntlSource] = useState<IntlSource>("new");
+  const [intlNumbers, setIntlNumbers] = useState<Array<{ number: string; region?: string | null; city?: string | null }>>([]);
+  const [intlChosenNumber, setIntlChosenNumber] = useState<string | null>(null);
+  const [showAllIntlNumbers, setShowAllIntlNumbers] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [feeWaived, setFeeWaived] = useState(false);
@@ -53,6 +56,29 @@ export function CheckoutForm({
       window.removeEventListener("focus", check);
     };
   }, []);
+
+  // Offer real number choices for the add-on. Selection is a preference, not
+  // a reservation — provisioning falls back to another number in the same
+  // country if this one is taken by the time the line is built.
+  useEffect(() => {
+    if (!wantsIntlNumber || intlSource !== "new") return;
+    let cancelled = false;
+    setIntlNumbers([]);
+    setIntlChosenNumber(null);
+    setShowAllIntlNumbers(false);
+    fetch(`/api/checkout/intl-numbers?country=${intlCountry}`)
+      .then((res) => (res.ok ? res.json() : { numbers: [] }))
+      .then((payload: { numbers?: Array<{ number: string; region?: string | null; city?: string | null }> }) => {
+        if (!cancelled) setIntlNumbers(payload.numbers ?? []);
+      })
+      .catch(() => {
+        // Picker is optional sugar — without it, checkout still works as
+        // "assign me one".
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [wantsIntlNumber, intlSource, intlCountry]);
 
   const selectedPlan = useMemo(
     () => plans.find((p) => p.slug === planSlug) ?? plans[1],
@@ -102,6 +128,7 @@ export function CheckoutForm({
         intlNumberCountry: wantsIntlNumber ? intlCountry : undefined,
         intlNumberSource: wantsIntlNumber ? intlSource : undefined,
         intlPortNumber: wantsIntlNumber && intlSource === "port" ? formData.get("intlPortNumber") : null,
+        intlChosenNumber: wantsIntlNumber && intlSource === "new" ? intlChosenNumber : null,
       }),
     });
 
@@ -363,6 +390,51 @@ export function CheckoutForm({
                   </div>
                 </div>
               </div>
+
+              {intlSource === "new" && intlNumbers.length > 0 && (
+                <div>
+                  <p className="mb-2 text-xs font-semibold text-ink">Pick your number</p>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {(showAllIntlNumbers ? intlNumbers : intlNumbers.slice(0, 5)).map((option) => (
+                      <button
+                        key={option.number}
+                        type="button"
+                        onClick={() =>
+                          setIntlChosenNumber(intlChosenNumber === option.number ? null : option.number)
+                        }
+                        className={`rounded-xl border px-3 py-2 text-left text-xs font-semibold transition-colors ${
+                          intlChosenNumber === option.number
+                            ? "border-link-blue bg-link-blue text-white"
+                            : "border-ink/10 bg-white text-ink hover:border-ink/20"
+                        }`}
+                      >
+                        <span className="block font-mono text-sm">{option.number}</span>
+                        {(option.city || option.region) && (
+                          <span className={intlChosenNumber === option.number ? "text-white/70" : "text-muted-slate"}>
+                            {[option.city, option.region].filter(Boolean).join(", ")}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-xs">
+                    {!showAllIntlNumbers && intlNumbers.length > 5 ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllIntlNumbers(true)}
+                        className="font-semibold text-link-blue hover:text-ink"
+                      >
+                        Show more numbers
+                      </button>
+                    ) : (
+                      <span />
+                    )}
+                    <span className="text-muted-slate">
+                      {intlChosenNumber ? "Yours after checkout" : "No preference? We’ll pick a good one."}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {intlSource === "port" && (
                 <div className="grid gap-3">
