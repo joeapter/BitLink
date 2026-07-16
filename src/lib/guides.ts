@@ -948,7 +948,7 @@ export const guides: Guide[] = [
               ],
             },
           ],
-          note: "Carrier prices as of mid-2026 — roaming rates change, so check your carrier's international page before relying on them.",
+          note: "Carrier prices as of mid-2026 — roaming rates change, so check your carrier's international page before relying on them. And if bank verification texts to your US number are what's keeping you on roaming: dual SIM solves that — your US SIM stays in the phone and keeps receiving them alongside the Israeli line.",
         },
       },
       {
@@ -969,7 +969,7 @@ export const guides: Guide[] = [
         heading: "How do I keep my US number and get an Israeli one?",
         paragraphs: [
           "Modern phones run two lines at once, and that's the whole trick. Keep your US SIM in the phone so the number your bank and family know stays reachable, and add an Israeli eSIM as the working line — data, calls, local SMS, and the Israeli number every form asks for. On an eSIM-compatible phone, [the Israeli line can be live before your flight](/guides/israeli-phone-number-before-you-land): checkout online with a regular US card (no Israeli ID, no Israeli bank account), scan a QR code, done.",
-          "With the Israeli line handling data, you can drop the US line to its cheapest tier or turn roaming off entirely — it just needs to receive the occasional text. Longer term, some people [port the US number onto their Israeli line](/keep-your-number) or replace it with a [US number add-on](/us-number-in-israel) for $9.99/month, and stop paying an American carrier altogether.",
+          "With the Israeli line handling data, you can drop the US line to its cheapest tier or turn roaming off entirely — it just needs to receive the occasional text, and that includes the ones that matter most: bank and verification codes keep arriving on the US SIM exactly as they always did, because the number never went anywhere. Longer term, some people [port the US number onto their Israeli line](/keep-your-number) or replace it with a [US number add-on](/us-number-in-israel) for $9.99/month, and stop paying an American carrier altogether.",
         ],
       },
       {
