@@ -589,7 +589,7 @@ export const landingPages = {
         {
           label: "Your existing US number",
           a: "Stays hostage to the old plan",
-          b: "Can be ported to BitLink for a one-time $49.99 instead",
+          b: "Can be ported to BitLink for a one-time $49.99 instead (3–5 business days)",
         },
       ],
     },
@@ -604,7 +604,7 @@ export const landingPages = {
       },
       {
         title: "Add-on or porting — which one?",
-        body: "The add-on gives you a new local number for people to call. Porting brings your existing US, UK, or Canadian number onto your BitLink line for a one-time $49.99. If everyone already knows your old number, porting keeps it; if you just want to be easy to reach, the add-on is simpler. Some people do both.",
+        body: "The add-on gives you a new local number for people to call. Porting brings your existing US, UK, or Canadian number onto your BitLink line for a one-time $49.99. If everyone already knows your old number, porting keeps it; if you just want to be easy to reach, the add-on is simpler. Timing differs too: a new add-on number starts working right away, while a port takes 3 to 5 business days — with your old number working the whole time. Some people do both.",
       },
       {
         title: "Getting it set up",
@@ -625,7 +625,7 @@ export const landingPages = {
       {
         question: "Should I add a US number or port my old US number?",
         answer:
-          "Ask one question: do people need to reach the number they already have saved? If yes — you've had the same cell number for 15 years and everyone from your dentist to your bank uses it — then [porting it to BitLink](/keep-your-number) for a one-time $49.99 keeps it alive on your Israeli line. If you just want family to have an easy way to call, the $9.99/month add-on gives them a fresh local number and skips the porting process entirely. They solve different problems, and some people do both.",
+          "Ask one question: do people need to reach the number they already have saved? If yes — you've had the same cell number for 15 years and everyone from your dentist to your bank uses it — then [porting it to BitLink](/keep-your-number) for a one-time $49.99 keeps it alive on your Israeli line — plan on 3 to 5 business days for the port, with the old number working throughout. If you just want family to have an easy way to call, the $9.99/month add-on gives them a fresh local number right away and skips the porting process entirely. They solve different problems, and some people do both.",
       },
       {
         question: "Will I get bank verification texts on the US number?",
