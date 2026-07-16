@@ -862,6 +862,204 @@ export const guides: Guide[] = [
       { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
     ],
   },
+  {
+    slug: "do-us-phones-work-in-israel",
+    title: "Do US phones work in Israel? What your carrier won't tell you",
+    metaTitle: "Do US Phones Work in Israel? Roaming vs. Israeli eSIM",
+    metaDescription:
+      "Yes — if it's unlocked. But Verizon and AT&T roaming run $12/day, T-Mobile throttles to 256kbps, and none of them give you the Israeli number daily life requires.",
+    datePublished: "2026-07-16",
+    dateModified: "2026-07-16",
+    readingTime: "7 min read",
+    intro:
+      "Short answer: yes, your US phone works in Israel — the hardware isn't the problem. Any reasonably modern iPhone or Android connects to Israeli networks without any special setup, as long as the phone is unlocked. The real question is what plan it runs on. Roaming on a US carrier costs $12 a day on Verizon or AT&T, and T-Mobile's \"free\" international data crawls at 256kbps. That's tolerable for a ten-day trip. For a semester, a gap year, or a move, it's the most expensive possible way to stay connected — and even at full price, it never gives you the one thing daily life in Israel actually requires: an Israeli phone number.",
+    sections: [
+      {
+        heading: "The phone itself: works fine, with one catch",
+        paragraphs: [
+          "Israeli carriers run standard GSM/LTE/5G networks on frequencies that every recent iPhone (XS and newer) and every recent Android flagship supports. Band compatibility hasn't been a real issue for years. Your phone will see Israeli networks the moment you land.",
+          "The one thing that stops a US phone cold is a carrier lock. Phones bought on installment plans from Verizon, AT&T, or T-Mobile are usually locked to that carrier until they're paid off or a waiting period passes — and a locked phone refuses any other provider's SIM or eSIM, Israeli or otherwise. Check before you fly: search your carrier's site for \"unlock\" or look in the phone's settings (iPhone: Settings → General → About → Carrier Lock, which should say \"No SIM restrictions\"). Unlocking can take days to process, and it's a much worse errand to run from a dorm in Jerusalem than from your couch at home.",
+        ],
+      },
+      {
+        heading: "What US carrier roaming in Israel actually costs (mid-2026)",
+        paragraphs: [
+          "Verizon TravelPass: $12 per day, charged on any day the phone uses the network at all. You get 5GB of high-speed data per day, then slower speeds. Use it daily and a month runs about $360.",
+          "AT&T International Day Pass: also $12 per day (it went up from $10 in May 2026), capped at 10 daily fees per billing cycle — so a full month costs about $120 for unlimited talk, text, and data.",
+          "T-Mobile is the outlier: most current plans include international roaming in Israel at no extra charge — but the included data is throttled to roughly 256kbps, a speed at which maps stutter and video simply doesn't. Higher-tier plans include 5GB or 15GB of high-speed data per month; after that it's back to a crawl, or you buy an International Pass ($35 for 10 days/5GB, $50 for 30 days/15GB).",
+          "For comparison: a real Israeli plan from [BitLink](/plans) runs $14.99 to $39.99 per month — full-speed 5G on an Israeli network, no daily meter running. A month of Verizon roaming costs roughly ten times BitLink's most popular plan.",
+        ],
+      },
+      {
+        heading: "The fine print: roaming is built for trips, not for living somewhere",
+        paragraphs: [
+          "All three carriers write their international terms around temporary travel. Lines that spend months abroad — the majority of their usage outside the US — can be flagged under primary-use rules, throttled, or in some cases have international service cut off entirely. The exact thresholds vary by carrier and aren't always published, but the pattern is consistent: roaming is priced and policed as a vacation feature.",
+          "If you're going for ten days, none of this matters. If you're going for a semester, a gap year, or aliyah, you'd be betting a year of connectivity on a feature designed for two weeks — at the highest price on the menu.",
+        ],
+      },
+      {
+        heading: "The bigger problem: roaming never gives you an Israeli number",
+        paragraphs: [
+          "Pay Verizon $360 a month and your number is still +1. Israel runs daily life through an Israeli 05 mobile number: banks send verification codes to it, [Bit and Pango won't sign you up without one](/guides/israeli-phone-number-for-banking-bit-pango), Kupat Cholim wants it, gov.il wants it, the delivery driver and the landlord and the program office all message it on WhatsApp. A roaming American number fails every one of those checks.",
+          "This is the part carriers can't fix at any price, and it's why \"does my US phone work in Israel\" is really two questions. The phone? Works fine. The plan? For anything longer than a short trip, the answer that actually functions is a local one.",
+        ],
+      },
+      {
+        heading: "The setup that solves both: dual SIM",
+        paragraphs: [
+          "Modern phones run two lines at once, and that's the whole trick. Keep your US SIM in the phone so the number your bank and family know stays reachable, and add an Israeli eSIM as the working line — data, calls, local SMS, and the Israeli number every form asks for. On an eSIM-compatible phone, [the Israeli line can be live before your flight](/guides/israeli-phone-number-before-you-land): checkout online with a regular US card (no Israeli ID, no Israeli bank account), scan a QR code, done.",
+          "With the Israeli line handling data, you can drop the US line to its cheapest tier or turn roaming off entirely — it just needs to receive the occasional text. Longer term, some people [port the US number onto their Israeli line](/keep-your-number) or replace it with a [US number add-on](/us-number-in-israel) for $9.99/month, and stop paying an American carrier altogether.",
+        ],
+      },
+      {
+        heading: "When roaming is the right answer",
+        paragraphs: [
+          "Honesty department: for a short trip, US roaming can be the correct choice. T-Mobile customers who can live with slow data pay nothing extra. An AT&T or Verizon customer visiting for a week pays $84 and skips all setup. If you're coming for under two weeks, don't need an Israeli number, and value zero effort over speed, use what you have.",
+          "The math flips somewhere around week two or three, and it flips hard for anyone staying months: students, gap year programs, olim, and long visits. That's the point where a real Israeli plan is both several times cheaper and the only option that actually works with Israeli systems.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Will my iPhone from the US work in Israel?",
+        answer:
+          "Yes. iPhones from the XS onward support Israeli networks and eSIM. The only blocker is a carrier lock — check Settings → General → About → Carrier Lock, which should read \"No SIM restrictions.\" If it's locked, request the unlock from your carrier before flying; it can take days to process.",
+      },
+      {
+        question: "Does Verizon work in Israel?",
+        answer:
+          "Yes, via TravelPass at $12 per day, charged on any day the phone touches the network — about $360 for a full month, with 5GB of high-speed data per day before slowdown. It works, but it's priced for short trips, and your number stays American, which Israeli banks and apps won't accept.",
+      },
+      {
+        question: "Does T-Mobile's free international data work in Israel?",
+        answer:
+          "Yes — Israel is in T-Mobile's included roaming destinations, and there's no daily fee. The catch is speed: included data runs at roughly 256kbps, which handles WhatsApp texts but struggles with maps and can't stream. Higher tiers include 5GB or 15GB of monthly high-speed data; after that you're throttled or buying passes.",
+      },
+      {
+        question: "Is it cheaper to roam or get an Israeli SIM?",
+        answer:
+          "For under two weeks, roaming is often fine. Beyond that, an Israeli plan wins decisively: BitLink plans run $14.99–$39.99/month at full 5G speed, versus roughly $120/month on AT&T's capped Day Pass or $360/month on Verizon TravelPass — and only the Israeli plan comes with the Israeli number that local banks, Bit, Pango, and deliveries require.",
+      },
+      {
+        question: "Can I keep my US number if I switch to an Israeli plan?",
+        answer:
+          "Yes, three ways: keep the US SIM alongside the Israeli eSIM in the same phone (dual SIM), port the US number onto the Israeli line so it works from Israel, or replace it with a US local number added to the Israeli plan for $9.99/month. Most people run dual SIM first and decide later.",
+      },
+      {
+        question: "Do I need to do anything before I fly?",
+        answer:
+          "Two things: confirm the phone is unlocked, and set up the Israeli line — on an eSIM phone that's an online checkout and a QR code, done from home in about ten minutes, so the Israeli number is live when you land. No Israeli ID or Israeli credit card is needed.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/israel-esim", label: "Israel eSIM with a real number" },
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get your number before you land" },
+      { href: "/keep-your-number", label: "Port your US number to Israel" },
+      { href: "/us-number-in-israel", label: "US number add-on" },
+    ],
+  },
+  {
+    slug: "gap-year-israel-phone-plan",
+    title: "The gap year phone guide: setting up your phone for a year in Israel",
+    metaTitle: "Gap Year in Israel: The Phone Plan Guide",
+    metaDescription:
+      "Phone setup for a gap year in Israel — yeshiva, seminary, Masa, mechina, or volunteering. Why travel eSIMs fail at month two, what a year actually needs, from $14.99/mo.",
+    datePublished: "2026-07-16",
+    dateModified: "2026-07-16",
+    readingTime: "7 min read",
+    intro:
+      "A gap year in Israel — yeshiva, seminary, Masa, mechina, an internship, volunteering — is nine to twelve months of actual life, and the phone setup for actual life is different from the phone setup for a vacation. The short version: you need a real Israeli number (not a data-only travel eSIM), on a monthly plan someone's parents can pay in dollars, live before your flight lands. That's about ten minutes of setup from home, from $14.99/month. Here's the whole picture, including the parts people figure out the hard way in October.",
+    sections: [
+      {
+        heading: "A year is not a long vacation",
+        paragraphs: [
+          "The travel eSIMs everyone uses for a week in Europe — data-only apps you top up by the gigabyte — are the wrong tool for a gap year, and the reason isn't price alone. They give you data but no Israeli phone number, and by week two in Israel the missing number is the problem: the bank won't verify you, [Bit and Pango won't sign you up](/guides/israeli-phone-number-for-banking-bit-pango), delivery apps can't text you, and every SMS verification code in the country has nowhere to go. Israel runs on the 05 mobile number, and \"I have data though\" doesn't answer any form that asks for one.",
+          "The other trap is the airport kiosk SIM — it does give you a number, but often one registered to the seller rather than to you, which means [a number you can lose](/guides/airport-sim-trap-israel) just as the bank and half your accounts have learned it. For a year, start with a line that's actually yours.",
+        ],
+      },
+      {
+        heading: "What a year in Israel actually asks of your phone",
+        paragraphs: [
+          "Arrival week: the driver, the madrich or program coordinator, and whoever's picking you up all need a number that works from hour one. Then the errands begin — a bank account for stipends or spending money, Kupat Cholim if your program registers you for health coverage, gov.il logins, and the program's WhatsApp groups where all actual information lives.",
+          "The everyday middle: Bit for splitting dinner and paying back roommates (it's how everyone under 30 moves money in Israel), Pango or HopOn for parking and buses, Wolt deliveries, Waze on data, video calls home, and being the person in the group who can hotspot when the dorm Wi-Fi dies. This is where data volume gets real — a year of normal use looks like 30–50GB a month, not the 5GB a tourist burns in a week.",
+          "None of this is exotic. It's just twelve months of ordinary life, and it all hangs off an Israeli number with a real data plan behind it.",
+        ],
+      },
+      {
+        heading: "The setup, before you fly",
+        paragraphs: [
+          "Three steps, about ten minutes, from home:",
+        ],
+        steps: [
+          "Confirm your phone is unlocked and eSIM-compatible (most iPhones from the XS onward, most recent Android flagships). If it's carrier-locked — common on US installment plans — request the unlock now; it can take days. More on this in [do US phones work in Israel](/guides/do-us-phones-work-in-israel).",
+          "Pick a plan and check out online. [Student 5G](/plans/student-5g) — $34.99/month for 50GB, 5,000 minutes, 1,000 SMS — fits most gap year students; [Basic](/plans/basic) at $14.99/month covers genuinely light use. No Israeli ID, no passport upload, no Israeli bank account — a regular US, UK, or Canadian card, charged in USD.",
+          "Install the eSIM from the QR code that arrives by email, usually within minutes. Your Israeli number is live before the flight — when you land, the phone just connects.",
+        ],
+      },
+      {
+        heading: "Keeping home close (without paying two full phone bills)",
+        paragraphs: [
+          "Run dual SIM: your home SIM stays in the phone so the number your family and your bank know keeps receiving texts, and the Israeli line does all the actual work. Turn roaming off on the home line and drop it to the cheapest tier that keeps the number alive — or skip paying a US carrier entirely and [port the number onto your BitLink line](/keep-your-number), or add a [US, Canadian, or UK local number](/us-number-in-israel) for $9.99/month so parents dial a local call and it rings in Israel.",
+          "One thing not to do for a gap year: don't move your WhatsApp to the Israeli number. That advice is for aliyah. You're going home in a year — keep WhatsApp on the number you'll still have at 20, and let the Israeli number handle SMS codes and local calls. WhatsApp works fine on Israeli data regardless of which number it's registered to.",
+          "For parents: the plan is priced in dollars with VAT included, the card on file can be yours, and support answers in English on WhatsApp — so billing questions never route through a teenager's dorm hallway.",
+        ],
+      },
+      {
+        heading: "Mid-year reality: friends, travel, and running out of data",
+        paragraphs: [
+          "Plans are monthly with no contract, so getting it wrong isn't expensive — a Basic signup who turns out to stream everything can move up to Student 5G the next month, no penalty.",
+          "Arriving with friends or roommates? BitLink's referral program adds 5GB of bonus data per month to your plan for each active referral, up to 25GB. A dorm room that signs up through each other's links quietly raises everyone's data cap for the year at no cost.",
+          "Traveling outside Israel mid-year — a Europe hop during a break — works the usual way: grab a cheap data eSIM for that country for the week, and your Israeli line stays live for SMS codes back home in Israel. (That's the situation travel eSIMs are actually for.)",
+        ],
+      },
+      {
+        heading: "When the year ends — or turns into round two",
+        paragraphs: [
+          "Going home: plans are monthly, so you cancel whenever you leave. Nothing about the setup assumes you'll stay.",
+          "Coming back — shana bet, a second Masa program, university in Israel, or the aliyah you didn't plan on: keep the number instead of losing it. A BitLink line can be [paused for $10/month](/israel-sim-for-tourists) and held for up to 18 months, so the number your Israeli bank, Bit, and everyone from your program already know is still yours when you land again. Rebuilding a lost number's registrations the second time around is exactly as annoying as it sounds.",
+          "And if you ever want to move the number to another Israeli carrier, it's yours to take — BitLink leaves porting out open on every line, no fees and no blocks.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "What's the best phone plan for a gap year in Israel?",
+        answer:
+          "A monthly Israeli plan with a real Israeli number, sized for daily life rather than a visit. Student 5G ($34.99/month — 50GB of 5G data, 5,000 minutes, 1,000 SMS) fits most gap year students; light users can start at $14.99/month and switch later, since plans are monthly with no contract. Set it up by eSIM before flying so the number is live on landing.",
+      },
+      {
+        question: "Can't I just use a travel eSIM like Airalo for the year?",
+        answer:
+          "Not well. Travel eSIMs are data-only — no Israeli phone number — so banks, Bit, Pango, Kupat Cholim, gov.il, and delivery apps can't verify you, and per-GB pricing that's fine for a week gets expensive over ten months. They're the right tool for a short trip abroad during your year, not for the year itself.",
+      },
+      {
+        question: "Do I actually need an Israeli number on a gap year program?",
+        answer:
+          "Yes. Program group chats, SMS verification codes, the bank, health coverage registration, parking and bus apps, and deliveries all expect an Israeli 05 mobile number. Data alone doesn't answer a verification form. This is usually the first thing students discover in the opening two weeks.",
+      },
+      {
+        question: "Should I switch my WhatsApp to the Israeli number?",
+        answer:
+          "For a gap year, usually no — keep WhatsApp on your home number, since you'll still have it after the year ends, and WhatsApp runs fine on Israeli data either way. Switching WhatsApp numbers is advice for people moving permanently. Use the Israeli number for SMS codes, local calls, and everything Israeli systems ask for.",
+      },
+      {
+        question: "Can my parents pay for the plan from the US?",
+        answer:
+          "Yes — checkout is online, priced in US dollars with VAT included, and takes a regular US, UK, or Canadian card with no Israeli ID or bank account. Many families keep the card and the account in a parent's hands while the line runs on the student's phone in Israel, and support answers parents directly in English.",
+      },
+      {
+        question: "What happens to my number if I come back for shana bet?",
+        answer:
+          "Pause the line for $10/month instead of cancelling — the number, SIM, and all its registrations are held for up to 18 months. When you're back, resume and everything works, with no new-number errands at the bank or on Bit. If you're not coming back, cancel anytime; plans are monthly.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+      { href: "/guides/yeshiva-seminary-phone-checklist", label: "Yeshiva & seminary phone checklist" },
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get your number before you land" },
+      { href: "/guides/do-us-phones-work-in-israel", label: "Do US phones work in Israel?" },
+    ],
+  },
 ];
 
 export function getGuide(slug: string) {
