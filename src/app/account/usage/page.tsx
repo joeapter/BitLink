@@ -196,7 +196,10 @@ export default async function UsagePage({
                       <p className="text-xs font-semibold text-muted-slate uppercase tracking-widest">Plan balance</p>
                     </div>
                     <Suspense fallback={<div className="h-20 animate-pulse rounded-xl bg-slate-100" />}>
-                      <LineUsageMeter providerLineId={line.provider_line_id} />
+                      <LineUsageMeter
+                        providerLineId={line.provider_line_id}
+                        planSlug={(line.metadata as Record<string, unknown>)?.plan_slug as string | undefined}
+                      />
                     </Suspense>
                   </div>
                 ) : null}
@@ -216,7 +219,7 @@ export default async function UsagePage({
       )}
 
       <p className="text-center text-xs text-muted-slate">
-        Usage data syncs every 4 hours from your carrier. Plan balance is live.
+        Usage data syncs every 4 hours from your carrier.
       </p>
     </div>
   );

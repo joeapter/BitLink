@@ -13,6 +13,7 @@ import { LineBarringsCard } from "@/components/admin/LineBarringsCard";
 import { AddIntlNumberCard } from "@/components/admin/AddIntlNumberCard";
 import { AddTopupCard } from "@/components/admin/AddTopupCard";
 import { retryProvisioningJobAction } from "@/lib/admin/line-actions";
+import { getCdrUsageBuckets } from "@/lib/cdr/usage";
 import { EsimActivationCard } from "@/components/admin/EsimActivationCard";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -84,6 +85,25 @@ export default async function AdminLineDetailPage({ params }: Props) {
 
   const metadata = (line.metadata ?? {}) as Record<string, unknown>;
   const isEsim = metadata.is_esim === true || metadata.is_esim === "true" || metadata.is_esim === 1;
+
+  // Annatel's live balance data has never populated (ocs_balances returns an
+  // empty body — see lib/cdr/usage.ts), so derive the usage meters from the
+  // ingested CDR records instead whenever the live payload has none.
+  let balances = liveDetail?.balances ?? [];
+  let balanceNote: string | undefined;
+  let balanceExpiryLabel: string | undefined;
+  if (liveDetail && balances.length === 0) {
+    const cdrUsage = await getCdrUsageBuckets(
+      db,
+      { telecomLineId: id },
+      metadata.plan_slug as string | undefined,
+    );
+    if (cdrUsage) {
+      balances = cdrUsage.buckets;
+      balanceNote = `Computed from carrier usage records (synced every ~4 hours) — ${cdrUsage.recordCount} records this calendar month. Voice and SMS count outgoing only.`;
+      balanceExpiryLabel = "Resets";
+    }
+  }
 
   return (
     <div className="grid gap-6">
@@ -160,7 +180,7 @@ export default async function AdminLineDetailPage({ params }: Props) {
 
           {/* Balance / usage */}
           {liveDetail && (
-            <LineBalanceCard balances={liveDetail.balances} />
+            <LineBalanceCard balances={balances} note={balanceNote} expiryLabel={balanceExpiryLabel} />
           )}
 
           {/* Plans */}

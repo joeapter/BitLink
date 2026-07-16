@@ -1,8 +1,13 @@
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
+import { getCdrUsageBuckets } from "@/lib/cdr/usage";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { BalanceBucket } from "@/types/telecom";
 
 interface Props {
   providerLineId: string;
+  // Used to size the CDR-derived fallback meter when the provider returns no
+  // live balances (which, today, it never does — see lib/cdr/usage.ts).
+  planSlug?: string | null;
 }
 
 function fmtBytes(bytes: number): string {
@@ -48,18 +53,31 @@ function BucketBar({ bucket }: { bucket: BalanceBucket }) {
   );
 }
 
-export async function LineUsageMeter({ providerLineId }: Props) {
+export async function LineUsageMeter({ providerLineId, planSlug }: Props) {
   let balances: BalanceBucket[] = [];
-  let error = false;
+  let fromCdr = false;
 
   try {
     const provider = getTelecomProvider();
     balances = await provider.getBalances(providerLineId);
   } catch {
-    error = true;
+    // Fall through to the CDR-derived meter below.
   }
 
-  if (error || !balances.length) {
+  if (!balances.length) {
+    try {
+      const db = await createSupabaseServerClient();
+      const cdrUsage = await getCdrUsageBuckets(db, { providerLineId }, planSlug);
+      if (cdrUsage) {
+        balances = cdrUsage.buckets;
+        fromCdr = true;
+      }
+    } catch {
+      // Leave balances empty; the unavailable message renders below.
+    }
+  }
+
+  if (!balances.length) {
     return (
       <p className="mt-3 text-xs text-muted-slate">Usage data unavailable.</p>
     );
@@ -75,6 +93,7 @@ export async function LineUsageMeter({ providerLineId }: Props) {
       ))}
       <p className="text-[0.6rem] text-muted-slate">
         Resets {balances[0]?.expirationDate.toLocaleDateString() ?? "—"}
+        {fromCdr ? " · synced every ~4 hours" : ""}
       </p>
     </div>
   );

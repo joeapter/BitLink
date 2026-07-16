@@ -6,6 +6,14 @@ export type BitLinkPlan = {
   shortName: string;
   priceCents: number;
   currency: "USD";
+  // Monthly included amounts in machine-readable form (marketing copy lives
+  // in features/comparison). null = the plan doesn't include that bucket.
+  // Used to size CDR-derived usage meters. Voice = Israeli minutes only.
+  allowances: {
+    dataBytes: number | null;
+    voiceMinutes: number;
+    smsCount: number | null;
+  };
   description: string;
   detail: string;
   seoTitle: string;
@@ -43,6 +51,7 @@ export const plans: BitLinkPlan[] = [
     shortName: "Basic",
     priceCents: 1499,
     currency: "USD",
+    allowances: { dataBytes: 1000000000, voiceMinutes: 1000, smsCount: 500 },
     description: "For simple phone use.",
     detail:
       "A clean starting point for people who want reliable monthly service with an Israeli number, basic 5G data, and included calls and texts.",
@@ -87,6 +96,7 @@ export const plans: BitLinkPlan[] = [
     shortName: "Student",
     priceCents: 3499,
     currency: "USD",
+    allowances: { dataBytes: 50000000000, voiceMinutes: 5000, smsCount: 1000 },
     description: "Best for most students.",
     detail:
       "The most popular choice for students — generous 5G data with 5,000 local minutes and 1,000 SMS included, and the option to add a US or Canadian number.",
@@ -134,6 +144,7 @@ export const plans: BitLinkPlan[] = [
     shortName: "Max",
     priceCents: 3999,
     currency: "USD",
+    allowances: { dataBytes: 120000000000, voiceMinutes: 5000, smsCount: 1000 },
     description: "More data, plus USA/CA calling.",
     detail:
       "120GB of 5G data for students who stream and stay connected all day — includes 5,000 local minutes, 1,000 SMS, and 150 minutes to US and Canadian numbers.",
@@ -181,6 +192,7 @@ export const plans: BitLinkPlan[] = [
     shortName: "Kosher Basic",
     priceCents: 1999,
     currency: "USD",
+    allowances: { dataBytes: null, voiceMinutes: 5000, smsCount: null },
     description: "5,000 minutes on a kosher-certified number.",
     detail:
       "Designed for certified kosher phones — 5,000 minutes to Israeli numbers monthly, voice only. Add a US or Canadian local number for an extra $9.99/mo.",
@@ -227,6 +239,7 @@ export const plans: BitLinkPlan[] = [
     shortName: "Kosher+",
     priceCents: 2499,
     currency: "USD",
+    allowances: { dataBytes: null, voiceMinutes: 5000, smsCount: null },
     description: "Kosher calling with USA/CA international minutes.",
     detail:
       "Everything in Kosher Basic, plus 150 minutes to US and Canadian numbers — for staying connected with family back home.",
