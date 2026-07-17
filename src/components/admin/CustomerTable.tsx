@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { Archive, ArchiveRestore, Loader2 } from "lucide-react";
+import { Archive, ArchiveRestore, Loader2, MessageCircle } from "lucide-react";
+import { whatsappGreeting, whatsappWebUrl } from "@/lib/whatsapp";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { MakeSalesRepButton } from "@/components/admin/MakeSalesRepButton";
 import { RequestReviewButton } from "@/components/admin/RequestReviewButton";
@@ -157,7 +158,24 @@ export function CustomerTable({ customers, view }: { customers: CustomerRow[]; v
                       <span className="text-xs text-muted-slate">—</span>
                     )}
                   </td>
-                  <td className="px-3 py-3 text-slate-600">{customer.phone ?? "—"}</td>
+                  <td className="px-3 py-3 text-slate-600">
+                    {customer.phone ? (
+                      <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                        {customer.phone}
+                        <a
+                          href={whatsappWebUrl(customer.phone, whatsappGreeting(customer.full_name)) ?? undefined}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Message on WhatsApp (business account)"
+                          className="inline-flex items-center rounded-full bg-emerald-50 p-1 text-emerald-700 transition hover:bg-emerald-100"
+                        >
+                          <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
+                        </a>
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                   <td className="px-3 py-3">
                     <StatusBadge status={customer.stripe_customer_id ? "active" : "pending"} label={customer.stripe_customer_id ? "Connected" : "Missing"} />
                   </td>

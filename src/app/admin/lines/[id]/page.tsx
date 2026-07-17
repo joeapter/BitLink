@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AlertTriangle, Phone, Shield } from "lucide-react";
+import { AlertTriangle, MessageCircle, Phone, Shield } from "lucide-react";
 import { getAdminDb } from "@/lib/db/admin";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import type { LineDetail } from "@/types/telecom";
@@ -20,6 +20,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import QRCode from "qrcode";
 import { toLpaString } from "@/lib/esim";
+import { whatsappGreeting, whatsappWebUrl } from "@/lib/whatsapp";
 
 export const metadata: Metadata = { title: "Line Detail" };
 export const dynamic = "force-dynamic";
@@ -114,7 +115,21 @@ export default async function AdminLineDetailPage({ params }: Props) {
           <h1 className="mt-2 text-4xl font-semibold tracking-normal text-ink">
             {customer?.full_name ?? "Unknown customer"}
           </h1>
-          <p className="mt-1 text-sm text-muted-slate">{customer?.email}</p>
+          <p className="mt-1 flex items-center gap-2 text-sm text-muted-slate">
+            {customer?.email}
+            {customer?.phone && whatsappWebUrl(customer.phone) ? (
+              <a
+                href={whatsappWebUrl(customer.phone, whatsappGreeting(customer.full_name)) ?? undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`WhatsApp ${customer.phone} (business account)`}
+                className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100"
+              >
+                <MessageCircle className="h-3 w-3" aria-hidden="true" />
+                WhatsApp
+              </a>
+            ) : null}
+          </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <StatusBadge status={line.status} />
             {line.is_kosher && (
