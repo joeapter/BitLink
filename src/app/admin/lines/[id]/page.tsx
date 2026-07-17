@@ -120,7 +120,7 @@ export default async function AdminLineDetailPage({ params }: Props) {
             {customer?.phone && whatsappWebUrl(customer.phone) ? (
               <a
                 href={whatsappWebUrl(customer.phone, whatsappGreeting(customer.full_name)) ?? undefined}
-                target="_blank"
+                target="bitlink-whatsapp"
                 rel="noopener noreferrer"
                 title={`WhatsApp ${customer.phone} (business account)`}
                 className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100"

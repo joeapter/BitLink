@@ -164,7 +164,7 @@ export function CustomerTable({ customers, view }: { customers: CustomerRow[]; v
                         {customer.phone}
                         <a
                           href={whatsappWebUrl(customer.phone, whatsappGreeting(customer.full_name)) ?? undefined}
-                          target="_blank"
+                          target="bitlink-whatsapp"
                           rel="noopener noreferrer"
                           title="Message on WhatsApp (business account)"
                           className="inline-flex items-center rounded-full bg-emerald-50 p-1 text-emerald-700 transition hover:bg-emerald-100"
