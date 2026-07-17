@@ -28,35 +28,36 @@ export function AddIntlNumberCard({
     null,
   );
 
-  if (existingIntlNumber?.status === "assigned" || existingIntlNumber?.status === "reserved") {
-    return (
-      <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
-          <Globe2 className="h-4 w-4 text-link-blue" />
-          International number
-        </h2>
-        <div className="mt-4 flex items-center justify-between rounded-xl bg-slate-50 p-4 text-sm">
-          <div>
-            <p className="font-semibold text-ink">{existingIntlNumber.number}</p>
-            <p className="text-xs text-muted-slate">{existingIntlNumber.country.toUpperCase()}</p>
-          </div>
-          <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
-            {existingIntlNumber.billingMode === "free" ? "Free" : "Paid"}
-          </span>
-        </div>
-      </section>
-    );
-  }
+  const hasExisting =
+    existingIntlNumber?.status === "assigned" || existingIntlNumber?.status === "reserved";
 
   return (
     <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
       <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
         <Globe2 className="h-4 w-4 text-link-blue" />
-        Add international number
+        {hasExisting ? "Add secondary international number" : "Add international number"}
       </h2>
-      <p className="mt-1 text-xs text-muted-slate">
-        Attaches immediately at the carrier. Choose whether to charge the customer&apos;s subscription or give it for free.
-      </p>
+      {hasExisting && existingIntlNumber ? (
+        <>
+          <div className="mt-4 flex items-center justify-between rounded-xl bg-slate-50 p-4 text-sm">
+            <div>
+              <p className="font-semibold text-ink">{existingIntlNumber.number}</p>
+              <p className="text-xs text-muted-slate">{existingIntlNumber.country.toUpperCase()} · current</p>
+            </div>
+            <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+              {existingIntlNumber.billingMode === "free" ? "Free" : "Paid"}
+            </span>
+          </div>
+          <p className="mt-3 text-xs text-muted-slate">
+            Adding another number attaches it alongside the current one — nothing is replaced or released.
+            Paid billing adds another $9.99/mo to the same subscription item.
+          </p>
+        </>
+      ) : (
+        <p className="mt-1 text-xs text-muted-slate">
+          Attaches immediately at the carrier. Choose whether to charge the customer&apos;s subscription or give it for free.
+        </p>
+      )}
 
       <form action={formAction} className="mt-4 grid gap-4">
         <input type="hidden" name="lineId" value={lineId} />

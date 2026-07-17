@@ -114,6 +114,12 @@ export async function addIntlNumberToLine(params: {
   number: string;
   billingMode: 'paid' | 'free';
   actorUserId?: string | null;
+  // Admin-only escape hatch: attach ALONGSIDE an existing international
+  // number instead of refusing. The primary intl_number metadata is left
+  // untouched; secondaries accumulate in intl_numbers_extra. Annatel's DID
+  // endpoint has collection semantics (POST appends, each DID releases
+  // independently), so nothing is replaced at the carrier.
+  allowSecondary?: boolean;
 }): Promise<AddIntlNumberResult> {
   const { admin, lineId, country, number, billingMode } = params;
 
@@ -131,7 +137,8 @@ export async function addIntlNumberToLine(params: {
 
   const meta = (line.metadata ?? {}) as Record<string, unknown>;
   const existingIntl = meta.intl_number as Record<string, unknown> | undefined;
-  if (existingIntl && ['reserved', 'assigned'].includes(String(existingIntl.status))) {
+  const isSecondary = Boolean(existingIntl && ['reserved', 'assigned'].includes(String(existingIntl.status)));
+  if (isSecondary && !params.allowSecondary) {
     return { error: 'This line already has an international number.' };
   }
 
@@ -178,6 +185,7 @@ export async function addIntlNumberToLine(params: {
           metadata: {
             ...item.metadata,
             bitlink_intl_addon: '1',
+            bitlink_intl_addon_count: String(Number(item.metadata?.bitlink_intl_addon_count ?? (item.metadata?.bitlink_intl_addon === '1' ? '1' : '0')) + 1),
             bitlink_intl_addon_added_at: now,
           },
         });
@@ -204,14 +212,23 @@ export async function addIntlNumberToLine(params: {
     .update({
       metadata: {
         ...meta,
-        intl_number: {
-          country,
-          source: 'new',
-          number,
-          status: 'assigned',
-          assigned_at: now,
-          billing_mode: billingMode,
-        },
+        ...(isSecondary
+          ? {
+              intl_numbers_extra: [
+                ...(Array.isArray(meta.intl_numbers_extra) ? (meta.intl_numbers_extra as Array<Record<string, unknown>>) : []),
+                { country, source: 'new', number, status: 'assigned', assigned_at: now, billing_mode: billingMode },
+              ],
+            }
+          : {
+              intl_number: {
+                country,
+                source: 'new',
+                number,
+                status: 'assigned',
+                assigned_at: now,
+                billing_mode: billingMode,
+              },
+            }),
       },
       updated_at: now,
     })
@@ -223,7 +240,7 @@ export async function addIntlNumberToLine(params: {
       action: 'intl_number_added',
       entity_type: 'telecom_line',
       entity_id: lineId,
-      metadata: { number, country, billingMode },
+      metadata: { number, country, billingMode, secondary: isSecondary },
     });
   } catch {
     // audit failure is non-fatal

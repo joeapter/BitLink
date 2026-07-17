@@ -207,6 +207,7 @@ export async function addIntlNumberToLineAdminAction(
     number,
     billingMode: billingModeRaw === 'free' ? 'free' : 'paid',
     actorUserId: user.id,
+    allowSecondary: true,
   });
 
   revalidatePath(`/admin/lines/${lineId}`);
