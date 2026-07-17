@@ -7,6 +7,9 @@ type IntlNumberOption = {
   number: string;
   region: string | null;
   city: string | null;
+  // Present only on admin surfaces: when this number was last released from
+  // an active line back to inventory.
+  releasedAt?: string | null;
 };
 
 // New international add-on numbers (US/CA/UK) are picked here, not entered —
@@ -112,6 +115,11 @@ export function IntlNumberPicker({
                   {option.city ? (
                     <span className="ml-1.5 text-xs font-normal text-muted-slate">
                       {option.city}{option.region ? `, ${option.region}` : ""}
+                    </span>
+                  ) : null}
+                  {option.releasedAt ? (
+                    <span className="mt-0.5 block text-[0.65rem] font-normal text-amber-700">
+                      Returned {new Date(option.releasedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} — previously in use
                     </span>
                   ) : null}
                 </span>

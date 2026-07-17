@@ -23,6 +23,8 @@ export async function GET(request: Request) {
     .select("number, region, city")
     .eq("country", country)
     .eq("status", "available")
+    // Numbers released from a line stay off customer surfaces for 90 days.
+    .or(`released_at.is.null,released_at.lt.${new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()}`)
     .limit(50);
 
   const pool = data ?? [];

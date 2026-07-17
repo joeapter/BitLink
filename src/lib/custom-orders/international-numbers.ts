@@ -12,9 +12,15 @@ export type IntlNumberOption = {
   number: string;
   region: string | null;
   city: string | null;
+  // Set when this number was previously on a line and released back to
+  // inventory. Customer surfaces never see these until RELEASED_QUIET_DAYS
+  // has passed; admin surfaces show them at the bottom, stamped.
+  releasedAt?: string | null;
 };
 
 const SAMPLE_SIZE = 6;
+// Released numbers stay off customer-facing pickers for this long.
+const RELEASED_QUIET_DAYS = 90;
 
 // Shared by all three "choose a number" surfaces (payment link, admin
 // builder, account add-line) — each route does its own auth check, then
@@ -23,24 +29,48 @@ const SAMPLE_SIZE = 6;
 export async function sampleAvailableIntlNumbers(
   admin: SupabaseClient,
   country: 'us' | 'canada' | 'uk',
+  opts?: { audience?: 'customer' | 'admin' },
 ): Promise<IntlNumberOption[]> {
+  const audience = opts?.audience ?? 'customer';
   const { data } = await admin
     .from('international_dids')
-    .select('number, region, city')
+    .select('number, region, city, released_at')
     .eq('country', country)
     .eq('status', 'available')
-    .limit(50);
+    .limit(100);
 
-  const pool = (data ?? []) as IntlNumberOption[];
-  const sample: IntlNumberOption[] = [];
-  const used = new Set<number>();
-  while (sample.length < Math.min(SAMPLE_SIZE, pool.length)) {
-    const index = Math.floor(Math.random() * pool.length);
-    if (used.has(index)) continue;
-    used.add(index);
-    sample.push(pool[index]);
+  const rows: IntlNumberOption[] = ((data ?? []) as Array<{ number: string; region: string | null; city: string | null; released_at: string | null }>).map(
+    (r) => ({ number: r.number, region: r.region, city: r.city, releasedAt: r.released_at ?? null }),
+  );
+  const fresh = rows.filter((r) => !r.releasedAt);
+  const released = rows
+    .filter((r) => Boolean(r.releasedAt))
+    .sort((a, b) => String(a.releasedAt).localeCompare(String(b.releasedAt)));
+
+  const pickRandom = (pool: IntlNumberOption[], count: number): IntlNumberOption[] => {
+    const sample: IntlNumberOption[] = [];
+    const used = new Set<number>();
+    while (sample.length < Math.min(count, pool.length)) {
+      const index = Math.floor(Math.random() * pool.length);
+      if (used.has(index)) continue;
+      used.add(index);
+      sample.push(pool[index]);
+    }
+    return sample;
+  };
+
+  if (audience === 'customer') {
+    const cutoff = Date.now() - RELEASED_QUIET_DAYS * 24 * 60 * 60 * 1000;
+    const pool = [
+      ...fresh,
+      ...released.filter((r) => new Date(String(r.releasedAt)).getTime() < cutoff),
+    ];
+    return pickRandom(pool, SAMPLE_SIZE);
   }
-  return sample;
+
+  // Admin: a fresh random sample first, then EVERY released number at the
+  // bottom (oldest release first), each carrying releasedAt for the stamp.
+  return [...pickRandom(fresh, SAMPLE_SIZE), ...released];
 }
 
 // Atomic available -> reserved flip, keyed on a caller-supplied token (a
@@ -254,4 +284,112 @@ export async function addIntlNumberToLine(params: {
         : `Added ${number} — this month prorated, billed together with the line going forward.`;
 
   return { success: successMessage };
+}
+
+export type RemoveIntlNumberResult = { success?: string; error?: string };
+
+// Releases an international number from a line back into inventory — admin
+// console only. Annatel returns released DIDs to the pool (confirmed by
+// Annatel, Jul 2026); released_at is stamped so pickers quarantine the number
+// from customers for RELEASED_QUIET_DAYS and admins can see when it was last
+// in use. If the number was billed, the $9.99/mo comes back off the same
+// subscription item.
+export async function removeIntlNumberFromLine(params: {
+  admin: SupabaseClient;
+  lineId: string;
+  number: string;
+  actorUserId?: string | null;
+}): Promise<RemoveIntlNumberResult> {
+  const { admin, lineId, number } = params;
+
+  const { data: line } = await admin
+    .from('telecom_lines')
+    .select('id, status, provider_line_id, metadata')
+    .eq('id', lineId)
+    .maybeSingle();
+  if (!line?.provider_line_id) return { error: 'Line not found or not active with the carrier.' };
+
+  const meta = (line.metadata ?? {}) as Record<string, unknown>;
+  const primary = meta.intl_number as Record<string, unknown> | undefined;
+  const extras = Array.isArray(meta.intl_numbers_extra)
+    ? (meta.intl_numbers_extra as Array<Record<string, unknown>>)
+    : [];
+  const isPrimary = primary?.number === number && String(primary?.status) === 'assigned';
+  const extraIndex = extras.findIndex((e) => e.number === number && String(e.status) === 'assigned');
+  if (!isPrimary && extraIndex === -1) return { error: 'That number is not assigned to this line.' };
+  const entry = (isPrimary ? primary! : extras[extraIndex]) as Record<string, unknown>;
+
+  const provider = getTelecomProvider();
+  try {
+    await provider.releaseDid(line.provider_line_id as string, number);
+  } catch (err) {
+    return { error: err instanceof Error ? `Carrier release failed: ${err.message}` : 'Carrier release failed.' };
+  }
+
+  const now = new Date().toISOString();
+  await admin
+    .from('international_dids')
+    .update({
+      status: 'available',
+      assigned_line_id: null,
+      assigned_at: null,
+      released_at: now,
+      released_from_line_id: lineId,
+    })
+    .eq('number', number);
+
+  let billingNote: string | null = null;
+  if (String(entry.billing_mode) === 'paid') {
+    const subscriber = await getSubscriberForLine(admin, lineId);
+    const stripe = subscriber?.stripe_subscription_id ? getStripe() : null;
+    if (!subscriber?.stripe_subscription_id || !stripe) {
+      billingNote = 'No Stripe subscription linked — remove the $9.99/mo charge manually if one exists.';
+    } else {
+      try {
+        const item = await findSubscriptionItem(stripe, subscriber.stripe_subscription_id, subscriber.stripe_subscription_item_id);
+        if (!item) throw new Error('Could not find the Stripe subscription item for this line.');
+        const productId = typeof item.price.product === 'string' ? item.price.product : item.price.product.id;
+        const currentTotal = Number(subscriber.monthly_price_cents ?? item.price.unit_amount ?? 0);
+        const newTotal = Math.max(0, currentTotal - usCanadaNumberAddOn.priceCents);
+        await stripe.subscriptionItems.update(item.id, {
+          price_data: { currency: 'usd', unit_amount: newTotal, recurring: { interval: 'month' }, product: productId },
+          proration_behavior: 'create_prorations',
+          metadata: { ...item.metadata, bitlink_intl_addon_removed_at: now },
+        });
+        await admin.from('subscribers').update({ monthly_price_cents: newTotal, updated_at: now }).eq('id', subscriber.id);
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        billingNote = 'The number was released, but billing could not be reduced automatically — adjust the subscription manually.';
+        log.error({ lineId, number, error: errMsg }, 'Intl number released but billing reduction failed');
+      }
+    }
+  }
+
+  const removedEntry = { ...entry, status: 'removed', removed_at: now };
+  await admin
+    .from('telecom_lines')
+    .update({
+      metadata: {
+        ...meta,
+        ...(isPrimary
+          ? { intl_number: removedEntry }
+          : { intl_numbers_extra: extras.map((e, i) => (i === extraIndex ? removedEntry : e)) }),
+      },
+      updated_at: now,
+    })
+    .eq('id', lineId);
+
+  try {
+    await admin.from('audit_logs').insert({
+      actor_user_id: params.actorUserId ?? null,
+      action: 'intl_number_removed',
+      entity_type: 'telecom_line',
+      entity_id: lineId,
+      metadata: { number, wasPrimary: isPrimary, billingMode: entry.billing_mode ?? null },
+    });
+  } catch {
+    // audit failure is non-fatal
+  }
+
+  return { success: `${number} released back to inventory.${billingNote ? ` ${billingNote}` : ''}` };
 }

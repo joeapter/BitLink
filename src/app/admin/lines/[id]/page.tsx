@@ -198,9 +198,21 @@ export default async function AdminLineDetailPage({ params }: Props) {
             const intlNumberMeta = metadata.intl_number as
               | { country: string; number: string; status: string; billing_mode?: string }
               | undefined;
+            const extraIntlMeta = (Array.isArray(metadata.intl_numbers_extra) ? metadata.intl_numbers_extra : []) as Array<{
+              country: string;
+              number: string;
+              status: string;
+              billing_mode?: string;
+            }>;
             return (
               <AddIntlNumberCard
                 lineId={line.id}
+                extraIntlNumbers={extraIntlMeta.map((n) => ({
+                  country: n.country,
+                  number: n.number,
+                  status: n.status,
+                  billingMode: n.billing_mode,
+                }))}
                 existingIntlNumber={
                   intlNumberMeta
                     ? {

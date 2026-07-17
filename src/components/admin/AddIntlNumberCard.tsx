@@ -1,9 +1,14 @@
 "use client";
 
 import { useState, useActionState } from "react";
-import { Globe2, Loader2, PlusCircle } from "lucide-react";
+import { Globe2, Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { IntlNumberPicker } from "@/components/checkout/IntlNumberPicker";
-import { addIntlNumberToLineAdminAction, type AdminAddIntlNumberState } from "@/lib/admin/line-actions";
+import {
+  addIntlNumberToLineAdminAction,
+  removeIntlNumberFromLineAdminAction,
+  type AdminAddIntlNumberState,
+  type AdminRemoveIntlNumberState,
+} from "@/lib/admin/line-actions";
 
 type IntlCountry = "us" | "canada" | "uk";
 
@@ -17,9 +22,11 @@ type ExistingIntlNumber = {
 export function AddIntlNumberCard({
   lineId,
   existingIntlNumber,
+  extraIntlNumbers = [],
 }: {
   lineId: string;
   existingIntlNumber: ExistingIntlNumber;
+  extraIntlNumbers?: Array<NonNullable<ExistingIntlNumber>>;
 }) {
   const [country, setCountry] = useState<IntlCountry>("us");
   const [chosenNumber, setChosenNumber] = useState<string | null>(null);
@@ -27,9 +34,18 @@ export function AddIntlNumberCard({
     addIntlNumberToLineAdminAction,
     null,
   );
+  const [removeState, removeFormAction, removePending] = useActionState<AdminRemoveIntlNumberState, FormData>(
+    removeIntlNumberFromLineAdminAction,
+    null,
+  );
 
-  const hasExisting =
-    existingIntlNumber?.status === "assigned" || existingIntlNumber?.status === "reserved";
+  const assignedNumbers = [
+    ...(existingIntlNumber?.status === "assigned" || existingIntlNumber?.status === "reserved"
+      ? [existingIntlNumber]
+      : []),
+    ...extraIntlNumbers.filter((n) => n.status === "assigned"),
+  ];
+  const hasExisting = assignedNumbers.length > 0;
 
   return (
     <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
@@ -37,20 +53,46 @@ export function AddIntlNumberCard({
         <Globe2 className="h-4 w-4 text-link-blue" />
         {hasExisting ? "Add secondary international number" : "Add international number"}
       </h2>
-      {hasExisting && existingIntlNumber ? (
+      {hasExisting ? (
         <>
-          <div className="mt-4 flex items-center justify-between rounded-xl bg-slate-50 p-4 text-sm">
-            <div>
-              <p className="font-semibold text-ink">{existingIntlNumber.number}</p>
-              <p className="text-xs text-muted-slate">{existingIntlNumber.country.toUpperCase()} · current</p>
-            </div>
-            <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
-              {existingIntlNumber.billingMode === "free" ? "Free" : "Paid"}
-            </span>
+          <div className="mt-4 grid gap-2">
+            {assignedNumbers.map((n) => (
+              <div key={n.number} className="flex items-center justify-between rounded-xl bg-slate-50 p-4 text-sm">
+                <div>
+                  <p className="font-semibold text-ink">{n.number}</p>
+                  <p className="text-xs text-muted-slate">{n.country.toUpperCase()} · active on this line</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                    {n.billingMode === "free" ? "Free" : "Paid"}
+                  </span>
+                  <form
+                    action={removeFormAction}
+                    onSubmit={(event) => {
+                      if (!window.confirm(`Release ${n.number} from this line back to inventory? Callers will no longer reach this line on it.`)) {
+                        event.preventDefault();
+                      }
+                    }}
+                  >
+                    <input type="hidden" name="lineId" value={lineId} />
+                    <input type="hidden" name="number" value={n.number} />
+                    <button
+                      type="submit"
+                      disabled={removePending}
+                      className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
+                    >
+                      {removePending ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> : <Trash2 className="h-3 w-3" aria-hidden="true" />}
+                      Remove
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ))}
           </div>
           <p className="mt-3 text-xs text-muted-slate">
             Adding another number attaches it alongside the current one — nothing is replaced or released.
-            Paid billing adds another $9.99/mo to the same subscription item.
+            Paid billing adds another $9.99/mo to the same subscription item. Removing releases the number
+            back to inventory (hidden from customers for 90 days) and, if it was paid, takes $9.99/mo back off the bill.
           </p>
         </>
       ) : (
@@ -112,6 +154,8 @@ export function AddIntlNumberCard({
 
       {state?.error ? <p className="mt-4 rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">{state.error}</p> : null}
       {state?.success ? <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">{state.success}</p> : null}
+      {removeState?.error ? <p className="mt-4 rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">{removeState.error}</p> : null}
+      {removeState?.success ? <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">{removeState.success}</p> : null}
     </section>
   );
 }

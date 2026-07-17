@@ -24,6 +24,6 @@ export async function GET(request: NextRequest): Promise<Response> {
     return Response.json({ error: 'Unavailable.' }, { status: 503 });
   }
 
-  const numbers = await sampleAvailableIntlNumbers(admin, country as 'us' | 'canada' | 'uk');
+  const numbers = await sampleAvailableIntlNumbers(admin, country as 'us' | 'canada' | 'uk', { audience: 'admin' });
   return Response.json({ numbers });
 }

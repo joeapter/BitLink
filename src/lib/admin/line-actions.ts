@@ -8,7 +8,7 @@ import { retryProvisioningJob } from "@/lib/provisioning/orchestrator";
 import { inngest } from "@/inngest/client";
 import { changeLinePlan, type PlanChangeResult } from "@/lib/line-plan-change";
 import { sendProvisionedNotifications } from "@/lib/notifications/send-provisioned";
-import { addIntlNumberToLine, type AddIntlNumberResult } from "@/lib/custom-orders/international-numbers";
+import { addIntlNumberToLine, removeIntlNumberFromLine, type AddIntlNumberResult, type RemoveIntlNumberResult } from "@/lib/custom-orders/international-numbers";
 import { grantTopup, cancelTopupGrant, type GrantTopupResult } from "@/lib/topups/grant-topup";
 
 function getProvider() {
@@ -442,4 +442,23 @@ export async function retryProvisioningJobAction(formData: FormData): Promise<vo
   revalidatePath(`/admin/lines/${lineId}`);
   revalidatePath('/admin/lines');
   revalidatePath('/admin/provisioning');
+}
+
+export type AdminRemoveIntlNumberState = RemoveIntlNumberResult | null;
+
+export async function removeIntlNumberFromLineAdminAction(
+  _prev: AdminRemoveIntlNumberState,
+  formData: FormData,
+): Promise<AdminRemoveIntlNumberState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const number = String(formData.get('number') ?? '');
+  if (!lineId || !number) return { error: 'Missing line or number.' };
+
+  const admin = getAdmin();
+  const result = await removeIntlNumberFromLine({ admin, lineId, number, actorUserId: user.id });
+
+  revalidatePath(`/admin/lines/${lineId}`);
+  revalidatePath('/admin/lines');
+  return result;
 }
