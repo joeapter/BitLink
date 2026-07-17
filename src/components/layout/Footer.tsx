@@ -46,7 +46,8 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_auto] lg:px-8">
         <div>
           <BrandMark />
-          <p className="mt-5 max-w-md text-sm leading-6 text-muted-slate">
+          <p className="mt-5 text-sm font-bold text-ink">Everything is from Hashem</p>
+          <p className="mt-3 max-w-md text-sm leading-6 text-muted-slate">
             Modern Israeli telecom with simple monthly plans, guided activation, and human support.
           </p>
           <p className="mt-4 text-xs text-slate-400">
