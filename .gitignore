@@ -70,3 +70,4 @@ yarn-error.log*
 
 # ── Encrypted credentials ─────────────────────────────────────────
 *.gpg
+assets/bitlink-driver-cards-print.html
