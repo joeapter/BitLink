@@ -204,6 +204,36 @@ export async function addIntlNumberToLine(params: {
       billingNote = 'No Stripe subscription is linked to this line — add the $9.99/mo charge manually.';
     } else {
       try {
+        // Guard against double-billing: if the subscription already carries a
+        // standalone intl-addon item (e.g. bought at checkout) that isn't yet
+        // matched by a paid number, that item covers THIS attach — folding
+        // another $9.99 into the line item would charge twice. (Found live on
+        // Joe's own subscription, Jul 2026.)
+        const allItems = await stripe.subscriptionItems.list({
+          subscription: subscriber.stripe_subscription_id,
+          limit: 20,
+        });
+        const addonPriceId = process.env.STRIPE_PRICE_US_CANADA_ADDON?.trim();
+        const standaloneAddonItems = allItems.data.filter(
+          (i) => i.price.id === addonPriceId || i.price.metadata?.type === 'intl_number_addon',
+        );
+        if (standaloneAddonItems.length > 0) {
+          const paidAssigned = [
+            ...(existingIntl && String(existingIntl.status) === 'assigned' && String(existingIntl.billing_mode) === 'paid' ? [existingIntl] : []),
+            ...(Array.isArray(meta.intl_numbers_extra)
+              ? (meta.intl_numbers_extra as Array<Record<string, unknown>>).filter(
+                  (e) => String(e.status) === 'assigned' && String(e.billing_mode) === 'paid',
+                )
+              : []),
+          ].length;
+          if (standaloneAddonItems.length > paidAssigned) {
+            billingNote = `Covered by the existing $9.99 add-on item already on the subscription (${standaloneAddonItems[0].id}) — no additional charge added.`;
+          }
+        }
+
+        if (billingNote) {
+          // Skip the fold; the standalone item is the billing for this number.
+        } else {
         const item = await findSubscriptionItem(stripe, subscriber.stripe_subscription_id, subscriber.stripe_subscription_item_id);
         if (!item) throw new Error('Could not find the Stripe subscription item for this line.');
         const productId = typeof item.price.product === 'string' ? item.price.product : item.price.product.id;
@@ -220,6 +250,7 @@ export async function addIntlNumberToLine(params: {
           },
         });
         await admin.from('subscribers').update({ monthly_price_cents: newTotal, updated_at: now }).eq('id', subscriber.id);
+        }
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : String(err);
         billingNote = `The number is live, but billing could not be updated automatically. Add the $${(usCanadaNumberAddOn.priceCents / 100).toFixed(2)}/mo charge manually.`;
