@@ -203,6 +203,12 @@ export default async function AdminLineDetailPage({ params }: Props) {
             <LinePlansCard
               lineId={line.id}
               plans={liveDetail.plans}
+              topupGrants={(topupGrantRows ?? []).map((g) => ({
+                topupId: g.id as string,
+                label: g.label as string,
+                billingMode: g.billing_mode as string,
+                frequency: g.frequency as string,
+              }))}
               isKosher={Boolean(line.is_kosher)}
               currentPlanSlug={(metadata.plan_slug as string | undefined) ?? null}
             />

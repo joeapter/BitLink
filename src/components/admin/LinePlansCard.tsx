@@ -13,9 +13,10 @@ interface Props {
   plans: LinePlanInfo[];
   isKosher: boolean;
   currentPlanSlug: string | null;
+  topupGrants?: Array<{ topupId: string; label: string; billingMode: string; frequency: string }>;
 }
 
-export function LinePlansCard({ lineId, plans: linePlans, isKosher, currentPlanSlug }: Props) {
+export function LinePlansCard({ lineId, plans: linePlans, isKosher, currentPlanSlug, topupGrants = [] }: Props) {
   const [state, formAction, pending] = useActionState<AdminPlanChangeState, FormData>(changeLinePlanAdminAction, null);
   const availablePlans = plans.filter((plan) => plan.isKosher === isKosher);
 
@@ -38,11 +39,18 @@ export function LinePlansCard({ lineId, plans: linePlans, isKosher, currentPlanS
 
       <div className="mt-4 grid gap-3">
         {linePlans.length ? (
-          linePlans.map((plan) => (
+          (() => {
+            // Non-main plans are topups; label them from the grant records so
+            // the row says what it really is ("+5GB Data — apology gift ·
+            // Free") instead of an anonymous second plan.
+            let grantIndex = 0;
+            return linePlans.map((plan) => {
+              const grant = !plan.isMain ? topupGrants[grantIndex++] : undefined;
+              return (
             <div key={plan.id} className="rounded-xl border border-ink/8 bg-slate-50 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-ink">{friendlyName(plan.planName)}</p>
+                  <p className="font-semibold text-ink">{grant?.label ?? friendlyName(plan.planName)}</p>
                   <p className="text-xs text-muted-slate">
                     Since {plan.startAt.toLocaleDateString()}
                     {plan.endAt && ` → ${plan.endAt.toLocaleDateString()}`}
@@ -54,7 +62,9 @@ export function LinePlansCard({ lineId, plans: linePlans, isKosher, currentPlanS
                   </span>
                 ) : (
                   <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700">
-                    Topup
+                    {grant
+                      ? `Topup · ${grant.billingMode === "free" ? "Free" : "Paid"} · ${grant.frequency === "monthly" ? "monthly" : "one-time"}`
+                      : "Topup"}
                   </span>
                 )}
               </div>
@@ -99,7 +109,9 @@ export function LinePlansCard({ lineId, plans: linePlans, isKosher, currentPlanS
                 </form>
               ) : null}
             </div>
-          ))
+          );
+            });
+          })()
         ) : (
           <p className="text-sm text-muted-slate">No plans found for this line.</p>
         )}
