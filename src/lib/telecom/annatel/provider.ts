@@ -154,12 +154,17 @@ export class AnnatelProvider implements TelecomProvider {
   }
 
   async getLineDetail(providerLineId: string): Promise<LineDetail> {
-    const [raw, simsResult, plansResult, didsResult] = await Promise.all([
+    const [raw, simsResult, plansResult, didsResult, planCatalog] = await Promise.all([
       this.client.get<AnnatelLineDetail>(`${LINES_BASE}/${providerLineId}`),
       this.client.get<{ data: Array<{ id: string; icc_id: string; is_main: boolean; start_at: string; end_at?: string; sim?: { type: 'esim' | 'sim_card'; activation_code?: string; activation_code_token?: string; sm_dp_plus_address?: string; confirmation_code?: string } }> }>(`${LINES_BASE}/${providerLineId}/sims`).catch(() => ({ data: [] })),
       this.client.get<{ data: Array<{ id: string; start_at: string; end_at?: string; plan_id: string; plan?: { id: string; name: string; is_main: boolean } }> }>(`${LINES_BASE}/${providerLineId}/plans`).catch(() => ({ data: [] })),
       this.client.get<{ data: Array<{ id: string; number: string; start_at: string; end_at?: string }> }>(`${LINES_BASE}/${providerLineId}/dids`).catch(() => ({ data: [] })),
+      // The line-plans list carries only plan_id — names and is_main live in
+      // the tenant plan catalog, so supplementary plans (topups) were
+      // rendering as unnamed "Main" plans without this join.
+      this.client.get<{ data: Array<{ id: string; name: string; is_main: boolean }> }>('/api/operational/network_manager/plans?page%5Bsize%5D=200').catch(() => ({ data: [] })),
     ]);
+    const catalogById = new Map((planCatalog.data ?? []).map((p) => [p.id, p]));
     return {
       id: raw.id,
       status: raw.status,
@@ -181,8 +186,8 @@ export class AnnatelProvider implements TelecomProvider {
       plans: (plansResult.data ?? []).map((p) => ({
         id: p.id,
         planId: p.plan?.id ?? p.plan_id,
-        planName: p.plan?.name ?? '',
-        isMain: p.plan?.is_main ?? true,
+        planName: p.plan?.name ?? catalogById.get(p.plan_id)?.name ?? '',
+        isMain: p.plan?.is_main ?? catalogById.get(p.plan_id)?.is_main ?? true,
         startAt: new Date(p.start_at),
         endAt: p.end_at ? new Date(p.end_at) : undefined,
       })),

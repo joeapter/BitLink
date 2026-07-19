@@ -4,7 +4,8 @@ import { useActionState } from "react";
 import type { LinePlanInfo } from "@/types/telecom";
 import { changeLinePlanAdminAction, type AdminPlanChangeState } from "@/lib/admin/line-actions";
 import { BarChart3, ArrowRightLeft, Loader2 } from "lucide-react";
-import { plans } from "@/lib/plans";
+import { getAnnatelPlanName, plans } from "@/lib/plans";
+import { topups } from "@/lib/topups";
 import { formatMoney } from "@/lib/utils";
 
 interface Props {
@@ -17,6 +18,15 @@ interface Props {
 export function LinePlansCard({ lineId, plans: linePlans, isKosher, currentPlanSlug }: Props) {
   const [state, formAction, pending] = useActionState<AdminPlanChangeState, FormData>(changeLinePlanAdminAction, null);
   const availablePlans = plans.filter((plan) => plan.isKosher === isKosher);
+
+  // Annatel plan names → friendly labels: main plans via the slug mapping,
+  // supplementary plans via the topups catalog.
+  function friendlyName(annatelName: string): string {
+    const topup = topups.find((t) => t.annatelPlanName === annatelName);
+    if (topup) return `${topup.name} (topup)`;
+    const main = plans.find((p) => getAnnatelPlanName(p.slug) === annatelName);
+    return main?.name ?? annatelName;
+  }
 
   return (
     <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
@@ -31,15 +41,19 @@ export function LinePlansCard({ lineId, plans: linePlans, isKosher, currentPlanS
             <div key={plan.id} className="rounded-xl border border-ink/8 bg-slate-50 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-ink">{plan.planName}</p>
+                  <p className="font-semibold text-ink">{friendlyName(plan.planName)}</p>
                   <p className="text-xs text-muted-slate">
                     Since {plan.startAt.toLocaleDateString()}
                     {plan.endAt && ` → ${plan.endAt.toLocaleDateString()}`}
                   </p>
                 </div>
-                {plan.isMain && (
+                {plan.isMain ? (
                   <span className="rounded-full bg-link-blue/10 px-2 py-0.5 text-xs font-semibold text-link-blue">
                     Main
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                    Topup
                   </span>
                 )}
               </div>
