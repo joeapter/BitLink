@@ -22,6 +22,7 @@ export function LinePlansCard({ lineId, plans: linePlans, isKosher, currentPlanS
   // Annatel plan names → friendly labels: main plans via the slug mapping,
   // supplementary plans via the topups catalog.
   function friendlyName(annatelName: string): string {
+    if (!annatelName) return "Supplementary topup";
     const topup = topups.find((t) => t.annatelPlanName === annatelName);
     if (topup) return `${topup.name} (topup)`;
     const main = plans.find((p) => getAnnatelPlanName(p.slug) === annatelName);

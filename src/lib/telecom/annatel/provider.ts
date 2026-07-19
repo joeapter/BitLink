@@ -165,6 +165,11 @@ export class AnnatelProvider implements TelecomProvider {
       this.client.get<{ data: Array<{ id: string; name: string; is_main: boolean }> }>('/api/operational/network_manager/plans?page%5Bsize%5D=200').catch(() => ({ data: [] })),
     ]);
     const catalogById = new Map((planCatalog.data ?? []).map((p) => [p.id, p]));
+    // The catalog lists ONLY main plans — supplementary (topup) plans are
+    // absent from it entirely (and 404 on direct fetch). So with a loaded
+    // catalog, absence == topup. If the catalog fetch failed, fall back to
+    // treating plans as main (pre-existing behavior).
+    const catalogLoaded = catalogById.size > 0;
     return {
       id: raw.id,
       status: raw.status,
@@ -187,7 +192,7 @@ export class AnnatelProvider implements TelecomProvider {
         id: p.id,
         planId: p.plan?.id ?? p.plan_id,
         planName: p.plan?.name ?? catalogById.get(p.plan_id)?.name ?? '',
-        isMain: p.plan?.is_main ?? catalogById.get(p.plan_id)?.is_main ?? true,
+        isMain: p.plan?.is_main ?? catalogById.get(p.plan_id)?.is_main ?? !catalogLoaded,
         startAt: new Date(p.start_at),
         endAt: p.end_at ? new Date(p.end_at) : undefined,
       })),
