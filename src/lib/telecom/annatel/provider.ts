@@ -424,10 +424,12 @@ export class AnnatelProvider implements TelecomProvider {
   }
 
   async addTopup(providerLineId: string, topupName: string): Promise<void> {
-    await this.client.post('/api/bulk_requests', {
-      type: 'add',
-      line_id: providerLineId,
-      topups: [{ topup_name: topupName }],
+    // Topups are supplementary plans (is_main: false) added directly to the
+    // line. The bulk_requests type-add shape this originally used is
+    // Annatel's port-in flow and 422s demanding port_in_request_params —
+    // discovered on first real use, Jul 2026.
+    await this.client.post(`${LINES_BASE}/${providerLineId}/plans`, {
+      plan_name: topupName,
     });
   }
 
