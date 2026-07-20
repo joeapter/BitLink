@@ -138,6 +138,10 @@ export interface PhoneNumber {
   isPrimary: boolean;
   startAt: Date;
   endAt?: Date;
+  // The line_did's own id at the provider — required to call any per-number
+  // sub-resource (voicemail, SMS forwarding, CLID). Optional because older
+  // call sites that only ever needed the number itself don't set it.
+  id?: string;
 }
 
 export interface TenantDid {
@@ -265,4 +269,109 @@ export interface AnnatelEvent {
   data: Record<string, unknown>;
   occurredAt: Date;
   tenantId: string;
+}
+
+// ── Voicemail (per DID) ───────────────────────────────────────────────────────
+// Confirmed real endpoints (Annatel Swagger, Jul 2026). Whether BitLink lines
+// have a voicemail box provisioned by default is unconfirmed — ask Annatel.
+
+export interface LineDidVoicemailParams {
+  email?: string;
+  fullname?: string;
+  language?: string;
+  greetingLanguage?: string;
+  password?: string;
+  timezone?: string;
+  areRecordingsSavedOnServer?: boolean;
+  areRecordingsSentToEmail?: boolean;
+}
+
+export interface LineDidVoicemail extends LineDidVoicemailParams {
+  id: string;
+  startAt: Date;
+  endAt?: Date;
+}
+
+// ── SMS forwarding (per DID) ──────────────────────────────────────────────────
+// Optional, additive: forwards a COPY of incoming SMS to an email or Telegram
+// chat. Device delivery already works without this configured.
+
+export interface LineDidSmsForwarderParams {
+  emailRecipientAddress?: string;
+  emailSenderAddress?: string;
+  emailSenderName?: string;
+  telegramChatId?: string;
+  forwardByTragofone?: boolean;
+}
+
+export interface LineDidSmsForwarderSetting extends LineDidSmsForwarderParams {
+  id: string;
+  startAt: Date;
+  endAt?: Date;
+}
+
+// ── Caller ID (CLID) ──────────────────────────────────────────────────────────
+// Per-destination-group outbound caller ID. Which destination_group_name
+// values are valid is unconfirmed — ask Annatel before relying on this.
+
+export interface DestinationGroup {
+  id: string;
+  name: string;
+  defaultWeight: number;
+}
+
+export interface LineClidParams {
+  callerId: string;
+  destinationGroupName: string;
+  destinationGroupWeight?: number;
+  service: string;
+}
+
+export interface LineClid {
+  id: string;
+  callerId: string;
+  destinationGroup?: DestinationGroup;
+  destinationGroupWeight?: number;
+  service: string;
+  prefix?: string;
+  startAt: Date;
+  endAt?: Date;
+}
+
+// ── Aflalo requests (Israeli telemarketing-consent, UNCONFIRMED semantics) ───
+// "open"/"block" per number — near-certainly related to Israel's Chok Aflalo
+// telemarketing-consent law, but the exact effect is unconfirmed. Don't call
+// createAflaloRequest against a real customer number without checking with
+// Annatel first.
+
+export interface AflaloRequest {
+  id: string;
+  phoneNumber: string;
+  operation: 'open' | 'block';
+  doneAt?: Date;
+}
+
+// ── Webhook delivery diagnostics ─────────────────────────────────────────────
+
+export interface WebhookConversation {
+  id: string;
+  httpStatus: number;
+  requestUrl: string;
+  requestedAt: Date;
+  respondedAt?: Date;
+  status: string;
+  requestBody?: string;
+  responseBody?: string;
+  clientErrorMessage?: string;
+}
+
+// ── Reference data (read-only) ───────────────────────────────────────────────
+
+export interface TenantIpAddress {
+  id: string;
+  ip: string;
+  isPrivate: boolean;
+  useArea: string;
+  startAt: Date;
+  endAt?: Date;
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import { createWebhookEndpointAction, deleteWebhookEndpointAction } from "@/lib/admin/line-actions";
+import { WebhookConversationsPanel } from "@/components/admin/WebhookConversationsPanel";
 import { Plus, Trash2, Webhook, CheckCircle, XCircle } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
@@ -77,6 +78,7 @@ export default async function AdminWebhooksPage() {
                     ))}
                   </div>
                   <p className="mt-1 text-xs text-muted-slate">Created {formatDate(ep.createdAt)}</p>
+                  <WebhookConversationsPanel endpointId={ep.id} />
                 </div>
                 <form action={deleteWebhookEndpointAction}>
                   <input type="hidden" name="id" value={ep.id} />

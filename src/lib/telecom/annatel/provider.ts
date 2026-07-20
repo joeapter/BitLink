@@ -30,10 +30,27 @@ import type {
   PortabilityAvailability,
   WebhookEndpoint,
   AnnatelEvent,
+  LineDidVoicemail,
+  LineDidVoicemailParams,
+  LineDidSmsForwarderSetting,
+  LineDidSmsForwarderParams,
+  LineClid,
+  LineClidParams,
+  AflaloRequest,
+  WebhookConversation,
+  TenantIpAddress,
 } from '@/types/telecom';
 import { AnnatelApiClient } from './client';
 import { AnnatelMappers } from './mappers';
-import type { AnnatelBulkRequest, AnnatelOcsBalance } from './mappers';
+import type {
+  AnnatelBulkRequest,
+  AnnatelOcsBalance,
+  AnnatelWebhookConversation,
+  AnnatelVoicemail,
+  AnnatelSmsForwarderSetting,
+  AnnatelClid,
+  AnnatelAflaloRequest,
+} from './mappers';
 
 // ── Annatel-specific raw response shapes ─────────────────────────────────────
 
@@ -120,6 +137,7 @@ interface AnnatelDidListResponse {
   meta: { page_number: number; page_size: number; total: number };
 }
 
+
 const LINES_BASE = '/api/operational/network_manager/lines';
 
 export class AnnatelProvider implements TelecomProvider {
@@ -197,6 +215,7 @@ export class AnnatelProvider implements TelecomProvider {
         endAt: p.end_at ? new Date(p.end_at) : undefined,
       })),
       dids: (didsResult.data ?? []).map((d) => ({
+        id: d.id,
         number: d.number,
         isPrimary: true,
         startAt: new Date(d.start_at),
@@ -667,9 +686,10 @@ export class AnnatelProvider implements TelecomProvider {
 
   async getAssignedNumbers(providerLineId: string): Promise<PhoneNumber[]> {
     const result = await this.client.get<{
-      data: Array<{ number: string; start_at: string; end_at?: string }>;
+      data: Array<{ id: string; number: string; start_at: string; end_at?: string }>;
     }>(`${LINES_BASE}/${providerLineId}/dids`);
     return (result.data ?? []).map((did) => ({
+      id: did.id,
       number: did.number,
       isPrimary: true,
       startAt: new Date(did.start_at),
@@ -725,6 +745,152 @@ export class AnnatelProvider implements TelecomProvider {
 
   async deleteWebhookEndpoint(id: string): Promise<void> {
     await this.client.delete(`/api/webhook_endpoints/${id}`);
+  }
+
+  async listWebhookConversations(webhookEndpointId: string): Promise<WebhookConversation[]> {
+    const result = await this.client.get<{ data: AnnatelWebhookConversation[] }>(
+      `/api/webhook_endpoints/${webhookEndpointId}/webhook_conversations`,
+    );
+    return (result.data ?? []).map(AnnatelMappers.toWebhookConversation);
+  }
+
+  // ── Voicemail (per DID) ───────────────────────────────────────────────────
+  // Whether BitLink lines have a voicemail box provisioned by default is
+  // unconfirmed — ask Annatel before assuming these calls do anything useful
+  // on an existing line.
+
+  async listLineDidVoicemails(providerLineId: string, lineDidId: string): Promise<LineDidVoicemail[]> {
+    const result = await this.client.get<{ data: AnnatelVoicemail[] }>(
+      `${LINES_BASE}/${providerLineId}/dids/${lineDidId}/voicemails`,
+    );
+    return (result.data ?? []).map(AnnatelMappers.toVoicemail);
+  }
+
+  async createLineDidVoicemail(
+    providerLineId: string,
+    lineDidId: string,
+    params: LineDidVoicemailParams,
+  ): Promise<LineDidVoicemail> {
+    const result = await this.client.post<AnnatelVoicemail>(
+      `${LINES_BASE}/${providerLineId}/dids/${lineDidId}/voicemails`,
+      AnnatelMappers.fromVoicemailParams(params),
+    );
+    return AnnatelMappers.toVoicemail(result);
+  }
+
+  async updateLineDidVoicemail(
+    providerLineId: string,
+    lineDidId: string,
+    voicemailId: string,
+    params: LineDidVoicemailParams,
+  ): Promise<LineDidVoicemail> {
+    const result = await this.client.patch<AnnatelVoicemail>(
+      `${LINES_BASE}/${providerLineId}/dids/${lineDidId}/voicemails/${voicemailId}`,
+      AnnatelMappers.fromVoicemailParams(params),
+    );
+    return AnnatelMappers.toVoicemail(result);
+  }
+
+  async deleteLineDidVoicemail(providerLineId: string, lineDidId: string, voicemailId: string): Promise<void> {
+    await this.client.delete(`${LINES_BASE}/${providerLineId}/dids/${lineDidId}/voicemails/${voicemailId}`);
+  }
+
+  // ── SMS forwarding (per DID) ──────────────────────────────────────────────
+  // Additive backup delivery (email/Telegram copy) — device delivery already
+  // works without any of this configured.
+
+  async listLineDidSmsForwarders(providerLineId: string, lineDidId: string): Promise<LineDidSmsForwarderSetting[]> {
+    const result = await this.client.get<{ data: AnnatelSmsForwarderSetting[] }>(
+      `${LINES_BASE}/${providerLineId}/dids/${lineDidId}/sms_forwarder_settings`,
+    );
+    return (result.data ?? []).map(AnnatelMappers.toSmsForwarderSetting);
+  }
+
+  async addLineDidSmsForwarder(
+    providerLineId: string,
+    lineDidId: string,
+    params: LineDidSmsForwarderParams,
+  ): Promise<LineDidSmsForwarderSetting> {
+    const result = await this.client.post<AnnatelSmsForwarderSetting>(
+      `${LINES_BASE}/${providerLineId}/dids/${lineDidId}/sms_forwarder_settings`,
+      {
+        email_recipient_address: params.emailRecipientAddress,
+        email_sender_address: params.emailSenderAddress,
+        email_sender_name: params.emailSenderName,
+        telegram_chat_id: params.telegramChatId,
+        forward_by_tragofone: params.forwardByTragofone,
+      },
+    );
+    return AnnatelMappers.toSmsForwarderSetting(result);
+  }
+
+  async removeLineDidSmsForwarder(providerLineId: string, lineDidId: string, settingId: string): Promise<void> {
+    await this.client.delete(
+      `${LINES_BASE}/${providerLineId}/dids/${lineDidId}/sms_forwarder_settings/${settingId}`,
+    );
+  }
+
+  // ── Caller ID (CLID) ──────────────────────────────────────────────────────
+  // Valid destination_group_name values are unconfirmed — ask Annatel before
+  // relying on this for a customer-facing feature.
+
+  async listLineClids(providerLineId: string): Promise<LineClid[]> {
+    const result = await this.client.get<{ data: AnnatelClid[] }>(`${LINES_BASE}/${providerLineId}/clids`);
+    return (result.data ?? []).map(AnnatelMappers.toClid);
+  }
+
+  async addLineClid(providerLineId: string, params: LineClidParams): Promise<LineClid> {
+    const result = await this.client.post<AnnatelClid>(`${LINES_BASE}/${providerLineId}/clids`, {
+      caller_id: params.callerId,
+      destination_group_name: params.destinationGroupName,
+      destination_group_weight: params.destinationGroupWeight,
+      service: params.service,
+    });
+    return AnnatelMappers.toClid(result);
+  }
+
+  async removeLineClid(providerLineId: string, clidId: string): Promise<void> {
+    await this.client.delete(`${LINES_BASE}/${providerLineId}/clids/${clidId}`);
+  }
+
+  // ── Aflalo requests (Israeli telemarketing-consent, UNCONFIRMED effect) ───
+  // "open"/"block" per number — near-certainly Chok Aflalo (telemarketing
+  // consent) related, but the exact effect on a live number is unconfirmed.
+  // Do not call createAflaloRequest against a real customer number without
+  // checking with Annatel first.
+
+  async listAflaloRequests(number: string): Promise<AflaloRequest[]> {
+    const result = await this.client.get<{ data: AnnatelAflaloRequest[] }>(
+      `/api/operational/operators_data_exchange/dids/${encodeURIComponent(number)}/aflalo_requests`,
+    );
+    return (result.data ?? []).map(AnnatelMappers.toAflaloRequest);
+  }
+
+  async createAflaloRequest(number: string, operation: 'open' | 'block'): Promise<AflaloRequest> {
+    const result = await this.client.post<AnnatelAflaloRequest>(
+      `/api/operational/operators_data_exchange/dids/${encodeURIComponent(number)}/aflalo_requests`,
+      { operation },
+    );
+    return AnnatelMappers.toAflaloRequest(result);
+  }
+
+  // ── Reference data (read-only) ────────────────────────────────────────────
+  // Note: "Manufacturers" appears as a tag in Annatel's Swagger doc but has
+  // ZERO real path operations behind it (confirmed by inspecting every path
+  // in the spec) — there's no endpoint to call, so it's not implemented here.
+
+  async listTenantIpAddresses(): Promise<TenantIpAddress[]> {
+    const result = await this.client.get<{
+      data: Array<{ id: string; ip: string; is_private: boolean; use_area: string; start_at: string; end_at?: string }>;
+    }>('/api/operational/ip_provider/ip_addresses');
+    return (result.data ?? []).map((ip) => ({
+      id: ip.id,
+      ip: ip.ip,
+      isPrivate: ip.is_private,
+      useArea: ip.use_area,
+      startAt: new Date(ip.start_at),
+      endAt: ip.end_at ? new Date(ip.end_at) : undefined,
+    }));
   }
 
   // ── Events audit log ──────────────────────────────────────────────────────

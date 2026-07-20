@@ -462,3 +462,140 @@ export async function removeIntlNumberFromLineAdminAction(
   revalidatePath('/admin/lines');
   return result;
 }
+
+// ── Voicemail (per DID) ───────────────────────────────────────────────────
+// Whether BitLink lines have a voicemail box by default is unconfirmed —
+// this exposes the capability so it can be tested/used once that's known.
+
+export async function createVoicemailAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const providerLineId = String(formData.get('providerLineId') ?? '');
+  const lineId = String(formData.get('lineId') ?? '');
+  const lineDidId = String(formData.get('lineDidId') ?? '');
+  if (!providerLineId || !lineDidId) return { error: 'Missing required fields' };
+
+  const provider = getProvider();
+  await provider.createLineDidVoicemail(providerLineId, lineDidId, {
+    email: String(formData.get('email') ?? '') || undefined,
+    fullname: String(formData.get('fullname') ?? '') || undefined,
+    language: String(formData.get('language') ?? '') || undefined,
+    greetingLanguage: String(formData.get('greetingLanguage') ?? '') || undefined,
+    timezone: String(formData.get('timezone') ?? '') || undefined,
+    areRecordingsSentToEmail: formData.get('areRecordingsSentToEmail') === 'on',
+  });
+  await logAction(user.id, 'voicemail_created', lineId, { lineDidId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return { success: true };
+}
+
+export async function deleteVoicemailAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const providerLineId = String(formData.get('providerLineId') ?? '');
+  const lineId = String(formData.get('lineId') ?? '');
+  const lineDidId = String(formData.get('lineDidId') ?? '');
+  const voicemailId = String(formData.get('voicemailId') ?? '');
+  if (!providerLineId || !lineDidId || !voicemailId) return { error: 'Missing required fields' };
+
+  const provider = getProvider();
+  await provider.deleteLineDidVoicemail(providerLineId, lineDidId, voicemailId);
+  await logAction(user.id, 'voicemail_deleted', lineId, { lineDidId, voicemailId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return { success: true };
+}
+
+// ── SMS forwarding (per DID) ──────────────────────────────────────────────
+// Additive backup delivery only — device delivery already works without it.
+
+export async function addSmsForwarderAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const providerLineId = String(formData.get('providerLineId') ?? '');
+  const lineId = String(formData.get('lineId') ?? '');
+  const lineDidId = String(formData.get('lineDidId') ?? '');
+  const emailRecipientAddress = String(formData.get('emailRecipientAddress') ?? '');
+  if (!providerLineId || !lineDidId || !emailRecipientAddress) return { error: 'Missing required fields' };
+
+  const provider = getProvider();
+  await provider.addLineDidSmsForwarder(providerLineId, lineDidId, {
+    emailRecipientAddress,
+    telegramChatId: String(formData.get('telegramChatId') ?? '') || undefined,
+  });
+  await logAction(user.id, 'sms_forwarder_added', lineId, { lineDidId, emailRecipientAddress });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return { success: true };
+}
+
+export async function removeSmsForwarderAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const providerLineId = String(formData.get('providerLineId') ?? '');
+  const lineId = String(formData.get('lineId') ?? '');
+  const lineDidId = String(formData.get('lineDidId') ?? '');
+  const settingId = String(formData.get('settingId') ?? '');
+  if (!providerLineId || !lineDidId || !settingId) return { error: 'Missing required fields' };
+
+  const provider = getProvider();
+  await provider.removeLineDidSmsForwarder(providerLineId, lineDidId, settingId);
+  await logAction(user.id, 'sms_forwarder_removed', lineId, { lineDidId, settingId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return { success: true };
+}
+
+// ── Caller ID (CLID) ──────────────────────────────────────────────────────
+// Valid destination_group_name values are unconfirmed — ask Annatel before
+// relying on this for a customer-facing feature.
+
+export async function addClidAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const providerLineId = String(formData.get('providerLineId') ?? '');
+  const lineId = String(formData.get('lineId') ?? '');
+  const callerId = String(formData.get('callerId') ?? '');
+  const destinationGroupName = String(formData.get('destinationGroupName') ?? '');
+  const service = String(formData.get('service') ?? 'voice');
+  if (!providerLineId || !callerId || !destinationGroupName) return { error: 'Missing required fields' };
+
+  const weightRaw = String(formData.get('destinationGroupWeight') ?? '');
+  const provider = getProvider();
+  await provider.addLineClid(providerLineId, {
+    callerId,
+    destinationGroupName,
+    destinationGroupWeight: weightRaw ? Number(weightRaw) : undefined,
+    service,
+  });
+  await logAction(user.id, 'clid_added', lineId, { callerId, destinationGroupName, service });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return { success: true };
+}
+
+export async function removeClidAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const providerLineId = String(formData.get('providerLineId') ?? '');
+  const lineId = String(formData.get('lineId') ?? '');
+  const clidId = String(formData.get('clidId') ?? '');
+  if (!providerLineId || !clidId) return { error: 'Missing required fields' };
+
+  const provider = getProvider();
+  await provider.removeLineClid(providerLineId, clidId);
+  await logAction(user.id, 'clid_removed', lineId, { clidId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return { success: true };
+}
+
+// ── Aflalo requests (Israeli telemarketing-consent, UNCONFIRMED effect) ───
+// Deliberately requires typing the number to confirm, on top of the
+// UI-level confirm dialog — this changes something on a real customer
+// number and nobody on our side is fully sure what "open"/"block" does.
+
+export async function createAflaloRequestAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const number = String(formData.get('number') ?? '');
+  const operation = String(formData.get('operation') ?? '');
+  if (!number || (operation !== 'open' && operation !== 'block')) {
+    return { error: 'Missing number or invalid operation' };
+  }
+
+  const provider = getProvider();
+  await provider.createAflaloRequest(number, operation);
+  await logAction(user.id, 'aflalo_request_created', lineId, { number, operation });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return { success: true };
+}

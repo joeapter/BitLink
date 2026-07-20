@@ -35,6 +35,15 @@ export type {
   PortabilityAvailability,
   WebhookEndpoint,
   AnnatelEvent,
+  LineDidVoicemail,
+  LineDidVoicemailParams,
+  LineDidSmsForwarderSetting,
+  LineDidSmsForwarderParams,
+  LineClid,
+  LineClidParams,
+  AflaloRequest,
+  WebhookConversation,
+  TenantIpAddress,
 } from '@/types/telecom';
 
 import type {
@@ -66,6 +75,15 @@ import type {
   PortabilityAvailability,
   WebhookEndpoint,
   AnnatelEvent,
+  LineDidVoicemail,
+  LineDidVoicemailParams,
+  LineDidSmsForwarderSetting,
+  LineDidSmsForwarderParams,
+  LineClid,
+  LineClidParams,
+  AflaloRequest,
+  WebhookConversation,
+  TenantIpAddress,
 } from '@/types/telecom';
 
 export interface TelecomProvider {
@@ -142,6 +160,39 @@ export interface TelecomProvider {
 
   // ── Events audit log ─────────────────────────────────────────
   listEvents(filters?: { resourceId?: string; type?: string; limit?: number }): Promise<AnnatelEvent[]>;
+
+  // ── Voicemail (per DID) ───────────────────────────────────────
+  // Whether BitLink lines have a voicemail box by default is unconfirmed.
+  listLineDidVoicemails(providerLineId: string, lineDidId: string): Promise<LineDidVoicemail[]>;
+  createLineDidVoicemail(providerLineId: string, lineDidId: string, params: LineDidVoicemailParams): Promise<LineDidVoicemail>;
+  updateLineDidVoicemail(providerLineId: string, lineDidId: string, voicemailId: string, params: LineDidVoicemailParams): Promise<LineDidVoicemail>;
+  deleteLineDidVoicemail(providerLineId: string, lineDidId: string, voicemailId: string): Promise<void>;
+
+  // ── SMS forwarding (per DID) ──────────────────────────────────
+  // Additive backup delivery only — device delivery already works without it.
+  listLineDidSmsForwarders(providerLineId: string, lineDidId: string): Promise<LineDidSmsForwarderSetting[]>;
+  addLineDidSmsForwarder(providerLineId: string, lineDidId: string, params: LineDidSmsForwarderParams): Promise<LineDidSmsForwarderSetting>;
+  removeLineDidSmsForwarder(providerLineId: string, lineDidId: string, settingId: string): Promise<void>;
+
+  // ── Caller ID (CLID) ──────────────────────────────────────────
+  // Valid destination_group_name values are unconfirmed — ask Annatel.
+  listLineClids(providerLineId: string): Promise<LineClid[]>;
+  addLineClid(providerLineId: string, params: LineClidParams): Promise<LineClid>;
+  removeLineClid(providerLineId: string, clidId: string): Promise<void>;
+
+  // ── Aflalo requests (Israeli telemarketing-consent, UNCONFIRMED effect) ──
+  // Do not call createAflaloRequest against a real customer number without
+  // confirming with Annatel what "open"/"block" actually does.
+  listAflaloRequests(number: string): Promise<AflaloRequest[]>;
+  createAflaloRequest(number: string, operation: 'open' | 'block'): Promise<AflaloRequest>;
+
+  // ── Webhook delivery diagnostics ──────────────────────────────
+  listWebhookConversations(webhookEndpointId: string): Promise<WebhookConversation[]>;
+
+  // ── Reference data (read-only) ────────────────────────────────
+  // Note: "Manufacturers" is a tag in Annatel's Swagger doc with zero real
+  // path operations — no endpoint exists to call, so it's not here.
+  listTenantIpAddresses(): Promise<TenantIpAddress[]>;
 
   // ── Async job polling ────────────────────────────────────────
   getJobStatus(providerJobId: string): Promise<ProviderJobResult>;

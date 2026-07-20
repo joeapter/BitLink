@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { AlertTriangle, MessageCircle, Phone, Shield } from "lucide-react";
 import { getAdminDb } from "@/lib/db/admin";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
-import type { LineDetail } from "@/types/telecom";
+import type { LineDetail, LineClid } from "@/types/telecom";
 import { LineActionsPanel } from "@/components/admin/LineActionsPanel";
 import { EsimProfileCard } from "@/components/admin/EsimProfileCard";
 import { LineBalanceCard } from "@/components/admin/LineBalanceCard";
@@ -12,6 +12,8 @@ import { LineForwardsCard } from "@/components/admin/LineForwardsCard";
 import { LineBarringsCard } from "@/components/admin/LineBarringsCard";
 import { AddIntlNumberCard } from "@/components/admin/AddIntlNumberCard";
 import { AddTopupCard } from "@/components/admin/AddTopupCard";
+import { LineClidCard } from "@/components/admin/LineClidCard";
+import { LineNumberExtrasCard } from "@/components/admin/LineNumberExtrasCard";
 import { retryProvisioningJobAction } from "@/lib/admin/line-actions";
 import { getCdrUsageBuckets } from "@/lib/cdr/usage";
 import { EsimActivationCard } from "@/components/admin/EsimActivationCard";
@@ -75,12 +77,21 @@ export default async function AdminLineDetailPage({ params }: Props) {
   // Fetch live data from Annatel if line is provisioned
   let liveDetail: LineDetail | null = null;
   let liveError: string | null = null;
+  let clids: LineClid[] = [];
   if (providerLineId) {
     try {
       const provider = getTelecomProvider();
       liveDetail = await provider.getLineDetail(providerLineId);
     } catch (err) {
       liveError = err instanceof Error ? err.message : "Failed to fetch live line data";
+    }
+    // Separate, optional fetch — CLIDs aren't part of getLineDetail's parallel
+    // load since this is an experimental feature, not core line data.
+    try {
+      const provider = getTelecomProvider();
+      clids = await provider.listLineClids(providerLineId);
+    } catch {
+      clids = [];
     }
   }
 
@@ -278,6 +289,22 @@ export default async function AdminLineDetailPage({ params }: Props) {
               lineId={line.id}
               providerLineId={providerLineId}
               barrings={liveDetail?.barrings ?? []}
+            />
+          )}
+
+          {/* Caller ID by destination (CLID) — experimental */}
+          {providerLineId && (
+            <LineClidCard lineId={line.id} providerLineId={providerLineId} clids={clids} />
+          )}
+
+          {/* Voicemail / SMS backup / aflalo — experimental, per number */}
+          {providerLineId && liveDetail && liveDetail.dids.length > 0 && (
+            <LineNumberExtrasCard
+              lineId={line.id}
+              providerLineId={providerLineId}
+              dids={liveDetail.dids
+                .filter((d): d is typeof d & { id: string } => Boolean(d.id))
+                .map((d) => ({ id: d.id, number: d.number }))}
             />
           )}
 

@@ -31,6 +31,15 @@ import type {
   PortabilityAvailability,
   WebhookEndpoint,
   AnnatelEvent,
+  LineDidVoicemail,
+  LineDidVoicemailParams,
+  LineDidSmsForwarderSetting,
+  LineDidSmsForwarderParams,
+  LineClid,
+  LineClidParams,
+  AflaloRequest,
+  WebhookConversation,
+  TenantIpAddress,
 } from '@/types/telecom';
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -276,6 +285,41 @@ export class MockTelecomProvider implements TelecomProvider {
     return { id: shortId(), url, isEnabled: true, enabledNotificationPatterns: patterns, createdAt: new Date() };
   }
   async deleteWebhookEndpoint(_id: string): Promise<void> { await this.tick(); }
+
+  async listWebhookConversations(_webhookEndpointId: string): Promise<WebhookConversation[]> { await this.tick(); return []; }
+
+  async listLineDidVoicemails(_providerLineId: string, _lineDidId: string): Promise<LineDidVoicemail[]> { await this.tick(); return []; }
+  async createLineDidVoicemail(_providerLineId: string, _lineDidId: string, params: LineDidVoicemailParams): Promise<LineDidVoicemail> {
+    await this.tick();
+    return { id: shortId(), startAt: new Date(), ...params };
+  }
+  async updateLineDidVoicemail(_providerLineId: string, _lineDidId: string, voicemailId: string, params: LineDidVoicemailParams): Promise<LineDidVoicemail> {
+    await this.tick();
+    return { id: voicemailId, startAt: new Date(), ...params };
+  }
+  async deleteLineDidVoicemail(_providerLineId: string, _lineDidId: string, _voicemailId: string): Promise<void> { await this.tick(); }
+
+  async listLineDidSmsForwarders(_providerLineId: string, _lineDidId: string): Promise<LineDidSmsForwarderSetting[]> { await this.tick(); return []; }
+  async addLineDidSmsForwarder(_providerLineId: string, _lineDidId: string, params: LineDidSmsForwarderParams): Promise<LineDidSmsForwarderSetting> {
+    await this.tick();
+    return { id: shortId(), startAt: new Date(), ...params };
+  }
+  async removeLineDidSmsForwarder(_providerLineId: string, _lineDidId: string, _settingId: string): Promise<void> { await this.tick(); }
+
+  async listLineClids(_providerLineId: string): Promise<LineClid[]> { await this.tick(); return []; }
+  async addLineClid(_providerLineId: string, params: LineClidParams): Promise<LineClid> {
+    await this.tick();
+    return { id: shortId(), callerId: params.callerId, destinationGroupWeight: params.destinationGroupWeight, service: params.service, startAt: new Date() };
+  }
+  async removeLineClid(_providerLineId: string, _clidId: string): Promise<void> { await this.tick(); }
+
+  async listAflaloRequests(_number: string): Promise<AflaloRequest[]> { await this.tick(); return []; }
+  async createAflaloRequest(number: string, operation: 'open' | 'block'): Promise<AflaloRequest> {
+    await this.tick();
+    return { id: shortId(), phoneNumber: number, operation, doneAt: new Date() };
+  }
+
+  async listTenantIpAddresses(): Promise<TenantIpAddress[]> { await this.tick(); return []; }
 
   async listEvents(_filters?: { resourceId?: string; type?: string; limit?: number }): Promise<AnnatelEvent[]> {
     await this.tick();
