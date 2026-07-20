@@ -10,7 +10,7 @@ import { RequestReviewButton } from "@/components/admin/RequestReviewButton";
 import { makeSalesRepAction } from "@/lib/admin/sales-rep-actions";
 import { sendReviewRequestAction } from "@/lib/admin/review-request-actions";
 import { archiveCustomersAction, unarchiveCustomersAction } from "@/lib/admin/customer-actions";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatDateTime } from "@/lib/utils";
 
 export type CustomerRow = {
   id: string;
@@ -217,7 +217,9 @@ export function CustomerTable({ customers, view }: { customers: CustomerRow[]; v
                       <span className="text-xs font-semibold text-slate-400">No email</span>
                     )}
                   </td>
-                  <td className="px-3 py-3 text-slate-500">{formatDate(customer.created_at)}</td>
+                  <td className="px-3 py-3 text-slate-500">
+                    <span className="whitespace-nowrap">{formatDateTime(customer.created_at)}</span>
+                  </td>
                   <td className="px-3 py-3">
                     <button
                       type="button"
