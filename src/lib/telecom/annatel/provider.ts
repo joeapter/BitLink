@@ -260,18 +260,30 @@ export class AnnatelProvider implements TelecomProvider {
   // ── SIM management ────────────────────────────────────────────────────────
 
   async assignSim(providerLineId: string, iccId: string): Promise<void> {
-    await this.client.post('/api/bulk_requests', {
-      type: 'add',
-      line_id: providerLineId,
-      sims: [{ icc_id: iccId }],
+    // Dedicated create endpoint (confirmed against Annatel's Swagger spec,
+    // Jul 2026) — not the generic bulk_requests catch-all this used to call.
+    // is_main omitted deliberately: it's optional in the schema and the
+    // server's default is correct for "add another SIM to an existing line."
+    await this.client.post(`${LINES_BASE}/${providerLineId}/sims`, {
+      icc_id: iccId,
     });
   }
 
   async replaceSim(providerLineId: string, newIccId: string): Promise<void> {
-    await this.client.post('/api/bulk_requests', {
-      type: 'add',
-      line_id: providerLineId,
-      sims: [{ icc_id: newIccId }],
+    // Was byte-identical to assignSim (bulk_requests type: add) — a copy-paste
+    // that never got real "swap" behavior. Annatel has a dedicated swap
+    // endpoint, but it's keyed on the line_sim's own id, not the line id, so
+    // the current main SIM has to be looked up first — same pattern as
+    // releaseDid looking up a DID's id by number before deleting it.
+    const simsResult = await this.client.get<{ data: Array<{ id: string; is_main: boolean }> }>(
+      `${LINES_BASE}/${providerLineId}/sims`,
+    );
+    const currentSim = (simsResult.data ?? []).find((s) => s.is_main) ?? simsResult.data?.[0];
+    if (!currentSim) {
+      throw new Error(`No SIM found on line ${providerLineId} to swap`);
+    }
+    await this.client.post(`${LINES_BASE}/${providerLineId}/sims/${currentSim.id}/swap`, {
+      icc_id: newIccId,
     });
   }
 
@@ -350,11 +362,17 @@ export class AnnatelProvider implements TelecomProvider {
   }
 
   async removePlan(providerLineId: string, planName: string): Promise<void> {
-    await this.client.post('/api/bulk_requests', {
-      type: 'remove',
-      line_id: providerLineId,
-      plan: { plan_name: planName },
-    });
+    // Plain REST delete, not a bulk_request — confirmed against Annatel's
+    // Swagger spec, Jul 2026. Needs the line_plan's own id, so the matching
+    // plan is looked up by name first (same pattern as replaceSim/releaseDid).
+    const plansResult = await this.client.get<{ data: Array<{ id: string; plan?: { name: string } }> }>(
+      `${LINES_BASE}/${providerLineId}/plans`,
+    );
+    const match = (plansResult.data ?? []).find((p) => p.plan?.name === planName);
+    if (!match) {
+      throw new Error(`Plan ${planName} not found on line ${providerLineId}`);
+    }
+    await this.client.delete(`${LINES_BASE}/${providerLineId}/plans/${match.id}`);
   }
 
   async replacePlan(providerLineId: string, linePlanId: string, newPlanName: string): Promise<void> {
@@ -616,7 +634,9 @@ export class AnnatelProvider implements TelecomProvider {
   }
 
   async cancelPortIn(providerJobId: string): Promise<void> {
-    await this.client.post(`/api/bulk_requests/${providerJobId}/cancel`, {});
+    // POST .../cancel doesn't exist in Annatel's API — a bulk_request is
+    // cancelled by closing it, confirmed against their Swagger spec Jul 2026.
+    await this.client.delete(`/api/bulk_requests/${providerJobId}`);
   }
 
   // ── Number (DID) management ───────────────────────────────────────────────
