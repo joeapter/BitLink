@@ -11,6 +11,15 @@ import { sendProvisionedNotifications } from "@/lib/notifications/send-provision
 import { addIntlNumberToLine, removeIntlNumberFromLine, type AddIntlNumberResult, type RemoveIntlNumberResult } from "@/lib/custom-orders/international-numbers";
 import { grantTopup, cancelTopupGrant, type GrantTopupResult } from "@/lib/topups/grant-topup";
 import { createIntlPortInRequest, setIntlPortInStatus, completeIntlPortInRequest } from "@/lib/custom-orders/intl-port-in-requests";
+import {
+  createIsraeliPortInRequest,
+  sendPortInAuthCode,
+  verifyPortInAuthCode,
+  startIsraeliPortIn,
+  refreshIsraeliPortInStatus,
+  completeIsraeliPortIn,
+  cancelIsraeliPortIn,
+} from "@/lib/custom-orders/israeli-port-in";
 
 function getProvider() {
   return getTelecomProvider();
@@ -655,6 +664,113 @@ export async function completeIntlPortInRequestAction(formData: FormData) {
   const admin = getAdmin();
   const result = await completeIntlPortInRequest(admin, requestId);
   await logAction(user.id, 'intl_port_in_completed', lineId, { requestId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
+}
+
+// ── Israeli port-in to an existing line ────────────────────────────────────
+// The mechanism is proven (two real numbers landed this way, Jul 7 2026),
+// but Annatel only ever lands a ported number as part of a NEW line — so
+// this drives a temporary landing line, then relocates the DID onto the
+// real target line. See lib/custom-orders/israeli-port-in.ts for the why.
+
+export async function createIsraeliPortInRequestAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const number = String(formData.get('number') ?? '').trim();
+  const mode = String(formData.get('mode') ?? '') as 'replace' | 'secondary';
+  if (!lineId || !number || !['replace', 'secondary'].includes(mode)) {
+    return { error: 'Missing required fields' };
+  }
+
+  const admin = getAdmin();
+  const result = await createIsraeliPortInRequest({
+    admin,
+    lineId,
+    number,
+    mode,
+    billingMode: formData.get('billingMode') === 'free' ? 'free' : 'paid',
+    actorUserId: user.id,
+  });
+  await logAction(user.id, 'israeli_port_in_requested', lineId, { number, mode });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
+}
+
+export async function sendPortInAuthCodeAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const requestId = String(formData.get('requestId') ?? '');
+  if (!lineId || !requestId) return { error: 'Missing required fields' };
+
+  const admin = getAdmin();
+  const result = await sendPortInAuthCode(admin, requestId);
+  await logAction(user.id, 'israeli_port_in_auth_sent', lineId, { requestId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
+}
+
+export async function verifyPortInAuthCodeAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const requestId = String(formData.get('requestId') ?? '');
+  const code = String(formData.get('code') ?? '');
+  if (!lineId || !requestId || !code) return { error: 'Missing required fields' };
+
+  const admin = getAdmin();
+  const result = await verifyPortInAuthCode(admin, requestId, code);
+  await logAction(user.id, 'israeli_port_in_verified', lineId, { requestId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
+}
+
+export async function startIsraeliPortInAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const requestId = String(formData.get('requestId') ?? '');
+  if (!lineId || !requestId) return { error: 'Missing required fields' };
+
+  const admin = getAdmin();
+  const result = await startIsraeliPortIn(admin, requestId);
+  await logAction(user.id, 'israeli_port_in_started', lineId, { requestId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
+}
+
+export async function refreshIsraeliPortInStatusAction(formData: FormData) {
+  await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const requestId = String(formData.get('requestId') ?? '');
+  if (!lineId || !requestId) return { error: 'Missing required fields' };
+
+  const admin = getAdmin();
+  const result = await refreshIsraeliPortInStatus(admin, requestId);
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
+}
+
+export async function completeIsraeliPortInAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const requestId = String(formData.get('requestId') ?? '');
+  if (!lineId || !requestId) return { error: 'Missing required fields' };
+
+  const admin = getAdmin();
+  const result = await completeIsraeliPortIn(admin, requestId);
+  await logAction(user.id, 'israeli_port_in_completed', lineId, { requestId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
+}
+
+export async function cancelIsraeliPortInAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const requestId = String(formData.get('requestId') ?? '');
+  if (!lineId || !requestId) return { error: 'Missing required fields' };
+
+  const admin = getAdmin();
+  const result = await cancelIsraeliPortIn(admin, requestId);
+  await logAction(user.id, 'israeli_port_in_cancelled', lineId, { requestId });
   revalidatePath(`/admin/lines/${lineId}`);
   return result;
 }

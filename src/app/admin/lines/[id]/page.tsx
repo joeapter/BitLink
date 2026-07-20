@@ -15,6 +15,8 @@ import { AddTopupCard } from "@/components/admin/AddTopupCard";
 import { LineClidCard } from "@/components/admin/LineClidCard";
 import { IntlPortInCard } from "@/components/admin/IntlPortInCard";
 import { listIntlPortInRequests } from "@/lib/custom-orders/intl-port-in-requests";
+import { IsraeliPortInCard } from "@/components/admin/IsraeliPortInCard";
+import { listIsraeliPortInRequests } from "@/lib/custom-orders/israeli-port-in";
 import { LineNumberExtrasCard } from "@/components/admin/LineNumberExtrasCard";
 import { retryProvisioningJobAction } from "@/lib/admin/line-actions";
 import { getCdrUsageBuckets } from "@/lib/cdr/usage";
@@ -98,6 +100,7 @@ export default async function AdminLineDetailPage({ params }: Props) {
   }
 
   const intlPortInRequests = await listIntlPortInRequests(db, line.id);
+  const israeliPortInRequests = await listIsraeliPortInRequests(db, line.id);
 
   const metadata = (line.metadata ?? {}) as Record<string, unknown>;
   const isEsim = metadata.is_esim === true || metadata.is_esim === "true" || metadata.is_esim === 1;
@@ -303,6 +306,9 @@ export default async function AdminLineDetailPage({ params }: Props) {
 
           {/* US/UK/Canada port-in tracker */}
           <IntlPortInCard lineId={line.id} requests={intlPortInRequests} />
+
+          {/* Israeli port-in to this existing line */}
+          <IsraeliPortInCard lineId={line.id} requests={israeliPortInRequests} />
 
           {/* Voicemail / SMS backup / aflalo — experimental, per number */}
           {providerLineId && liveDetail && liveDetail.dids.length > 0 && (
