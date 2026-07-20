@@ -10,6 +10,7 @@ import { changeLinePlan, type PlanChangeResult } from "@/lib/line-plan-change";
 import { sendProvisionedNotifications } from "@/lib/notifications/send-provisioned";
 import { addIntlNumberToLine, removeIntlNumberFromLine, type AddIntlNumberResult, type RemoveIntlNumberResult } from "@/lib/custom-orders/international-numbers";
 import { grantTopup, cancelTopupGrant, type GrantTopupResult } from "@/lib/topups/grant-topup";
+import { createIntlPortInRequest, setIntlPortInStatus, completeIntlPortInRequest } from "@/lib/custom-orders/intl-port-in-requests";
 
 function getProvider() {
   return getTelecomProvider();
@@ -598,4 +599,62 @@ export async function createAflaloRequestAction(formData: FormData) {
   await logAction(user.id, 'aflalo_request_created', lineId, { number, operation });
   revalidatePath(`/admin/lines/${lineId}`);
   return { success: true };
+}
+
+// ── US/UK/Canada port-in requests (existing line) ─────────────────────────
+// Always a manual process — Annatel coordinates with the losing carrier by
+// email, same as the customer-facing /keep-your-number flow. This is pure
+// tracking plus the "attach it once it's landed" completion step.
+
+export async function createIntlPortInRequestAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const country = String(formData.get('country') ?? '') as 'us' | 'canada' | 'uk';
+  const number = String(formData.get('number') ?? '').trim();
+  if (!lineId || !number || !['us', 'canada', 'uk'].includes(country)) {
+    return { error: 'Missing required fields' };
+  }
+
+  const admin = getAdmin();
+  const result = await createIntlPortInRequest({
+    admin,
+    lineId,
+    country,
+    number,
+    oneTimeFeeBillingMode: formData.get('oneTimeFeeBillingMode') === 'free' ? 'free' : 'paid',
+    monthlyBillingMode: formData.get('monthlyBillingMode') === 'free' ? 'free' : 'paid',
+    actorUserId: user.id,
+  });
+  await logAction(user.id, 'intl_port_in_requested', lineId, { country, number });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
+}
+
+export async function advanceIntlPortInRequestAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const requestId = String(formData.get('requestId') ?? '');
+  const status = String(formData.get('status') ?? '') as 'in_progress' | 'cancelled';
+  if (!lineId || !requestId || !['in_progress', 'cancelled'].includes(status)) {
+    return { error: 'Missing required fields' };
+  }
+
+  const admin = getAdmin();
+  const result = await setIntlPortInStatus(admin, requestId, status);
+  await logAction(user.id, `intl_port_in_${status}`, lineId, { requestId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
+}
+
+export async function completeIntlPortInRequestAction(formData: FormData) {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const requestId = String(formData.get('requestId') ?? '');
+  if (!lineId || !requestId) return { error: 'Missing required fields' };
+
+  const admin = getAdmin();
+  const result = await completeIntlPortInRequest(admin, requestId);
+  await logAction(user.id, 'intl_port_in_completed', lineId, { requestId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
 }

@@ -13,6 +13,8 @@ import { LineBarringsCard } from "@/components/admin/LineBarringsCard";
 import { AddIntlNumberCard } from "@/components/admin/AddIntlNumberCard";
 import { AddTopupCard } from "@/components/admin/AddTopupCard";
 import { LineClidCard } from "@/components/admin/LineClidCard";
+import { IntlPortInCard } from "@/components/admin/IntlPortInCard";
+import { listIntlPortInRequests } from "@/lib/custom-orders/intl-port-in-requests";
 import { LineNumberExtrasCard } from "@/components/admin/LineNumberExtrasCard";
 import { retryProvisioningJobAction } from "@/lib/admin/line-actions";
 import { getCdrUsageBuckets } from "@/lib/cdr/usage";
@@ -94,6 +96,8 @@ export default async function AdminLineDetailPage({ params }: Props) {
       clids = [];
     }
   }
+
+  const intlPortInRequests = await listIntlPortInRequests(db, line.id);
 
   const metadata = (line.metadata ?? {}) as Record<string, unknown>;
   const isEsim = metadata.is_esim === true || metadata.is_esim === "true" || metadata.is_esim === 1;
@@ -296,6 +300,9 @@ export default async function AdminLineDetailPage({ params }: Props) {
           {providerLineId && (
             <LineClidCard lineId={line.id} providerLineId={providerLineId} clids={clids} />
           )}
+
+          {/* US/UK/Canada port-in tracker */}
+          <IntlPortInCard lineId={line.id} requests={intlPortInRequests} />
 
           {/* Voicemail / SMS backup / aflalo — experimental, per number */}
           {providerLineId && liveDetail && liveDetail.dids.length > 0 && (
