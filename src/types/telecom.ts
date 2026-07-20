@@ -125,6 +125,14 @@ export interface PortInResult {
   status: string;
 }
 
+// A port-in landed directly onto an already-active line, bypassing the
+// landing-line indirection — bulk_requests type:'add' with line_id + a
+// matching dids/port_in_request_params pair.
+export interface DirectPortInResult {
+  providerJobId: string;
+  status: ProviderJobStatus;
+}
+
 export interface PortInStatus {
   id: string;
   status: string;

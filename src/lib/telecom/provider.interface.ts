@@ -18,6 +18,7 @@ export type {
   PortInParams,
   PortInResult,
   PortInStatus,
+  DirectPortInResult,
   PhoneNumber,
   TenantDid,
   TenantDidPage,
@@ -60,6 +61,7 @@ import type {
   PortInParams,
   PortInResult,
   PortInStatus,
+  DirectPortInResult,
   PhoneNumber,
   TenantDid,
   TenantDidPage,
@@ -146,6 +148,13 @@ export interface TelecomProvider {
   initiatePortIn(params: PortInParams): Promise<PortInResult>;
   getPortInStatus(providerJobId: string): Promise<PortInStatus>;
   cancelPortIn(providerJobId: string): Promise<void>;
+  // Ports a number directly onto an already-active line (bulk_requests
+  // type:'add', line_id + matching dids/port_in_request_params) instead of
+  // through a new-line create. Confirmed accepted by Annatel's validator
+  // (a bogus line_id got "line_id does not exist" back) but not yet proven
+  // end-to-end — callers should be ready to fall back to createLine() with
+  // portInParams if this fails.
+  portInDirect(providerLineId: string, number: string, identityNumber: string, authenticationType: 'sms_code' | 'ivr'): Promise<DirectPortInResult>;
 
   // ── Number (DID) management ──────────────────────────────────
   listTenantDids(page?: number, pageSize?: number): Promise<TenantDidPage>;

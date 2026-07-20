@@ -16,6 +16,7 @@ import type {
   NumberAuthenticationStatus,
   PortInParams,
   PortInResult,
+  DirectPortInResult,
   PortInStatus,
   PhoneNumber,
   TenantDidPage,
@@ -174,6 +175,11 @@ export class MockTelecomProvider implements TelecomProvider {
   async initiatePortIn(_params: PortInParams): Promise<PortInResult> {
     await this.tick();
     return { portInRequestId: `pir_mock_${shortId()}`, status: 'open' };
+  }
+
+  async portInDirect(_providerLineId: string, _number: string, _identityNumber: string, _authenticationType: 'sms_code' | 'ivr'): Promise<DirectPortInResult> {
+    await this.tick();
+    return { providerJobId: `bur_mock_${shortId()}`, status: 'processing' };
   }
 
   async getPortInStatus(providerJobId: string): Promise<PortInStatus> {

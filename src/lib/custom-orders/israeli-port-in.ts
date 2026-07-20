@@ -1,13 +1,17 @@
 // Ports an Israeli number onto an ALREADY ACTIVE line. The mechanism itself
 // is proven — two real numbers have completed this exact SMS-verify +
 // matched-dids create (Jul 7, 2026: a genuine cross-carrier port from Golan,
-// and an inter-tenant Annatel port) — but Annatel's API only ever lands a
-// ported number as part of CREATING A NEW LINE, never by attaching to one
-// that already exists. So this drives a "landing" line through the same
-// proven createLine path, waits for the port to actually complete, then
-// relocates the DID onto the customer's real line (release + assign — the
-// same pattern already used to move Daniil's Canadian number) and discards
-// the landing line.
+// and an inter-tenant Annatel port) — via CREATING A NEW LINE with the port
+// baked in.
+//
+// A diagnostic probe (bulk_requests type:'add' with a deliberately bogus
+// line_id) came back with a clean "line_id does not exist" 422 — evidence
+// Annatel's validator processes line_id + port_in_request_params together
+// for type:'add', which would land the port directly on an existing line
+// with no landing-line indirection at all. That path is unproven end-to-end,
+// so this tries it first and falls back automatically to the landing-line
+// approach (proven twice) if it fails at any step. Which path actually ran
+// is recorded per-request in the `method` column.
 //
 // Deliberately does NOT use provider.initiatePortIn() — that method only
 // sends port_in_request_params with none of the other required create
@@ -36,6 +40,7 @@ export type IsraeliPortInRequest = {
   status: 'pending_auth' | 'verifying' | 'ready_to_port' | 'porting' | 'ready_to_complete' | 'completed' | 'failed' | 'cancelled';
   providerBulkRequestId: string | null;
   providerLandingLineId: string | null;
+  method: 'direct' | 'landing' | null;
   error: string | null;
   createdAt: string;
   completedAt: string | null;
@@ -51,6 +56,7 @@ function toRequest(row: Record<string, unknown>): IsraeliPortInRequest {
     status: row.status as IsraeliPortInRequest['status'],
     providerBulkRequestId: (row.provider_bulk_request_id as string | null) ?? null,
     providerLandingLineId: (row.provider_landing_line_id as string | null) ?? null,
+    method: (row.method as 'direct' | 'landing' | null) ?? null,
     error: (row.error as string | null) ?? null,
     createdAt: row.created_at as string,
     completedAt: (row.completed_at as string | null) ?? null,
@@ -141,15 +147,37 @@ async function collectUsedIccIds(admin: SupabaseClient): Promise<string[]> {
   return [...fromJobs, ...fromLines].filter((x): x is string => Boolean(x));
 }
 
-// Step 3: create the temporary "landing" line through the SAME createLine
-// path that both real ports used — the only Annatel mechanism that actually
-// lands a ported number.
+// Step 3: try the direct port onto the target line first; fall back to the
+// proven landing-line createLine path if the direct attempt fails at any
+// point (unsupported by this Annatel tenant, rejected, etc).
 export async function startIsraeliPortIn(admin: SupabaseClient, requestId: string): Promise<{ success?: string; error?: string }> {
   const request = await getRequest(admin, requestId);
   if (!request) return { error: 'Request not found.' };
   if (request.status !== 'ready_to_port') return { error: 'Verify the number first.' };
 
   const provider = getTelecomProvider();
+
+  const { data: line } = await admin
+    .from('telecom_lines')
+    .select('provider_line_id')
+    .eq('id', request.lineId)
+    .maybeSingle();
+
+  if (line?.provider_line_id) {
+    try {
+      const result = await provider.portInDirect(
+        line.provider_line_id as string,
+        request.number,
+        DEFAULT_IDENTITY_NUMBER,
+        'sms_code',
+      );
+      await setRequest(admin, requestId, { status: 'porting', provider_bulk_request_id: result.providerJobId, method: 'direct' });
+      return { success: 'Port started directly on this line. Refresh status in a few minutes — Israeli ports typically land in 5-10 minutes.' };
+    } catch (err) {
+      log.warn({ requestId, error: err instanceof Error ? err.message : String(err) }, 'Direct port-in attempt failed, falling back to landing-line path');
+    }
+  }
+
   const iccId = await provider.getAvailableEsimIccId(await collectUsedIccIds(admin));
   if (!iccId) return { error: 'No available eSIM to use for the landing line.' };
 
@@ -168,8 +196,8 @@ export async function startIsraeliPortIn(admin: SupabaseClient, requestId: strin
         authenticationType: 'sms_code',
       },
     });
-    await setRequest(admin, requestId, { status: 'porting', provider_bulk_request_id: result.providerJobId });
-    return { success: 'Port started. Refresh status in a few minutes — Israeli ports typically land in 5-10 minutes.' };
+    await setRequest(admin, requestId, { status: 'porting', provider_bulk_request_id: result.providerJobId, method: 'landing' });
+    return { success: 'Port started via a temporary landing line. Refresh status in a few minutes — Israeli ports typically land in 5-10 minutes.' };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     await setRequest(admin, requestId, { status: 'failed', error: msg });
@@ -177,7 +205,11 @@ export async function startIsraeliPortIn(admin: SupabaseClient, requestId: strin
   }
 }
 
-// Step 4: poll until Annatel resolves the landing line's real id.
+// Step 4: poll until the port actually lands. The landing-line path waits
+// for Annatel to resolve the temporary line's id (job.lineId); the direct
+// path has no new line to resolve, so it independently checks whether the
+// number now shows up assigned to the target line — more robust than
+// trusting an unobserved status shape for the 'add' job type.
 export async function refreshIsraeliPortInStatus(admin: SupabaseClient, requestId: string): Promise<{ success?: string; error?: string }> {
   const request = await getRequest(admin, requestId);
   if (!request) return { error: 'Request not found.' };
@@ -189,6 +221,23 @@ export async function refreshIsraeliPortInStatus(admin: SupabaseClient, requestI
     await setRequest(admin, requestId, { status: 'failed', error: job.error ?? 'Port failed at the carrier.' });
     return { error: job.error ?? 'Port failed at the carrier.' };
   }
+
+  if (request.method === 'direct') {
+    const { data: line } = await admin
+      .from('telecom_lines')
+      .select('provider_line_id')
+      .eq('id', request.lineId)
+      .maybeSingle();
+    if (line?.provider_line_id) {
+      const assigned = await provider.getAssignedNumbers(line.provider_line_id as string);
+      if (assigned.some((p) => p.number === request.number)) {
+        await setRequest(admin, requestId, { status: 'ready_to_complete' });
+        return { success: 'The number has landed directly on this line — ready to complete.' };
+      }
+    }
+    return { success: `Still in progress (status: ${job.status}). Check again shortly.` };
+  }
+
   if (job.lineId) {
     await setRequest(admin, requestId, { status: 'ready_to_complete', provider_landing_line_id: job.lineId });
     return { success: 'The number has landed — ready to move it onto the real line.' };
@@ -196,12 +245,15 @@ export async function refreshIsraeliPortInStatus(admin: SupabaseClient, requestI
   return { success: `Still in progress (status: ${job.status}). Check again shortly.` };
 }
 
-// Step 5: the consequential one — move the DID off the landing line and
-// onto the customer's real line, bill, and clean up.
+// Step 5: the consequential one. Direct-method requests are already sitting
+// on the target line, so this only needs to release the old primary (if
+// replacing) and bill; landing-method requests still need the full
+// release-from-landing + assign + terminate dance.
 export async function completeIsraeliPortIn(admin: SupabaseClient, requestId: string): Promise<{ success?: string; error?: string }> {
   const request = await getRequest(admin, requestId);
   if (!request) return { error: 'Request not found.' };
-  if (request.status !== 'ready_to_complete' || !request.providerLandingLineId) {
+  if (request.status !== 'ready_to_complete') return { error: 'Not ready to complete yet.' };
+  if (request.method !== 'direct' && !request.providerLandingLineId) {
     return { error: 'Not ready to complete yet.' };
   }
 
@@ -216,27 +268,40 @@ export async function completeIsraeliPortIn(admin: SupabaseClient, requestId: st
   const meta = (line.metadata ?? {}) as Record<string, unknown>;
 
   try {
-    // Detach from the landing line first — attaching to the real line before
-    // detaching would just fail (the number can't be on two lines).
-    await provider.releaseDid(request.providerLandingLineId, request.number);
-
     let releasedOldPrimary: string | null = null;
-    if (request.mode === 'replace') {
-      const currentPrimary = meta.phone_number as string | undefined;
-      if (currentPrimary) {
-        await provider.releaseDid(line.provider_line_id as string, currentPrimary);
-        releasedOldPrimary = currentPrimary;
+
+    if (request.method === 'direct') {
+      // Number is already on the target line — only need to release the old
+      // primary, if this is a replace rather than a secondary add.
+      if (request.mode === 'replace') {
+        const currentPrimary = meta.phone_number as string | undefined;
+        if (currentPrimary) {
+          await provider.releaseDid(line.provider_line_id as string, currentPrimary);
+          releasedOldPrimary = currentPrimary;
+        }
       }
-    }
+    } else {
+      // Detach from the landing line first — attaching to the real line before
+      // detaching would just fail (the number can't be on two lines).
+      await provider.releaseDid(request.providerLandingLineId as string, request.number);
 
-    await provider.assignDid(line.provider_line_id as string, request.number);
+      if (request.mode === 'replace') {
+        const currentPrimary = meta.phone_number as string | undefined;
+        if (currentPrimary) {
+          await provider.releaseDid(line.provider_line_id as string, currentPrimary);
+          releasedOldPrimary = currentPrimary;
+        }
+      }
 
-    // Landing line's only job was to be a vehicle for the port — discard it.
-    // Non-fatal if this fails; the relocation itself already succeeded.
-    try {
-      await provider.terminateLine(request.providerLandingLineId);
-    } catch (err) {
-      log.warn({ requestId, landingLineId: request.providerLandingLineId, error: err instanceof Error ? err.message : String(err) }, 'Landing line cleanup failed (non-fatal)');
+      await provider.assignDid(line.provider_line_id as string, request.number);
+
+      // Landing line's only job was to be a vehicle for the port — discard it.
+      // Non-fatal if this fails; the relocation itself already succeeded.
+      try {
+        await provider.terminateLine(request.providerLandingLineId as string);
+      } catch (err) {
+        log.warn({ requestId, landingLineId: request.providerLandingLineId, error: err instanceof Error ? err.message : String(err) }, 'Landing line cleanup failed (non-fatal)');
+      }
     }
 
     const now = new Date().toISOString();

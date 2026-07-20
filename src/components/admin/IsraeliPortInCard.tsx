@@ -66,9 +66,25 @@ export function IsraeliPortInCard({ lineId, requests }: Props) {
                     {r.mode === "replace" ? "Replace primary" : "Add as secondary"} · {r.billingMode === "free" ? "Free" : "$10/mo"}
                   </p>
                 </div>
-                <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-ink shadow-sm">
-                  {STATUS_LABEL[r.status]}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  {r.method && (
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                        r.method === "direct" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+                      }`}
+                      title={
+                        r.method === "direct"
+                          ? "Ported directly onto this line — no temporary line involved"
+                          : "Ported via a temporary landing line, then moved onto this line"
+                      }
+                    >
+                      {r.method === "direct" ? "Direct" : "Landing line"}
+                    </span>
+                  )}
+                  <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-ink shadow-sm">
+                    {STATUS_LABEL[r.status]}
+                  </span>
+                </div>
               </div>
               {r.error ? <p className="mt-2 text-xs text-rose-700">{r.error}</p> : null}
 

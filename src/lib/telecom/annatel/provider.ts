@@ -13,6 +13,7 @@ import type {
   NumberAuthenticationStatus,
   PortInParams,
   PortInResult,
+  DirectPortInResult,
   PortInStatus,
   PhoneNumber,
   TenantDid,
@@ -631,6 +632,28 @@ export class AnnatelProvider implements TelecomProvider {
       },
     });
     return { portInRequestId: result.id, status: result.status };
+  }
+
+  // bulk_requests type:'add' onto an already-active line. dids and
+  // port_in_request_params.number must match exactly or Annatel rejects
+  // with a 422 ("port_in_request_params.number is invalid").
+  async portInDirect(
+    providerLineId: string,
+    number: string,
+    identityNumber: string,
+    authenticationType: 'sms_code' | 'ivr',
+  ): Promise<DirectPortInResult> {
+    const result = await this.client.post<{ id: string; status: string }>('/api/bulk_requests', {
+      type: 'add',
+      line_id: providerLineId,
+      dids: [{ number }],
+      port_in_request_params: {
+        number,
+        identity_number: identityNumber,
+        authentication_type: authenticationType,
+      },
+    });
+    return { providerJobId: result.id, status: AnnatelMappers.toProviderJobStatus(result.status as never) };
   }
 
   async getPortInStatus(providerJobId: string): Promise<PortInStatus> {
