@@ -56,6 +56,25 @@ async function notifyAdminOfJobFailure(job: ProvisioningJob, errMsg: string): Pr
   });
 }
 
+// A brand-new line went ACTIVE with no phone number after exhausting every
+// DID candidate — the job itself still "succeeds" (the line works, just
+// silently has no number), so this doesn't go through notifyAdminOfJobFailure.
+// Real incident 2026-07-21: this failure mode had zero visibility until a
+// customer noticed and Joe asked why her line had no number.
+async function notifyAdminOfDidAssignmentFailure(lineId: string, attempts: number, lastError: string): Promise<void> {
+  await sendEmail({
+    to: 'joe@bitlink.co.il',
+    subject: `⚠ Line active with NO phone number — DID assignment exhausted ${attempts} candidates`,
+    html: [
+      `<p>Line <b>${lineId}</b> finished provisioning and is ACTIVE, but every available Israeli number candidate failed to attach.</p>`,
+      `<p><b>Last error:</b> ${lastError}</p>`,
+      `<p><a href="https://www.bitlink.co.il/admin/lines/${lineId}">Open the line in admin</a> to assign a number manually.</p>`,
+    ].join(''),
+  }).catch(() => {
+    // alerting is best-effort; never let it mask the original failure
+  });
+}
+
 // ICCIDs consumed by lines or reserved by in-flight jobs — the provider's SIM
 // listing keeps consumed SIMs, so without this every order picks the same SIM.
 async function collectUsedIccIds(admin: Admin): Promise<string[]> {
@@ -344,14 +363,35 @@ async function completeJob(
         // number) — assigning another would double-book inventory.
         log.info({ jobId: job.id, lineId, did: currentMeta.phone_number }, 'Line already has a number — skipping DID auto-assign');
       } else {
-        const usedNumbers = await collectUsedNumbers(admin);
-        const did = await provider.getAvailableDid(usedNumbers);
-        if (did) {
-          await provider.assignDid(providerLineId, did);
-          lineUpdates.metadata = { ...currentMeta, phone_number: did };
-          log.info({ jobId: job.id, lineId, did }, 'DID auto-assigned');
+        // getAvailableDid() only ever offers Israeli (+972) candidates, but
+        // its listing has no way to know a number is already attached
+        // elsewhere at the provider (no live assignment status in the DID
+        // pool endpoint) — a candidate can still get rejected with a 422.
+        // Retry against the next candidate instead of giving up on the
+        // first rejection, which used to leave the line silently numberless.
+        const excluded = await collectUsedNumbers(admin);
+        let assigned: string | null = null;
+        let lastError = '';
+        const MAX_DID_ATTEMPTS = 5;
+        for (let attempt = 0; attempt < MAX_DID_ATTEMPTS; attempt++) {
+          const candidate = await provider.getAvailableDid(excluded);
+          if (!candidate) break;
+          try {
+            await provider.assignDid(providerLineId, candidate);
+            assigned = candidate;
+            break;
+          } catch (err) {
+            lastError = err instanceof Error ? err.message : String(err);
+            excluded.push(candidate);
+            log.warn({ jobId: job.id, lineId, candidate, error: lastError }, 'DID candidate rejected — trying next');
+          }
+        }
+        if (assigned) {
+          lineUpdates.metadata = { ...currentMeta, phone_number: assigned };
+          log.info({ jobId: job.id, lineId, did: assigned }, 'DID auto-assigned');
         } else {
-          log.warn({ jobId: job.id, lineId }, 'No available DID found — line active without phone number');
+          log.error({ jobId: job.id, lineId, lastError }, 'No Israeli DID could be assigned after retries — line active without phone number');
+          await notifyAdminOfDidAssignmentFailure(lineId, MAX_DID_ATTEMPTS, lastError || 'No available DID candidates found');
         }
       }
     } catch (err) {

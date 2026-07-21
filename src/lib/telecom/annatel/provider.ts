@@ -415,13 +415,23 @@ export class AnnatelProvider implements TelecomProvider {
     }));
   }
 
+  // This pool backs auto-assignment of a customer's PRIMARY Israeli number
+  // only — it must never hand out a US/UK/Canada number from the same
+  // tenant DID inventory (those are reserved separately, via the
+  // international_dids table, and picked explicitly by number). Restricting
+  // to +972 here is the fix for a real incident (2026-07-21): the pool
+  // listing mixes Israeli and international DIDs with no country field to
+  // filter on except the E.164 prefix, so an unfiltered pick landed a
+  // Canadian number on a brand-new line — or, when that candidate was
+  // already attached elsewhere, a silent 422 that left the line active with
+  // no number at all.
   async getAvailableDid(usedNumbers: string[] = []): Promise<string | null> {
     try {
       const usedSet = new Set(usedNumbers);
       let page = 1;
       while (true) {
         const result = await this.listTenantDids(page, 50);
-        const available = result.dids.find((d) => !usedSet.has(d.number) && !d.isTechnical);
+        const available = result.dids.find((d) => !usedSet.has(d.number) && !d.isTechnical && d.number.startsWith('+972'));
         if (available) return available.number;
         if (result.dids.length < 50 || result.meta.total <= page * 50) break;
         page++;
