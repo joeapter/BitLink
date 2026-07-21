@@ -9,6 +9,7 @@
 export const partnerOrgCodes: Record<string, string> = {
   "neveh-zion": "ORG-34CC7856",
   "neveh-zion-discount": "ORG-34CC7856",
+  "neveh-zion-max-discount": "ORG-34CC7856",
   sharfmans: "ORG-75238222",
 };
 
