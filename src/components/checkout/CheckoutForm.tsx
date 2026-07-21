@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
 import { plans, type PlanSlug } from "@/lib/plans";
+import { getPromo } from "@/lib/promos";
+import { formatMoney } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -17,13 +19,20 @@ type NumberChoice = "new" | "port-in";
 type IntlCountry = "us" | "canada" | "uk";
 type IntlSource = "new" | "port";
 
+const REGULAR_INTL_ADDON_CENTS = 999;
+
 export function CheckoutForm({
   initialPlanSlug,
   initialReferralCode = "",
+  initialOrgReferralCode = "",
+  initialPromoCode = "",
 }: {
   initialPlanSlug: PlanSlug;
   initialReferralCode?: string;
+  initialOrgReferralCode?: string;
+  initialPromoCode?: string;
 }) {
+  const promo = useMemo(() => getPromo(initialPromoCode), [initialPromoCode]);
   const [planSlug, setPlanSlug] = useState<PlanSlug>(initialPlanSlug);
   const [simType, setSimType] = useState<SimType>("esim");
   const [numberChoice, setNumberChoice] = useState<NumberChoice>("new");
@@ -108,7 +117,7 @@ export function CheckoutForm({
     }
     // Read the waiver fresh at submit time — the mounted state can be stale
     // if the unlock happened after this form loaded.
-    const waived = feeWaived || localStorage.getItem("bl_staff") === "1";
+    const waived = feeWaived || localStorage.getItem("bl_staff") === "1" || Boolean(promo?.skipActivationFee);
 
     const response = await fetch("/api/stripe/create-checkout-session", {
       method: "POST",
@@ -119,6 +128,8 @@ export function CheckoutForm({
         email: formData.get("email"),
         phone: formData.get("phone"),
         referralCode: formData.get("referralCode") || null,
+        orgReferralCode: initialOrgReferralCode || null,
+        promoCode: initialPromoCode || null,
         isKosher: selectedPlan.isKosher,
         isEsim: effectiveSimType === "esim",
         isPortIn,
@@ -168,9 +179,10 @@ export function CheckoutForm({
           <CheckoutSummary
             plan={selectedPlan}
             isPortIn={numberChoice === "port-in"}
-            feeWaived={feeWaived}
+            feeWaived={feeWaived || Boolean(promo?.skipActivationFee)}
             hasIntlNumber={wantsIntlNumber}
             intlIsPortIn={wantsIntlNumber && intlSource === "port"}
+            intlAddonPriceCentsOverride={promo?.intlAddonPriceCents ?? null}
           />
         </div>
         <div className="border-t border-ink/10 p-6 sm:p-8 lg:border-l lg:border-t-0">
@@ -199,6 +211,15 @@ export function CheckoutForm({
           <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-slate">
             Enter your details, confirm the plan, and continue to secure payment.
           </p>
+          {promo && (
+            <div className="mt-4 flex items-start gap-3 rounded-2xl border border-trust-green/30 bg-trust-green/5 p-4">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-trust-green" aria-hidden="true" />
+              <p className="text-sm text-ink">
+                <span className="font-semibold">{promo.label} applied</span> — activation fee waived
+                {promo.intlAddonPriceCents != null ? `, and the US/Canada/UK add-on is ${formatMoney(promo.intlAddonPriceCents, "USD")}/mo instead of ${formatMoney(REGULAR_INTL_ADDON_CENTS, "USD")}/mo` : ""}.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* ── Plan ── */}
@@ -331,7 +352,16 @@ export function CheckoutForm({
             <div className="flex-1">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-ink">Add a US, Canadian, or UK number</p>
-                <span className="text-sm font-semibold text-link-blue">+$9.99/mo</span>
+                {promo?.intlAddonPriceCents != null ? (
+                  <span className="flex items-center gap-2 text-sm font-semibold">
+                    <span className="text-muted-slate line-through opacity-60">
+                      +{formatMoney(REGULAR_INTL_ADDON_CENTS, "USD")}/mo
+                    </span>
+                    <span className="text-link-blue">+{formatMoney(promo.intlAddonPriceCents, "USD")}/mo</span>
+                  </span>
+                ) : (
+                  <span className="text-sm font-semibold text-link-blue">+$9.99/mo</span>
+                )}
               </div>
               <p className="text-xs text-muted-slate">Let family call you like a local number — no international dialing</p>
             </div>
@@ -481,7 +511,14 @@ export function CheckoutForm({
         </div>
       </form>
 
-      <CheckoutSummary plan={selectedPlan} isPortIn={numberChoice === "port-in"} feeWaived={feeWaived} hasIntlNumber={wantsIntlNumber} intlIsPortIn={wantsIntlNumber && intlSource === "port"} />
+      <CheckoutSummary
+        plan={selectedPlan}
+        isPortIn={numberChoice === "port-in"}
+        feeWaived={feeWaived || Boolean(promo?.skipActivationFee)}
+        hasIntlNumber={wantsIntlNumber}
+        intlIsPortIn={wantsIntlNumber && intlSource === "port"}
+        intlAddonPriceCentsOverride={promo?.intlAddonPriceCents ?? null}
+      />
     </div>
   );
 }

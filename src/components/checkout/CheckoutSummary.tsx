@@ -12,12 +12,14 @@ export function CheckoutSummary({
   feeWaived = false,
   hasIntlNumber = false,
   intlIsPortIn = false,
+  intlAddonPriceCentsOverride = null,
 }: {
   plan: BitLinkPlan;
   isPortIn?: boolean;
   feeWaived?: boolean;
   hasIntlNumber?: boolean;
   intlIsPortIn?: boolean;
+  intlAddonPriceCentsOverride?: number | null;
 }) {
   return (
     <aside className="rounded-4xl border border-ink/10 bg-ink p-6 text-white shadow-liquid">
@@ -51,10 +53,22 @@ export function CheckoutSummary({
         {hasIntlNumber && (
           <div className="mt-3 border-t border-white/10 pt-3 flex items-center justify-between gap-4">
             <span className="text-sm text-slate-300">US/Canada/UK number add-on</span>
-            <span className="text-lg font-semibold">
-              +{formatMoney(INTL_NUMBER_ADDON_CENTS, plan.currency)}
-              <span className="text-base font-medium text-slate-300">/mo</span>
-            </span>
+            {intlAddonPriceCentsOverride != null ? (
+              <span className="flex items-center gap-2">
+                <span className="text-sm text-slate-400 line-through opacity-60">
+                  {formatMoney(INTL_NUMBER_ADDON_CENTS, plan.currency)}
+                </span>
+                <span className="text-lg font-semibold">
+                  +{formatMoney(intlAddonPriceCentsOverride, plan.currency)}
+                  <span className="text-base font-medium text-slate-300">/mo</span>
+                </span>
+              </span>
+            ) : (
+              <span className="text-lg font-semibold">
+                +{formatMoney(INTL_NUMBER_ADDON_CENTS, plan.currency)}
+                <span className="text-base font-medium text-slate-300">/mo</span>
+              </span>
+            )}
           </div>
         )}
         {hasIntlNumber && intlIsPortIn && (

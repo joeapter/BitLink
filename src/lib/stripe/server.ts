@@ -23,6 +23,10 @@ export interface CreateCheckoutSessionParams {
   stripePriceId: string;
   activationFeePriceId: string | null;
   intlNumberAddonPriceId?: string | null;
+  // When set, overrides intlNumberAddonPriceId with a dynamic price_data line
+  // item at this amount instead — used for promo-discounted add-on pricing
+  // (see src/lib/promos.ts). Resolved server-side only, never client-supplied.
+  intlNumberAddonDiscountCents?: number | null;
   intlPortInFeeId?: string | null;
   stripeCustomerId: string;
   planSlug: string;
@@ -80,13 +84,23 @@ export async function createCheckoutSession(
     source: 'bitlink_web',
   };
 
-  const lineItems: { price: string; quantity: number }[] = [
+  const lineItems: NonNullable<Stripe.Checkout.SessionCreateParams['line_items']> = [
     { price: params.stripePriceId, quantity: 1 },
   ];
   if (params.activationFeePriceId) {
     lineItems.push({ price: params.activationFeePriceId, quantity: 1 });
   }
-  if (params.intlNumberAddonPriceId) {
+  if (params.intlNumberAddonDiscountCents != null) {
+    lineItems.push({
+      price_data: {
+        currency: 'usd',
+        unit_amount: params.intlNumberAddonDiscountCents,
+        recurring: { interval: 'month' },
+        product_data: { name: 'US/Canada/UK Number Add-on (discounted)' },
+      },
+      quantity: 1,
+    });
+  } else if (params.intlNumberAddonPriceId) {
     lineItems.push({ price: params.intlNumberAddonPriceId, quantity: 1 });
   }
   if (params.intlPortInFeeId) {

@@ -27,6 +27,7 @@ import { normalizeIsraeliMobile } from '@/lib/utils';
 import { getTelecomProvider } from '@/lib/telecom/provider.registry';
 import { logger } from '@/lib/logger';
 import { generateReferralCode, normalizeReferralCode } from '@/lib/referrals';
+import { getPromo } from '@/lib/promos';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -50,6 +51,8 @@ const bodySchema = z.object({
   intlChosenNumber: z.string().nullable().optional(),
   userId: z.string().uuid().nullable().optional(),
   referralCode: z.string().nullable().optional(),
+  orgReferralCode: z.string().nullable().optional(),
+  promoCode: z.string().nullable().optional(),
   successUrl: z.string().optional(),
   cancelUrl: z.string().optional(),
 });
@@ -77,6 +80,14 @@ export async function POST(request: NextRequest): Promise<Response> {
     userId, successUrl, cancelUrl,
   } = parsed.data;
   const referralCode = normalizeReferralCode(parsed.data.referralCode);
+
+  // Promo codes are only ever reached via a specific unlisted landing page —
+  // resolved server-side against the trusted table, never from client-sent
+  // discount amounts. Falls back to the bl_org cookie value for ordinary
+  // (non-promo) org-attributed traffic, e.g. the regular partner pages.
+  const promo = getPromo(parsed.data.promoCode);
+  const orgReferralCode = promo?.orgReferralCode || (parsed.data.orgReferralCode || null);
+  const effectiveSkipActivationFee = skipActivationFee || Boolean(promo?.skipActivationFee);
 
   // Reject malformed Israeli port-in numbers BEFORE payment — Annatel requires
   // a valid mobile number and 422s the provisioning request otherwise, which
@@ -149,7 +160,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   {
     const { data: existing } = await admin
       .from('customers')
-      .select('id, referred_by')
+      .select('id, referred_by, org_referral_code')
       .eq('email', email)
       .maybeSingle();
 
@@ -160,6 +171,7 @@ export async function POST(request: NextRequest): Promise<Response> {
           full_name: fullName,
           phone,
           ...(!existing.referred_by && referralCode ? { referred_by: referralCode } : {}),
+          ...(!existing.org_referral_code && orgReferralCode ? { org_referral_code: orgReferralCode } : {}),
           ...(userId ? { user_id: userId } : {}),
           updated_at: new Date().toISOString(),
         })
@@ -177,6 +189,7 @@ export async function POST(request: NextRequest): Promise<Response> {
           user_id: userId ?? null,
           referral_code: generateReferralCode(),
           referred_by: referralCode ?? null,
+          org_referral_code: orgReferralCode ?? null,
         })
         .select('id')
         .single();
@@ -278,8 +291,9 @@ export async function POST(request: NextRequest): Promise<Response> {
   try {
     session = await createCheckoutSession(stripe, {
       stripePriceId: planRow.stripe_price_id,
-      activationFeePriceId: skipActivationFee ? null : (process.env.STRIPE_PRICE_ACTIVATION_FEE?.trim() ?? null),
+      activationFeePriceId: effectiveSkipActivationFee ? null : (process.env.STRIPE_PRICE_ACTIVATION_FEE?.trim() ?? null),
       intlNumberAddonPriceId: wantsIntlNumber ? (process.env.STRIPE_PRICE_US_CANADA_ADDON?.trim() ?? null) : null,
+      intlNumberAddonDiscountCents: wantsIntlNumber ? (promo?.intlAddonPriceCents ?? null) : null,
       intlPortInFeeId: (wantsIntlNumber && intlNumberSource === 'port') ? (process.env.STRIPE_PRICE_INTL_PORT_IN_FEE?.trim() ?? null) : null,
       stripeCustomerId,
       planSlug,
