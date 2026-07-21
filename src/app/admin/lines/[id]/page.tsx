@@ -21,6 +21,7 @@ import { LineNumberExtrasCard } from "@/components/admin/LineNumberExtrasCard";
 import { retryProvisioningJobAction } from "@/lib/admin/line-actions";
 import { getCdrUsageBuckets } from "@/lib/cdr/usage";
 import { EsimActivationCard } from "@/components/admin/EsimActivationCard";
+import { EsimResendCard } from "@/components/admin/EsimResendCard";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatDate, formatDateTime } from "@/lib/utils";
@@ -517,6 +518,16 @@ export default async function AdminLineDetailPage({ params }: Props) {
                 iccId={meta.esim_icc_id as string | undefined}
               />
             );
+          })()}
+
+          {(() => {
+            const meta = (line.metadata ?? {}) as Record<string, unknown>;
+            const isEsim = meta.is_esim === true || meta.is_esim === "1" || meta.is_esim === 1;
+            // Shown for every eSIM line regardless of install state — recovery
+            // (lost QR, or recycle a used/failed eSIM) can be needed after
+            // activation too, when the EsimActivationCard above is hidden.
+            if (!isEsim || !providerLineId) return null;
+            return <EsimResendCard lineId={line.id} providerLineId={providerLineId} />;
           })()}
 
           {providerLineId && (

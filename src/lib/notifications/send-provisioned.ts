@@ -29,7 +29,12 @@ export async function sendProvisionedNotifications(
   admin: AdminClient,
   lineId: string,
   providerLineId: string | null,
-  opts: { force?: boolean } = {},
+  // resync: ignore the activation code stored in our DB and re-fetch the live
+  // one from the provider first (updating the DB to match). The stored code
+  // can go stale if the eSIM profile was re-released at the carrier with a new
+  // matching id — then the old QR silently stops working. An admin resend
+  // should always reflect what the carrier will actually accept.
+  opts: { force?: boolean; resync?: boolean } = {},
 ): Promise<SendProvisionedResult> {
   const { data: line } = await admin
     .from('telecom_lines')
@@ -72,7 +77,9 @@ export async function sendProvisionedNotifications(
   if (isEsim) {
     const stored = meta.esim_activation_code as string | undefined;
     const storedSmDp = meta.esim_sm_dp_plus as string | undefined;
-    if (stored) {
+    // Trust the stored code unless the caller explicitly asked to resync — a
+    // resync always goes to the provider for the current, valid code.
+    if (stored && !opts.resync) {
       activationCode = toLpaString(stored, storedSmDp);
     } else if (providerLineId) {
       try {
@@ -100,6 +107,12 @@ export async function sendProvisionedNotifications(
       } catch (err) {
         log.error({ error: String(err), lineId }, 'Failed to fetch eSIM profile');
       }
+    }
+    // If a resync couldn't reach the provider but we still hold a stored code,
+    // fall back to it rather than sending nothing — better a possibly-current
+    // code than no email at all.
+    if (!activationCode && stored) {
+      activationCode = toLpaString(stored, storedSmDp);
     }
     if (!activationCode) {
       log.warn({ lineId }, 'No eSIM activation code found — skipping email');

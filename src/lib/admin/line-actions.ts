@@ -374,8 +374,10 @@ export async function recycleEsimProfileAction(formData: FormData): Promise<void
 
 export type ResendState = { error?: string; success?: string } | null;
 
-// Bypasses the idempotency stamp (force: true) — this is an explicit admin
-// resend, not the automatic one-time notification.
+// Bypasses the idempotency stamp (force: true) and always resyncs the eSIM
+// activation code from the carrier first (resync: true) — this is an explicit
+// admin resend, and the stored code can be stale if the profile was
+// re-released. Covers the "customer lost / deleted the QR" case.
 export async function resendProvisionedEmailAction(
   _prev: ResendState,
   formData: FormData,
@@ -386,7 +388,7 @@ export async function resendProvisionedEmailAction(
   if (!lineId) return { error: 'Missing line reference.' };
 
   const admin = getAdmin();
-  const result = await sendProvisionedNotifications(admin, lineId, providerLineId, { force: true });
+  const result = await sendProvisionedNotifications(admin, lineId, providerLineId, { force: true, resync: true });
 
   if (result.skipped) {
     return { error: `Could not send: ${result.reason.replaceAll('_', ' ')}.` };
@@ -394,7 +396,69 @@ export async function resendProvisionedEmailAction(
 
   await logAction(user.id, 'provisioned_email_resent', lineId, {});
   revalidatePath(`/admin/lines/${lineId}`);
-  return { success: 'Activation email resent to the customer.' };
+  return { success: 'Fresh QR emailed to the customer.' };
+}
+
+// The heavier recovery path: recycle the eSIM profile at the carrier to mint a
+// brand-new activation code, then email the new QR. Use this when the eSIM was
+// already installed/used (or a download failed) and the existing code can no
+// longer be installed — a plain resend won't help there because the old
+// profile is spent. Recycling invalidates any prior install, so the customer
+// must scan the new QR fresh; the "installed" flag is cleared so the pending
+// activation UI reappears.
+export async function recycleAndResendEsimAction(
+  _prev: ResendState,
+  formData: FormData,
+): Promise<ResendState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const providerLineId = String(formData.get('providerLineId') ?? '') || null;
+  if (!lineId || !providerLineId) return { error: 'Missing line reference.' };
+
+  const provider = getProvider();
+  const admin = getAdmin();
+
+  // Resolve the line's eSIM SIM so we can recycle its profile.
+  let esimSimId: string | null = null;
+  try {
+    const sims = await provider.listLineSims(providerLineId);
+    esimSimId = sims.find((s) => s.type === 'esim')?.id ?? null;
+  } catch (err) {
+    return { error: `Could not read the line's SIMs: ${err instanceof Error ? err.message : String(err)}` };
+  }
+  if (!esimSimId) return { error: 'No eSIM SIM found on this line to recycle.' };
+
+  try {
+    await provider.recycleEsimProfile(esimSimId);
+  } catch (err) {
+    return { error: `Recycle failed at the carrier: ${err instanceof Error ? err.message : String(err)}` };
+  }
+
+  // Clear the installed marker so this line is treated as freshly pending —
+  // the customer has to install the new profile.
+  const { data: lineRow } = await admin
+    .from('telecom_lines')
+    .select('metadata')
+    .eq('id', lineId)
+    .maybeSingle();
+  const meta = (lineRow?.metadata ?? {}) as Record<string, unknown>;
+  await admin
+    .from('telecom_lines')
+    .update({
+      metadata: { ...meta, esim_activated_at: null } as never,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', lineId);
+
+  // resync pulls the freshly-minted post-recycle code before emailing.
+  const result = await sendProvisionedNotifications(admin, lineId, providerLineId, { force: true, resync: true });
+  if (result.skipped) {
+    return { error: `Profile recycled, but email could not be sent: ${result.reason.replaceAll('_', ' ')}. Try "Refresh & resend" in a moment.` };
+  }
+
+  await logAction(user.id, 'esim_recycled_and_resent', lineId, { simId: esimSimId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return { success: 'New eSIM created and QR emailed to the customer.' };
 }
 
 // Manual override for "hide the QR once installed" — there is no automatic
