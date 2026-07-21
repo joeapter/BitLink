@@ -471,6 +471,24 @@ async function completeJob(
     log.error({ jobId: job.id, lineId, error: err instanceof Error ? err.message : String(err) }, 'Failed to auto-advance orders.provisioning_status — continuing');
   }
 
+  // The subscribers row is created 'provisioning' at checkout and is otherwise
+  // only flipped to 'active' by a Stripe subscription.created/updated webhook
+  // keyed on stripe_subscription_id — which races the checkout that creates the
+  // row and, if it lands first, early-returns with no subscriber found and
+  // never retries, leaving rows stuck 'provisioning' forever. The line going
+  // active is the reliable signal, so reconcile the subscriber here, keyed on
+  // telecom_line_id. Only advance from 'provisioning' so we never clobber a
+  // suspended/cancelled state.
+  try {
+    await admin
+      .from('subscribers')
+      .update({ status: 'active', activated_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .eq('telecom_line_id', lineId)
+      .eq('status', 'provisioning');
+  } catch (err) {
+    log.error({ jobId: job.id, lineId, error: err instanceof Error ? err.message : String(err) }, 'Failed to activate subscriber status — continuing');
+  }
+
   try {
     const referralResult = await recordReferralForLine(admin, lineId);
     if (referralResult.referralId) {

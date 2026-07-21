@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { getAdminDb } from "@/lib/db/admin";
 import { getPartnerSlugForOrgCode } from "@/lib/partner-org-codes";
+import { getUsdToIlsRate } from "@/lib/fx";
 import { formatMoney } from "@/lib/utils";
 import { updateOrganizationAction } from "../actions";
 
@@ -73,8 +74,11 @@ export default async function OrganizationDetailPage({
   const monthEnd = new Date(reportYear, reportMonth, 1).toISOString();
   const monthLabel = new Date(reportYear, reportMonth - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" });
 
-  // Exchange rate ILS/USD (default 3.70)
-  const exchangeRate = Math.max(1, parseFloat(rateParam ?? "3.70") || 3.70);
+  // Exchange rate USD→ILS: live by default (fetched from a free FX source,
+  // cached), with a manual ?rate= override so a specific rate can still be
+  // pinned when generating a check.
+  const liveRate = await getUsdToIlsRate();
+  const exchangeRate = rateParam ? Math.max(1, parseFloat(rateParam) || liveRate.rate) : liveRate.rate;
 
   // Carrier rates keyed by call_type
   const { data: rateRows } = await db.from("carrier_rates").select("call_type, rate_agurot");
@@ -306,15 +310,24 @@ export default async function OrganizationDetailPage({
               defaultValue={reportYear}
               className="w-24"
             />
-            <Input
-              label="USD → ILS rate"
-              name="rate"
-              type="number"
-              step="0.01"
-              min="1"
-              defaultValue={exchangeRate.toFixed(2)}
-              className="w-28"
-            />
+            <div className="grid gap-1">
+              <Input
+                label="USD → ILS rate"
+                name="rate"
+                type="number"
+                step="0.01"
+                min="1"
+                defaultValue={exchangeRate.toFixed(2)}
+                className="w-28"
+              />
+              <span className="text-[10px] text-muted-slate">
+                {rateParam
+                  ? "Manual override"
+                  : liveRate.source === "live"
+                    ? `Live rate${liveRate.asOf ? ` · ${new Date(liveRate.asOf).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : ""}`
+                    : "Fallback rate (FX source unreachable)"}
+              </span>
+            </div>
             <Button type="submit" variant="secondary" size="sm">Apply</Button>
           </form>
         </div>
