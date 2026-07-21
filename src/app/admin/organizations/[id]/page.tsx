@@ -84,15 +84,62 @@ export default async function OrganizationDetailPage({
   }
   const hasCdrRates = Object.keys(rates).length > 0;
 
-  // Customers linked to this org with their active subscription
+  // Plan price + cost lookup by slug. This is the reliable revenue source:
+  // subscribers.monthly_price_cents is frequently null (not set until the
+  // first invoice), whereas plans always carries the list price by slug.
+  const { data: planRows } = await db
+    .from("plans")
+    .select("slug, name, monthly_price_cents, cost_agurot");
+  const planBySlug: Record<string, { name: string; monthly_price_cents: number; cost_agurot: number }> = {};
+  for (const p of planRows ?? []) {
+    planBySlug[p.slug] = {
+      name: p.name,
+      monthly_price_cents: p.monthly_price_cents ?? 0,
+      cost_agurot: p.cost_agurot ?? 0,
+    };
+  }
+
+  // Customers linked to this org
   const { data: rows } = await db
     .from("customers")
-    .select(`id, full_name, email, subscriptions ( id, status, plans ( name, monthly_price_cents, cost_agurot, currency ) )`)
+    .select("id, full_name, email")
     .eq("org_referral_code", org.referral_code)
     .order("full_name", { ascending: true });
 
   const customers = rows ?? [];
   const customerIds = customers.map((c) => c.id);
+
+  // Subscriptions live in the `subscribers` table (Stripe-driven). The older
+  // `subscriptions` table this report used to read is legacy and was never
+  // populated with a plan_id, so every customer showed $0 revenue / no plan.
+  // A subscriber counts as revenue when it's active — or when its status is
+  // stale (commonly stuck at 'provisioning') but the telecom line is live.
+  type OrgSub = { status: string; plan_slug: string | null; lineStatus: string | null };
+  const subsByCustomer: Record<string, OrgSub[]> = {};
+  if (customerIds.length > 0) {
+    const { data: subRows } = await db
+      .from("subscribers")
+      .select("customer_id, status, plan_slug, telecom_line_id")
+      .in("customer_id", customerIds);
+
+    const lineIds = [...new Set((subRows ?? []).map((s) => s.telecom_line_id).filter(Boolean))] as string[];
+    const lineStatusById: Record<string, string> = {};
+    if (lineIds.length > 0) {
+      const { data: lineRows } = await db.from("telecom_lines").select("id, status").in("id", lineIds);
+      for (const l of lineRows ?? []) lineStatusById[l.id] = l.status;
+    }
+    for (const s of subRows ?? []) {
+      (subsByCustomer[s.customer_id] ??= []).push({
+        status: s.status,
+        plan_slug: s.plan_slug,
+        lineStatus: s.telecom_line_id ? lineStatusById[s.telecom_line_id] ?? null : null,
+      });
+    }
+  }
+
+  const DEAD_SUB_STATUS = new Set(["cancelled", "canceled", "incomplete_expired", "paused"]);
+  const isLiveSub = (s: OrgSub) =>
+    !DEAD_SUB_STATUS.has(s.status) && (s.status === "active" || s.lineStatus === "active");
 
   // CDR records for all customers in the selected month
   const cdrByCustomer: Record<string, Array<{ call_type: string; duration_sec: number; data_bytes: number; sms_count: number }>> = {};
@@ -126,13 +173,24 @@ export default async function OrganizationDetailPage({
   };
 
   const customerRows: CustomerRow[] = customers.map((c) => {
-    const subs = Array.isArray(c.subscriptions) ? c.subscriptions : [];
-    type SubRow = { status: string; plans: { name: string; monthly_price_cents: number; cost_agurot: number; currency: string } | { name: string; monthly_price_cents: number; cost_agurot: number; currency: string }[] | null };
-    const activeSub = (subs as SubRow[]).find((s) => s.status === "active") ?? (subs as SubRow[])[0] ?? null;
-    const rawPlans = activeSub?.plans ?? null;
-    const plan = rawPlans ? (Array.isArray(rawPlans) ? rawPlans[0] ?? null : rawPlans) : null;
+    const liveSubs = (subsByCustomer[c.id] ?? []).filter(isLiveSub);
 
-    const revenueCents = plan?.monthly_price_cents ?? 0;
+    // Revenue = sum of plan list prices across the customer's live lines
+    // (handles multi-line customers correctly; cost stays per-customer below
+    // since CDR usage is only keyed by customer, not line).
+    let revenueCents = 0;
+    const planNames: string[] = [];
+    let planCostAgurot = 0;
+    for (const s of liveSubs) {
+      const plan = s.plan_slug ? planBySlug[s.plan_slug] : undefined;
+      if (plan) {
+        revenueCents += plan.monthly_price_cents;
+        planCostAgurot += plan.cost_agurot;
+        planNames.push(plan.name);
+      }
+    }
+    const hasLive = liveSubs.length > 0;
+
     const customerCdrs = cdrByCustomer[c.id] ?? [];
     const hasActivity = customerCdrs.length > 0;
 
@@ -142,12 +200,12 @@ export default async function OrganizationDetailPage({
     if (hasCdrRates && hasActivity) {
       costAgurot = calcCdrCost(customerCdrs, rates, hasActivity);
       costSource = "cdr";
-    } else if (plan?.cost_agurot) {
-      costAgurot = plan.cost_agurot;
+    } else if (planCostAgurot > 0) {
+      costAgurot = planCostAgurot;
       costSource = "plan";
     } else {
-      // No CDR data and no plan cost — charge active line fee only if sub is active
-      costAgurot = activeSub?.status === "active" ? (rates.line_fee ?? 0) : 0;
+      // No CDR data and no plan cost — charge active line fee only if live
+      costAgurot = hasLive ? (rates.line_fee ?? 0) : 0;
       costSource = "none";
     }
 
@@ -159,12 +217,12 @@ export default async function OrganizationDetailPage({
       id: c.id,
       full_name: c.full_name,
       email: c.email,
-      planName: plan?.name ?? null,
+      planName: planNames.length ? [...new Set(planNames)].join(", ") : null,
       revenueCents,
       costAgurot,
       costSource,
       profitIls,
-      hasActiveSub: activeSub?.status === "active",
+      hasActiveSub: hasLive,
     };
   });
 
