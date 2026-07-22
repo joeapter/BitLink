@@ -33,9 +33,18 @@ export const metadata: Metadata = {
   },
   description: DEFAULT_DESCRIPTION,
   applicationName: SITE_NAME,
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/assets/favicon.ico",
     shortcut: "/assets/favicon.ico",
+    apple: "/apple-icon.png",
+  },
+  // Home-screen install (iOS): open full-screen, use the brand icon, and show
+  // "BitLink" under the icon. Android reads the same intent from the manifest.
+  appleWebApp: {
+    capable: true,
+    title: "BitLink",
+    statusBarStyle: "default",
   },
   openGraph: {
     title: `${SITE_NAME} | Modern Israeli Telecom`,
