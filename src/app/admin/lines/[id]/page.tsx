@@ -126,12 +126,12 @@ export default async function AdminLineDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-4 sm:gap-6">
       {/* Header */}
       <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="text-sm font-semibold text-link-blue">Lines / {id.slice(0, 8)}…</p>
-          <h1 className="mt-2 text-4xl font-semibold tracking-normal text-ink">
+          <h1 className="mt-2 text-3xl font-semibold tracking-normal text-ink sm:text-4xl">
             {customer?.full_name ?? "Unknown customer"}
           </h1>
           <p className="mt-1 flex items-center gap-2 text-sm text-muted-slate">
@@ -164,23 +164,24 @@ export default async function AdminLineDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Key IDs */}
-        <div className="grid gap-1 rounded-2xl border border-ink/10 bg-slate-50 px-4 py-3 text-xs font-mono">
-          <div className="flex gap-3">
-            <span className="w-28 text-muted-slate">BitLink ID</span>
-            <span className="text-ink">{line.id}</span>
+        {/* Key IDs — rows stack (label above value) on phones so the long
+            UUIDs wrap cleanly; ≥640px keeps the original two-column rows. */}
+        <div className="grid gap-2 rounded-2xl border border-ink/10 bg-slate-50 px-4 py-3 text-xs font-mono sm:gap-1">
+          <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
+            <span className="text-muted-slate sm:w-28">BitLink ID</span>
+            <span className="break-all text-ink sm:break-normal">{line.id}</span>
           </div>
-          <div className="flex gap-3">
-            <span className="w-28 text-muted-slate">Provider line</span>
-            <span className="text-ink">{providerLineId ?? "Not yet assigned"}</span>
+          <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
+            <span className="text-muted-slate sm:w-28">Provider line</span>
+            <span className="break-all text-ink sm:break-normal">{providerLineId ?? "Not yet assigned"}</span>
           </div>
-          <div className="flex gap-3">
-            <span className="w-28 text-muted-slate">Plan</span>
-            <span className="text-ink">{String(metadata.plan_slug ?? "—")}</span>
+          <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
+            <span className="text-muted-slate sm:w-28">Plan</span>
+            <span className="break-all text-ink sm:break-normal">{String(metadata.plan_slug ?? "—")}</span>
           </div>
-          <div className="flex gap-3">
-            <span className="w-28 text-muted-slate">Created</span>
-            <span className="text-ink">{formatDateTime(line.created_at)}</span>
+          <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
+            <span className="text-muted-slate sm:w-28">Created</span>
+            <span className="break-all text-ink sm:break-normal">{formatDateTime(line.created_at)}</span>
           </div>
         </div>
       </section>
@@ -201,8 +202,8 @@ export default async function AdminLineDetailPage({ params }: Props) {
       )}
 
       {/* Main grid */}
-      <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
-        <div className="grid gap-6">
+      <div className="grid gap-4 sm:gap-6 xl:grid-cols-[1fr_380px]">
+        <div className="grid gap-4 sm:gap-6">
           {/* eSIM profile */}
           {isEsim && liveDetail && (
             <EsimProfileCard
@@ -324,7 +325,7 @@ export default async function AdminLineDetailPage({ params }: Props) {
 
           {/* SIMs raw info */}
           {liveDetail && liveDetail.sims.length > 0 && (
-            <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
+            <section className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-6">
               <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
                 <Phone className="h-4 w-4 text-link-blue" />
                 SIMs on this line
@@ -479,10 +480,13 @@ export default async function AdminLineDetailPage({ params }: Props) {
           })()}
         </div>
 
-        {/* Right column — actions */}
-        <div className="grid content-start gap-6">
+        {/* Right column — actions. On phones this floats ABOVE the long data
+            list (order-first) so the buttons you troubleshoot with are reached
+            first; ≥640px keeps the original document order (data, then this as
+            the xl right column). */}
+        <div className="grid content-start gap-4 order-first sm:order-0 sm:gap-6">
           {latestJob && (
-            <section className="rounded-[2rem] border border-ink/10 bg-white p-5 shadow-soft">
+            <section className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-5">
               <h2 className="text-lg font-semibold text-ink">Provisioning job</h2>
               <div className="mt-4 grid gap-3 text-sm">
                 <div className="flex items-center justify-between gap-3">
@@ -562,7 +566,7 @@ export default async function AdminLineDetailPage({ params }: Props) {
 
           {/* Suspensions */}
           {liveDetail && liveDetail.suspensions.length > 0 && (
-            <section className="rounded-[2rem] border border-amber-200 bg-amber-50 p-5 shadow-soft">
+            <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-soft sm:rounded-4xl sm:p-5">
               <h2 className="flex items-center gap-2 text-base font-semibold text-amber-800">
                 <Shield className="h-4 w-4" />
                 Active suspensions
