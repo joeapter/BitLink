@@ -108,7 +108,94 @@ export function CustomerTable({ customers, view }: { customers: CustomerRow[]; v
         <div className="border-b border-ink/8 bg-emerald-50 px-4 py-2.5 text-xs font-semibold text-emerald-800">{notice}</div>
       ) : null}
 
-      <div className="overflow-x-auto">
+      {/* Mobile: card list. The wide table below is desktop-only (>=640px) —
+          it stays exactly as it was; phones get tap-friendly cards instead of
+          scrolling an 860px table sideways. */}
+      <div className="divide-y divide-ink/8 sm:hidden">
+        {customers.map((customer) => {
+          const name = customerName(customer);
+          return (
+            <div key={customer.id} className={`p-4 ${selected.has(customer.id) ? "bg-link-blue/5" : ""}`}>
+              <div className="flex items-start justify-between gap-3">
+                <label className="flex min-w-0 items-start gap-2.5">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(customer.id)}
+                    onChange={() => toggleOne(customer.id)}
+                    className="mt-0.5 accent-link-blue"
+                    aria-label={`Select ${name}`}
+                  />
+                  <span className="min-w-0">
+                    <span className="block font-semibold text-ink">{customer.full_name ?? "Unnamed customer"}</span>
+                    <span className="block break-all text-xs text-muted-slate">{customer.email}</span>
+                  </span>
+                </label>
+                <StatusBadge
+                  status={customer.stripe_customer_id ? "active" : "pending"}
+                  label={customer.stripe_customer_id ? "Stripe" : "No Stripe"}
+                />
+              </div>
+
+              {customer.plans.length ? (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {customer.plans.map((p, i) => (
+                    <span key={i} className="rounded-full bg-link-blue/10 px-2 py-0.5 text-xs font-semibold text-link-blue">
+                      {p}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-slate">
+                {customer.phone ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    {customer.phone}
+                    <a
+                      href={whatsappWebUrl(customer.phone, whatsappGreeting(customer.full_name)) ?? undefined}
+                      target="bitlink-whatsapp"
+                      rel="noopener noreferrer"
+                      title="Message on WhatsApp (business account)"
+                      className="inline-flex items-center rounded-full bg-emerald-50 p-1 text-emerald-700 transition hover:bg-emerald-100"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
+                    </a>
+                  </span>
+                ) : null}
+                <span>{formatDate(customer.created_at)}</span>
+                {customer.salesRep ? <StatusBadge status={customer.salesRep.status} label="Rep" /> : null}
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Link
+                  href={`/admin/custom-orders?customer=${customer.id}`}
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-link-blue/30 bg-[#e6fbff] px-3 py-1.5 text-xs font-semibold text-ink shadow-sm transition hover:bg-[#d8f7fd]"
+                >
+                  Build order
+                </Link>
+                {customer.reviewRequestedAt ? (
+                  <span className="text-xs text-muted-slate">Review asked {formatDate(customer.reviewRequestedAt)}</span>
+                ) : customer.email ? (
+                  <form action={sendReviewRequestAction}>
+                    <input type="hidden" name="customerId" value={customer.id} />
+                    <RequestReviewButton />
+                  </form>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => runArchive([customer.id], isArchiveView ? "archive" : "unarchive")}
+                  disabled={pending}
+                  className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-ink/10 px-3 py-1.5 text-xs font-semibold text-slate-500 transition hover:bg-slate-100 disabled:opacity-50"
+                >
+                  {isArchiveView ? <Archive className="h-3.5 w-3.5" aria-hidden="true" /> : <ArchiveRestore className="h-3.5 w-3.5" aria-hidden="true" />}
+                  {isArchiveView ? "Archive" : "Restore"}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="hidden overflow-x-auto sm:block">
         <table className="w-full min-w-[860px] text-left text-sm">
           <thead className="bg-slate-50 text-muted-slate">
             <tr>

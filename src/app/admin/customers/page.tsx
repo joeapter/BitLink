@@ -108,11 +108,11 @@ export default async function AdminCustomersPage({
   }));
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-4 sm:gap-6">
       <section className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <p className="text-sm font-semibold text-link-blue">Customers</p>
-          <h1 className="mt-2 text-4xl font-semibold tracking-normal text-ink">Customer records</h1>
+          <h1 className="mt-2 text-3xl font-semibold tracking-normal text-ink sm:text-4xl">Customer records</h1>
         </div>
         <form className="flex gap-2">
           <input type="hidden" name="view" value={view} />
@@ -140,7 +140,7 @@ export default async function AdminCustomersPage({
         </Link>
       </div>
 
-      <section className="overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-soft">
+      <section className="overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-soft sm:rounded-4xl">
         {rows.length ? (
           <CustomerTable customers={rows} view={view} />
         ) : (

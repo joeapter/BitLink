@@ -18,27 +18,27 @@ export default async function AdminPage() {
   const monthLabel = new Date().toLocaleDateString("en-US", { month: "long", timeZone: "UTC" });
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-4 sm:gap-6">
       <section>
         <p className="text-sm font-semibold text-link-blue">BitLink admin</p>
-        <h1 className="mt-2 text-4xl font-semibold tracking-normal text-ink">Operations overview</h1>
+        <h1 className="mt-2 text-3xl font-semibold tracking-normal text-ink sm:text-4xl">Operations overview</h1>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-4">
+      <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <AdminMetric label="Active customers" value={overview.metrics.activeCustomers} icon={Users} tone="blue" />
         <AdminMetric label="Active subscriptions" value={overview.metrics.activeSubscriptions} icon={CreditCard} tone="green" />
         <AdminMetric label="Provisioning queue" value={overview.metrics.provisioningQueue} icon={RadioTower} tone="amber" />
         <AdminMetric label="Failed payments" value={overview.metrics.failedPayments} icon={AlertTriangle} tone="red" />
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
+      <section className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-6">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
             <DollarSign className="h-4 w-4 text-link-blue" aria-hidden="true" />
             Revenue this month ({monthLabel})
           </h2>
           {revenue ? (
-            <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="rounded-2xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">Total</p>
                 <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(revenue.totalCents)}</p>
@@ -61,7 +61,7 @@ export default async function AdminPage() {
         </div>
 
         {overview.linesByPlan.length > 0 && (
-          <div className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
+          <div className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-6">
             <h2 className="text-lg font-semibold text-ink">Active lines by plan</h2>
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
               {overview.linesByPlan.map((item) => (
@@ -75,13 +75,13 @@ export default async function AdminPage() {
         )}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <section className="grid gap-4 sm:gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div>
           <h2 className="mb-4 text-xl font-semibold text-ink">Provisioning queue</h2>
           <ProvisioningQueue orders={overview.provisioningOrders} />
         </div>
-        <div className="grid content-start gap-6">
-          <div className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
+        <div className="grid content-start gap-4 sm:gap-6">
+          <div className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-6">
             <h2 className="text-xl font-semibold text-ink">Recent orders</h2>
             <div className="mt-4 grid gap-3">
               {overview.recentOrders.length ? (
@@ -100,7 +100,7 @@ export default async function AdminPage() {
           </div>
 
           {overview.portInQueue.length > 0 && (
-            <div className="rounded-[2rem] border border-orange-200 bg-orange-50 p-6 shadow-soft">
+            <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4 shadow-soft sm:rounded-4xl sm:p-6">
               <h2 className="flex items-center gap-2 text-xl font-semibold text-orange-900">
                 <Phone className="h-5 w-5" aria-hidden="true" />
                 Port-in queue
@@ -133,7 +133,7 @@ export default async function AdminPage() {
           )}
 
           {overview.intlNumberQueue.length > 0 && (
-            <div className="rounded-[2rem] border border-orange-200 bg-orange-50 p-6 shadow-soft">
+            <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4 shadow-soft sm:rounded-4xl sm:p-6">
               <h2 className="flex items-center gap-2 text-xl font-semibold text-orange-900">
                 <Globe2 className="h-5 w-5" aria-hidden="true" />
                 New number needs manual fulfillment
@@ -158,7 +158,7 @@ export default async function AdminPage() {
             </div>
           )}
 
-          <div className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
+          <div className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-6">
             <h2 className="flex items-center gap-2 text-xl font-semibold text-ink">
               <Share2 className="h-5 w-5 text-link-blue" aria-hidden="true" />
               Referral activity
