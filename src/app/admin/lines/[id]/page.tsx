@@ -330,17 +330,39 @@ export default async function AdminLineDetailPage({ params }: Props) {
                 SIMs on this line
               </h2>
               <div className="mt-4 grid gap-2">
-                {liveDetail.sims.map((sim) => (
-                  <div key={sim.id} className="rounded-xl bg-slate-50 p-3 text-xs font-mono">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-ink">{sim.iccId}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-[0.6rem] font-bold uppercase ${sim.type === "esim" ? "bg-blue-50 text-blue-700" : "bg-slate-200 text-slate-600"}`}>
-                        {sim.type}
-                      </span>
-                    </div>
-                    {sim.isMain && <span className="text-emerald-700">Main SIM</span>}
-                  </div>
-                ))}
+                {[...liveDetail.sims]
+                  // Active SIMs first, retired (swapped-out) ones after.
+                  .sort((a, b) => (a.endAt ? 1 : 0) - (b.endAt ? 1 : 0))
+                  .map((sim) => {
+                    const retired = Boolean(sim.endAt);
+                    return (
+                      <div
+                        key={sim.id}
+                        className={`rounded-xl p-3 text-xs font-mono ${retired ? "bg-slate-100 opacity-60" : "bg-slate-50"}`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={`font-semibold ${retired ? "text-muted-slate line-through" : "text-ink"}`}>{sim.iccId}</span>
+                          <div className="flex items-center gap-1.5">
+                            {retired ? (
+                              <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[0.6rem] font-bold uppercase text-slate-500">Retired</span>
+                            ) : null}
+                            <span className={`rounded-full px-2 py-0.5 text-[0.6rem] font-bold uppercase ${sim.type === "esim" ? "bg-blue-50 text-blue-700" : "bg-slate-200 text-slate-600"}`}>
+                              {sim.type}
+                            </span>
+                          </div>
+                        </div>
+                        {retired ? (
+                          <span className="text-muted-slate">
+                            Replaced{sim.endAt ? ` ${sim.endAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : ""} — no longer active
+                          </span>
+                        ) : sim.isMain ? (
+                          <span className="text-emerald-700">Active · Main SIM</span>
+                        ) : (
+                          <span className="text-emerald-700">Active</span>
+                        )}
+                      </div>
+                    );
+                  })}
               </div>
             </section>
           )}

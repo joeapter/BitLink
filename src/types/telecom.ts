@@ -190,6 +190,7 @@ export interface LineSimInfo {
   iccId: string;
   isMain: boolean;
   type: 'esim' | 'sim_card';
+  endAt?: Date;                  // set once the SIM is retired (swapped out) — otherwise active
   activationCode?: string;       // eSIM only — the LPA activation string
   activationCodeToken?: string;  // eSIM only
   smDpPlusAddress?: string;      // eSIM only — SM-DP+ server

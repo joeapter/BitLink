@@ -202,6 +202,7 @@ export class AnnatelProvider implements TelecomProvider {
         iccId: s.icc_id,
         isMain: s.is_main,
         type: s.sim?.type ?? 'sim_card',
+        endAt: s.end_at ? new Date(s.end_at) : undefined,
         activationCode: s.sim?.activation_code,
         activationCodeToken: s.sim?.activation_code_token,
         smDpPlusAddress: s.sim?.sm_dp_plus_address,
