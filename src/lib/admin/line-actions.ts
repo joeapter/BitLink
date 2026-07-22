@@ -418,30 +418,35 @@ export async function recycleAndResendEsimAction(
   const provider = getProvider();
   const admin = getAdmin();
 
-  // Resolve the line's eSIM SIM so we can recycle its profile.
-  let esimSimId: string | null = null;
-  try {
-    const sims = await provider.listLineSims(providerLineId);
-    esimSimId = sims.find((s) => s.type === 'esim')?.id ?? null;
-  } catch (err) {
-    return { error: `Could not read the line's SIMs: ${err instanceof Error ? err.message : String(err)}` };
-  }
-  if (!esimSimId) return { error: 'No eSIM SIM found on this line to recycle.' };
-
-  try {
-    await provider.recycleEsimProfile(esimSimId);
-  } catch (err) {
-    return { error: `Recycle failed at the carrier: ${err instanceof Error ? err.message : String(err)}` };
-  }
-
-  // Clear the installed marker so this line is treated as freshly pending —
-  // the customer has to install the new profile.
   const { data: lineRow } = await admin
     .from('telecom_lines')
     .select('metadata')
     .eq('id', lineId)
     .maybeSingle();
   const meta = (lineRow?.metadata ?? {}) as Record<string, unknown>;
+
+  // Annatel's sim_manager profile/recycle endpoints are keyed by ICCID, and
+  // the line-sims listing carries no eSIM "type" flag — so resolve the eSIM
+  // ICCID from the stored metadata, falling back to the line's main SIM ICCID.
+  let esimIccId = (meta.esim_icc_id as string | undefined) ?? null;
+  if (!esimIccId) {
+    try {
+      const sims = await provider.listLineSims(providerLineId);
+      esimIccId = (sims.find((s) => s.isMain) ?? sims[0])?.iccId ?? null;
+    } catch (err) {
+      return { error: `Could not read the line's SIMs: ${err instanceof Error ? err.message : String(err)}` };
+    }
+  }
+  if (!esimIccId) return { error: 'No eSIM found on this line to recycle.' };
+
+  try {
+    await provider.recycleEsimProfile(esimIccId);
+  } catch (err) {
+    return { error: `Recycle failed at the carrier: ${err instanceof Error ? err.message : String(err)}` };
+  }
+
+  // Clear the installed marker so this line is treated as freshly pending —
+  // the customer has to install the new profile.
   await admin
     .from('telecom_lines')
     .update({
@@ -456,7 +461,7 @@ export async function recycleAndResendEsimAction(
     return { error: `Profile recycled, but email could not be sent: ${result.reason.replaceAll('_', ' ')}. Try "Refresh & resend" in a moment.` };
   }
 
-  await logAction(user.id, 'esim_recycled_and_resent', lineId, { simId: esimSimId });
+  await logAction(user.id, 'esim_recycled_and_resent', lineId, { iccId: esimIccId });
   revalidatePath(`/admin/lines/${lineId}`);
   return { success: 'New eSIM created and QR emailed to the customer.' };
 }

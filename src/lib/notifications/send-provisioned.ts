@@ -84,16 +84,24 @@ export async function sendProvisionedNotifications(
     } else if (providerLineId) {
       try {
         const provider = getTelecomProvider();
-        const sims = await provider.listLineSims(providerLineId);
-        const esimSim = sims.find((s) => s.type === 'esim');
-        if (esimSim) {
-          const profile = await provider.getEsimProfile(esimSim.id);
+        // The line-sims listing has no eSIM "type" flag, and the sim_manager
+        // profile endpoint is keyed by ICCID — so use the stored eSIM ICCID
+        // (fallback to the line's main SIM) rather than matching on type/id.
+        const storedIccId = meta.esim_icc_id as string | undefined;
+        let esimIccId = storedIccId ?? null;
+        if (!esimIccId) {
+          const sims = await provider.listLineSims(providerLineId);
+          esimIccId = (sims.find((s) => s.isMain) ?? sims[0])?.iccId ?? null;
+        }
+        if (esimIccId) {
+          const profile = await provider.getEsimProfile(esimIccId);
           if (profile.activationCode) {
             await admin
               .from('telecom_lines')
               .update({
                 metadata: {
                   ...meta,
+                  esim_icc_id: esimIccId,
                   esim_activation_code: profile.activationCode,
                   esim_sm_dp_plus: profile.smDpPlusAddress,
                   esim_ready_at: new Date().toISOString(),
