@@ -77,7 +77,7 @@ async function notifyAdminOfDidAssignmentFailure(lineId: string, attempts: numbe
 
 // ICCIDs consumed by lines or reserved by in-flight jobs — the provider's SIM
 // listing keeps consumed SIMs, so without this every order picks the same SIM.
-async function collectUsedIccIds(admin: Admin): Promise<string[]> {
+export async function collectUsedIccIds(admin: Admin): Promise<string[]> {
   const [{ data: jobs }, { data: lines }] = await Promise.all([
     admin
       .from('provisioning_jobs')

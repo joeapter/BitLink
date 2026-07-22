@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
-import { retryProvisioningJob } from "@/lib/provisioning/orchestrator";
+import { retryProvisioningJob, collectUsedIccIds } from "@/lib/provisioning/orchestrator";
 import { inngest } from "@/inngest/client";
 import { changeLinePlan, type PlanChangeResult } from "@/lib/line-plan-change";
 import { sendProvisionedNotifications } from "@/lib/notifications/send-provisioned";
@@ -399,13 +399,21 @@ export async function resendProvisionedEmailAction(
   return { success: 'Fresh QR emailed to the customer.' };
 }
 
-// The heavier recovery path: recycle the eSIM profile at the carrier to mint a
-// brand-new activation code, then email the new QR. Use this when the eSIM was
-// already installed/used (or a download failed) and the existing code can no
-// longer be installed — a plain resend won't help there because the old
-// profile is spent. Recycling invalidates any prior install, so the customer
-// must scan the new QR fresh; the "installed" flag is cleared so the pending
-// activation UI reappears.
+// The heavier recovery path: re-issue a fresh, installable eSIM and email its
+// QR. Use when the eSIM was already installed/used or a download failed and the
+// old code can no longer be installed.
+//
+// One button, two mechanisms, chosen automatically so support never has to
+// know whether the customer already installed it:
+//   1. Try recycle_profile on the current eSIM. This regenerates the code on
+//      the SAME ICCID (no inventory consumed) and works only while the profile
+//      was never downloaded (state RELEASED).
+//   2. If the carrier rejects that (the profile is already on a device →
+//      "Profile ... is not available"), SWAP the line onto a fresh eSIM from
+//      inventory (new ICCID) via the documented swap endpoint.
+// Either way the DID (phone number) stays on the line — only the SIM/profile
+// changes — so the customer keeps their number and just scans the new QR; any
+// eSIM they had installed stops working.
 export async function recycleAndResendEsimAction(
   _prev: ResendState,
   formData: FormData,
@@ -424,46 +432,85 @@ export async function recycleAndResendEsimAction(
     .eq('id', lineId)
     .maybeSingle();
   const meta = (lineRow?.metadata ?? {}) as Record<string, unknown>;
+  const currentIccId = (meta.esim_icc_id as string | undefined) ?? null;
 
-  // Annatel's sim_manager profile/recycle endpoints are keyed by ICCID, and
-  // the line-sims listing carries no eSIM "type" flag — so resolve the eSIM
-  // ICCID from the stored metadata, falling back to the line's main SIM ICCID.
-  let esimIccId = (meta.esim_icc_id as string | undefined) ?? null;
-  if (!esimIccId) {
+  let iccId: string | null = currentIccId;
+  let method: 'recycled' | 'swapped' = 'recycled';
+
+  // Step 1 — try the cheap recycle-in-place (reuses the same eSIM).
+  let recycled = false;
+  if (currentIccId) {
     try {
-      const sims = await provider.listLineSims(providerLineId);
-      esimIccId = (sims.find((s) => s.isMain) ?? sims[0])?.iccId ?? null;
-    } catch (err) {
-      return { error: `Could not read the line's SIMs: ${err instanceof Error ? err.message : String(err)}` };
+      await provider.recycleEsimProfile(currentIccId);
+      recycled = true;
+    } catch {
+      recycled = false; // already installed (or no recyclable profile) — swap instead
     }
   }
-  if (!esimIccId) return { error: 'No eSIM found on this line to recycle.' };
 
-  try {
-    await provider.recycleEsimProfile(esimIccId);
-  } catch (err) {
-    return { error: `Recycle failed at the carrier: ${err instanceof Error ? err.message : String(err)}` };
+  // Step 2 — fall back to swapping in a fresh eSIM from inventory.
+  if (!recycled) {
+    let newIccId: string | null = null;
+    try {
+      newIccId = await provider.getAvailableEsimIccId(await collectUsedIccIds(admin));
+    } catch (err) {
+      return { error: `Could not find a spare eSIM: ${err instanceof Error ? err.message : String(err)}` };
+    }
+    if (!newIccId) return { error: 'No spare eSIM available in inventory to issue.' };
+    try {
+      await provider.replaceSim(providerLineId, newIccId);
+    } catch (err) {
+      return { error: `Swapping to a new eSIM failed at the carrier: ${err instanceof Error ? err.message : String(err)}` };
+    }
+    method = 'swapped';
+    iccId = newIccId;
   }
 
-  // Clear the installed marker so this line is treated as freshly pending —
-  // the customer has to install the new profile.
+  if (!iccId) return { error: 'Could not determine the eSIM to re-issue.' };
+
+  // Read the fresh activation code (new matching id after recycle, or the new
+  // eSIM's code after a swap).
+  let activationCode: string | undefined;
+  let smDpPlus: string | undefined;
+  try {
+    const profile = await provider.getEsimProfile(iccId);
+    activationCode = profile.activationCode;
+    smDpPlus = profile.smDpPlusAddress;
+  } catch (err) {
+    return { error: `New eSIM ready, but reading its activation code failed: ${err instanceof Error ? err.message : String(err)}. Try "Refresh & resend" shortly.` };
+  }
+
+  // Point the line at the current ICCID + fresh code, clearing the installed
+  // marker so the pending-activation UI and the customer's QR reflect the new one.
   await admin
     .from('telecom_lines')
     .update({
-      metadata: { ...meta, esim_activated_at: null } as never,
+      metadata: {
+        ...meta,
+        esim_icc_id: iccId,
+        esim_activation_code: activationCode,
+        esim_sm_dp_plus: smDpPlus,
+        esim_ready_at: new Date().toISOString(),
+        esim_activated_at: null,
+      } as never,
       updated_at: new Date().toISOString(),
     })
     .eq('id', lineId);
 
-  // resync pulls the freshly-minted post-recycle code before emailing.
-  const result = await sendProvisionedNotifications(admin, lineId, providerLineId, { force: true, resync: true });
+  // Email the new QR — stored code is now current, so no resync needed.
+  const result = await sendProvisionedNotifications(admin, lineId, providerLineId, { force: true });
   if (result.skipped) {
-    return { error: `Profile recycled, but email could not be sent: ${result.reason.replaceAll('_', ' ')}. Try "Refresh & resend" in a moment.` };
+    return { error: `New eSIM issued, but the email could not be sent: ${result.reason.replaceAll('_', ' ')}. Try "Refresh & resend" in a moment.` };
   }
 
-  await logAction(user.id, 'esim_recycled_and_resent', lineId, { iccId: esimIccId });
+  await logAction(user.id, 'esim_reissued_and_resent', lineId, { method, oldIccId: currentIccId, newIccId: iccId });
   revalidatePath(`/admin/lines/${lineId}`);
-  return { success: 'New eSIM created and QR emailed to the customer.' };
+  return {
+    success:
+      method === 'swapped'
+        ? 'New eSIM issued (swapped — customer had already installed the old one) and QR emailed.'
+        : 'eSIM re-issued and fresh QR emailed to the customer.',
+  };
 }
 
 // Manual override for "hide the QR once installed" — there is no automatic

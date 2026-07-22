@@ -70,10 +70,11 @@ export function EsimResendCard({
         </div>
 
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
-          <p className="text-sm font-semibold text-amber-900">Already installed / used, or still failing?</p>
+          <p className="text-sm font-semibold text-amber-900">Won&apos;t install, or already used?</p>
           <p className="mt-0.5 text-xs text-amber-800">
-            Creates a brand-new eSIM and emails the new QR. Only use this if &ldquo;Refresh &amp; resend&rdquo;
-            didn&apos;t help — it cancels any eSIM the customer already installed, so they must scan the new one.
+            Re-issues the eSIM and emails a fresh QR. Works whether or not the customer already installed it —
+            if they did, it automatically swaps in a brand-new eSIM. Only use this if &ldquo;Refresh &amp; resend&rdquo;
+            didn&apos;t help; any eSIM they already installed stops working, so they must scan the new one.
           </p>
           <form
             action={recycleAction}
@@ -81,7 +82,7 @@ export function EsimResendCard({
             onSubmit={(e) => {
               if (
                 !window.confirm(
-                  "Create a brand-new eSIM for this line? Any eSIM the customer already installed will stop working and they'll need to scan the new QR. Only do this if a normal resend didn't work.",
+                  "Re-issue the eSIM for this line? Any eSIM the customer already installed will stop working and they'll need to scan the new QR. Only do this if a normal resend didn't work.",
                 )
               ) {
                 e.preventDefault();
@@ -96,7 +97,7 @@ export function EsimResendCard({
               className="inline-flex items-center justify-center gap-2 rounded-full border border-amber-400 bg-white px-4 py-2 text-xs font-semibold text-amber-900 transition hover:bg-amber-100 disabled:opacity-50"
             >
               <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-              {recyclePending ? "Creating…" : "Recycle & send new QR"}
+              {recyclePending ? "Issuing…" : "Issue a new eSIM & send QR"}
             </button>
           </form>
         </div>
