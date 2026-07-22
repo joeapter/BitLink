@@ -448,7 +448,10 @@ export function buildAdminProvisionedEmail(params: {
     <table cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:16px;">${rows}</table>
     ${
       params.isEsim && params.activationCode
-        ? `${p('<b>eSIM activation code</b> (forward to the customer if they lose their email):')}
+        ? `${p('<b>eSIM QR</b> — scan to test, or forward to the customer if they lose their email:')}
+           <div style="text-align:center;margin:0 0 16px;">
+             <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&data=${encodeURIComponent(params.activationCode)}" alt="eSIM QR code" width="200" height="200" style="border-radius:12px;border:1px solid #e2e8f0;" />
+           </div>
            <p style="margin:0 0 16px;"><span style="font-family:monospace;background:#f1f5f9;padding:8px 10px;border-radius:8px;font-size:12px;color:#050606;display:inline-block;word-break:break-all;">${params.activationCode}</span></p>`
         : ''
     }
