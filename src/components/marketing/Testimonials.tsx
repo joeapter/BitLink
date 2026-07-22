@@ -3,6 +3,11 @@ import { Star } from "lucide-react";
 // Real customer quotes (published with permission, lightly edited for
 // clarity/typos). Also feeds the Review/AggregateRating JSON-LD emitted
 // alongside this section on the homepage — see lib/seo.ts#testimonialsJsonLd.
+//
+// `inSchema: false` marks a quote sourced from a THIRD-PARTY platform (e.g. a
+// Google review, shown here with permission). Those are displayed visually but
+// deliberately kept OUT of the review schema — Google's structured-data policy
+// prohibits marking up reviews collected elsewhere as your own site's reviews.
 export const testimonials = [
   {
     author: "Aryeh H.",
@@ -24,6 +29,14 @@ export const testimonials = [
     ratingValue: 5,
     reviewBody:
       "Having a US number attached to my Israeli eSIM is huge — my family back in America can call me anytime without worrying about extra fees on their end.",
+  },
+  {
+    author: "Vladimir M.",
+    location: "via Google",
+    ratingValue: 5,
+    reviewBody:
+      "One of the best english support I have experienced in Israel so far. Far above all the traditional mobile providers communication style.",
+    inSchema: false,
   },
 ];
 
@@ -52,7 +65,7 @@ export function Testimonials() {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {testimonials.map((t) => (
             <figure
               key={t.author}

@@ -92,7 +92,7 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(faqPageJsonLd(homeFaqItems))} />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={jsonLdScriptProps(testimonialsJsonLd(testimonials))}
+        dangerouslySetInnerHTML={jsonLdScriptProps(testimonialsJsonLd(testimonials.filter((t) => t.inSchema !== false)))}
       />
       <LiquidHero />
 
