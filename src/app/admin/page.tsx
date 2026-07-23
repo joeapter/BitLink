@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { AlertTriangle, CreditCard, DollarSign, Globe2, Phone, RadioTower, Share2, Users } from "lucide-react";
 import { AdminMetric } from "@/components/admin/AdminMetric";
 import { ProvisioningQueue } from "@/components/admin/ProvisioningQueue";
@@ -13,8 +14,61 @@ export const metadata: Metadata = {
   title: "Admin",
 };
 
+// Revenue comes from a live Stripe API call — the slow part of this page. It's
+// rendered in its own Suspense boundary so the rest of the overview (metrics,
+// queues, all from the DB) paints immediately and this tile streams in after.
+async function RevenueCard({ monthLabel }: { monthLabel: string }) {
+  const revenue = await getMonthlyRevenue();
+  return (
+    <div className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-6">
+      <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
+        <DollarSign className="h-4 w-4 text-link-blue" aria-hidden="true" />
+        Revenue this month ({monthLabel})
+      </h2>
+      {revenue ? (
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">Total</p>
+            <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(revenue.totalCents)}</p>
+          </div>
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">Subscriptions</p>
+            <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(revenue.recurringCents)}</p>
+          </div>
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">One-time</p>
+            <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(revenue.oneTimeCents)}</p>
+          </div>
+        </div>
+      ) : (
+        <p className="mt-4 text-sm text-muted-slate">Stripe is not configured.</p>
+      )}
+      <p className="mt-3 text-xs text-muted-slate">
+        Pulled live from paid Stripe invoices this month. One-time includes activation fees and topup purchases.
+      </p>
+    </div>
+  );
+}
+
+function RevenueCardSkeleton({ monthLabel }: { monthLabel: string }) {
+  return (
+    <div className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-6">
+      <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
+        <DollarSign className="h-4 w-4 text-link-blue" aria-hidden="true" />
+        Revenue this month ({monthLabel})
+      </h2>
+      <div className="mt-4 grid animate-pulse grid-cols-1 gap-3 sm:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-20 rounded-2xl bg-slate-100" />
+        ))}
+      </div>
+      <p className="mt-3 text-xs text-muted-slate">Loading live Stripe revenue…</p>
+    </div>
+  );
+}
+
 export default async function AdminPage() {
-  const [overview, revenue] = await Promise.all([getAdminOverview(), getMonthlyRevenue()]);
+  const overview = await getAdminOverview();
   const monthLabel = new Date().toLocaleDateString("en-US", { month: "long", timeZone: "UTC" });
 
   return (
@@ -32,33 +86,9 @@ export default async function AdminPage() {
       </section>
 
       <section className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-6">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
-            <DollarSign className="h-4 w-4 text-link-blue" aria-hidden="true" />
-            Revenue this month ({monthLabel})
-          </h2>
-          {revenue ? (
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">Total</p>
-                <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(revenue.totalCents)}</p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">Subscriptions</p>
-                <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(revenue.recurringCents)}</p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">One-time</p>
-                <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(revenue.oneTimeCents)}</p>
-              </div>
-            </div>
-          ) : (
-            <p className="mt-4 text-sm text-muted-slate">Stripe is not configured.</p>
-          )}
-          <p className="mt-3 text-xs text-muted-slate">
-            Pulled live from paid Stripe invoices this month. One-time includes activation fees and topup purchases.
-          </p>
-        </div>
+        <Suspense fallback={<RevenueCardSkeleton monthLabel={monthLabel} />}>
+          <RevenueCard monthLabel={monthLabel} />
+        </Suspense>
 
         {overview.linesByPlan.length > 0 && (
           <div className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-6">
