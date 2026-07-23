@@ -11,8 +11,13 @@ export async function getCurrentUser() {
   return user;
 }
 
-export async function getCurrentProfile() {
-  const user = await getCurrentUser();
+export async function getCurrentProfile(
+  // Accept an already-resolved user so callers that just fetched it (e.g.
+  // requireProfile) don't trigger a second supabase.auth.getUser() network
+  // round-trip — that duplicate call was adding latency to every admin page.
+  existingUser?: Awaited<ReturnType<typeof getCurrentUser>>,
+) {
+  const user = existingUser ?? (await getCurrentUser());
   if (!user) return null;
 
   const supabase = await createSupabaseServerClient();
@@ -28,7 +33,7 @@ export async function requireUser() {
 
 export async function requireProfile() {
   const user = await requireUser();
-  const profile = await getCurrentProfile();
+  const profile = await getCurrentProfile(user);
   return { user, profile };
 }
 
