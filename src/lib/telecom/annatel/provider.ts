@@ -280,13 +280,14 @@ export class AnnatelProvider implements TelecomProvider {
 
   // ── SIM management ────────────────────────────────────────────────────────
 
-  async assignSim(providerLineId: string, iccId: string): Promise<void> {
+  async assignSim(providerLineId: string, iccId: string, isMain?: boolean): Promise<void> {
     // Dedicated create endpoint (confirmed against Annatel's Swagger spec,
     // Jul 2026) — not the generic bulk_requests catch-all this used to call.
-    // is_main omitted deliberately: it's optional in the schema and the
-    // server's default is correct for "add another SIM to an existing line."
+    // Pass isMain: true when this physical SIM is the line's primary SIM
+    // (e.g. activating a mailed/handed-over card); omit it to add a secondary.
     await this.client.post(`${LINES_BASE}/${providerLineId}/sims`, {
       icc_id: iccId,
+      ...(isMain ? { is_main: true } : {}),
     });
   }
 

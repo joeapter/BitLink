@@ -7,6 +7,7 @@ import { LineActionsPanel } from "@/components/admin/LineActionsPanel";
 import { retryProvisioningJobAction } from "@/lib/admin/line-actions";
 import { EsimActivationCard } from "@/components/admin/EsimActivationCard";
 import { EsimResendCard } from "@/components/admin/EsimResendCard";
+import { AssignPhysicalSimCard } from "@/components/admin/AssignPhysicalSimCard";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatDateTime } from "@/lib/utils";
@@ -218,6 +219,14 @@ export default async function AdminLineDetailPage({ params }: Props) {
             if (!metaIsEsim || !providerLineId) return null;
             return <EsimResendCard lineId={line.id} providerLineId={providerLineId} />;
           })()}
+
+          {!isEsim && providerLineId && (
+            <AssignPhysicalSimCard
+              lineId={line.id}
+              providerLineId={providerLineId}
+              currentIccId={metadata.sim_icc_id as string | undefined}
+            />
+          )}
 
           {providerLineId && (
             <LineActionsPanel

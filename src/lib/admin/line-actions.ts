@@ -516,6 +516,54 @@ export async function recycleAndResendEsimAction(
 // Manual override for "hide the QR once installed" — there is no automatic
 // signal from Annatel for first network registration today, so this gives
 // admins explicit control instead of the QR showing forever.
+// Bind a physical SIM to an already-active line by its ICCID — the card you
+// hand over in person or mail out. Uses the dedicated add-SIM endpoint with
+// is_main: true so the physical card becomes the line's primary SIM. The
+// line's Israeli number is unaffected (it lives on the line, not the SIM), so
+// the customer just inserts the card and it works.
+export async function assignPhysicalSimAction(
+  _prev: ResendState,
+  formData: FormData,
+): Promise<ResendState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const providerLineId = String(formData.get('providerLineId') ?? '') || null;
+  const iccId = String(formData.get('iccId') ?? '').replace(/\s+/g, '');
+  if (!lineId || !providerLineId) return { error: 'Missing line reference.' };
+  if (!/^\d{15,22}$/.test(iccId)) {
+    return { error: 'That ICCID doesn’t look right — it should be the 18–20 digit number printed on the SIM.' };
+  }
+
+  const provider = getProvider();
+  try {
+    await provider.assignSim(providerLineId, iccId, true);
+  } catch (err) {
+    return { error: `Could not attach the SIM at the carrier: ${err instanceof Error ? err.message : String(err)}` };
+  }
+
+  // Record which physical card is on the line, and try a refresh so the
+  // network registers the new SIM (non-fatal if it doesn't take immediately).
+  const admin = getAdmin();
+  const { data: lineRow } = await admin.from('telecom_lines').select('metadata').eq('id', lineId).maybeSingle();
+  const meta = (lineRow?.metadata ?? {}) as Record<string, unknown>;
+  await admin
+    .from('telecom_lines')
+    .update({
+      metadata: { ...meta, sim_icc_id: iccId, sim_assigned_at: new Date().toISOString() } as never,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', lineId);
+  try {
+    await provider.refreshLine(providerLineId);
+  } catch {
+    // refresh is best-effort — the SIM is attached regardless
+  }
+
+  await logAction(user.id, 'physical_sim_assigned', lineId, { iccId });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return { success: `Physical SIM ${iccId} attached to this line. The customer can insert the card now.` };
+}
+
 export async function markEsimInstalledAction(formData: FormData): Promise<void> {
   const { user } = await requireAdmin();
   const lineId = String(formData.get('lineId') ?? '');

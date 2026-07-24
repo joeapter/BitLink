@@ -24,6 +24,11 @@ export type CustomOrderLine = {
   // time (intlSource === 'new' only) — see IntlNumberPicker + the checkout
   // route's reservation step.
   intlChosenNumber: string | null;
+  // ICCID of the physical SIM to activate the line on (physical/kosher lines
+  // only). Present when an admin enters it in the custom-order builder; eSIM
+  // and customer-facing flows leave it unset and provisioning auto-picks an
+  // eSIM from inventory.
+  iccId?: string | null;
   customPriceCents: number;
 };
 
@@ -48,6 +53,10 @@ export function normalizeCustomOrderLines(value: unknown): CustomOrderLine[] {
         : null,
       intlChosenNumber: wantsIntlNumber && intlSource === 'new'
         ? ((row.intlChosenNumber ?? row.intl_chosen_number ?? null) as string | null)
+        : null,
+      // Only meaningful for physical lines; eSIM auto-picks from inventory.
+      iccId: plan.isKosher || !Boolean(row.isEsim ?? row.is_esim ?? true)
+        ? ((row.iccId ?? row.icc_id ?? null) as string | null)
         : null,
       customPriceCents: Number(row.customPriceCents ?? row.custom_price_cents ?? plan.priceCents),
     };

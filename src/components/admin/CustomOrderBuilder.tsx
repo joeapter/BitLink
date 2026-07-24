@@ -23,6 +23,7 @@ type BuilderLine = {
   id: string;
   planSlug: PlanSlug;
   isEsim: boolean;
+  iccId: string;
   isPortIn: boolean;
   portNumber: string;
   wantsIntlNumber: boolean;
@@ -39,6 +40,7 @@ function newLine(): BuilderLine {
     id: crypto.randomUUID(),
     planSlug: plan.slug,
     isEsim: true,
+    iccId: "",
     isPortIn: false,
     portNumber: "",
     wantsIntlNumber: false,
@@ -130,6 +132,7 @@ export function CustomOrderBuilder({
         lines: lines.map((line) => ({
           planSlug: line.planSlug,
           isEsim: line.isEsim,
+          iccId: line.isEsim ? null : (line.iccId.trim() || null),
           isPortIn: line.isPortIn,
           portNumber: line.isPortIn ? line.portNumber : null,
           wantsIntlNumber: line.wantsIntlNumber,
@@ -289,6 +292,21 @@ export function CustomOrderBuilder({
                     onChange={(event) => updateLine(line.id, { customPrice: event.target.value })}
                   />
                 </div>
+
+                {!line.isEsim ? (
+                  <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                    <Input
+                      label="Physical SIM ICCID"
+                      value={line.iccId}
+                      onChange={(event) => updateLine(line.id, { iccId: event.target.value })}
+                      placeholder="ICCID printed on the card, e.g. 8997226000000000000"
+                    />
+                    <p className="mt-1.5 text-xs text-amber-800">
+                      Enter the card you&apos;re handing over now to activate the line on it. Leave blank for a mailed
+                      order and assign the SIM later from the line page.
+                    </p>
+                  </div>
+                ) : null}
 
                 <div className="mt-4 grid gap-3 lg:grid-cols-2">
                   <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-ink/10 bg-slate-50 p-4">

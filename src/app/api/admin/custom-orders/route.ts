@@ -25,6 +25,7 @@ const lineSchema = z.object({
   intlSource: intlSourceSchema.nullable().optional(),
   intlPortNumber: z.string().nullable().optional(),
   intlChosenNumber: z.string().nullable().optional(),
+  iccId: z.string().nullable().optional(),
   customPriceCents: z.number().int().min(100).max(200_000),
 });
 
@@ -284,6 +285,9 @@ export async function POST(request: NextRequest): Promise<Response> {
           ? line.intlPortNumber!.trim()
           : null,
         intlChosenNumber,
+        // Physical/kosher lines activate on a specific card entered by the
+        // admin; eSIM lines auto-pick from inventory so this stays null.
+        iccId: (plan.isKosher || !line.isEsim) ? (line.iccId?.replace(/\s+/g, "") || null) : null,
         customPriceCents: line.customPriceCents,
       };
     }));

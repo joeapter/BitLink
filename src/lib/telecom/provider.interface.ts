@@ -103,7 +103,7 @@ export interface TelecomProvider {
   hlrReset(providerLineId: string): Promise<void>;
 
   // ── SIM management ───────────────────────────────────────────
-  assignSim(providerLineId: string, iccId: string): Promise<void>;
+  assignSim(providerLineId: string, iccId: string, isMain?: boolean): Promise<void>;
   replaceSim(providerLineId: string, newIccId: string): Promise<void>;
   listLineSims(providerLineId: string): Promise<LineSimInfo[]>;
   getEsimProfile(simId: string): Promise<EsimProfile>;

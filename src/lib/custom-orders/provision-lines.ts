@@ -156,6 +156,9 @@ export async function provisionSubscriptionLines(
           ...(input.customerEmail ? { email: input.customerEmail } : {}),
           identityNumber,
           language: 'he_IL',
+          // Physical/kosher lines create on a specific SIM card (icc_id); eSIM
+          // lines omit this and the orchestrator auto-picks one from inventory.
+          ...(input.line.iccId ? { iccId: input.line.iccId } : {}),
           ...(input.line.isPortIn && input.line.portNumber ? {
             portInParams: {
               number: input.line.portNumber,

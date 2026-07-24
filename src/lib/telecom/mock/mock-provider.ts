@@ -94,7 +94,7 @@ export class MockTelecomProvider implements TelecomProvider {
     await this.tick();
   }
 
-  async assignSim(_providerLineId: string, _iccId: string): Promise<void> {
+  async assignSim(_providerLineId: string, _iccId: string, _isMain?: boolean): Promise<void> {
     await this.tick();
   }
 
