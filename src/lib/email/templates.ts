@@ -476,3 +476,61 @@ export function buildReviewRequestEmail(params: {
     ${p('And if anything ever isn’t right, just reply to this email — a real person answers.')}
   `);
 }
+
+// ── Data usage alert (80% / 95%) ──────────────────────────────────────────────
+// BitLink has no overage billing — data pauses at the cap. These emails make
+// sure that's never a surprise: usage bar, reset date, and self-serve topups.
+
+export function buildDataUsageAlertEmail(params: {
+  fullName: string;
+  level: "warning" | "critical";
+  usedLabel: string;
+  allowanceLabel: string;
+  percentUsed: number;
+  resetDate: Date;
+  topupOptions: Array<{ name: string; priceCents: number }>;
+  portalUrl: string;
+}): string {
+  const firstName = params.fullName.split(" ")[0] ?? params.fullName;
+  const resetLabel = params.resetDate.toLocaleDateString("en-GB", { day: "numeric", month: "long" });
+  const barColor = params.level === "critical" ? "#e11d48" : "#d97706";
+
+  const topupRows = params.topupOptions
+    .map(
+      (t) =>
+        `<tr><td style="padding:6px 0;font-size:14px;color:#050606;font-weight:600;">${t.name}</td><td style="padding:6px 0;font-size:14px;color:#475569;text-align:right;">$${(t.priceCents / 100).toFixed(2)}</td></tr>`,
+    )
+    .join("");
+
+  return layout(`
+    ${h1(
+      params.level === "critical"
+        ? `Your data is almost out, ${firstName}`
+        : `Heads up on your data, ${firstName}`,
+    )}
+    ${p(
+      `You've used <strong>${params.usedLabel} of ${params.allowanceLabel}</strong> (${params.percentUsed}%) this month.`,
+    )}
+
+    <div style="background:#f1f5f9;border-radius:100px;height:12px;margin:16px 0;overflow:hidden;">
+      <div style="background:${barColor};height:12px;width:${Math.min(100, params.percentUsed)}%;border-radius:100px;"></div>
+    </div>
+
+    ${p(
+      params.level === "critical"
+        ? `When you hit your limit, data simply <strong>pauses</strong> until it resets on <strong>${resetLabel}</strong> — you'll never be surprise-billed for overage. To keep going before then, add a topup (it's live within minutes):`
+        : `No surprises with BitLink: if you do reach your limit, data simply <strong>pauses</strong> until it resets on <strong>${resetLabel}</strong> — there's no overage billing, ever. If you think you'll need more before then, topups are available any time:`,
+    )}
+
+    <div style="background:#f8fafc;border-radius:12px;padding:16px 20px;margin:20px 0;">
+      <table cellpadding="0" cellspacing="0" style="width:100%;">${topupRows}</table>
+      <p style="margin:8px 0 0;font-size:12px;color:#94a3b8;">Charged to your card on file, live within minutes, valid 30 days.</p>
+    </div>
+
+    <div style="text-align:center;margin:24px 0;">
+      ${btn("Buy a topup", params.portalUrl)}
+    </div>
+
+    ${p('Questions about which plan size fits you? Just reply — a real person answers, in English.')}
+  `);
+}

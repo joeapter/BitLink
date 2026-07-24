@@ -1191,6 +1191,207 @@ export const guides: Guide[] = [
     ],
   },
   {
+    slug: "how-much-data-do-i-need-in-israel",
+    title: "How much data do I need in Israel?",
+    metaTitle: "How Much Data Do I Need in Israel? Real Numbers by Lifestyle",
+    metaDescription:
+      "Real per-app numbers and honest monthly estimates for students, families, tourists, and remote workers in Israel — plus how BitLink's no-overage plans work (data pauses at the cap, never a surprise bill).",
+    datePublished: "2026-07-24",
+    dateModified: "2026-07-24",
+    readingTime: "8 min read",
+    intro:
+      "Short answer: a smartphone-normal month in Israel — WhatsApp all day, navigation most days, music, some video — usually lands between 10 and 30GB. A light user on home WiFi can live on far less; a remote worker hotspotting a laptop can burn double. The honest way to answer this isn't a guess, it's arithmetic: what the apps you actually use consume per hour, times how you'll live here. This guide does that math for four kinds of people — students, families making aliyah, tourists, and remote workers — and explains the part most carriers bury: on BitLink there's no overage billing at all. If you hit your cap, data simply pauses until you top up or the month resets. You can size your plan honestly, because a wrong guess costs you a $5.99 topup, not a scary bill.",
+    sections: [
+      {
+        heading: "What do the apps you use actually consume?",
+        paragraphs: [
+          "Almost all of your data goes to a handful of apps, and their appetites are wildly different. Messaging is nearly free: WhatsApp texts are a rounding error, and even WhatsApp voice calls run only around 30MB per hour. Navigation is lighter than people think — Google Maps uses roughly 3–5MB per hour of driving, Waze somewhat more since it constantly syncs live traffic. The real consumers are video and video calls: YouTube at phone quality runs roughly 0.5–1GB per hour, Netflix about 1GB per hour at standard quality (much more in HD), and a Zoom or WhatsApp video call somewhere between 0.3 and 1GB+ per hour depending on quality.",
+          "Music streaming sits in the middle — roughly 70–150MB per hour on Spotify depending on quality, which adds up quietly if it runs all day. Social feeds (Instagram, TikTok) behave like video, because they mostly are video: an hour of scrolling can easily be 0.5–1GB. The takeaway: a month of heavy WhatsApp and daily navigation barely dents a plan. A month of daily video streaming or video calls on cellular is what actually decides your plan size.",
+        ],
+        table: {
+          columns: ["Activity", "Rough data per hour", "A month of typical use"],
+          rows: [
+            { cells: ["WhatsApp texts", "negligible", "well under 1GB"] },
+            { cells: ["Google Maps / Waze navigation", "~3–30MB", "under 1GB for daily driving"] },
+            { cells: ["WhatsApp voice calls", "~30MB", "1–2GB for frequent callers"] },
+            { cells: ["Spotify / music streaming", "~70–150MB", "2–5GB for daily listening"] },
+            { cells: ["Instagram / TikTok scrolling", "~0.5–1GB", "5–15GB for a daily habit"] },
+            { cells: ["YouTube (phone quality)", "~0.5–1GB", "10GB+ for an hour a day"] },
+            { cells: ["Zoom / video calls", "~0.3–1GB+", "5–20GB if they happen on cellular"] },
+          ],
+          note: "Figures are approximations from published app documentation and vary with quality settings — but the ordering is what matters: messaging and maps are cheap, video is expensive.",
+        },
+      },
+      {
+        heading: "How much data does a student or gap-year need?",
+        paragraphs: [
+          "The student pattern: WhatsApp running all day (texts, groups, voice notes), navigation a few times a week, music on buses, social feeds in downtime, video calls home on Sundays, and — crucially — yeshiva, seminary, or dorm WiFi covering evenings. That mix realistically lands in the 10–25GB range. A real student line on our network used about 9GB in a typical recent month, mostly WhatsApp, navigation, and music — with dorm WiFi doing the heavy lifting for video.",
+          "That's why [Student 5G](/plans/student-5g) carries 50GB: it's sized so a normal student month fits with room for the heavy weeks — a Ben Yehuda afternoon of TikTok, a tiyul week living off mobile data, hotspotting a laptop when the dorm WiFi dies. If you're consistently streaming video on cellular or hotspotting daily, that's [Max 5G](/plans/max-5g) territory (120GB). Basic's 1GB is genuinely not a smartphone-student plan — it exists for light-use and secondary lines.",
+        ],
+      },
+      {
+        heading: "How much data does a family making aliyah need?",
+        paragraphs: [
+          "Family math is different because home WiFi absorbs most of the load — evenings, streaming, kids' tablets all ride the house connection. A parent's phone doing WhatsApp, errands-navigation, calls, and some scrolling typically uses 5–15GB per month. Teenagers are their own weather system: a teen streaming video and social feeds on cellular can out-consume both parents combined, and is the family member most likely to actually need 50GB.",
+          "The practical setup most aliyah families land on: parents on [Basic](/plans/basic) or Student 5G depending on their habits, heavy-scrolling teens on Student 5G, and one bigger plan for whoever hotspots or commutes with video. Because BitLink is month-to-month with no contract, the honest strategy is to start a size smaller than you fear you need, watch a real month of usage in [your account portal](/account/lines), and adjust — changing plans costs nothing.",
+        ],
+      },
+      {
+        heading: "How much data does a tourist need for one or two weeks?",
+        paragraphs: [
+          "Tourist usage is navigation-heavy but WiFi-rich: maps between sites, WhatsApp coordination, photo uploads in the evening from the hotel. That pattern runs roughly 0.5–1GB per day of active touring — call it 5–15GB for a one-to-two-week trip, with the top end for heavy photo/video sharers and story posters.",
+          "Any BitLink plan covers a tourist month; what matters more for visitors is that the plan comes [with a real Israeli number](/israel-esim) — for restaurant callbacks, drivers, and anything that needs a local SMS — which data-only tourist eSIMs don't give you. Set it up [before you land](/guides/israeli-phone-number-before-you-land) and cancel or [pause](/plans) after the trip; there's no contract either way.",
+        ],
+      },
+      {
+        heading: "How much data does a remote worker need?",
+        paragraphs: [
+          "One number dominates this persona: video meetings burn 0.3–1GB+ per hour, and a hotspotted laptop treats mobile data like a home connection — background sync, updates, cloud drives. A remote worker whose calls happen on office or apartment WiFi can live comfortably on 20–30GB. A remote worker who regularly works from cafés, buses, or a hotspotted laptop should start at [Max 5G's](/plans/max-5g) 120GB and treat WiFi as the primary work connection wherever it exists.",
+          "The good news: this is the persona that most benefits from BitLink's no-overage model. A brutal deadline week on hotspot can't generate a surprise bill — worst case, you buy a topup and keep working.",
+        ],
+      },
+      {
+        heading: "What happens if I run out — and how do I right-size without fear?",
+        paragraphs: [
+          "Here's the part that changes how you should choose: BitLink has no overage billing. When you hit your data cap, data simply pauses — calls and SMS keep working — until you either add a topup or your allowance resets with the new month. You will never get a surprise bill for going over, because going over isn't billable; it's just a pause. We also email you before it happens — a heads-up at 80% used and again near the limit, with your reset date — so running dry is never a mystery.",
+          "Topups are self-serve in [your account portal](/account/lines): +5GB for $5.99 up to +50GB for $34.99, charged to your card on file and live within minutes. So the honest sizing strategy is simple: pick the plan that fits your normal month, not your worst imaginable one. A wrong guess costs a few dollars once — and if you're topping up every month, that's the signal to move up a plan, which you can do instantly, no contract, no penalty.",
+        ],
+      },
+      {
+        heading: "How do I make my data go further?",
+        paragraphs: [
+          "We'd rather you buy the right size than run dry mid-month, so here are the habits that genuinely stretch a plan. Let WiFi carry the heavy stuff: your phone auto-joins home, yeshiva, or office WiFi once you've connected there — save video streaming, app updates, and cloud photo backup for those moments. In WhatsApp, turn off media auto-download on cellular (Settings → Storage and Data) so fifty group-chat videos don't download themselves on the bus. Download offline maps for your city and playlists for your commute. And both iOS (Low Data Mode) and Android (Data Saver) have one-switch modes that stop background apps from quietly eating gigabytes.",
+          "None of this is about using your phone less — it's about pointing the expensive stuff at WiFi so your mobile data is there when you're actually out and need it.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "How much data do I need per month in Israel?",
+        answer:
+          "A normal smartphone month — WhatsApp all day, navigation, music, some video — typically runs 10–30GB. Light users on home WiFi need under 10GB; daily video streaming or hotspotting on cellular pushes past 50GB. BitLink's Student 5G (50GB) fits most students and heavy users; Basic (1GB) is for light or secondary lines.",
+      },
+      {
+        question: "Is 50GB enough for a year in Israel?",
+        answer:
+          "50GB per month is enough for the large majority of students and workers — a real student line on our network used about 9GB in a typical month with dorm WiFi handling video. The main people who outgrow 50GB are daily video-streamers on cellular and laptop-hotspotters, which is what Max 5G's 120GB is for.",
+      },
+      {
+        question: "What happens if I go over my data limit on BitLink?",
+        answer:
+          "Nothing scary: data pauses until you top up or the month resets — calls and texts keep working, and there is no overage billing at all. We email you at 80% used and again near the limit with your reset date. Topups (+5GB $5.99 to +50GB $34.99) are self-serve in the account portal and live within minutes.",
+      },
+      {
+        question: "How much data does WhatsApp use?",
+        answer:
+          "Very little for texts (a rounding error over a month) and about 30MB per hour for voice calls. Video calls are the expensive form — several hundred MB per hour. The quiet consumer is media auto-download: turn it off for cellular in WhatsApp's Storage and Data settings and WhatsApp becomes one of the cheapest apps on your phone.",
+      },
+      {
+        question: "How much data does Waze use in Israel?",
+        answer:
+          "Navigation is cheap: Google Maps runs roughly 3–5MB per hour and Waze somewhat more (it syncs live traffic constantly) — either way, even daily driving rarely reaches 1GB in a month. Downloading offline maps makes it cheaper still.",
+      },
+      {
+        question: "Do I need unlimited data in Israel?",
+        answer:
+          "Almost nobody actually uses \"unlimited\" — it's mostly insurance against overage bills, and on BitLink that risk doesn't exist (data pauses at the cap; no overage charges, topups from $5.99). Real usage math says 50GB covers a heavy normal month and 120GB covers hotspot-and-stream lifestyles.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/plans", label: "Compare BitLink plans" },
+      { href: "/guides/gap-year-israel-phone-plan", label: "The gap year phone guide" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+      { href: "/guides/will-my-phone-work-in-israel", label: "Will my phone work in Israel?" },
+    ],
+  },
+  {
+    slug: "how-to-call-israel-from-the-us",
+    title: "How to call Israel from the US (and home from Israel)",
+    metaTitle: "How to Call Israel from the US: +972 Dialing, Costs & WhatsApp",
+    metaDescription:
+      "The +972 format explained with examples, what it costs to call Israel from a US phone, how families avoid international rates entirely, and how to call the US from Israel.",
+    datePublished: "2026-07-24",
+    dateModified: "2026-07-24",
+    readingTime: "6 min read",
+    intro:
+      "To call an Israeli number from the US, dial +972, then the Israeli number without its leading 0. So the Israeli mobile 058-123-4567 becomes +972-58-123-4567. That's the whole trick — the leading zero is Israel's internal prefix, and it drops the moment you dial from abroad. This guide covers the format in both directions, what those calls actually cost on US carriers, why most Israel-America families end up on WhatsApp anyway, and the setup that makes the question disappear entirely: a US number that rings in Israel, so your family dials a local call and never touches international dialing at all.",
+    sections: [
+      {
+        heading: "How do I dial an Israeli number from the US?",
+        paragraphs: [
+          "The format is: +972, then the Israeli number minus its leading 0. Israeli mobile numbers start with 05x (052, 053, 054, 058…), so 058-123-4567 is dialed as +972-58-123-4567. Landlines work the same way with their area codes: a Jerusalem 02 number like 02-538-1234 becomes +972-2-538-1234, Tel Aviv's 03 becomes +972-3, and so on. On any smartphone, hold the 0 key to type the + and dial exactly that — no need for the old 011 exit code, though 011-972 works identically from US landlines.",
+          "The one mistake everyone makes once: keeping the 0. +972-058… doesn't connect — drop the zero after the country code. The tidy habit that prevents it forever: save Israeli contacts in full international format (+972-58-123-4567). Saved that way, the number works from every country, and WhatsApp finds it automatically.",
+        ],
+      },
+      {
+        heading: "What does it cost to call Israel from a US phone?",
+        paragraphs: [
+          "On a plain US carrier plan, a dialed call to Israel is international long distance — commonly somewhere between a few cents and a few dollars per minute depending on plan and add-ons, and mobile numbers usually cost more than landlines. US carriers sell international-calling add-ons that bring it down, but it's a recurring fee for something most families can get for free.",
+          "In practice, most Israel–US families route around the whole question two ways: WhatsApp (below), or giving the person in Israel a US number — so the American side of the family just dials a normal domestic number and pays nothing extra, ever. That second option is what [BitLink's US number add-on](/us-number-in-israel) does for $9.99/month: a real US number attached to the Israeli line, ringing on the same phone in Israel. Grandparents dial a local call; it rings in Jerusalem.",
+        ],
+      },
+      {
+        heading: "Why does everyone just use WhatsApp?",
+        paragraphs: [
+          "Israel runs on WhatsApp to a degree that surprises new arrivals — it's the default for families, schools, businesses, and every group you'll ever be added to. WhatsApp calls are free over the internet in both directions, sound better than international lines, and do video. For day-to-day family contact, it genuinely is the answer, which is why the practical advice for anyone moving is to [get WhatsApp onto the right number](/guides/whatsapp-israeli-number-switch) rather than to shop for per-minute rates.",
+          "Where WhatsApp doesn't cover you: anyone who doesn't use it (plenty of older relatives, and every US business), anything that must be a real phone call — banks, doctors' offices, government lines — and moments with bad internet. That's why the complete setup is WhatsApp for family plus a real dialing path for everything else: either minutes included in your plan, or a US number on the Israeli phone.",
+        ],
+      },
+      {
+        heading: "How do I call the US from Israel?",
+        paragraphs: [
+          "Same logic in reverse: +1, then the ten-digit US number — a New York cell becomes +1-212-555-0123. From a BitLink line, what that costs depends on your plan: [Max 5G](/plans/max-5g) includes 150 minutes of real dialed calling to US and Canadian numbers every month, which covers the banks-doctors-grandparents category for most people, and a [+120-minute US/Canada topup](/account/lines) exists for heavier months. Kosher+ includes the same 150 US/CA minutes on a voice-only line.",
+          "Combined with WhatsApp for family, that's usually the whole answer. And if the people you call would rather reach you: the [US number add-on](/us-number-in-israel) works in both directions — they dial a local US number to reach your phone in Israel, and US institutions' verification texts arrive on it too (tested with real Chase and Google codes).",
+        ],
+      },
+      {
+        heading: "What's the setup that makes all of this easiest for a family?",
+        paragraphs: [
+          "For a student, oleh, or anyone whose family is in America, the setup that removes every friction at once: an [Israeli BitLink line](/israel-esim) (Israeli number for local life, live before you land), WhatsApp moved onto it for daily contact, and the $9.99/month US number added so the American side never dials internationally — and US texts still arrive. The old US carrier bill usually just ends.",
+          "It also future-proofs the other direction: whoever needs to reach you — a US doctor's office calling back, a bank's fraud department, a relative without WhatsApp — reaches a normal American number that rings in Israel. Nobody on either side ever needs to remember +972.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "How do I call Israel from the United States?",
+        answer:
+          "Dial +972 followed by the Israeli number without its leading 0: the mobile 058-123-4567 becomes +972-58-123-4567, and a Jerusalem landline 02-538-1234 becomes +972-2-538-1234. On a cell phone, hold 0 to type the +; from a landline, 011-972 works the same way.",
+      },
+      {
+        question: "Why won't my call to Israel connect?",
+        answer:
+          "Almost always the leading zero: +972-058… fails — the 0 must be dropped after the country code (+972-58…). Save Israeli contacts in full international format (+972-…) once and the problem never comes back, in any country, and WhatsApp picks the contact up automatically.",
+      },
+      {
+        question: "Is it free to call Israel on WhatsApp?",
+        answer:
+          "Yes — WhatsApp voice and video calls are free over the internet in both directions, and it's the default communication tool inside Israel. The gaps are people and institutions that don't use it (many older relatives, all US businesses and banks), which is what real dialed minutes or a US number on the Israeli phone are for.",
+      },
+      {
+        question: "How can my family call me in Israel without paying international rates?",
+        answer:
+          "Give them a US number that rings in Israel: BitLink's US/Canada/UK add-on ($9.99/month) attaches a real American number to your Israeli line — family dials a normal local call, your phone rings in Israel, and US verification texts arrive on it too (tested with real Chase and Google codes).",
+      },
+      {
+        question: "How do I call a US number from Israel?",
+        answer:
+          "Dial +1 and the ten-digit number (+1-212-555-0123). From a BitLink line, Max 5G and Kosher+ include 150 minutes/month of dialed US/Canada calling, a +120-minute topup is available for heavier months, and WhatsApp covers the family calls for free.",
+      },
+      {
+        question: "What do Israeli phone numbers look like?",
+        answer:
+          "Mobiles are 05x-XXX-XXXX (052, 053, 054, 058 and so on); landlines use area codes like 02 (Jerusalem), 03 (Tel Aviv), 04 (Haifa), 08 (the south) and 09 (Sharon area). In international format they all become +972 with the leading 0 dropped.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/us-number-in-israel", label: "US number add-on" },
+      { href: "/guides/whatsapp-israeli-number-switch", label: "Moving WhatsApp to your Israeli number" },
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get your number before you land" },
+      { href: "/keep-your-number", label: "Port your US number" },
+    ],
+  },
+  {
     slug: "gap-year-israel-phone-plan",
     title: "The gap year phone guide: setting up your phone for a year in Israel",
     metaTitle: "Gap Year in Israel: The Phone Plan Guide",

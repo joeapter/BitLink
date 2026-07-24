@@ -13,6 +13,7 @@ import { notifyProvisioned } from '@/inngest/functions/notify-provisioned';
 import { referralBonusesCron } from '@/inngest/functions/referral-bonuses';
 import { notifySalesRepCommission, notifySalesRepWelcome } from '@/inngest/functions/notify-sales-rep';
 import { topupGrantsCron } from '@/inngest/functions/topup-grants';
+import { dataUsageAlertsCron } from '@/inngest/functions/data-usage-alerts';
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -28,5 +29,6 @@ export const { GET, POST, PUT } = serve({
     notifySalesRepWelcome,
     notifySalesRepCommission,
     topupGrantsCron,
+    dataUsageAlertsCron,
   ],
 });
