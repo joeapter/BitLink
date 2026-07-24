@@ -1020,6 +1020,177 @@ export const guides: Guide[] = [
     ],
   },
   {
+    slug: "will-my-phone-work-in-israel",
+    title: "Will my phone work in Israel? What to check before you go",
+    metaTitle: "Will My Phone Work in Israel? What to Check Before You Go",
+    metaDescription:
+      "Almost certainly yes — if it's unlocked. Here's how to check your phone's unlocked, confirm it supports Israel's bands, and pick between an eSIM, local SIM, pocket WiFi, or roaming.",
+    datePublished: "2026-07-24",
+    dateModified: "2026-07-24",
+    readingTime: "7 min read",
+    intro:
+      "Short answer: almost any modern phone works in Israel, and the hardware is rarely the problem. Israel's networks run standard 4G and 5G on frequencies every recent iPhone and Android already supports, so your phone will see Israeli signal the moment you land. The two things actually worth checking before you fly are whether your phone is unlocked and how you plan to connect once you're there — a local eSIM, a physical SIM, a pocket WiFi, or roaming on your home carrier. This guide walks through both, so you touch down connected instead of hunting for a fix from the arrivals hall.",
+    sections: [
+      {
+        heading: "Will my phone work in Israel?",
+        paragraphs: [
+          "For almost everyone, yes. Israeli carriers — Partner, Cellcom, Pelephone, HOT Mobile and the rest — run ordinary GSM / LTE / 5G networks on bands that every recent phone supports. Any iPhone from the XS onward, and every recent Pixel or Galaxy, connects without special setup. Band compatibility genuinely hasn't been a real obstacle for years; if your phone is newer than about 2018, assume the frequencies are fine.",
+          "The one thing that stops a phone cold isn't the network — it's a carrier lock. Phones bought on an installment plan from a US, UK, or Canadian carrier are often locked to that carrier until they're paid off or a waiting period passes, and a locked phone refuses any other SIM or eSIM, Israeli or otherwise. So \"will my phone work in Israel\" is really two smaller questions: is it unlocked, and does it support the bands? The second is almost always yes. The first is the one to actually check — and to check from your couch at home, not a dorm in Jerusalem, because unlocking can take days to process.",
+        ],
+      },
+      {
+        heading: "How do I check if my phone is unlocked?",
+        paragraphs: [
+          "On an iPhone, open Settings → General → About and scroll to Carrier Lock. If it reads \"No SIM restrictions,\" your iPhone is unlocked and ready for an Israeli SIM or eSIM. If it names a carrier, it's locked to that network.",
+          "On Android, the menu names vary slightly by brand, but the path is roughly Settings → Connections (or Network & Internet) → Mobile Network → Network Operators. If the phone can search and show multiple available networks, it's unlocked; if it only ever shows one carrier and can't search others, it's locked. When in doubt, the surest check is to search your carrier's website for \"unlock policy\" — and if the phone is locked, request the unlock before you travel, since it isn't instant.",
+        ],
+      },
+      {
+        heading: "Which network bands does Israel use, and does my phone support them?",
+        paragraphs: [
+          "You almost certainly don't need to worry about this — the reassurance is the point of the table below, not a warning. Modern iPhones, Galaxies, and Pixels support Israel's bands out of the box. It's only worth a look if your phone is older, a regional model, or a budget device that trimmed its band support. 3G is being retired across Israeli networks and 2G lingers only as basic voice fallback, so what matters is 4G/LTE and 5G.",
+        ],
+        table: {
+          columns: ["Technology", "Bands used in Israel", "Frequencies"],
+          rows: [
+            { cells: ["5G", "n78, n28", "3500 MHz, 700 MHz"] },
+            { cells: ["4G / LTE", "B1, B3, B7, B8, B28", "2100, 1800, 2600, 900, 700 MHz"] },
+            { cells: ["3G (being phased out)", "B1, B8", "2100, 900 MHz"] },
+          ],
+          note: "Supporting even a couple of these is enough to connect. If you're not sure what your phone supports, search your exact model plus \"frequency bands\" — but for any recent flagship, you're covered.",
+        },
+      },
+      {
+        heading: "What should I check before I fly?",
+        paragraphs: [
+          "A few minutes at home saves a stressful hour after landing. Run through this list before you travel:",
+        ],
+        steps: [
+          "Confirm your phone is unlocked (see above) — this is the only real blocker, and the only one that takes days to fix.",
+          "Confirm it's reasonably modern; if it's older than ~2018 or a regional model, glance at the bands above.",
+          "Install pending software updates and back up your phone.",
+          "Download offline maps for where you're going (Tel Aviv, Jerusalem, Haifa), and save hotel, contacts, and any tickets offline.",
+          "Set up how you'll connect — ideally an eSIM you activate before the flight, so you land already online instead of shopping for signal.",
+        ],
+      },
+      {
+        heading: "What are my options for staying connected in Israel?",
+        paragraphs: [
+          "Once the phone itself is sorted, the real decision is how it connects. There are four common routes, and the right one depends mostly on how long you're staying and whether you need a local number for daily life — not just data.",
+        ],
+        table: {
+          columns: ["Option", "How you get it", "Gives an Israeli number?", "Best for"],
+          rows: [
+            {
+              cells: [
+                "Local SIM (physical)",
+                "Bought at an airport kiosk or carrier store after you land; sometimes needs ID",
+                "Yes",
+                "Long stays if you don't mind a store visit and swapping the SIM",
+              ],
+            },
+            {
+              cells: [
+                "[BitLink eSIM](/israel-esim)",
+                "Order online before you fly, scan a QR code — live the moment you land, no store, no ID, foreign card is fine",
+                "Yes — a real 05 number",
+                "Anyone staying more than a few days, or who needs a number for banks/apps",
+              ],
+              highlight: true,
+            },
+            {
+              cells: [
+                "Pocket WiFi",
+                "Rent a portable router, pick up/return at the airport or by delivery, charge it daily",
+                "No",
+                "Families or groups sharing one connection across several devices",
+              ],
+            },
+            {
+              cells: [
+                "Home-carrier roaming",
+                "Turn it on with your existing carrier — convenient but priced for short trips",
+                "No (stays your home number)",
+                "A quick visit where you'll pay for zero setup",
+              ],
+            },
+            {
+              cells: [
+                "Free public WiFi",
+                "Cafés, hotels, malls, some city centers",
+                "No",
+                "Light, occasional browsing only — not navigation or logins",
+              ],
+            },
+          ],
+          note: "Order here isn't a ranking — it's whichever fits your trip. Public WiFi is common in Israel but varies wildly in speed and isn't safe for banking or logins, so don't rely on it as your main connection. For anything longer than a short trip, a local number (SIM or eSIM) is what actually plugs you into Israeli daily life; more on why below.",
+        },
+      },
+      {
+        heading: "eSIM, SIM, pocket WiFi, or roaming — which should I pick?",
+        paragraphs: [
+          "If you're here for under two weeks, don't need a local number, and value zero effort, roaming on your home carrier or a data-only eSIM is fine — though roaming is usually the most expensive way to do it (we break the numbers down in [Do US phones work in Israel?](/guides/do-us-phones-work-in-israel)). Traveling as a family or a group with lots of devices? A pocket WiFi can be the cheapest way to cover everyone at once, at the cost of carrying and charging a second gadget.",
+          "For everyone else — students, gap-year and seminary programs, olim, remote workers, anyone staying weeks or months — a local Israeli line is both cheaper and the only option that works with Israeli systems. An [eSIM you set up before you land](/guides/israeli-phone-number-before-you-land) is the least-hassle version of that: no store, no physical SIM to swap, and you arrive already connected with a real Israeli number.",
+        ],
+      },
+      {
+        heading: "What most \"Israel eSIMs\" don't tell you",
+        paragraphs: [
+          "Here's the catch worth knowing before you buy: most products marketed as an \"Israel eSIM\" are data-only tourist plans. They roam on a local network and give you internet, but no Israeli phone number. That's fine for a few days of maps and WhatsApp — and useless the moment anything asks for an 05 number, which in Israel is constantly. Banks send verification codes to it, [Bit and Pango won't sign you up without one](/guides/israeli-phone-number-for-banking-bit-pango), gov.il and Kupat Cholim want it, and the landlord, the delivery driver, and the program office all message it.",
+          "[BitLink](/israel-esim) is a real Israeli line, not a roaming data pass: a genuine 05 number on the local network, delivered as an eSIM you activate before your flight. Checkout is online with a regular US, UK, or Canadian card — no Israeli ID and no Israeli bank account — so the number is live when you land, and it works with everything a data-only eSIM can't. If you also need your home-country bank texts to keep arriving, you can [add a US, UK, or Canadian number](/us-number-in-israel) to the same phone for $9.99/month (tested with real Chase and Google codes).",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Will my phone work in Israel?",
+        answer:
+          "Almost certainly, if it's unlocked and reasonably modern. Israeli networks use standard 4G/5G bands that recent iPhones, Galaxies, and Pixels all support, so the phone connects on landing. The only real blocker is a carrier lock — check that before you fly.",
+      },
+      {
+        question: "Do US phones work in Israel?",
+        answer:
+          "Yes — an unlocked US phone connects to Israeli networks fine. The real question is what plan it runs on: US carrier roaming is expensive and never gives you the Israeli number local life requires. We compare the costs in [Do US phones work in Israel?](/guides/do-us-phones-work-in-israel).",
+      },
+      {
+        question: "How do I know if my phone is unlocked?",
+        answer:
+          "On iPhone: Settings → General → About → Carrier Lock should read \"No SIM restrictions.\" On Android: Settings → Mobile Network → Network Operators — if it can search and show multiple carriers, it's unlocked. If it's locked, request the unlock from your carrier before traveling, as it can take days.",
+      },
+      {
+        question: "Which network bands does Israel use?",
+        answer:
+          "5G on n78 (3500 MHz) and n28 (700 MHz); 4G/LTE on B1, B3, B7, B8, and B28 (2100, 1800, 2600, 900, and 700 MHz). Any recent flagship supports enough of these to connect — it's only worth checking on older or regional-model phones.",
+      },
+      {
+        question: "Is eSIM available in Israel?",
+        answer:
+          "Yes, and it's the easiest way to connect — no store, no physical SIM. Just note that many \"Israel eSIMs\" are data-only and give you no local number. A [BitLink eSIM](/israel-esim) is a real Israeli line with an 05 number, set up before you land.",
+      },
+      {
+        question: "Do I actually need an Israeli number?",
+        answer:
+          "For a short tourist trip, no — data alone is enough. For anything longer, yes: Israeli banks, Bit, Pango, gov.il, and everyday WhatsApp all run on a local 05 number, and a roaming foreign number fails those checks. A [local eSIM or SIM](/guides/israeli-phone-number-before-you-land) is the fix.",
+      },
+      {
+        question: "Is pocket WiFi worth it in Israel?",
+        answer:
+          "It can be, for a family or group sharing one connection across several devices, since one router covers everyone. The trade-offs are daily charging, pickup/return logistics, and rental fees that add up. For a single traveler, an eSIM is simpler and usually cheaper — and it gives you a number, which pocket WiFi doesn't.",
+      },
+      {
+        question: "Is there good public WiFi in Israel?",
+        answer:
+          "It's widely available in cafés, hotels, malls, and parts of Tel Aviv and Jerusalem, and it's fine for casual browsing. Speeds vary a lot, though, and open WiFi isn't safe for banking or logins — so it's a supplement, not a connection to rely on.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/israel-esim", label: "Israel eSIM with a real number" },
+      { href: "/israel-sim-for-tourists", label: "Israel SIM for tourists" },
+      { href: "/guides/do-us-phones-work-in-israel", label: "Do US phones work in Israel?" },
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get your number before you land" },
+    ],
+  },
+  {
     slug: "gap-year-israel-phone-plan",
     title: "The gap year phone guide: setting up your phone for a year in Israel",
     metaTitle: "Gap Year in Israel: The Phone Plan Guide",
