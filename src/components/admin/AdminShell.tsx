@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Activity, BarChart3, Building2, CreditCard, FilePlus2, Handshake, Headphones, Home, Phone, RadioTower, Receipt, Settings, Share2, ShoppingCart, Users, Webhook, CarFront } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
 import { BrandMark } from "@/components/brand/BrandMark";
+import { AdminContentScroll } from "@/components/admin/AdminContentScroll";
 
 const links = [
   { href: "/admin", label: "Overview", icon: Home },
@@ -53,8 +54,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
             </form>
           </div>
         </aside>
-        <div className="min-w-0">{children}</div>
+        <div id="admin-content" className="min-w-0 scroll-mt-20">{children}</div>
       </div>
+      <AdminContentScroll />
     </div>
   );
 }
