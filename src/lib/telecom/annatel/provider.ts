@@ -603,12 +603,22 @@ export class AnnatelProvider implements TelecomProvider {
   }
 
   async getNumberAuthenticationStatus(phoneNumber: string): Promise<NumberAuthenticationStatus> {
-    const qs = new URLSearchParams({ 'filter[number]': phoneNumber, 'page[size]': '5' });
-    const result = await this.client.get<{ data: Array<{ number: string; status: string }> }>(
+    const qs = new URLSearchParams({ 'filter[number]': phoneNumber, 'page[size]': '10' });
+    const result = await this.client.get<{ data: Array<{ number: string; status: string; inserted_at?: string }> }>(
       `/api/operational/show_me_white_paw/authentications?${qs}`,
     );
-    const match = (result.data ?? []).find((a) => a.number === phoneNumber);
-    return (match?.status as NumberAuthenticationStatus) ?? 'none';
+    // A number accumulates MULTIPLE auth records: requesting a fresh code marks
+    // earlier attempts 'overriden' and inserts a new row, and the list comes
+    // back oldest-first. Taking the first match therefore reported 'overriden'
+    // for anyone who tapped "text me a code" twice — blocking checkout AFTER a
+    // successful verification (real incident: Shmuel's port, Jul 25). A live
+    // 'completed' record wins regardless of position; Annatel flips stale ones
+    // to 'expired' itself, so any 'completed' present is trustworthy. Otherwise
+    // report the newest record's status.
+    const matches = (result.data ?? []).filter((a) => a.number === phoneNumber);
+    if (matches.some((a) => a.status === 'completed')) return 'completed';
+    const newest = matches[matches.length - 1];
+    return (newest?.status as NumberAuthenticationStatus) ?? 'none';
   }
 
   // ── Portability ───────────────────────────────────────────────────────────
