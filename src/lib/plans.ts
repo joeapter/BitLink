@@ -44,6 +44,18 @@ export type AddOn = {
   currency: "USD";
 };
 
+// Launch offer: the one-time activation fee is waived on the flagship 5G plans
+// (Student + Max) as a limited-time promotion. This is where sticker-shock
+// abandonment shows up — the fee compounds with add-ons into a scary first
+// total, and the plans' LTV easily absorbs the $14.99. Basic/Kosher plans keep
+// the fee: their margins are thinner and we've seen no fee-driven drop-off
+// there. Extend this list only if data shows abandonment on those plans.
+export const ACTIVATION_FEE_WAIVED_PLANS: readonly PlanSlug[] = ["student-5g", "max-5g"];
+
+export function isActivationFeeWaivedForPlan(slug: string): boolean {
+  return (ACTIVATION_FEE_WAIVED_PLANS as readonly string[]).includes(slug);
+}
+
 export const plans: BitLinkPlan[] = [
   {
     slug: "basic",

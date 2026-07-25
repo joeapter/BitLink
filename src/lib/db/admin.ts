@@ -76,10 +76,12 @@ export async function getAdminOverview() {
     db.from("telecom_lines").select("metadata").eq("status", "active"),
   ]);
 
-  // Filter port-in lines to only those with non-complete status
+  // Filter port-in lines to only those still needing action (drop
+  // finished/cancelled ones — completeIntlPortInRequest stamps 'completed').
   const portInQueue = (portInLines.data ?? []).filter((l) => {
     const pi = (l.metadata as Record<string, unknown> | null)?.intl_port_in as Record<string, unknown> | undefined;
-    return pi && pi.status !== 'complete';
+    const done = ['complete', 'completed', 'cancelled'].includes(String(pi?.status));
+    return pi && !done;
   });
 
   // New (non-port) intl number requests still waiting on manual fulfillment —

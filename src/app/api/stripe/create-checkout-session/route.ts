@@ -28,6 +28,7 @@ import { getTelecomProvider } from '@/lib/telecom/provider.registry';
 import { logger } from '@/lib/logger';
 import { generateReferralCode, normalizeReferralCode } from '@/lib/referrals';
 import { getPromo } from '@/lib/promos';
+import { isActivationFeeWaivedForPlan } from '@/lib/plans';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -48,6 +49,10 @@ const bodySchema = z.object({
   intlNumberCountry: z.enum(['us', 'canada', 'uk']).optional(),
   intlNumberSource: z.enum(['new', 'port']).optional(),
   intlPortNumber: z.string().nullable().optional(),
+  // Foreign-number port timing. true = "set it up later" (default in the UI):
+  // nothing for the foreign number is charged at checkout — we bill it when we
+  // run the port. false = "port it now": billed immediately.
+  intlPortDeferred: z.boolean().default(true),
   intlChosenNumber: z.string().nullable().optional(),
   userId: z.string().uuid().nullable().optional(),
   referralCode: z.string().nullable().optional(),
@@ -77,6 +82,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     planSlug, fullName, email, phone, isKosher, isEsim,
     isPortIn, portInNumber, skipActivationFee,
     wantsIntlNumber, intlNumberCountry, intlNumberSource, intlPortNumber, intlChosenNumber,
+    intlPortDeferred,
     userId, successUrl, cancelUrl,
   } = parsed.data;
   const referralCode = normalizeReferralCode(parsed.data.referralCode);
@@ -87,7 +93,10 @@ export async function POST(request: NextRequest): Promise<Response> {
   // (non-promo) org-attributed traffic, e.g. the regular partner pages.
   const promo = getPromo(parsed.data.promoCode);
   const orgReferralCode = promo?.orgReferralCode || (parsed.data.orgReferralCode || null);
-  const effectiveSkipActivationFee = skipActivationFee || Boolean(promo?.skipActivationFee);
+  // Server is the source of truth for the launch waiver — the fee is dropped
+  // for Student/Max regardless of what the client sends.
+  const effectiveSkipActivationFee =
+    skipActivationFee || Boolean(promo?.skipActivationFee) || isActivationFeeWaivedForPlan(planSlug);
 
   // Reject malformed Israeli port-in numbers BEFORE payment — Annatel requires
   // a valid mobile number and 422s the provisioning request otherwise, which
@@ -287,14 +296,26 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 
   // ── 4. Create Stripe checkout session ────────────────────────────────────
+  // Foreign-number port billing follows the customer's explicit "when" choice.
+  // "Set it up later" (deferIntlPort) charges nothing for the foreign number at
+  // checkout — not the one-time $49.99 port fee, not the $9.99/mo add-on —
+  // because the port is a manual step we only run once they're ready (usually
+  // after landing in Israel), so there's no live number to bill for yet. We
+  // still record the request (metadata below) as a pending task and invoice it
+  // when the port runs. "Port it now" bills both immediately, as does a
+  // brand-new foreign number ('new').
+  const intlIsPort = wantsIntlNumber && intlNumberSource === 'port';
+  const deferIntlPort = intlIsPort && intlPortDeferred;
+  const billIntlAddonNow = wantsIntlNumber && !deferIntlPort;
+
   let session: Awaited<ReturnType<typeof createCheckoutSession>>;
   try {
     session = await createCheckoutSession(stripe, {
       stripePriceId: planRow.stripe_price_id,
       activationFeePriceId: effectiveSkipActivationFee ? null : (process.env.STRIPE_PRICE_ACTIVATION_FEE?.trim() ?? null),
-      intlNumberAddonPriceId: wantsIntlNumber ? (process.env.STRIPE_PRICE_US_CANADA_ADDON?.trim() ?? null) : null,
-      intlNumberAddonDiscountCents: wantsIntlNumber ? (promo?.intlAddonPriceCents ?? null) : null,
-      intlPortInFeeId: (wantsIntlNumber && intlNumberSource === 'port') ? (process.env.STRIPE_PRICE_INTL_PORT_IN_FEE?.trim() ?? null) : null,
+      intlNumberAddonPriceId: billIntlAddonNow ? (process.env.STRIPE_PRICE_US_CANADA_ADDON?.trim() ?? null) : null,
+      intlNumberAddonDiscountCents: billIntlAddonNow ? (promo?.intlAddonPriceCents ?? null) : null,
+      intlPortInFeeId: (intlIsPort && !deferIntlPort) ? (process.env.STRIPE_PRICE_INTL_PORT_IN_FEE?.trim() ?? null) : null,
       stripeCustomerId,
       planSlug,
       isKosher,
@@ -306,6 +327,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       intlNumberCountry: intlNumberCountry ?? null,
       intlNumberSource: intlNumberSource ?? null,
       intlPortNumber: intlPortNumber ?? null,
+      intlPortDeferred: deferIntlPort,
       intlChosenNumber: (wantsIntlNumber && intlNumberSource === 'new') ? (intlChosenNumber ?? null) : null,
       customerRecordId,
       userId: userId ?? null,

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
-import { plans, type PlanSlug } from "@/lib/plans";
+import { plans, isActivationFeeWaivedForPlan, type PlanSlug } from "@/lib/plans";
 import { getPromo } from "@/lib/promos";
 import { formatMoney } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -42,12 +42,19 @@ export function CheckoutForm({
   const [intlNumbers, setIntlNumbers] = useState<Array<{ number: string; region?: string | null; city?: string | null }>>([]);
   const [intlChosenNumber, setIntlChosenNumber] = useState<string | null>(null);
   const [showAllIntlNumbers, setShowAllIntlNumbers] = useState(false);
+  // Foreign-number port timing. Defaults to "later" so customers still in the
+  // US don't cut over their line early and don't get a scary first bill —
+  // nothing for the foreign number is charged until we actually run the port.
+  const [intlPortDeferred, setIntlPortDeferred] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [feeWaived, setFeeWaived] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [verifiedPortNumber, setVerifiedPortNumber] = useState<string | null>(null);
   const [orderInfo, setOrderInfo] = useState<{ fullName: string; email: string; phone: string } | null>(null);
+
+  // Limited-time launch offer: activation fee waived on the flagship 5G plans.
+  const planFeeWaived = isActivationFeeWaivedForPlan(planSlug);
 
   useEffect(() => {
     const check = () => {
@@ -140,6 +147,8 @@ export function CheckoutForm({
         intlNumberSource: wantsIntlNumber ? intlSource : undefined,
         intlPortNumber: wantsIntlNumber && intlSource === "port" ? formData.get("intlPortNumber") : null,
         intlChosenNumber: wantsIntlNumber && intlSource === "new" ? intlChosenNumber : null,
+        // Only meaningful for a foreign-number port; server ignores it otherwise.
+        intlPortDeferred,
       }),
     });
 
@@ -179,9 +188,11 @@ export function CheckoutForm({
           <CheckoutSummary
             plan={selectedPlan}
             isPortIn={numberChoice === "port-in"}
-            feeWaived={feeWaived || Boolean(promo?.skipActivationFee)}
+            feeWaived={feeWaived || planFeeWaived || Boolean(promo?.skipActivationFee)}
+            launchWaiver={planFeeWaived}
             hasIntlNumber={wantsIntlNumber}
             intlIsPortIn={wantsIntlNumber && intlSource === "port"}
+            intlPortDeferred={wantsIntlNumber && intlSource === "port" && intlPortDeferred}
             intlAddonPriceCentsOverride={promo?.intlAddonPriceCents ?? null}
           />
         </div>
@@ -475,10 +486,61 @@ export function CheckoutForm({
                     placeholder="+1 212 555 0000"
                     required
                   />
-                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
-                    <p className="font-semibold">One-time port fee: $49.99</p>
-                    <p className="mt-0.5">International number ports are processed manually and typically take 3–5 business days after your Israeli SIM is activated.</p>
+
+                  {/* When to port — defaults to "later" so customers still in
+                      the US don't lose their line early or get a big first bill. */}
+                  <div>
+                    <p className="mb-2 text-xs font-semibold text-ink">When should we port it?</p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <button
+                        type="button"
+                        onClick={() => setIntlPortDeferred(true)}
+                        className={`rounded-xl border px-3 py-2 text-left text-xs font-semibold transition-colors ${
+                          intlPortDeferred
+                            ? "border-link-blue bg-link-blue text-white"
+                            : "border-ink/10 bg-white text-ink hover:border-ink/20"
+                        }`}
+                      >
+                        <span className="block">Set it up later</span>
+                        <span className={`font-normal ${intlPortDeferred ? "text-white/80" : "text-muted-slate"}`}>
+                          I&rsquo;m not in Israel yet — nothing charged today
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIntlPortDeferred(false)}
+                        className={`rounded-xl border px-3 py-2 text-left text-xs font-semibold transition-colors ${
+                          !intlPortDeferred
+                            ? "border-link-blue bg-link-blue text-white"
+                            : "border-ink/10 bg-white text-ink hover:border-ink/20"
+                        }`}
+                      >
+                        <span className="block">Port it now</span>
+                        <span className={`font-normal ${!intlPortDeferred ? "text-white/80" : "text-muted-slate"}`}>
+                          I&rsquo;m in Israel and ready
+                        </span>
+                      </button>
+                    </div>
                   </div>
+
+                  {intlPortDeferred ? (
+                    <div className="rounded-xl border border-trust-green/30 bg-trust-green/5 p-3 text-xs text-ink">
+                      <p className="font-semibold text-trust-green">Nothing to pay today for your US number.</p>
+                      <p className="mt-0.5 text-muted-slate">
+                        We only start the port when you tell us you&rsquo;re ready — so if you&rsquo;re not in Israel yet,
+                        you won&rsquo;t lose your number early. Many customers wait until they&rsquo;ve landed in Israel.
+                        When we run the port we&rsquo;ll add the number ($9.99/mo) and a one-time $49.99 port fee — not before.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                      <p className="font-semibold">Billed today: $49.99 one-time port fee + $9.99/mo number.</p>
+                      <p className="mt-0.5">
+                        Ports are processed manually and typically take 3–5 business days after your Israeli SIM is
+                        activated. Only choose this if you&rsquo;re ready to move your number off your current carrier now.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -514,9 +576,11 @@ export function CheckoutForm({
       <CheckoutSummary
         plan={selectedPlan}
         isPortIn={numberChoice === "port-in"}
-        feeWaived={feeWaived || Boolean(promo?.skipActivationFee)}
+        feeWaived={feeWaived || planFeeWaived || Boolean(promo?.skipActivationFee)}
+        launchWaiver={planFeeWaived}
         hasIntlNumber={wantsIntlNumber}
         intlIsPortIn={wantsIntlNumber && intlSource === "port"}
+        intlPortDeferred={wantsIntlNumber && intlSource === "port" && intlPortDeferred}
         intlAddonPriceCentsOverride={promo?.intlAddonPriceCents ?? null}
       />
     </div>

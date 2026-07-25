@@ -10,17 +10,28 @@ export function CheckoutSummary({
   plan,
   isPortIn = false,
   feeWaived = false,
+  launchWaiver = false,
   hasIntlNumber = false,
   intlIsPortIn = false,
+  intlPortDeferred = false,
   intlAddonPriceCentsOverride = null,
 }: {
   plan: BitLinkPlan;
   isPortIn?: boolean;
   feeWaived?: boolean;
+  // The waiver is our limited-time launch offer (vs. a staff/promo waiver) —
+  // show the urgency caption.
+  launchWaiver?: boolean;
   hasIntlNumber?: boolean;
   intlIsPortIn?: boolean;
+  // Foreign-number port billing deferred to when we run the port — its charges
+  // are not due today.
+  intlPortDeferred?: boolean;
   intlAddonPriceCentsOverride?: number | null;
 }) {
+  // A deferred foreign-number port has nothing due today — neither the monthly
+  // add-on nor the one-time fee is charged at checkout.
+  const showIntlAddonNow = hasIntlNumber && !intlPortDeferred;
   return (
     <aside className="rounded-4xl border border-ink/10 bg-ink p-6 text-white shadow-liquid">
       <p className="text-sm font-semibold text-soft-cyan">Monthly plan</p>
@@ -42,7 +53,7 @@ export function CheckoutSummary({
               <span className="text-slate-400 line-through opacity-60">
                 {formatMoney(ACTIVATION_FEE_CENTS, plan.currency)}
               </span>
-              <span className="text-trust-green text-sm">Waived</span>
+              <span className="text-trust-green text-sm">FREE</span>
             </span>
           ) : (
             <span className="text-lg font-semibold">
@@ -50,7 +61,10 @@ export function CheckoutSummary({
             </span>
           )}
         </div>
-        {hasIntlNumber && (
+        {feeWaived && launchWaiver && (
+          <p className="mt-1 text-right text-xs font-medium text-soft-cyan">Limited-time discount</p>
+        )}
+        {showIntlAddonNow && (
           <div className="mt-3 border-t border-white/10 pt-3 flex items-center justify-between gap-4">
             <span className="text-sm text-slate-300">US/Canada/UK number add-on</span>
             {intlAddonPriceCentsOverride != null ? (
@@ -71,12 +85,22 @@ export function CheckoutSummary({
             )}
           </div>
         )}
-        {hasIntlNumber && intlIsPortIn && (
+        {hasIntlNumber && intlIsPortIn && !intlPortDeferred && (
           <div className="mt-3 border-t border-white/10 pt-3 flex items-center justify-between gap-4">
             <span className="text-sm text-slate-300">Number port-in fee (one-time)</span>
             <span className="text-lg font-semibold">
               {formatMoney(INTL_PORT_IN_FEE_CENTS, plan.currency)}
             </span>
+          </div>
+        )}
+        {hasIntlNumber && intlIsPortIn && intlPortDeferred && (
+          <div className="mt-3 border-t border-white/10 pt-3">
+            <p className="text-sm font-semibold text-soft-cyan">US/Canada/UK number — set up later</p>
+            <p className="mt-1 text-xs text-slate-300">
+              Nothing charged today. When you&rsquo;re ready to port, we add the number
+              (+{formatMoney(INTL_NUMBER_ADDON_CENTS, plan.currency)}/mo) and a one-time{" "}
+              {formatMoney(INTL_PORT_IN_FEE_CENTS, plan.currency)} port fee.
+            </p>
           </div>
         )}
       </div>
@@ -102,10 +126,16 @@ export function CheckoutSummary({
             <span>Your US/Canada/UK number is set up alongside your Israeli line.</span>
           </div>
         )}
-        {hasIntlNumber && intlIsPortIn && (
+        {hasIntlNumber && intlIsPortIn && !intlPortDeferred && (
           <div className="flex gap-3">
             <Clock className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" aria-hidden="true" />
             <span>International number ports are processed manually and typically take 3–5 business days.</span>
+          </div>
+        )}
+        {hasIntlNumber && intlIsPortIn && intlPortDeferred && (
+          <div className="flex gap-3">
+            <Clock className="mt-0.5 h-5 w-5 shrink-0 text-soft-cyan" aria-hidden="true" />
+            <span>We&rsquo;ll port your US/Canada/UK number whenever you&rsquo;re ready — just tell us. You won&rsquo;t lose it early.</span>
           </div>
         )}
       </div>

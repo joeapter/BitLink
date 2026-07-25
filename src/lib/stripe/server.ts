@@ -39,6 +39,8 @@ export interface CreateCheckoutSessionParams {
   intlNumberCountry?: string | null;
   intlNumberSource?: string | null;
   intlPortNumber?: string | null;
+  // true = foreign-number port is deferred (billed when we run it, not now).
+  intlPortDeferred?: boolean;
   intlChosenNumber?: string | null;
   customerRecordId: string | null;
   userId: string | null;
@@ -80,6 +82,7 @@ export async function createCheckoutSession(
     intl_number_country: params.intlNumberCountry ?? '',
     intl_number_source: params.intlNumberSource ?? '',
     intl_port_number: params.intlPortNumber ?? '',
+    intl_port_deferred: params.intlPortDeferred ? '1' : '0',
     intl_chosen_number: params.intlChosenNumber ?? '',
     source: 'bitlink_web',
   };

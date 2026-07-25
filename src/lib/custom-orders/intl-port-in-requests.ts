@@ -12,6 +12,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { getStripe } from '@/lib/stripe/server';
 import { getTelecomProvider } from '@/lib/telecom/provider.registry';
 import { usCanadaNumberAddOn } from '@/lib/plans';
+import { sendEmail } from '@/lib/email/send';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ module: 'intl-port-in-requests' });
@@ -207,6 +208,11 @@ export async function completeIntlPortInRequest(
     .update({
       metadata: {
         ...meta,
+        // Clear the checkout-time port-in tracker so it drops off the admin
+        // home Port-in queue now that the number has landed.
+        ...(meta.intl_port_in
+          ? { intl_port_in: { ...(meta.intl_port_in as Record<string, unknown>), status: 'completed', completed_at: now } }
+          : {}),
         ...(isSecondary
           ? {
               intl_numbers_extra: [
@@ -228,6 +234,24 @@ export async function completeIntlPortInRequest(
       updated_at: now,
     })
     .eq('id', request.lineId);
+
+  // Notify Joe the port landed + report the billing outcome. If auto-charge
+  // failed, billingNote carries the "charge manually" warning — surfacing it
+  // by email is the whole point (deferred ports are unpaid until now).
+  const billedSomething = request.oneTimeFeeBillingMode === 'paid' || request.monthlyBillingMode === 'paid';
+  await sendEmail({
+    to: 'joe@bitlink.co.il',
+    subject: `✅ Port completed — ${request.number} attached`,
+    html: [
+      `<p><b>${request.number}</b> (${request.country.toUpperCase()}) has been attached to the line.</p>`,
+      billedSomething
+        ? `<p><b>Billing:</b> ${request.oneTimeFeeBillingMode === 'paid' ? '$49.99 one-time port fee' : 'fee waived'} + ${request.monthlyBillingMode === 'paid' ? '$9.99/mo add-on' : 'add-on free'}. ${billingNote ? `⚠ ${billingNote}` : 'Charged automatically.'}</p>`
+        : `<p><b>Billing:</b> already paid at checkout — nothing further to charge.</p>`,
+      `<p><a href="https://www.bitlink.co.il/admin/lines/${request.lineId}">Open the line in admin</a></p>`,
+    ].join(''),
+  }).catch(() => {
+    // best-effort — never fail the port over a notification
+  });
 
   return { success: `${request.number} attached.${billingNote ? ` ${billingNote}` : ''}` };
 }

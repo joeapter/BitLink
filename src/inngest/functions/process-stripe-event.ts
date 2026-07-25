@@ -34,6 +34,8 @@ import { getAnnatelPlanName } from '@/lib/plans';
 import { getStripeClient } from '@/lib/stripe/client';
 import { normalizeCustomOrderLines } from '@/lib/stripe/custom-orders';
 import { provisionSubscriptionLines } from '@/lib/custom-orders/provision-lines';
+import { listIntlPortInRequests, createIntlPortInRequest } from '@/lib/custom-orders/intl-port-in-requests';
+import { sendEmail } from '@/lib/email/send';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ fn: 'process-stripe-event' });
@@ -316,6 +318,9 @@ async function handleCheckoutCompleted(
   const intlPortNumber = session.metadata?.intl_port_number || null;
   const intlNumberCountry = session.metadata?.intl_number_country || 'us';
   const intlNumberSource = session.metadata?.intl_number_source || 'port';
+  // When true, the foreign-number port fee + monthly add-on were NOT charged at
+  // checkout — they're invoiced manually when the port actually runs.
+  const intlPortDeferred = session.metadata?.intl_port_deferred === '1';
   const intlChosenNumber = session.metadata?.intl_chosen_number || null;
 
   const { data: existingLine } = await admin
@@ -350,6 +355,7 @@ async function handleCheckoutCompleted(
               country: intlNumberCountry,
               source: intlNumberSource,
               status: 'pending',
+              deferred_billing: intlPortDeferred,
               annatel_bur_id: null,
               error: null,
               attempted_at: null,
@@ -483,6 +489,7 @@ async function handleCheckoutCompleted(
             country: intlNumberCountry,
             source: intlNumberSource,
             status: 'awaiting_israeli_line',
+            deferred_billing: intlPortDeferred,
             annatel_bur_id: null,
             error: null,
             attempted_at: attemptedAt,
@@ -495,6 +502,49 @@ async function handleCheckoutCompleted(
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err);
       log.error({ lineId, intlPortNumber, error: errMsg }, 'Failed to record intl port-in intent');
+    }
+
+    // Mirror the checkout port into the admin-tracked intl_port_in_requests
+    // table so it appears on the line's port-in card with the "attach & bill"
+    // button. Deferred ports bill on completion (paid/paid); "port now" ports
+    // were already charged at checkout, so their completion must NOT
+    // double-charge (free/free). Idempotent per line+number.
+    try {
+      const country = (['us', 'canada', 'uk'].includes(intlNumberCountry) ? intlNumberCountry : 'us') as 'us' | 'canada' | 'uk';
+      const existingRequests = await listIntlPortInRequests(admin, lineId);
+      const already = existingRequests.some((r) => r.number === intlPortNumber && r.status !== 'cancelled');
+      if (!already) {
+        const billingMode: 'paid' | 'free' = intlPortDeferred ? 'paid' : 'free';
+        await createIntlPortInRequest({
+          admin,
+          lineId,
+          country,
+          number: intlPortNumber,
+          oneTimeFeeBillingMode: billingMode,
+          monthlyBillingMode: billingMode,
+        });
+
+        // Heads-up email so a deferred port (unpaid until it lands) isn't
+        // forgotten. "Port now" ports are already paid — no reminder needed.
+        if (intlPortDeferred) {
+          const who = session.customer_details?.name || session.customer_details?.email || 'A customer';
+          await sendEmail({
+            to: 'joe@bitlink.co.il',
+            subject: `📌 Deferred port queued — ${intlPortNumber} (${country.toUpperCase()})`,
+            html: [
+              `<p><b>${who}</b> checked out and chose to port their ${country.toUpperCase()} number <b>${intlPortNumber}</b> later — nothing was charged for it yet.</p>`,
+              `<p>When they tell you they're ready and the number lands, open the line and hit <b>“It landed — attach &amp; bill”</b> to attach it and charge the $49.99 fee + $9.99/mo.</p>`,
+              `<p><a href="https://www.bitlink.co.il/admin/lines/${lineId}">Open the line in admin</a></p>`,
+            ].join(''),
+          }).catch(() => {});
+        }
+        log.info({ lineId, intlPortNumber, intlPortDeferred }, 'Checkout port mirrored into intl_port_in_requests');
+      }
+    } catch (err) {
+      log.error(
+        { lineId, intlPortNumber, error: err instanceof Error ? err.message : String(err) },
+        'Failed to mirror checkout port into requests table',
+      );
     }
   }
 
