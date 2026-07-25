@@ -1493,6 +1493,448 @@ export const guides: Guide[] = [
       { href: "/guides/do-us-phones-work-in-israel", label: "Do US phones work in Israel?" },
     ],
   },
+  {
+    slug: "gap-year-israel-checklist",
+    title: "The gap year in Israel checklist: getting your kid ready",
+    metaTitle: "Gap Year in Israel Checklist for Parents",
+    metaDescription:
+      "A parent's step-by-step checklist for a gap year in Israel: passport and documents, health and meds, money, phone setup, packing, and a week-by-week countdown.",
+    datePublished: "2026-07-25",
+    dateModified: "2026-07-25",
+    readingTime: "8 min read",
+    intro:
+      "Sending a child to Israel for a gap year is a hundred small logistics wrapped around one big leap. The good news: almost all of it is a checklist, and most of it is calmer than it feels in the weeks before the flight. This guide walks parents through the whole timeline — documents, health, money, phone, and packing — in the order things actually need to happen, so nothing important gets left to the airport.",
+    sections: [
+      {
+        heading: "When should we start getting ready?",
+        paragraphs: [
+          "Start with the things that have lead times — passport, flights, insurance, and any program paperwork — a few months out. Leave the fast stuff — phone, packing, last-minute cash — for the final week or two. A rough rule: anything a government or an airline controls, do early; anything you control, do late.",
+          "The single most common mistake is treating the phone and the money setup as airport tasks. Those are the two things you most want working the moment the plane lands, and both are far easier to arrange calmly from home. We'll come back to each.",
+        ],
+      },
+      {
+        heading: "What documents does my child need?",
+        paragraphs: [
+          "A passport valid for at least six months beyond the travel dates is the non-negotiable one — renew now if it's close, because renewals take time. Make two copies of the photo page: one that stays with you, one packed separately from the passport itself.",
+          "Entry and any student visa are usually handled through the gap-year program — confirm exactly what they arrange and what you're responsible for, and don't assume. Bring the program's acceptance letter and contact details in printed form. Travel insurance documents and any health paperwork round out the folder; keep digital copies somewhere both you and your child can reach.",
+        ],
+      },
+      {
+        heading: "How should we handle money and banking?",
+        paragraphs: [
+          "Most gap-year students do not open an Israeli bank account — they run the year on a parent's card plus cash, which is simpler and avoids a lot of paperwork. Tell your home bank and card issuer the travel dates so nothing gets frozen as fraud, and check the card's foreign-transaction fee before relying on it for everything.",
+          "There's one catch worth knowing early: a lot of Israeli daily life — Bit for splitting a bill with friends, parking apps, verification texts — expects an Israeli mobile number, and Bit itself generally needs Israeli banking many students won't have. The [full breakdown of phone, banking, and money is here](/guides/gap-year-israel-phone-banking-money) — it's the part parents most often underestimate.",
+        ],
+      },
+      {
+        heading: "What about a phone and staying reachable?",
+        paragraphs: [
+          "This is the one to get right before the flight, not at Ben Gurion. Israeli life runs through an 05 mobile number — the program's group chats, SMS codes, the bank, deliveries — so your child needs a real Israeli number, and the calm way to get one is an eSIM set up at home before departure. With [BitLink](/plans), an eSIM phone can be activated online in about ten minutes — no Israeli ID, paid on your US, UK, or Canadian card in dollars — and it's live the moment they land. Student 5G is $34.99/month for 50GB, which is plenty for maps, group chats, and video calls home.",
+          "Have them keep their home number too, on the same phone. Don't switch their WhatsApp to the Israeli number for a single year — they'll still have the home number when they're back, and WhatsApp works fine over Israeli data either way. The home number also keeps US bank verification texts arriving. And if the year turns into shana bet, or they come home mid-year, the Israeli line can be [paused for $10/month](/plans) to hold the number instead of losing it. Full setup steps are in [get an Israeli number before you land](/guides/israeli-phone-number-before-you-land).",
+        ],
+      },
+      {
+        heading: "What should they pack — and not pack?",
+        paragraphs: [
+          "The honest answer is less than you think; Israel has stores. Bring what's genuinely hard to replace — specific medications, program dress-code items, good walking shoes — and buy the bulky, cheap, replaceable things there. The [full bring-versus-buy packing list is here](/guides/gap-year-israel-packing-list), including the voltage and adapter details that trip people up.",
+        ],
+      },
+      {
+        heading: "What about health, medications, and insurance?",
+        paragraphs: [
+          "Travel or gap-year health insurance is essential — confirm what the program includes and fill the gaps. For any prescription medication, send enough supply to last until a realistic refill, packed in original labeled containers with a doctor's note listing the generic names. Pack a small kit of the over-the-counter basics your child actually uses, since brand names differ in Israel.",
+          "Save the emergency numbers in their phone before they go — in Israel it's 101 for ambulance (Magen David Adom), 100 for police, and 102 for fire — alongside the program's staff contacts and the insurer's help line.",
+        ],
+      },
+      {
+        heading: "How will we stay in touch once they're there?",
+        paragraphs: [
+          "Israel is about seven hours ahead of US Eastern time, so the easiest rhythm is a standing weekly video call plus WhatsApp for the day-to-day. On a 50GB plan, video calls and photos are no problem. Agree before they leave on how often you'll actually talk — it heads off both the daily-panic and the two-weeks-of-silence patterns.",
+          "Their [first two weeks](/guides/gap-year-israel-first-two-weeks) are the adjustment window — jet lag, a new city, a new routine — so expect a wobble and don't read it as a crisis.",
+        ],
+      },
+      {
+        heading: "What's the week-by-week countdown?",
+        paragraphs: [
+          "If you do these in order, nothing important lands on the last day:",
+        ],
+        steps: [
+          "2–3 months out: check passport validity and renew if needed; book flights; sort travel and health insurance; confirm with the program what visa or entry paperwork they handle.",
+          "1 month out: tell your bank and card issuer the travel dates; refill prescriptions with enough supply; make document copies; start the packing list.",
+          "1–2 weeks out: set up the Israeli eSIM at home so it's ready to switch on; confirm the home number stays active for WhatsApp and bank texts; test that the card works abroad and that two-factor codes arrive.",
+          "Final days: pack, leaving room for what they'll buy there; load emergency numbers and program contacts into their phone; put a little starting cash and a card in easy reach for landing day.",
+          "Landing day: switch on the Israeli eSIM, message home, withdraw shekels from an ATM, and head to the program — skip the airport SIM kiosk.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "How far ahead should we start planning a gap year in Israel?",
+        answer:
+          "Start the slow, official items — passport, flights, insurance, program paperwork — two to three months out, and leave the fast items — phone, packing, cash — for the final week or two. The rule of thumb: anything a government or airline controls, do early.",
+      },
+      {
+        question: "Does my child need a visa for a gap year in Israel?",
+        answer:
+          "Entry and any student visa are almost always arranged through the program, so confirm exactly what they handle and what you're responsible for. Make sure the passport is valid at least six months beyond the travel dates.",
+      },
+      {
+        question: "Do gap-year students need an Israeli bank account?",
+        answer:
+          "Usually no. Most run the year on a parent's card plus cash. They do need an Israeli phone number for local apps and verification codes, which is a separate thing from banking.",
+      },
+      {
+        question: "Can I pay for the Israeli phone plan from the US?",
+        answer:
+          "Yes. Checkout is online in US dollars with a regular US, UK, or Canadian card — no Israeli ID or bank account — and support answers parents in English. Many families keep the account in a parent's hands while the line runs on the student's phone.",
+      },
+      {
+        question: "What if my child comes home for a break or shana bet?",
+        answer:
+          "Pause the Israeli line for $10/month to hold the number, SIM, and its registrations for up to 18 months, then resume when they're back — no new-number errands at the bank or on local apps. If they're not returning, cancel anytime; plans are monthly.",
+      },
+      {
+        question: "What are the emergency numbers in Israel?",
+        answer:
+          "101 for ambulance (Magen David Adom), 100 for police, and 102 for fire. Save them in your child's phone before departure, along with the program's staff contacts.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/gap-year-israel-packing-list", label: "The honest packing list" },
+      { href: "/guides/gap-year-israel-phone-banking-money", label: "Phone, banking & money before they land" },
+      { href: "/guides/gap-year-israel-first-two-weeks", label: "Their first two weeks in Israel" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+    ],
+  },
+  {
+    slug: "gap-year-israel-packing-list",
+    title: "The honest packing list for a gap year in Israel",
+    metaTitle: "Gap Year in Israel Packing List (Bring vs Buy)",
+    metaDescription:
+      "An honest bring-versus-buy packing list for a gap year in Israel: what's worth the luggage weight, what to buy there, voltage and adapters, weather, and what students always forget.",
+    datePublished: "2026-07-25",
+    dateModified: "2026-07-25",
+    readingTime: "6 min read",
+    intro:
+      "The biggest packing mistake for a year in Israel is bringing too much. Israel has pharmacies, clothing stores, and everything a teenager forgets — so the goal isn't to pack for every scenario, it's to bring what's genuinely hard to replace and buy the rest there. Here's an honest bring-versus-buy list, the weather reality, the adapter details, and the things students always forget.",
+    sections: [
+      {
+        heading: "What's the one rule of packing for Israel?",
+        paragraphs: [
+          "Pack light on the replaceable, heavy on the irreplaceable. Every kilo of shampoo and cheap t-shirts is a kilo you could have used for the stuff that's actually hard to get — or left as room for what they'll buy there. A year of life in Israel accumulates fast, and the bags are always fuller going home.",
+          "Weigh the bags at home against the airline's exact limit with a luggage scale; going over at the check-in counter is expensive and stressful. Leaving a bag half-empty is a gift to your future self.",
+        ],
+      },
+      {
+        heading: "What should they definitely bring from home?",
+        paragraphs: [
+          "The irreplaceables: a full supply of any prescription medication in original labeled containers with a doctor's note; the specific clothing a program's dress code requires — modest skirts and tops, white shirts, Shabbat clothes — which is easier to get exactly right at home; good, broken-in walking shoes, because they'll walk far more than they do now; and the over-the-counter medicines they actually reach for, since brands differ.",
+          "Also bring chargers and a power bank, a couple of plug adapters, copies of documents kept separate from the originals, and a small number of comfort items. Everything on this short list earns its luggage weight.",
+        ],
+      },
+      {
+        heading: "What should they buy in Israel instead?",
+        paragraphs: [
+          "Toiletries, shampoo, and basics are cheap and on every corner — not worth the weight. Everyday and casual clothes are inexpensive in Israeli stores and more fun to shop for there, so bring a starter set and buy the rest. Bedding and towels are bulky; many programs provide them or you buy locally, so check before packing sheets.",
+        ],
+      },
+      {
+        heading: "What about electronics, chargers, and adapters?",
+        paragraphs: [
+          "Israel runs on 230-volt Type H sockets (the round Type C plug also fits). The important distinction: phone and laptop chargers are almost always dual-voltage — they say 100–240V on the brick — so they need only a cheap plug adapter. Single-voltage US appliances, like many hair dryers and straighteners, need a bulky voltage converter and often burn out anyway, so buy an Israeli one there.",
+          "Bring the phone itself set up and ready: an unlocked, eSIM-capable phone with an [Israeli eSIM installed before the flight](/guides/israeli-phone-number-before-you-land) means they land connected instead of hunting for a SIM at the airport. Not sure the phone qualifies? [Check whether it will work in Israel](/guides/will-my-phone-work-in-israel) before you fly. Pack a couple of adapters and a power bank for long travel and tiyul days.",
+        ],
+        table: {
+          columns: ["Item", "Plan", "Why"],
+          rows: [
+            { cells: ["Prescription medication", "Bring full supply", "Brands differ; refills take time to arrange"] },
+            { cells: ["Toiletries & shampoo", "Buy there", "Cheap and everywhere — don't waste luggage weight"] },
+            { cells: ["Program dress-code clothing", "Bring", "Specific requirements are easier to nail from home"] },
+            { cells: ["Everyday & casual clothes", "Bring a little, buy the rest", "Israeli stores are inexpensive; leave suitcase room"] },
+            { cells: ["Good walking shoes", "Bring", "You'll walk far more than at home; break them in first"] },
+            { cells: ["Bedding & towels", "Buy there (check with program)", "Bulky; many programs provide them"] },
+            { cells: ["Phone charger & power bank", "Bring", "Dual-voltage — just add a plug adapter"] },
+            { cells: ["Hair dryer / straightener", "Buy there", "US single-voltage models need a converter — not worth it"] },
+            { cells: ["Unlocked phone + Israeli eSIM", "Set up at home", "Land already connected — skip the airport SIM kiosk"], highlight: true },
+            { cells: ["Type H/C plug adapters", "Bring a couple", "Israel is 230V; grab them before you fly"] },
+          ],
+          note:
+            "Israel uses 230V Type H sockets (Type C plugs also fit). Phone and laptop chargers are dual-voltage and need only a plug adapter; single-voltage US appliances need a converter, usually cheaper to just buy locally.",
+        },
+      },
+      {
+        heading: "What clothes should they pack for the weather?",
+        paragraphs: [
+          "Israeli summers are hot and dry, and winters are cooler and rainy — Jerusalem in particular gets genuinely cold and wet from December to February, which surprises people who picture Israel as always warm. A real coat and a rain layer matter. Layers beat bulk. Include Shabbat clothing and, for most yeshiva and seminary programs, modest dress that meets the program's guidelines — all of which you can also top up in Israeli stores.",
+        ],
+      },
+      {
+        heading: "What do students always forget?",
+        paragraphs: [
+          "The recurring gaps: a reusable water bottle (they'll drink a lot in the heat, and tap water is safe), a small personal first-aid kit, a power bank, printed copies of documents kept apart from the originals, and a small day bag for trips. None are dramatic; all are annoying to be without in the first week.",
+        ],
+      },
+      {
+        heading: "How do we not blow the baggage allowance?",
+        paragraphs: [
+          "Check the airline's exact weight and bag limits and weigh everything at home. Pack to land, not to hoard — a year's worth of things accumulates in Israel, so leave room. Shipping a box from home is usually slow and expensive versus buying there; reserve it for genuine irreplaceables that won't fit in the luggage.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Do I need a voltage converter for Israel?",
+        answer:
+          "For phone and laptop chargers, no — they're dual-voltage and need only a Type H/C plug adapter. Single-voltage US appliances like some hair dryers need a converter, so it's usually easier and cheaper to buy those in Israel.",
+      },
+      {
+        question: "Can you buy modest or Shabbat clothing in Israel?",
+        answer:
+          "Yes, easily, and often at good prices. Bring a starter set that meets your program's dress code and buy more once you're there.",
+      },
+      {
+        question: "How many suitcases should a gap-year student bring?",
+        answer:
+          "Most manage with the airline's standard checked allowance plus a carry-on. Leave room — the bags will be fuller on the way home.",
+      },
+      {
+        question: "Should we ship a box to Israel?",
+        answer:
+          "Usually not worth it. Shipping is slow and pricey, and most things are available locally. Reserve it for irreplaceables that don't fit in the luggage.",
+      },
+      {
+        question: "Is the tap water safe to drink in Israel?",
+        answer:
+          "Yes, tap water is safe throughout Israel. A reusable bottle saves money and plastic in the heat.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/gap-year-israel-checklist", label: "The full gap year checklist" },
+      { href: "/guides/gap-year-israel-phone-banking-money", label: "Phone, banking & money before they land" },
+      { href: "/guides/gap-year-israel-first-two-weeks", label: "Their first two weeks in Israel" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+    ],
+  },
+  {
+    slug: "gap-year-israel-phone-banking-money",
+    title: "Before they land: phone, banking, and money for a gap year in Israel",
+    metaTitle: "Gap Year in Israel: Phone, Banking & Money Setup",
+    metaDescription:
+      "How gap-year students set up a phone, keep their home number, and pay for a year in Israel: eSIM before landing, US bank texts, Bit and Pango, cash, and what to test before the flight.",
+    datePublished: "2026-07-25",
+    dateModified: "2026-07-25",
+    readingTime: "7 min read",
+    intro:
+      "Two things are worth setting up before your child's flight rather than after they land: their phone and their money. Both are calmer to arrange from home, and both are things you want working the moment the plane touches down. Here's the honest version — what an Israeli number is for, why the home number stays, and how gap-year students actually pay for a year in Israel.",
+    sections: [
+      {
+        heading: "What's the phone problem to solve before the flight?",
+        paragraphs: [
+          "Israeli daily life assumes an 05 mobile number: the program's WhatsApp groups, SMS verification codes, deliveries, appointment reminders, and local sign-ups all expect one. A home US number alone won't fill in those forms. So the goal before the flight is simple — a real Israeli number, ready to switch on at landing, without a scramble at the airport.",
+        ],
+      },
+      {
+        heading: "How does the Israeli phone get set up before landing?",
+        paragraphs: [
+          "If the phone is an unlocked, eSIM-capable model — most recent iPhones and many Android phones are — you can set the whole thing up from your couch. With [BitLink](/plans) you pick a plan, pay online with a US, UK, or Canadian card in dollars (no Israeli ID or bank account), and install the eSIM by scanning a QR code, all before the flight. [Student 5G](/israeli-phone-plans-for-students) is $34.99/month for 50GB — enough for maps, group chats, and daily video calls home. The full walkthrough is in [get an Israeli number before you land](/guides/israeli-phone-number-before-you-land).",
+          "If the phone isn't eSIM-capable, or is locked to a US carrier, that's the one thing worth sorting at home — [check whether the phone will work in Israel](/guides/will-my-phone-work-in-israel) before you rely on this plan.",
+        ],
+      },
+      {
+        heading: "Should they keep their home number too?",
+        paragraphs: [
+          "Yes — keep it, on the same phone. A modern phone runs the Israeli line and the home number side by side, so they don't have to choose. The home number matters for two reasons: it keeps US bank and account verification texts arriving, and it keeps WhatsApp on the number friends and family already have.",
+          "Don't switch their WhatsApp to the Israeli number for a single year. They'll still have the home number when they're back, WhatsApp runs fine over Israeli data, and switching just creates a mess to undo. If the exact home number needs to stay reachable by call and text in Israel, it can be [ported or added as a local number](/us-number-in-israel) — BitLink's US numbers do receive bank and verification texts, tested with real Chase and Google codes.",
+        ],
+        table: {
+          columns: ["What it's for", "Home number", "Israeli number"],
+          rows: [
+            { cells: ["US bank & 2FA texts", "Keep it here", "—"] },
+            { cells: ["WhatsApp with family & friends", "Keep it here (don't switch)", "—"] },
+            { cells: ["Program group chats & Israeli SMS codes", "—", "Yes"] },
+            { cells: ["Israeli deliveries, sign-ups, appointments", "—", "Yes"] },
+            { cells: ["Mobile data, maps, calls home", "—", "Yes (50GB on Student 5G)"] },
+          ],
+          note:
+            "A modern phone runs both at once, so a gap-year student keeps the home number for banks and WhatsApp while the Israeli number handles everything local.",
+        },
+      },
+      {
+        heading: "How will they actually pay for things day to day?",
+        paragraphs: [
+          "Most gap-year students run the year on a parent's card plus cash — no Israeli bank account required. Tell your bank and card issuer the travel dates so purchases in Israel don't trip a fraud freeze, and check the card's foreign-transaction fee, since 1–3% on everything adds up. A card with no foreign fee is worth setting up before they go.",
+          "Israel is more card-friendly than it used to be, but cash still matters for small vendors, tips, and some buses. Have them withdraw shekels from an ATM on arrival rather than exchanging cash at the airport, where the rates are poor.",
+        ],
+      },
+      {
+        heading: "What are Bit and Pango, and do they need an Israeli number?",
+        paragraphs: [
+          "Bit is Israel's version of Venmo — how friends split a felafel or a taxi — and it's everywhere among Israeli students. It needs both an Israeli phone number and an Israeli bank account or card, so gap-year students without local banking often can't use it fully; the Israeli number is the prerequisite either way. Pango, the parking app, matters mostly if they'll drive, which most won't. The [deeper guide on Israeli numbers for Bit, Pango, and banking is here](/guides/israeli-phone-number-for-banking-bit-pango).",
+        ],
+      },
+      {
+        heading: "How do parents send money to a student in Israel?",
+        paragraphs: [
+          "The simplest setup is to keep your child on a parental card and top up cash as needed — no transfers, no Israeli account. When you do need to move a larger sum, a low-fee transfer service usually beats a wire and beats opening an Israeli bank account for a one-year stay. Only open Israeli banking if the program specifically requires it.",
+        ],
+      },
+      {
+        heading: "What should be tested before the flight?",
+        paragraphs: [
+          "While the home SIM still works and you're all in the same place, run four checks: the Israeli eSIM installs and shows a number; WhatsApp works on the home number; a bank or two-factor text actually arrives at the home number; and the card makes a real purchase without being blocked. Catching any of these at home is a five-minute fix; catching them from Israel is a 3-a.m.-phone-call problem.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Does a gap-year student need an Israeli bank account?",
+        answer:
+          "Usually not. Most run the year on a parent's card and cash. An Israeli phone number, which is separate from banking, is the thing they do need for local apps and verification codes.",
+      },
+      {
+        question: "Will US bank verification texts still arrive in Israel?",
+        answer:
+          "Yes, if the home number stays active on the phone. BitLink's US numbers — ported in or added for $9.99/month — also receive them, tested with real Chase and Google codes, though it's smart to test your most important logins before the flight.",
+      },
+      {
+        question: "Can a gap-year student use Bit?",
+        answer:
+          "Bit needs an Israeli phone number and an Israeli bank account or card, so students without local banking often can't use it fully. The Israeli number is still needed for many other apps and verification codes.",
+      },
+      {
+        question: "How much cash should they land with?",
+        answer:
+          "A modest amount for the first day or two. Withdraw shekels from an ATM on arrival rather than exchanging at the airport, where rates are poor. Most spending goes on a card.",
+      },
+      {
+        question: "Can parents pay for and manage the phone plan?",
+        answer:
+          "Yes. Checkout and billing are in US dollars on a US, UK, or Canadian card with no Israeli ID, and many families keep the account in the parent's hands while the line runs on the student's phone in Israel.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/israeli-phone-number-for-banking-bit-pango", label: "Israeli numbers for Bit, Pango & banking" },
+      { href: "/us-number-in-israel", label: "Keep a US number in Israel" },
+      { href: "/guides/gap-year-israel-checklist", label: "The full gap year checklist" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+    ],
+  },
+  {
+    slug: "gap-year-israel-first-two-weeks",
+    title: "Their first two weeks in Israel: a gap year survival guide",
+    metaTitle: "Gap Year in Israel: The First Two Weeks",
+    metaDescription:
+      "A practical survival guide for a gap-year student's first two weeks in Israel: the airport, getting around, must-have apps, staying reachable to home, Shabbat, and emergency numbers.",
+    datePublished: "2026-07-25",
+    dateModified: "2026-07-25",
+    readingTime: "7 min read",
+    intro:
+      "The first two weeks are the wobble — jet lag, a new city, a new routine, and the reality that not everything is like home. It passes. This is the practical survival guide for a gap-year student's first days in Israel: what to do at the airport, how to get around, which apps to download, who to call if something goes wrong, and how to stay reachable to home.",
+    sections: [
+      {
+        heading: "What should they do the moment they land?",
+        paragraphs: [
+          "The moment the eSIM connects: switch on the Israeli line, message home that they landed, and check the program's group chat for arrival instructions. Then withdraw shekels from an ATM in the arrivals hall, find the program's pickup or transport, and — if the eSIM is already set up — walk straight past the SIM kiosk.",
+        ],
+      },
+      {
+        heading: "How do they get connected at the airport?",
+        paragraphs: [
+          "If the Israeli eSIM was [set up before the flight](/guides/israeli-phone-number-before-you-land), there's nothing to do but toggle it on — they're connected before passport control. If it wasn't, resist the airport SIM counter: those kiosk SIMs are often registered to the vendor rather than the buyer, which makes the number hard to keep and hard to port later. [The airport SIM trap](/guides/airport-sim-trap-israel) explains exactly how students lose the number their bank and friends come to know.",
+        ],
+      },
+      {
+        heading: "How do they get around Israel?",
+        paragraphs: [
+          "Public transport is cheap and everywhere. Buses and light rail use the Rav-Kav card or contactless payment, and the Moovit app maps almost any trip door to door in English. Intercity trains connect the big cities, and shared taxis (sherut) and Gett — Israel's Uber — fill the gaps. Nobody needs to rent a car for a gap year; it's an expense and a hassle, and parking is its own sport.",
+        ],
+      },
+      {
+        heading: "Which apps should they download first?",
+        paragraphs: [
+          "The starter set: Moovit for transit, Gett for taxis, Google Maps or Waze for directions, and the program's WhatsApp group. Wolt handles food delivery in most cities. Several of these send an SMS code to set up — another reason the Israeli number needs to be working on day one.",
+        ],
+      },
+      {
+        heading: "How do they stay reachable to home?",
+        paragraphs: [
+          "Israel is about seven hours ahead of US Eastern time, so late morning in Israel is early morning back east — a natural window for calls. On a 50GB plan, WhatsApp voice and video calls are no problem, so agree on a standing weekly call and let the rest be day-to-day messages. A quick “landed / at the program / first Shabbat was good” cadence keeps everyone calm without hovering.",
+        ],
+      },
+      {
+        heading: "What about jet lag, food, water, and Shabbat?",
+        paragraphs: [
+          "Jet lag eases fastest by getting onto Israeli time immediately — daylight, movement, and pushing through the first afternoon. Tap water is safe to drink everywhere, and a refillable bottle is a heat-season essential. Food is overwhelmingly kosher, so that's rarely a worry. The big rhythm change is Shabbat: from Friday afternoon to Saturday night most stores close and public transport largely stops, so students learn to shop and charge devices by Friday midday. The first Shabbat away from home is often the moment it all feels real — expected, and it passes.",
+        ],
+      },
+      {
+        heading: "Who do they call in an emergency?",
+        paragraphs: [
+          "Save these before anything goes wrong, and add the program's staff numbers and the travel insurer's help line beside them. Most first-week “emergencies” are small — a lost card, a missed bus, a cold — but knowing the three numbers and the program contact turns a scare into a phone call.",
+        ],
+        table: {
+          columns: ["Emergency", "Number"],
+          rows: [
+            { cells: ["Ambulance (Magen David Adom)", "101"] },
+            { cells: ["Police", "100"] },
+            { cells: ["Fire", "102"] },
+          ],
+          note: "Save these in the phone before landing, along with the program's staff contacts and your travel insurer's line.",
+        },
+      },
+      {
+        heading: "What's the first-two-weeks checklist?",
+        paragraphs: [
+          "A simple sequence to get settled:",
+        ],
+        steps: [
+          "Landing day: switch on the Israeli eSIM, message home, withdraw shekels, and meet the program transport.",
+          "Day 1–2: download Moovit, Gett, and the program group chat; set up a Rav-Kav or contactless transit payment; save the emergency numbers.",
+          "First week: test the card on a real purchase; confirm bank 2FA still reaches the home number; find the nearest supermarket, pharmacy, and ATM.",
+          "Before the first Shabbat: shop and charge devices by Friday midday; learn the local Shabbat start time and what closes.",
+          "End of week two: settle a weekly call time with home — you're through the wobble.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Should they buy a SIM at the airport in Israel?",
+        answer:
+          "Better not to. Set up an eSIM before the flight instead — airport kiosk SIMs are often registered to the vendor, which makes the number hard to keep or port later.",
+      },
+      {
+        question: "How do gap-year students get around Israel?",
+        answer:
+          "Mostly buses, light rail, and trains using a Rav-Kav card or contactless payment, navigated with the Moovit app, plus Gett for taxis. A rental car isn't needed for a gap year.",
+      },
+      {
+        question: "What's the time difference between Israel and the US?",
+        answer:
+          "Israel is about seven hours ahead of US Eastern time. Late morning in Israel is early morning on the US East Coast — a good window for a call home.",
+      },
+      {
+        question: "Is the tap water safe in Israel?",
+        answer:
+          "Yes, tap water is safe throughout Israel. A reusable bottle is worth packing for the heat.",
+      },
+      {
+        question: "What happens on Shabbat?",
+        answer:
+          "From Friday afternoon to Saturday night, most shops close and public transport largely stops. Students quickly learn to shop, charge devices, and plan by Friday midday.",
+      },
+      {
+        question: "Will a student's data plan be enough?",
+        answer:
+          "50GB on Student 5G covers maps, group chats, and daily video calls home comfortably. If a heavy month runs close, data can be topped up from the account at any time.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/airport-sim-trap-israel", label: "The airport SIM trap" },
+      { href: "/guides/gap-year-israel-phone-banking-money", label: "Phone, banking & money before they land" },
+      { href: "/guides/gap-year-israel-checklist", label: "The full gap year checklist" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+    ],
+  },
 ];
 
 export function getGuide(slug: string) {
