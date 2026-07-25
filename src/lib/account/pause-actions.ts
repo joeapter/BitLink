@@ -20,6 +20,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe/server";
 import { getPlan, getStripePriceId } from "@/lib/plans";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
+import { sendEmail } from "@/lib/email/send";
 
 export type PauseActionState = { error?: string; success?: string } | null;
 
@@ -100,6 +101,40 @@ async function resolvePlanPriceId(planSlug: string): Promise<string | null> {
   return envPriceId || null;
 }
 
+// Self-serve pause/resume is a churn signal Joe wants to see the moment it
+// happens, not on the next admin login. Best-effort — never block the action.
+async function notifyAdminOfPauseChange(params: {
+  action: "paused" | "resumed";
+  lineId: string;
+  customerId: string;
+  planSlug: string | null;
+}) {
+  try {
+    const admin = getAdmin();
+    const { data: customer } = await admin
+      .from("customers")
+      .select("full_name, email")
+      .eq("id", params.customerId)
+      .maybeSingle();
+    const who = customer?.full_name || customer?.email || "A customer";
+    const paused = params.action === "paused";
+    await sendEmail({
+      to: "joe@bitlink.co.il",
+      subject: `${paused ? "⏸️ Line paused" : "▶️ Line resumed"} — ${who}${params.planSlug ? ` (${params.planSlug})` : ""}`,
+      html: [
+        `<p><b>${who}</b> just <b>${params.action}</b> their line${params.planSlug ? ` on <b>${params.planSlug}</b>` : ""} from their account.</p>`,
+        customer?.email ? `<p>${customer.email}</p>` : "",
+        paused
+          ? `<p>They drop to the $10/mo pause rate on their next billing date; number + SIM are held.</p>`
+          : `<p>Full-price billing restarted today.</p>`,
+        `<p><a href="https://www.bitlink.co.il/admin/lines/${params.lineId}">Open the line in admin</a></p>`,
+      ].join(""),
+    }).catch(() => {});
+  } catch {
+    // best-effort — a notification failure must never affect the pause/resume
+  }
+}
+
 async function logCustomerAction(userId: string, action: string, lineId: string, metadata: Record<string, unknown>) {
   try {
     const admin = getAdmin();
@@ -175,6 +210,7 @@ export async function pauseLineAction(_prev: PauseActionState, formData: FormDat
     stripeSubscriptionId: subInfo.stripeSubscriptionId,
     planSlug: subInfo.planSlug,
   });
+  await notifyAdminOfPauseChange({ action: "paused", lineId, customerId, planSlug: subInfo.planSlug });
 
   revalidatePath("/account/lines");
   revalidatePath("/account");
@@ -248,6 +284,7 @@ export async function resumeLineAction(_prev: PauseActionState, formData: FormDa
     stripeSubscriptionId: subInfo.stripeSubscriptionId,
     planSlug,
   });
+  await notifyAdminOfPauseChange({ action: "resumed", lineId, customerId, planSlug });
 
   revalidatePath("/account/lines");
   revalidatePath("/account");
