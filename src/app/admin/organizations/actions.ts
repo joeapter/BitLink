@@ -61,3 +61,45 @@ export async function updateOrganizationAction(formData: FormData) {
 
   redirect(`/admin/organizations/${id}?success=Saved`);
 }
+
+// Unlinks a customer from an org (clears org_referral_code) — used to remove
+// abandoned/duplicate signups or a customer added by mistake from the org's
+// profit report. Reversible: re-add them with linkCustomerToOrgAction.
+export async function unlinkCustomerFromOrgAction(formData: FormData) {
+  const orgId = String(formData.get("orgId") ?? "");
+  const customerId = String(formData.get("customerId") ?? "");
+  if (!orgId || !customerId) redirect(`/admin/organizations/${orgId}?error=Invalid+data`);
+
+  const admin = createSupabaseAdminClient();
+  if (!admin) redirect(`/admin/organizations/${orgId}?error=Database+unavailable`);
+
+  const { error } = await admin
+    .from("customers")
+    .update({ org_referral_code: null, updated_at: new Date().toISOString() })
+    .eq("id", customerId);
+
+  if (error) redirect(`/admin/organizations/${orgId}?error=${encodeURIComponent(error.message)}`);
+  redirect(`/admin/organizations/${orgId}?success=Removed`);
+}
+
+// Links an existing customer to this org by setting their org_referral_code.
+// If the customer already belongs to a different org, this moves them.
+export async function linkCustomerToOrgAction(formData: FormData) {
+  const orgId = String(formData.get("orgId") ?? "");
+  const customerId = String(formData.get("customerId") ?? "");
+  if (!orgId || !customerId) redirect(`/admin/organizations/${orgId}?error=Invalid+data`);
+
+  const admin = createSupabaseAdminClient();
+  if (!admin) redirect(`/admin/organizations/${orgId}?error=Database+unavailable`);
+
+  const { data: org } = await admin.from("organizations").select("referral_code").eq("id", orgId).maybeSingle();
+  if (!org) redirect(`/admin/organizations/${orgId}?error=Organization+not+found`);
+
+  const { error } = await admin
+    .from("customers")
+    .update({ org_referral_code: org.referral_code, updated_at: new Date().toISOString() })
+    .eq("id", customerId);
+
+  if (error) redirect(`/admin/organizations/${orgId}?error=${encodeURIComponent(error.message)}`);
+  redirect(`/admin/organizations/${orgId}?success=Customer+added`);
+}

@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Copy } from "lucide-react";
+import { Copy, Plus } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { getAdminDb } from "@/lib/db/admin";
 import { getPartnerSlugForOrgCode } from "@/lib/partner-org-codes";
 import { getUsdToIlsRate } from "@/lib/fx";
 import { formatMoney } from "@/lib/utils";
-import { updateOrganizationAction } from "../actions";
+import { updateOrganizationAction, unlinkCustomerFromOrgAction, linkCustomerToOrgAction } from "../actions";
 
 export const metadata: Metadata = { title: "Organization Report" };
 
@@ -113,17 +114,25 @@ export default async function OrganizationDetailPage({
   const customers = rows ?? [];
   const customerIds = customers.map((c) => c.id);
 
+  // Every other customer, for the "add existing customer" picker below —
+  // small table (dozens of rows), so a plain dropdown beats building search.
+  const { data: allCustomerRows } = await db
+    .from("customers")
+    .select("id, full_name, email")
+    .order("full_name", { ascending: true });
+  const addableCustomers = (allCustomerRows ?? []).filter((c) => !customerIds.includes(c.id));
+
   // Subscriptions live in the `subscribers` table (Stripe-driven). The older
   // `subscriptions` table this report used to read is legacy and was never
   // populated with a plan_id, so every customer showed $0 revenue / no plan.
   // A subscriber counts as revenue when it's active — or when its status is
   // stale (commonly stuck at 'provisioning') but the telecom line is live.
-  type OrgSub = { status: string; plan_slug: string | null; lineStatus: string | null };
+  type OrgSub = { status: string; plan_slug: string | null; lineStatus: string | null; monthlyPriceCents: number | null };
   const subsByCustomer: Record<string, OrgSub[]> = {};
   if (customerIds.length > 0) {
     const { data: subRows } = await db
       .from("subscribers")
-      .select("customer_id, status, plan_slug, telecom_line_id")
+      .select("customer_id, status, plan_slug, telecom_line_id, monthly_price_cents")
       .in("customer_id", customerIds);
 
     const lineIds = [...new Set((subRows ?? []).map((s) => s.telecom_line_id).filter(Boolean))] as string[];
@@ -137,6 +146,7 @@ export default async function OrganizationDetailPage({
         status: s.status,
         plan_slug: s.plan_slug,
         lineStatus: s.telecom_line_id ? lineStatusById[s.telecom_line_id] ?? null : null,
+        monthlyPriceCents: s.monthly_price_cents ?? null,
       });
     }
   }
@@ -179,16 +189,19 @@ export default async function OrganizationDetailPage({
   const customerRows: CustomerRow[] = customers.map((c) => {
     const liveSubs = (subsByCustomer[c.id] ?? []).filter(isLiveSub);
 
-    // Revenue = sum of plan list prices across the customer's live lines
-    // (handles multi-line customers correctly; cost stays per-customer below
-    // since CDR usage is only keyed by customer, not line).
+    // Revenue = sum of what the customer is ACTUALLY paying across their live
+    // lines. subscribers.monthly_price_cents reflects custom-priced orders
+    // (e.g. a discounted custom order) and takes precedence; the plan's list
+    // price is only a fallback for subscribers where it hasn't been set.
+    // Cost stays per-customer below since CDR usage is only keyed by
+    // customer, not line.
     let revenueCents = 0;
     const planNames: string[] = [];
     let planCostAgurot = 0;
     for (const s of liveSubs) {
       const plan = s.plan_slug ? planBySlug[s.plan_slug] : undefined;
+      revenueCents += s.monthlyPriceCents && s.monthlyPriceCents > 0 ? s.monthlyPriceCents : (plan?.monthly_price_cents ?? 0);
       if (plan) {
-        revenueCents += plan.monthly_price_cents;
         planCostAgurot += plan.cost_agurot;
         planNames.push(plan.name);
       }
@@ -344,6 +357,7 @@ export default async function OrganizationDetailPage({
                     <th className="px-4 py-3 font-semibold text-right">Carrier cost (ILS)</th>
                     <th className="px-4 py-3 font-semibold text-right">Profit (ILS)</th>
                     <th className="px-4 py-3 font-semibold">Sub</th>
+                    <th className="px-4 py-3 font-semibold" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-ink/8">
@@ -369,6 +383,15 @@ export default async function OrganizationDetailPage({
                       <td className="px-4 py-3">
                         <StatusBadge status={row.hasActiveSub ? "active" : "pending"} />
                       </td>
+                      <td className="px-4 py-3 text-right">
+                        <form action={unlinkCustomerFromOrgAction}>
+                          <input type="hidden" name="orgId" value={org.id} />
+                          <input type="hidden" name="customerId" value={row.id} />
+                          <button type="submit" className="text-xs font-semibold text-rose-500 hover:text-rose-700">
+                            Remove
+                          </button>
+                        </form>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -382,6 +405,7 @@ export default async function OrganizationDetailPage({
                     <td className={`px-4 py-3 text-right font-mono ${totalProfitIls >= 0 ? "text-emerald-700" : "text-rose-600"}`}>
                       {formatIls(totalProfitIls * 100)}
                     </td>
+                    <td />
                     <td />
                   </tr>
                 </tfoot>
@@ -405,6 +429,31 @@ export default async function OrganizationDetailPage({
             <EmptyState title="No subscribers linked to this organization yet." />
           </div>
         )}
+
+        {/* Add an existing customer to this org */}
+        <form action={linkCustomerToOrgAction} className="mt-5 flex flex-wrap items-end gap-2 border-t border-ink/10 pt-5">
+          <input type="hidden" name="orgId" value={org.id} />
+          <Select
+            name="customerId"
+            label="Add existing customer to this org"
+            defaultValue=""
+            className="min-w-[20rem]"
+            required
+          >
+            <option value="" disabled>
+              {addableCustomers.length ? "Choose a customer…" : "No other customers to add"}
+            </option>
+            {addableCustomers.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.full_name ?? "—"} — {c.email}
+              </option>
+            ))}
+          </Select>
+          <Button type="submit" variant="secondary" size="sm" disabled={addableCustomers.length === 0}>
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add
+          </Button>
+        </form>
       </section>
 
       {/* Edit org */}
