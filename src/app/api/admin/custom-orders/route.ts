@@ -5,6 +5,7 @@ import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { absoluteUrl, normalizeIsraeliMobile } from '@/lib/utils';
 import { generateReferralCode } from '@/lib/referrals';
 import { getPlan, type PlanSlug } from '@/lib/plans';
+import { resolveDeliveryMethod } from '@/lib/delivery';
 import { sendEmail } from '@/lib/email/send';
 import { buildCustomerLoginCreatedEmail } from '@/lib/email/templates';
 
@@ -26,6 +27,16 @@ const lineSchema = z.object({
   intlPortNumber: z.string().nullable().optional(),
   intlChosenNumber: z.string().nullable().optional(),
   iccId: z.string().nullable().optional(),
+  // Method is always re-derived server-side from city — see resolveDeliveryMethod.
+  delivery: z
+    .object({
+      city: z.string().trim().min(1),
+      addressLine1: z.string().trim().min(1),
+      addressLine2: z.string().trim().nullable().optional(),
+      requestedDate: z.string().nullable().optional(),
+    })
+    .nullable()
+    .optional(),
   customPriceCents: z.number().int().min(100).max(200_000),
 });
 
@@ -239,6 +250,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     intlSource: 'new' | 'port' | null;
     intlPortNumber: string | null;
     intlChosenNumber: string | null;
+    delivery: { method: 'courier' | 'israel_post'; city: string; addressLine1: string; addressLine2: string | null; requestedDate: string | null } | null;
     customPriceCents: number;
   }>;
   try {
@@ -288,6 +300,13 @@ export async function POST(request: NextRequest): Promise<Response> {
         // Physical/kosher lines activate on a specific card entered by the
         // admin; eSIM lines auto-pick from inventory so this stays null.
         iccId: (plan.isKosher || !line.isEsim) ? (line.iccId?.replace(/\s+/g, "") || null) : null,
+        delivery: (plan.isKosher || !line.isEsim) && line.delivery ? {
+          method: resolveDeliveryMethod(line.delivery.city),
+          city: line.delivery.city,
+          addressLine1: line.delivery.addressLine1,
+          addressLine2: line.delivery.addressLine2 || null,
+          requestedDate: line.delivery.requestedDate || null,
+        } : null,
         customPriceCents: line.customPriceCents,
       };
     }));

@@ -42,6 +42,15 @@ export interface CreateCheckoutSessionParams {
   // true = foreign-number port is deferred (billed when we run it, not now).
   intlPortDeferred?: boolean;
   intlChosenNumber?: string | null;
+  // Physical SIM shipping — null for eSIM orders. method is server-derived
+  // from city (see resolveDeliveryMethod), never client-supplied directly.
+  delivery?: {
+    method: 'courier' | 'israel_post';
+    city: string;
+    addressLine1: string;
+    addressLine2?: string | null;
+    requestedDate?: string | null;
+  } | null;
   customerRecordId: string | null;
   userId: string | null;
   successUrl?: string;
@@ -84,6 +93,11 @@ export async function createCheckoutSession(
     intl_port_number: params.intlPortNumber ?? '',
     intl_port_deferred: params.intlPortDeferred ? '1' : '0',
     intl_chosen_number: params.intlChosenNumber ?? '',
+    delivery_method: params.delivery?.method ?? '',
+    delivery_city: params.delivery?.city ?? '',
+    delivery_address_line1: params.delivery?.addressLine1 ?? '',
+    delivery_address_line2: params.delivery?.addressLine2 ?? '',
+    delivery_requested_date: params.delivery?.requestedDate ?? '',
     source: 'bitlink_web',
   };
 

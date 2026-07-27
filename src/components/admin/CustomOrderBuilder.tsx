@@ -6,6 +6,14 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { IntlNumberPicker } from "@/components/checkout/IntlNumberPicker";
+import { PhysicalSimDeliveryPicker } from "@/components/checkout/PhysicalSimDeliveryPicker";
+import {
+  emptyDeliveryDetails,
+  resolveDeliveryCity,
+  resolveDeliveryMethod,
+  isDeliveryDetailsComplete,
+  type PhysicalSimDeliveryDetails,
+} from "@/lib/delivery";
 import { formatMoney } from "@/lib/utils";
 import { getPlan, plans, type PlanSlug } from "@/lib/plans";
 
@@ -24,6 +32,7 @@ type BuilderLine = {
   planSlug: PlanSlug;
   isEsim: boolean;
   iccId: string;
+  delivery: PhysicalSimDeliveryDetails;
   isPortIn: boolean;
   portNumber: string;
   wantsIntlNumber: boolean;
@@ -41,6 +50,7 @@ function newLine(): BuilderLine {
     planSlug: plan.slug,
     isEsim: true,
     iccId: "",
+    delivery: emptyDeliveryDetails,
     isPortIn: false,
     portNumber: "",
     wantsIntlNumber: false,
@@ -133,6 +143,13 @@ export function CustomOrderBuilder({
           planSlug: line.planSlug,
           isEsim: line.isEsim,
           iccId: line.isEsim ? null : (line.iccId.trim() || null),
+          delivery: !line.isEsim && isDeliveryDetailsComplete(line.delivery) ? {
+            method: resolveDeliveryMethod(resolveDeliveryCity(line.delivery)),
+            city: resolveDeliveryCity(line.delivery),
+            addressLine1: line.delivery.addressLine1,
+            addressLine2: line.delivery.addressLine2 || null,
+            requestedDate: line.delivery.requestedDate || null,
+          } : null,
           isPortIn: line.isPortIn,
           portNumber: line.isPortIn ? line.portNumber : null,
           wantsIntlNumber: line.wantsIntlNumber,
@@ -305,6 +322,17 @@ export function CustomOrderBuilder({
                       Enter the card you&apos;re handing over now to activate the line on it. Leave blank for a mailed
                       order and assign the SIM later from the line page.
                     </p>
+                    <div className="mt-4">
+                      <PhysicalSimDeliveryPicker
+                        value={line.delivery}
+                        onChange={(next) => updateLine(line.id, { delivery: next })}
+                        idPrefix={`delivery-${line.id}`}
+                      />
+                      <p className="mt-1.5 text-xs text-amber-800">
+                        Optional here — fill in if you already have the address, or leave blank and the
+                        customer&apos;s fulfillment stays untracked until you add it on the line page.
+                      </p>
+                    </div>
                   </div>
                 ) : null}
 

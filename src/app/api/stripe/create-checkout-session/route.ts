@@ -29,6 +29,7 @@ import { logger } from '@/lib/logger';
 import { generateReferralCode, normalizeReferralCode } from '@/lib/referrals';
 import { getPromo } from '@/lib/promos';
 import { isActivationFeeWaivedForPlan } from '@/lib/plans';
+import { resolveDeliveryMethod } from '@/lib/delivery';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -53,6 +54,17 @@ const bodySchema = z.object({
   // nothing for the foreign number is charged at checkout — we bill it when we
   // run the port. false = "port it now": billed immediately.
   intlPortDeferred: z.boolean().default(true),
+  // Only meaningful when isEsim is false. Method is derived server-side from
+  // city — never trust a client-sent method.
+  delivery: z
+    .object({
+      city: z.string().trim().min(1),
+      addressLine1: z.string().trim().min(1),
+      addressLine2: z.string().trim().nullable().optional(),
+      requestedDate: z.string().nullable().optional(),
+    })
+    .nullable()
+    .optional(),
   intlChosenNumber: z.string().nullable().optional(),
   userId: z.string().uuid().nullable().optional(),
   referralCode: z.string().nullable().optional(),
@@ -83,6 +95,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     isPortIn, portInNumber, skipActivationFee,
     wantsIntlNumber, intlNumberCountry, intlNumberSource, intlPortNumber, intlChosenNumber,
     intlPortDeferred,
+    delivery,
     userId, successUrl, cancelUrl,
   } = parsed.data;
   const referralCode = normalizeReferralCode(parsed.data.referralCode);
@@ -108,6 +121,16 @@ export async function POST(request: NextRequest): Promise<Response> {
       { status: 400 },
     );
   }
+
+  // A physical SIM has to go somewhere — require delivery details before
+  // payment rather than stranding a paid order with no address.
+  if (!isEsim && !delivery) {
+    return NextResponse.json(
+      { error: 'Enter your delivery city and address for the physical SIM.' },
+      { status: 400 },
+    );
+  }
+  const deliveryMethod = delivery ? resolveDeliveryMethod(delivery.city) : null;
 
   // Ports also require a completed SMS ownership authentication (valid 15
   // days at the provider) — provisioning is rejected without one, so we
@@ -329,6 +352,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       intlPortNumber: intlPortNumber ?? null,
       intlPortDeferred: deferIntlPort,
       intlChosenNumber: (wantsIntlNumber && intlNumberSource === 'new') ? (intlChosenNumber ?? null) : null,
+      delivery: delivery ? { ...delivery, method: deliveryMethod! } : null,
       customerRecordId,
       userId: userId ?? null,
       successUrl,

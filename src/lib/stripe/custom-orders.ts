@@ -29,6 +29,15 @@ export type CustomOrderLine = {
   // and customer-facing flows leave it unset and provisioning auto-picks an
   // eSIM from inventory.
   iccId?: string | null;
+  // Physical SIM shipping (physical/kosher lines only). method is always
+  // server-derived from city, never trusted as a separate stored value.
+  delivery?: {
+    method: 'courier' | 'israel_post';
+    city: string;
+    addressLine1: string;
+    addressLine2: string | null;
+    requestedDate: string | null;
+  } | null;
   customPriceCents: number;
 };
 
@@ -58,6 +67,7 @@ export function normalizeCustomOrderLines(value: unknown): CustomOrderLine[] {
       iccId: plan.isKosher || !Boolean(row.isEsim ?? row.is_esim ?? true)
         ? ((row.iccId ?? row.icc_id ?? null) as string | null)
         : null,
+      delivery: (row.delivery ?? null) as CustomOrderLine['delivery'],
       customPriceCents: Number(row.customPriceCents ?? row.custom_price_cents ?? plan.priceCents),
     };
   });

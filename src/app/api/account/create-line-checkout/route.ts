@@ -10,6 +10,7 @@ import { addLinesToExistingSubscription } from "@/lib/stripe/custom-orders";
 import { releaseIntlNumbers, reserveIntlNumber } from "@/lib/custom-orders/international-numbers";
 import { upsertSubscription } from "@/lib/db/subscriptions";
 import { getPlan } from "@/lib/plans";
+import { resolveDeliveryMethod } from "@/lib/delivery";
 import { absoluteUrl, normalizeIsraeliMobile } from "@/lib/utils";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import { logger } from "@/lib/logger";
@@ -31,6 +32,17 @@ const bodySchema = z.object({
   intlNumberSource: z.enum(["new", "port"]).optional(),
   intlPortNumber: z.string().nullable().optional(),
   intlChosenNumber: z.string().nullable().optional(),
+  // Only meaningful when isEsim is false. Method is derived server-side from
+  // city — never trust a client-sent method.
+  delivery: z
+    .object({
+      city: z.string().trim().min(1),
+      addressLine1: z.string().trim().min(1),
+      addressLine2: z.string().trim().nullable().optional(),
+      requestedDate: z.string().nullable().optional(),
+    })
+    .nullable()
+    .optional(),
 });
 
 async function getActiveStripeSubscription(
@@ -100,10 +112,19 @@ export async function POST(request: NextRequest): Promise<Response> {
     intlNumberCountry,
     intlNumberSource,
     intlPortNumber,
+    delivery,
   } = parsed.data;
 
   const plan = getPlan(planSlug);
   const isEsim = plan.isKosher ? false : parsed.data.isEsim;
+
+  // A physical SIM has to go somewhere.
+  if (!isEsim && !delivery) {
+    return NextResponse.json({ error: "Enter your delivery city and address for the physical SIM." }, { status: 400 });
+  }
+  const deliveryForStorage = delivery
+    ? { method: resolveDeliveryMethod(delivery.city), city: delivery.city, addressLine1: delivery.addressLine1, addressLine2: delivery.addressLine2 ?? null, requestedDate: delivery.requestedDate ?? null }
+    : null;
 
   if (isPortIn && !portInNumber?.trim()) {
     return NextResponse.json({ error: "Enter the Israeli number you want to port." }, { status: 400 });
@@ -242,6 +263,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       intlSource: wantsIntlNumber ? (intlNumberSource ?? "new") : null,
       intlPortNumber: wantsIntlNumber && intlNumberSource === "port" ? (intlPortNumber ?? null) : null,
       intlChosenNumber: chosenIntlNumber,
+      delivery: deliveryForStorage,
       customPriceCents: monthlyPriceCents,
     };
 
@@ -332,6 +354,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     intlNumberSource: wantsIntlNumber ? (intlNumberSource ?? "new") : null,
     intlPortNumber: wantsIntlNumber && intlNumberSource === "port" ? (intlPortNumber ?? null) : null,
     intlChosenNumber: chosenIntlNumber,
+    delivery: deliveryForStorage,
     customerRecordId: customer.id,
     userId: user.id,
     successUrl: absoluteUrl("/checkout/success?session_id={CHECKOUT_SESSION_ID}"),
