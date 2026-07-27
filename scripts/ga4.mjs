@@ -72,6 +72,8 @@ Commands:
   overview [--days 28]    Sessions, users, engagement, and conversions for the period.
   pages [--days 28]       Top pages by views for the period.
   sources [--days 28]     Sessions by acquisition channel for the period.
+  languages [--channel]   Sessions by browser language, optionally filtered to one channel
+                          (e.g. --channel "AI Assistant").
   realtime                Active users on the site right now.
   ads-links               List Google Ads accounts linked to this GA4 property.
   report [--days 28]      Write a local Markdown performance report.
@@ -410,6 +412,48 @@ async function showSources() {
   })));
 }
 
+async function showLanguages() {
+  const limit = getNumberOption('limit', 25);
+  const channelFilter = getStringOption('channel');
+  const byDate = Boolean(getStringOption('byDate', false));
+  const { range, property, rows, metricHeaders } = await runReport({
+    dimensions: byDate
+      ? ['date', 'language', 'sessionDefaultChannelGroup']
+      : ['language', 'sessionDefaultChannelGroup'],
+    metrics: ['sessions', 'activeUsers', 'conversions'],
+    limit: 100,
+    orderBys: byDate
+      ? [{ dimension: { dimensionName: 'date' } }]
+      : [{ metric: { metricName: 'sessions' }, desc: true }],
+  });
+
+  console.log(`\nBrowser language x channel for properties/${property} (${range.startDate} to ${range.endDate})\n`);
+
+  if (rows.length === 0) {
+    console.log('No data returned. New GA4 properties can take 24-48 hours to start collecting data.');
+    return;
+  }
+
+  const channelIndex = byDate ? 2 : 1;
+  const filtered = channelFilter
+    ? rows.filter((row) => (row.dimensionValues?.[channelIndex]?.value ?? '').toLowerCase() === channelFilter.toLowerCase())
+    : rows;
+
+  if (filtered.length === 0) {
+    console.log(`No rows matched channel "${channelFilter}".`);
+    return;
+  }
+
+  console.table(filtered.slice(0, limit).map((row) => ({
+    ...(byDate ? { Date: row.dimensionValues?.[0]?.value ?? '' } : {}),
+    Language: row.dimensionValues?.[byDate ? 1 : 0]?.value ?? '(not set)',
+    Channel: row.dimensionValues?.[channelIndex]?.value ?? '(unassigned)',
+    Sessions: formatNumber(rowValue(row, metricHeaders, 'sessions')),
+    'Active users': formatNumber(rowValue(row, metricHeaders, 'activeUsers')),
+    Conversions: formatNumber(rowValue(row, metricHeaders, 'conversions')),
+  })));
+}
+
 async function showRealtime() {
   const analyticsData = await getAnalyticsData();
   const property = getPropertyId();
@@ -537,6 +581,9 @@ async function main() {
       return;
     case 'sources':
       await showSources();
+      return;
+    case 'languages':
+      await showLanguages();
       return;
     case 'realtime':
       await showRealtime();
