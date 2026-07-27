@@ -9,10 +9,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-100">
       <div className="mx-auto grid max-w-[96rem] gap-4 px-4 py-4 sm:px-6 sm:py-6 sm:gap-6 lg:grid-cols-[18rem_1fr] lg:px-8">
-        {/* Mobile: a compact hamburger bar so the content starts at the top. */}
-        <div className="print:hidden">
-          <AdminMobileNav />
-        </div>
+        {/* Mobile: a compact hamburger bar so the content starts at the top. Already
+            lg:hidden internally, so it's never visible on desktop where printing happens. */}
+        <AdminMobileNav />
 
         {/* Desktop: the full sidebar (hidden on mobile — the hamburger replaces it). Hidden entirely when printing — printable pages like delivery slips render clean. */}
         <aside className="hidden print:hidden lg:sticky lg:top-24 lg:block lg:self-start">
