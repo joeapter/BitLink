@@ -573,12 +573,12 @@ export class AnnatelProvider implements TelecomProvider {
   // endpoint filters by number. A completed authentication is valid 15 days
   // and is required before a port-in bulk_request is accepted.
 
-  async createNumberAuthentication(phoneNumber: string): Promise<NumberAuthenticationStatus> {
+  async createNumberAuthentication(phoneNumber: string, authenticationType: 'sms_code' | 'ivr'): Promise<NumberAuthenticationStatus> {
     const result = await this.client.post<{ status: string }>(
       '/api/operational/show_me_white_paw/authentications',
       {
         authentication_context: 'port_in',
-        authentication_type: 'sms_code',
+        authentication_type: authenticationType,
         locale: 'en_US',
         number: phoneNumber,
       },
@@ -586,13 +586,13 @@ export class AnnatelProvider implements TelecomProvider {
     return (result.status as NumberAuthenticationStatus) ?? 'pending';
   }
 
-  async verifyNumberAuthentication(phoneNumber: string, code: string): Promise<boolean> {
+  async verifyNumberAuthentication(phoneNumber: string, code: string, authenticationType: 'sms_code' | 'ivr'): Promise<boolean> {
     try {
       await this.client.put(
         `/api/operational/show_me_white_paw/authentications/${encodeURIComponent(phoneNumber)}`,
         {
           authentication_context: 'port_in',
-          authentication_type: 'sms_code',
+          authentication_type: authenticationType,
           code: String(code),
         },
       );

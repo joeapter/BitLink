@@ -137,6 +137,27 @@ export async function provisionSubscriptionLines(
       lineId = newLine.id as string;
     }
 
+    // Physical SIM — record the shipping request once. Covers both an
+    // account holder adding a physical line and an admin-built custom order
+    // once the customer pays.
+    if (input.line.delivery) {
+      const { data: existingDelivery } = await admin
+        .from('physical_sim_deliveries')
+        .select('id')
+        .eq('telecom_line_id', lineId)
+        .maybeSingle();
+      if (!existingDelivery) {
+        await admin.from('physical_sim_deliveries').insert({
+          telecom_line_id: lineId,
+          method: input.line.delivery.method,
+          city: input.line.delivery.city,
+          address_line1: input.line.delivery.addressLine1,
+          address_line2: input.line.delivery.addressLine2,
+          requested_date: input.line.delivery.requestedDate,
+        });
+      }
+    }
+
     const jobIdempotencyKey = `create_line:${input.subscriptionItem.id}`;
     let jobId = await getExistingJobId(admin, jobIdempotencyKey);
 
@@ -163,7 +184,10 @@ export async function provisionSubscriptionLines(
             portInParams: {
               number: input.line.portNumber,
               identityNumber,
-              authenticationType: 'sms_code',
+              // Kosher phones can't receive SMS — must match whatever type the
+              // customer actually verified with on the payment link (see
+              // PortNumberVerification / CustomOrderPayClient).
+              authenticationType: isKosher ? 'ivr' : 'sms_code',
             },
           } : {}),
           metadata: {

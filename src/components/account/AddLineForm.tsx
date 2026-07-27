@@ -12,6 +12,13 @@ import { EsimCompatibilityModal } from "@/components/checkout/EsimCompatibilityM
 import { IntlNumberPicker } from "@/components/checkout/IntlNumberPicker";
 import { OrderInfoPanel } from "@/components/checkout/OrderInfoPanel";
 import { PortNumberVerification } from "@/components/checkout/PortNumberVerification";
+import { PhysicalSimDeliveryPicker } from "@/components/checkout/PhysicalSimDeliveryPicker";
+import {
+  emptyDeliveryDetails,
+  resolveDeliveryCity,
+  isDeliveryDetailsComplete,
+  type PhysicalSimDeliveryDetails,
+} from "@/lib/delivery";
 
 type SimType = "esim" | "physical";
 type NumberChoice = "new" | "port-in";
@@ -29,6 +36,7 @@ export function AddLineForm({
 }) {
   const [planSlug, setPlanSlug] = useState<PlanSlug>(initialPlanSlug);
   const [simType, setSimType] = useState<SimType>("esim");
+  const [delivery, setDelivery] = useState<PhysicalSimDeliveryDetails>(emptyDeliveryDetails);
   const [numberChoice, setNumberChoice] = useState<NumberChoice>("new");
   const [wantsIntlNumber, setWantsIntlNumber] = useState(false);
   const [intlCountry, setIntlCountry] = useState<IntlCountry>("us");
@@ -86,6 +94,11 @@ export function AddLineForm({
       setError("Choose your international number before continuing.");
       return;
     }
+    if (effectiveSimType === "physical" && !isDeliveryDetailsComplete(delivery)) {
+      setLoading(false);
+      setError("Enter your delivery city and address for the physical SIM.");
+      return;
+    }
     // Read the waiver fresh at submit time — mounted state can be stale.
     const waived = feeWaived || localStorage.getItem("bl_staff") === "1";
     const response = await fetch("/api/account/create-line-checkout", {
@@ -102,6 +115,12 @@ export function AddLineForm({
         intlNumberSource: wantsIntlNumber ? intlSource : undefined,
         intlPortNumber: wantsIntlNumber && intlSource === "port" ? formData.get("intlPortNumber") : null,
         intlChosenNumber: wantsIntlNumber && intlSource === "new" ? chosenIntlNumber : null,
+        delivery: effectiveSimType === "physical" ? {
+          city: resolveDeliveryCity(delivery),
+          addressLine1: delivery.addressLine1,
+          addressLine2: delivery.addressLine2 || null,
+          requestedDate: delivery.requestedDate || null,
+        } : null,
       }),
     });
 
@@ -233,6 +252,12 @@ export function AddLineForm({
               </div>
             </label>
           </div>
+
+          {effectiveSimType === "physical" && (
+            <div className="mt-4">
+              <PhysicalSimDeliveryPicker value={delivery} onChange={setDelivery} idPrefix="delivery" />
+            </div>
+          )}
         </fieldset>
 
         <fieldset className="mt-6">
@@ -275,7 +300,7 @@ export function AddLineForm({
 
           {numberChoice === "port-in" ? (
             <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <PortNumberVerification onVerified={setVerifiedPortNumber} />
+              <PortNumberVerification onVerified={setVerifiedPortNumber} isKosher={selectedPlan.isKosher} />
             </div>
           ) : null}
         </fieldset>

@@ -13,6 +13,13 @@ import { EmbeddedStripeCheckout } from "./EmbeddedStripeCheckout";
 import { EsimCompatibilityModal } from "./EsimCompatibilityModal";
 import { OrderInfoPanel } from "./OrderInfoPanel";
 import { PortNumberVerification } from "./PortNumberVerification";
+import { PhysicalSimDeliveryPicker } from "./PhysicalSimDeliveryPicker";
+import {
+  emptyDeliveryDetails,
+  resolveDeliveryCity,
+  isDeliveryDetailsComplete,
+  type PhysicalSimDeliveryDetails,
+} from "@/lib/delivery";
 
 type SimType = "esim" | "physical";
 type NumberChoice = "new" | "port-in";
@@ -35,6 +42,7 @@ export function CheckoutForm({
   const promo = useMemo(() => getPromo(initialPromoCode), [initialPromoCode]);
   const [planSlug, setPlanSlug] = useState<PlanSlug>(initialPlanSlug);
   const [simType, setSimType] = useState<SimType>("esim");
+  const [delivery, setDelivery] = useState<PhysicalSimDeliveryDetails>(emptyDeliveryDetails);
   const [numberChoice, setNumberChoice] = useState<NumberChoice>("new");
   const [wantsIntlNumber, setWantsIntlNumber] = useState(false);
   const [intlCountry, setIntlCountry] = useState<IntlCountry>("us");
@@ -122,6 +130,11 @@ export function CheckoutForm({
       setError("Verify the number you're porting first — we text a code to it.");
       return;
     }
+    if (effectiveSimType === "physical" && !isDeliveryDetailsComplete(delivery)) {
+      setLoading(false);
+      setError("Enter your delivery city and address for the physical SIM.");
+      return;
+    }
     // Read the waiver fresh at submit time — the mounted state can be stale
     // if the unlock happened after this form loaded.
     const waived = feeWaived || localStorage.getItem("bl_staff") === "1" || Boolean(promo?.skipActivationFee);
@@ -149,6 +162,13 @@ export function CheckoutForm({
         intlChosenNumber: wantsIntlNumber && intlSource === "new" ? intlChosenNumber : null,
         // Only meaningful for a foreign-number port; server ignores it otherwise.
         intlPortDeferred,
+        // Only meaningful for a physical SIM; server ignores it otherwise.
+        delivery: effectiveSimType === "physical" ? {
+          city: resolveDeliveryCity(delivery),
+          addressLine1: delivery.addressLine1,
+          addressLine2: delivery.addressLine2 || null,
+          requestedDate: delivery.requestedDate || null,
+        } : null,
       }),
     });
 
@@ -297,6 +317,12 @@ export function CheckoutForm({
               </div>
             </label>
           </div>
+
+          {effectiveSimType === "physical" && (
+            <div className="mt-4">
+              <PhysicalSimDeliveryPicker value={delivery} onChange={setDelivery} idPrefix="delivery" />
+            </div>
+          )}
         </fieldset>
 
         {/* ── Israeli number ── */}
@@ -344,7 +370,7 @@ export function CheckoutForm({
 
           {numberChoice === "port-in" && (
             <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <PortNumberVerification onVerified={setVerifiedPortNumber} />
+              <PortNumberVerification onVerified={setVerifiedPortNumber} isKosher={selectedPlan.isKosher} />
             </div>
           )}
         </fieldset>

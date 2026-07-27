@@ -370,6 +370,28 @@ async function handleCheckoutCompleted(
     lineId = newLine.id;
   }
 
+  // Physical SIM — record the shipping request once, idempotent per line
+  // (retries reuse the same line via externalId above, so guard on that).
+  const deliveryMethod = session.metadata?.delivery_method || null;
+  if (!isEsim && deliveryMethod) {
+    const { data: existingDelivery } = await admin
+      .from('physical_sim_deliveries')
+      .select('id')
+      .eq('telecom_line_id', lineId)
+      .maybeSingle();
+    if (!existingDelivery) {
+      await admin.from('physical_sim_deliveries').insert({
+        telecom_line_id: lineId,
+        method: deliveryMethod,
+        city: session.metadata?.delivery_city || '',
+        address_line1: session.metadata?.delivery_address_line1 || '',
+        address_line2: session.metadata?.delivery_address_line2 || null,
+        requested_date: session.metadata?.delivery_requested_date || null,
+      });
+      log.info({ lineId, deliveryMethod }, 'Physical SIM delivery recorded');
+    }
+  }
+
   // Idempotent: reuse provisioning job if already created (retry scenario)
   const jobIdempotencyKey = `create_line:${stripeSubscriptionId}`;
   let jobId: string;
@@ -404,7 +426,9 @@ async function handleCheckoutCompleted(
           portInParams: {
             number: session.metadata.port_in_number,
             identityNumber: session.metadata.port_in_id_number ?? '',
-            authenticationType: 'sms_code',
+            // Kosher phones can't receive SMS — must match whatever type the
+            // customer actually verified with at checkout (see PortNumberVerification).
+            authenticationType: isKosher ? 'ivr' : 'sms_code',
           },
         } : {}),
         metadata: {

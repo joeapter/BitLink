@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { CheckCircle2, Loader2, MessageSquareText } from "lucide-react";
+import { CheckCircle2, Loader2, MessageSquareText, PhoneCall } from "lucide-react";
 
 // Port-in ownership verification: fixed +972 prefix field, "text me a code"
 // button, code entry, verified state. Used by the public checkout AND the
@@ -34,11 +34,15 @@ export function PortNumberVerification({
   initialNumber,
   lockedNumber = false,
   label = "Current Israeli number",
+  isKosher = false,
 }: {
   onVerified: (e164Number: string | null) => void;
   initialNumber?: string | null;
   lockedNumber?: boolean;
   label?: string;
+  // Kosher-certified phones can't receive SMS — verification runs by an
+  // automated phone call reading the code aloud instead.
+  isKosher?: boolean;
 }) {
   const fieldId = useId();
   const [localDigits, setLocalDigits] = useState(initialNumber ? toLocalDigits(initialNumber).slice(0, 9) : "");
@@ -70,15 +74,15 @@ export function PortNumberVerification({
       const response = await fetch("/api/port-auth/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ number: e164, resend }),
+        body: JSON.stringify({ number: e164, resend, isKosher }),
       });
       const payload = (await response.json()) as { status?: string; error?: string; alreadySent?: boolean };
       if (!response.ok) {
-        setError(payload.error ?? "Could not send the code. Try again.");
+        setError(payload.error ?? (isKosher ? "Could not start the call. Try again." : "Could not send the code. Try again."));
         return;
       }
       if (payload.status === "completed") {
-        // Already verified within the last 15 days — no SMS needed.
+        // Already verified within the last 15 days — no new code needed.
         setStep("verified");
         setInfo("This number is already verified.");
         onVerified(e164);
@@ -88,7 +92,9 @@ export function PortNumberVerification({
       setInfo(
         payload.alreadySent
           ? `A code was already sent to ${e164} — enter it below, or resend.`
-          : `We texted a verification code to ${e164}.`,
+          : isKosher
+            ? `We're calling ${e164} now — listen for your verification code.`
+            : `We texted a verification code to ${e164}.`,
       );
     } catch {
       setError("Could not send the code. Check your connection and try again.");
@@ -104,7 +110,7 @@ export function PortNumberVerification({
       const response = await fetch("/api/port-auth/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ number: e164, code }),
+        body: JSON.stringify({ number: e164, code, isKosher }),
       });
       const payload = (await response.json()) as { verified?: boolean; error?: string };
       if (!response.ok || !payload.verified) {
@@ -144,7 +150,11 @@ export function PortNumberVerification({
           />
         </div>
         <p className="mt-1 text-xs text-amber-800">
-          {lockedNumber ? "We will text the verification code to this number." : "Type it with or without the leading 0 — we handle both."}
+          {lockedNumber
+            ? isKosher
+              ? "We will call this number and read out the verification code — kosher phones can't receive SMS."
+              : "We will text the verification code to this number."
+            : "Type it with or without the leading 0 — we handle both."}
         </p>
       </div>
 
@@ -155,8 +165,14 @@ export function PortNumberVerification({
           disabled={!isValidLocal || busy}
           className="inline-flex w-fit items-center gap-2 rounded-full bg-ink px-4 py-2 text-xs font-semibold text-white transition hover:bg-ink/90 disabled:opacity-50"
         >
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <MessageSquareText className="h-4 w-4" aria-hidden="true" />}
-          Text me a verification code
+          {busy ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : isKosher ? (
+            <PhoneCall className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <MessageSquareText className="h-4 w-4" aria-hidden="true" />
+          )}
+          {isKosher ? "Call me with a verification code" : "Text me a verification code"}
         </button>
       )}
 
@@ -168,7 +184,7 @@ export function PortNumberVerification({
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
-              placeholder="Code from SMS"
+              placeholder={isKosher ? "Code from call" : "Code from SMS"}
               value={code}
               onChange={(e) => setCode(digitsOnly(e.target.value).slice(0, 8))}
               className="w-40 rounded-xl border border-ink/15 bg-white px-3 py-2.5 text-sm tracking-widest text-ink outline-none transition focus:border-link-blue"
@@ -189,7 +205,7 @@ export function PortNumberVerification({
             disabled={busy}
             className="w-fit text-xs font-semibold text-muted-slate transition hover:text-ink"
           >
-            Resend code
+            {isKosher ? "Call again" : "Resend code"}
           </button>
         </div>
       )}

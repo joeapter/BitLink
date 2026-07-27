@@ -103,21 +103,36 @@ export async function createIsraeliPortInRequest(params: {
 }
 
 // Step 1: trigger the SMS ownership-verification challenge on the number.
+// Kosher-certified phones can't receive SMS, so a port onto a kosher line
+// must verify by automated voice call instead — read straight off the
+// target line, same source of truth used everywhere else (plans.isKosher).
+async function getLineAuthenticationType(admin: SupabaseClient, lineId: string): Promise<'sms_code' | 'ivr'> {
+  const { data: line } = await admin.from('telecom_lines').select('is_kosher').eq('id', lineId).maybeSingle();
+  return line?.is_kosher ? 'ivr' : 'sms_code';
+}
+
 export async function sendPortInAuthCode(admin: SupabaseClient, requestId: string): Promise<{ success?: string; error?: string }> {
   const request = await getRequest(admin, requestId);
   if (!request) return { error: 'Request not found.' };
 
   const provider = getTelecomProvider();
+  const authenticationType = await getLineAuthenticationType(admin, request.lineId);
   try {
-    await provider.createNumberAuthentication(request.number);
+    await provider.createNumberAuthentication(request.number, authenticationType);
   } catch (err) {
     return { error: err instanceof Error ? `Could not send code: ${err.message}` : 'Could not send code.' };
   }
   await setRequest(admin, requestId, { status: 'verifying' });
-  return { success: `Verification code sent to ${request.number}.` };
+  return {
+    success:
+      authenticationType === 'ivr'
+        ? `We're calling ${request.number} now with the verification code.`
+        : `Verification code sent to ${request.number}.`,
+  };
 }
 
-// Step 2: the current line-holder reads back the SMS code they received.
+// Step 2: the current line-holder reads back the code they received (by SMS,
+// or by phone call for a kosher line).
 export async function verifyPortInAuthCode(
   admin: SupabaseClient,
   requestId: string,
@@ -127,7 +142,8 @@ export async function verifyPortInAuthCode(
   if (!request) return { error: 'Request not found.' };
 
   const provider = getTelecomProvider();
-  const verified = await provider.verifyNumberAuthentication(request.number, code);
+  const authenticationType = await getLineAuthenticationType(admin, request.lineId);
+  const verified = await provider.verifyNumberAuthentication(request.number, code, authenticationType);
   if (!verified) return { error: 'Code did not verify — check it and try again.' };
 
   await setRequest(admin, requestId, { status: 'ready_to_port' });
@@ -159,9 +175,11 @@ export async function startIsraeliPortIn(admin: SupabaseClient, requestId: strin
 
   const { data: line } = await admin
     .from('telecom_lines')
-    .select('provider_line_id')
+    .select('provider_line_id, is_kosher')
     .eq('id', request.lineId)
     .maybeSingle();
+  // Must match whatever type ownership was actually verified with above.
+  const authenticationType: 'sms_code' | 'ivr' = line?.is_kosher ? 'ivr' : 'sms_code';
 
   if (line?.provider_line_id) {
     try {
@@ -169,7 +187,7 @@ export async function startIsraeliPortIn(admin: SupabaseClient, requestId: strin
         line.provider_line_id as string,
         request.number,
         DEFAULT_IDENTITY_NUMBER,
-        'sms_code',
+        authenticationType,
       );
       await setRequest(admin, requestId, { status: 'porting', provider_bulk_request_id: result.providerJobId, method: 'direct' });
       return { success: 'Port started directly on this line. Refresh status in a few minutes — Israeli ports typically land in 5-10 minutes.' };
@@ -193,7 +211,7 @@ export async function startIsraeliPortIn(admin: SupabaseClient, requestId: strin
       portInParams: {
         number: request.number,
         identityNumber: DEFAULT_IDENTITY_NUMBER,
-        authenticationType: 'sms_code',
+        authenticationType,
       },
     });
     await setRequest(admin, requestId, { status: 'porting', provider_bulk_request_id: result.providerJobId, method: 'landing' });

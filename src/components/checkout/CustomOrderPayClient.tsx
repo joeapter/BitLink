@@ -199,6 +199,7 @@ export function CustomOrderPayClient({
                     lockedNumber
                     label={`Line ${index + 1} port number`}
                     onVerified={(number) => setVerifiedPorts((current) => ({ ...current, [index]: number }))}
+                    isKosher={getPlan(line.planSlug).isKosher}
                   />
                 </div>
               ) : (

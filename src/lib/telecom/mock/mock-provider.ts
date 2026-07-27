@@ -253,11 +253,11 @@ export class MockTelecomProvider implements TelecomProvider {
   }
 
   // ── Port-in number authentication (mock: instant success) ─────────────────
-  async createNumberAuthentication(_phoneNumber: string): Promise<NumberAuthenticationStatus> {
+  async createNumberAuthentication(_phoneNumber: string, _authenticationType: 'sms_code' | 'ivr'): Promise<NumberAuthenticationStatus> {
     await this.tick();
     return 'pending';
   }
-  async verifyNumberAuthentication(_phoneNumber: string, _code: string): Promise<boolean> {
+  async verifyNumberAuthentication(_phoneNumber: string, _code: string, _authenticationType: 'sms_code' | 'ivr'): Promise<boolean> {
     await this.tick();
     return true;
   }

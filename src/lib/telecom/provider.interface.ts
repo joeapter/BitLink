@@ -135,11 +135,14 @@ export interface TelecomProvider {
   addForward(providerLineId: string, destination: string): Promise<LineForward>;
   removeForward(providerLineId: string, forwardId: string): Promise<void>;
 
-  // ── Port-in number authentication (SMS ownership proof) ──────
+  // ── Port-in number authentication (ownership proof) ───────────
   // Required before a port-in create is accepted; a completed
-  // authentication is valid for 15 days.
-  createNumberAuthentication(phoneNumber: string): Promise<NumberAuthenticationStatus>;
-  verifyNumberAuthentication(phoneNumber: string, code: string): Promise<boolean>;
+  // authentication is valid for 15 days. Kosher-certified phones can't
+  // receive SMS, so callers must pass 'ivr' (an automated voice call reading
+  // the code aloud) for kosher lines and 'sms_code' otherwise — the same
+  // type must be used for both the create and the matching verify call.
+  createNumberAuthentication(phoneNumber: string, authenticationType: 'sms_code' | 'ivr'): Promise<NumberAuthenticationStatus>;
+  verifyNumberAuthentication(phoneNumber: string, code: string, authenticationType: 'sms_code' | 'ivr'): Promise<boolean>;
   getNumberAuthenticationStatus(phoneNumber: string): Promise<NumberAuthenticationStatus>;
 
   // ── Portability ──────────────────────────────────────────────
