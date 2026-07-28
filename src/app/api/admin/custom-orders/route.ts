@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireAdmin as requireAdminApi } from '@/lib/auth/admin-guard';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
-import { absoluteUrl, normalizeIsraeliMobile } from '@/lib/utils';
+import { absoluteUrl } from '@/lib/utils';
 import { generateReferralCode } from '@/lib/referrals';
-import { getPlan, type PlanSlug } from '@/lib/plans';
-import { resolveDeliveryMethod } from '@/lib/delivery';
+import { normalizeAdminOrderLines } from '@/lib/admin/custom-order-lines';
 import { sendEmail } from '@/lib/email/send';
 import { buildCustomerLoginCreatedEmail } from '@/lib/email/templates';
 
@@ -240,76 +239,9 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
   }
 
-  let lines: Array<{
-    planSlug: PlanSlug;
-    isEsim: boolean;
-    isPortIn: boolean;
-    portNumber: string | null;
-    wantsIntlNumber: boolean;
-    intlCountry: 'us' | 'canada' | 'uk' | null;
-    intlSource: 'new' | 'port' | null;
-    intlPortNumber: string | null;
-    intlChosenNumber: string | null;
-    delivery: { method: 'courier' | 'israel_post'; city: string; addressLine1: string; addressLine2: string | null; requestedDate: string | null } | null;
-    customPriceCents: number;
-  }>;
+  let lines: Awaited<ReturnType<typeof normalizeAdminOrderLines>>;
   try {
-    lines = await Promise.all(parsed.data.lines.map(async (line, index) => {
-      const plan = getPlan(line.planSlug);
-      const normalizedPort = line.isPortIn && line.portNumber
-        ? normalizeIsraeliMobile(line.portNumber)
-        : null;
-
-      if (line.isPortIn && !normalizedPort) {
-        throw new Error(`Line ${index + 1}: enter a valid Israeli mobile number to port.`);
-      }
-
-      if (line.wantsIntlNumber && (line.intlSource ?? 'new') === 'port' && !line.intlPortNumber?.trim()) {
-        throw new Error(`Line ${index + 1}: enter the US/Canada/UK number to port.`);
-      }
-
-      const wantsNewIntlNumber = line.wantsIntlNumber && (line.intlSource ?? 'new') === 'new';
-      let intlChosenNumber: string | null = null;
-      if (wantsNewIntlNumber && line.intlChosenNumber?.trim()) {
-        const candidate = line.intlChosenNumber.trim();
-        const { data: available } = await admin
-          .from('international_dids')
-          .select('number')
-          .eq('number', candidate)
-          .eq('country', line.intlCountry ?? 'us')
-          .eq('status', 'available')
-          .maybeSingle();
-        if (!available) {
-          throw new Error(`Line ${index + 1}: that number is no longer available — pick another.`);
-        }
-        intlChosenNumber = candidate;
-      }
-
-      return {
-        planSlug: line.planSlug as PlanSlug,
-        isEsim: plan.isKosher ? false : line.isEsim,
-        isPortIn: line.isPortIn,
-        portNumber: normalizedPort,
-        wantsIntlNumber: line.wantsIntlNumber,
-        intlCountry: line.wantsIntlNumber ? (line.intlCountry ?? 'us') : null,
-        intlSource: line.wantsIntlNumber ? (line.intlSource ?? 'new') : null,
-        intlPortNumber: line.wantsIntlNumber && (line.intlSource ?? 'new') === 'port'
-          ? line.intlPortNumber!.trim()
-          : null,
-        intlChosenNumber,
-        // Physical/kosher lines activate on a specific card entered by the
-        // admin; eSIM lines auto-pick from inventory so this stays null.
-        iccId: (plan.isKosher || !line.isEsim) ? (line.iccId?.replace(/\s+/g, "") || null) : null,
-        delivery: (plan.isKosher || !line.isEsim) && line.delivery ? {
-          method: resolveDeliveryMethod(line.delivery.city),
-          city: line.delivery.city,
-          addressLine1: line.delivery.addressLine1,
-          addressLine2: line.delivery.addressLine2 || null,
-          requestedDate: line.delivery.requestedDate || null,
-        } : null,
-        customPriceCents: line.customPriceCents,
-      };
-    }));
+    lines = await normalizeAdminOrderLines(admin, parsed.data.lines);
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'Invalid line options.' },

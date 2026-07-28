@@ -27,6 +27,20 @@ export default async function AdminCustomOrdersPage({
       ).data ?? []
     : [];
 
+  // Cheap local check (no Stripe calls) for which customers already have an
+  // active subscription — drives whether the builder offers "add to existing
+  // billing" instead of always creating a new payment link. Re-verified live
+  // against Stripe at actual submit time.
+  const customersWithActiveSubscription = db
+    ? (
+        await db
+          .from("subscriptions")
+          .select("customer_id")
+          .in("status", ["active", "trialing"])
+          .not("stripe_subscription_id", "is", null)
+      ).data?.map((row) => row.customer_id as string) ?? []
+    : [];
+
   const recentOrders = db
     ? (
         await db
@@ -47,6 +61,7 @@ export default async function AdminCustomOrdersPage({
           phone: (customer.phone ?? null) as string | null,
         }))}
         initialCustomerId={params.customer ?? null}
+        customersWithActiveSubscription={customersWithActiveSubscription}
       />
 
       <section className="overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-soft">

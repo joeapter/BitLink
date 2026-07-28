@@ -86,9 +86,14 @@ function generateCustomerPassword() {
 export function CustomOrderBuilder({
   customers,
   initialCustomerId,
+  customersWithActiveSubscription = [],
 }: {
   customers: CustomerOption[];
   initialCustomerId?: string | null;
+  // Customer IDs with a locally-known active/trialing subscription — offers
+  // "add to existing billing" as an alternative to always creating a new
+  // payment link. Re-verified live against Stripe at actual submit time.
+  customersWithActiveSubscription?: string[];
 }) {
   const [customerMode, setCustomerMode] = useState<"existing" | "new">(initialCustomerId ? "existing" : "existing");
   const [customerId, setCustomerId] = useState(initialCustomerId ?? customers[0]?.id ?? "");
@@ -98,12 +103,16 @@ export function CustomOrderBuilder({
   const [accountPassword, setAccountPassword] = useState("");
   const [note, setNote] = useState("");
   const [lines, setLines] = useState<BuilderLine[]>([newLine()]);
+  const [addMode, setAddMode] = useState<"new-link" | "existing-billing">("new-link");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdUrl, setCreatedUrl] = useState<string | null>(null);
+  const [addedMessage, setAddedMessage] = useState<string | null>(null);
   const [loginEmailNotice, setLoginEmailNotice] = useState<{ tone: "success" | "warning"; message: string } | null>(null);
 
   const selectedCustomer = customers.find((customer) => customer.id === customerId);
+  const canAddToExisting = customerMode === "existing" && customersWithActiveSubscription.includes(customerId);
+  const effectiveMode = canAddToExisting ? addMode : "new-link";
   const total = useMemo(
     () => lines.reduce((sum, line) => sum + dollarsToCents(line.customPrice), 0),
     [lines],
@@ -125,11 +134,56 @@ export function CustomOrderBuilder({
     );
   }
 
+  function buildLinePayload() {
+    return lines.map((line) => ({
+      planSlug: line.planSlug,
+      isEsim: line.isEsim,
+      iccId: line.isEsim ? null : (line.iccId.trim() || null),
+      delivery: !line.isEsim && isDeliveryDetailsComplete(line.delivery) ? {
+        method: resolveDeliveryMethod(resolveDeliveryCity(line.delivery)),
+        city: resolveDeliveryCity(line.delivery),
+        addressLine1: line.delivery.addressLine1,
+        addressLine2: line.delivery.addressLine2 || null,
+        requestedDate: line.delivery.requestedDate || null,
+      } : null,
+      isPortIn: line.isPortIn,
+      portNumber: line.isPortIn ? line.portNumber : null,
+      wantsIntlNumber: line.wantsIntlNumber,
+      intlCountry: line.wantsIntlNumber ? line.intlCountry : null,
+      intlSource: line.wantsIntlNumber ? line.intlSource : null,
+      intlPortNumber: line.wantsIntlNumber && line.intlSource === "port" ? line.intlPortNumber : null,
+      intlChosenNumber: line.wantsIntlNumber && line.intlSource === "new" ? (line.intlChosenNumber || null) : null,
+      customPriceCents: dollarsToCents(line.customPrice),
+    }));
+  }
+
   async function createOrder() {
     setBusy(true);
     setError(null);
     setCreatedUrl(null);
+    setAddedMessage(null);
     setLoginEmailNotice(null);
+
+    if (effectiveMode === "existing-billing") {
+      const response = await fetch("/api/admin/custom-orders/add-to-existing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerId, lines: buildLinePayload() }),
+      });
+      const payload = (await response.json()) as { added?: boolean; lineIds?: string[]; error?: string };
+      setBusy(false);
+
+      if (!response.ok || !payload.added) {
+        setError(payload.error ?? "Could not add these lines to the existing subscription.");
+        return;
+      }
+
+      const name = selectedCustomer?.fullName || selectedCustomer?.email || "the customer";
+      setAddedMessage(
+        `${lines.length} line${lines.length === 1 ? "" : "s"} added directly to ${name}'s existing subscription — billed immediately, no payment link needed. Provisioning has started.`,
+      );
+      return;
+    }
 
     const response = await fetch("/api/admin/custom-orders", {
       method: "POST",
@@ -139,26 +193,7 @@ export function CustomOrderBuilder({
           ? { id: customerId }
           : { fullName, email, phone, accountPassword },
         note,
-        lines: lines.map((line) => ({
-          planSlug: line.planSlug,
-          isEsim: line.isEsim,
-          iccId: line.isEsim ? null : (line.iccId.trim() || null),
-          delivery: !line.isEsim && isDeliveryDetailsComplete(line.delivery) ? {
-            method: resolveDeliveryMethod(resolveDeliveryCity(line.delivery)),
-            city: resolveDeliveryCity(line.delivery),
-            addressLine1: line.delivery.addressLine1,
-            addressLine2: line.delivery.addressLine2 || null,
-            requestedDate: line.delivery.requestedDate || null,
-          } : null,
-          isPortIn: line.isPortIn,
-          portNumber: line.isPortIn ? line.portNumber : null,
-          wantsIntlNumber: line.wantsIntlNumber,
-          intlCountry: line.wantsIntlNumber ? line.intlCountry : null,
-          intlSource: line.wantsIntlNumber ? line.intlSource : null,
-          intlPortNumber: line.wantsIntlNumber && line.intlSource === "port" ? line.intlPortNumber : null,
-          intlChosenNumber: line.wantsIntlNumber && line.intlSource === "new" ? (line.intlChosenNumber || null) : null,
-          customPriceCents: dollarsToCents(line.customPrice),
-        })),
+        lines: buildLinePayload(),
       }),
     });
 
@@ -256,6 +291,40 @@ export function CustomOrderBuilder({
               </div>
             </div>
           )}
+
+          {canAddToExisting && (
+            <div className="grid gap-2 rounded-2xl border border-link-blue/20 bg-link-blue/5 p-3">
+              <p className="text-xs font-semibold text-ink">
+                {selectedCustomer?.fullName || selectedCustomer?.email} already has an active subscription
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAddMode("existing-billing")}
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                    addMode === "existing-billing" ? "bg-ink text-white" : "bg-white text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  Add to existing billing
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAddMode("new-link")}
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                    addMode === "new-link" ? "bg-ink text-white" : "bg-white text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  Create a new payment link
+                </button>
+              </div>
+              <p className="text-xs text-muted-slate">
+                {addMode === "existing-billing"
+                  ? "Bills immediately with proration, no separate link — the customer's next invoice reflects the new line(s)."
+                  : "Starts a separate subscription with its own payment link, even though this customer already has one."}
+              </p>
+            </div>
+          )}
+
           <Input label="Internal note" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional" />
         </div>
 
@@ -473,6 +542,13 @@ export function CustomOrderBuilder({
           </div>
         ) : null}
 
+        {addedMessage ? (
+          <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+            <p className="text-sm font-semibold text-emerald-800">Added to existing billing</p>
+            <p className="mt-1 text-xs text-emerald-800">{addedMessage}</p>
+          </div>
+        ) : null}
+
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Button type="button" variant="secondary" onClick={() => setLines((current) => [...current, newLine()])}>
             <Plus className="h-4 w-4" aria-hidden="true" />
@@ -480,7 +556,7 @@ export function CustomOrderBuilder({
           </Button>
           <Button type="button" onClick={createOrder} disabled={busy || (customerMode === "existing" && !customerId) || newCustomerIncomplete}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-            Create payment link
+            {effectiveMode === "existing-billing" ? "Add to existing billing" : "Create payment link"}
           </Button>
         </div>
       </section>

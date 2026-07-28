@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import type Stripe from "stripe";
 import { inngest } from "@/inngest/client";
 import { provisionSubscriptionLines } from "@/lib/custom-orders/provision-lines";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -10,6 +9,7 @@ import { addLinesToExistingSubscription } from "@/lib/stripe/custom-orders";
 import { releaseIntlNumbers, reserveIntlNumber } from "@/lib/custom-orders/international-numbers";
 import { upsertSubscription } from "@/lib/db/subscriptions";
 import { getPlan } from "@/lib/plans";
+import { getActiveStripeSubscription } from "@/lib/stripe/existing-subscription";
 import { resolveDeliveryMethod } from "@/lib/delivery";
 import { absoluteUrl, normalizeIsraeliMobile } from "@/lib/utils";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
@@ -44,28 +44,6 @@ const bodySchema = z.object({
     .nullable()
     .optional(),
 });
-
-async function getActiveStripeSubscription(
-  admin: NonNullable<ReturnType<typeof createSupabaseAdminClient>>,
-  stripe: Stripe,
-  customerId: string,
-): Promise<Stripe.Subscription | null> {
-  const { data: subscriptionRow } = await admin
-    .from("subscriptions")
-    .select("stripe_subscription_id, status")
-    .eq("customer_id", customerId)
-    .not("stripe_subscription_id", "is", null)
-    .in("status", ["active", "trialing"])
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-
-  const stripeSubscriptionId = subscriptionRow?.stripe_subscription_id as string | undefined;
-  if (!stripeSubscriptionId) return null;
-
-  const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
-  return ["active", "trialing"].includes(subscription.status) ? subscription : null;
-}
 
 export async function POST(request: NextRequest): Promise<Response> {
   const supabase = await createSupabaseServerClient();
