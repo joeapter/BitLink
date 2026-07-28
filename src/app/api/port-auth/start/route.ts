@@ -20,6 +20,9 @@ const log = logger.child({ route: 'port-auth/start' });
 const bodySchema = z.object({
   number: z.string().min(8).max(20),
   resend: z.boolean().default(false),
+  // Kosher-certified phones can't receive SMS — the caller tells us whether
+  // the plan being purchased is kosher so we request a voice call instead.
+  isKosher: z.boolean().default(false),
 });
 
 export async function POST(request: NextRequest): Promise<Response> {
@@ -54,8 +57,9 @@ export async function POST(request: NextRequest): Promise<Response> {
       return NextResponse.json({ status: 'pending', number: normalized, alreadySent: true });
     }
 
-    await provider.createNumberAuthentication(normalized);
-    log.info({ number: normalized }, 'Port-in verification SMS triggered');
+    const authenticationType = parsed.data.isKosher ? 'ivr' : 'sms_code';
+    await provider.createNumberAuthentication(normalized, authenticationType);
+    log.info({ number: normalized, authenticationType }, 'Port-in verification triggered');
     return NextResponse.json({ status: 'pending', number: normalized });
   } catch (err) {
     log.error({ error: String(err), number: normalized }, 'Failed to start number authentication');

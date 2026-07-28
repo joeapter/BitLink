@@ -10,10 +10,13 @@ export function DeviceCompatibilityChecker() {
   const [model, setModel] = useState("");
   const [state, formAction, pending] = useActionState<EsimCheckState, FormData>(submitEsimCheckAction, null);
 
-  const waText = encodeURIComponent(
-    `Hi BitLink, can you confirm this phone works with an eSIM?${model.trim() ? ` My phone: ${model.trim()}` : ""}`,
-  );
-  const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${waText}`;
+  // No static boilerplate — a stream of near-identical pre-filled messages
+  // from many different visitors is exactly the pattern WhatsApp's spam
+  // detection flags on the receiving business account. Only pre-fill the
+  // one genuinely visitor-specific fact (their phone model), and only when
+  // they've actually typed one.
+  const waText = model.trim() ? encodeURIComponent(`My phone: ${model.trim()} — is it eSIM compatible?`) : "";
+  const waUrl = `https://wa.me/${WHATSAPP_NUMBER}${waText ? `?text=${waText}` : ""}`;
 
   return (
     <div className="rounded-xl border border-link-blue/20 bg-[#f4fbfc] p-6 sm:p-7">

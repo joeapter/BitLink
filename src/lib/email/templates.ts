@@ -534,3 +534,23 @@ export function buildDataUsageAlertEmail(params: {
     ${p('Questions about which plan size fits you? Just reply — a real person answers, in English.')}
   `);
 }
+
+// ── First-usage welcome email — sent once a line records its FIRST real
+// network usage (a CDR row), not at signup or activation. This is the "you've
+// actually landed and started using it" moment, checked on every CDR/FTP
+// pull. Deliberately no boilerplate beyond a warm welcome + the WhatsApp
+// invite — see lib/welcome-usage-email.ts for the trigger logic.
+
+export function buildFirstUsageWelcomeEmail(params: { fullName: string }): string {
+  const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  return layout(`
+    ${h1(`Hey ${firstName},`)}
+    ${p("Your BitLink line just kicked in, welcome aboard!")}
+    ${p("Need anything at all? Question about your plan, want more data, or just want to say hi, message us on WhatsApp anytime. Real people, always happy to help.")}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn("Message us on WhatsApp", "https://wa.me/972555195335")}
+    </div>
+    ${p("Glad you're here!")}
+  `);
+}

@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { updateTicketStatusAction, updateTicketPriorityAction, addTicketNoteAction, addCallNoteAction } from "@/lib/admin/support-actions";
 import { MacroCard } from "@/components/admin/MacroCard";
 import { formatDateTime } from "@/lib/utils";
+import { whatsappWebUrl, whatsappGreeting } from "@/lib/whatsapp";
 
 export const metadata: Metadata = { title: "Support Ticket" };
 export const dynamic = "force-dynamic";
@@ -103,10 +104,7 @@ export default async function AdminTicketDetailPage({ params }: Props) {
     telecomLine = line;
   }
 
-  const waMessage = encodeURIComponent(
-    `Hi ${ticket.customer_name ?? "there"} 👋 This is BitLink support following up on your ticket ${ticket.ticket_number}.`
-  );
-  const waUrl = `https://wa.me/${(ticket.whatsapp_number ?? "").replace(/[^0-9]/g, "")}?text=${waMessage}`;
+  const waUrl = whatsappWebUrl(ticket.whatsapp_number, whatsappGreeting(ticket.customer_name));
 
   return (
     <div className="grid gap-6">
@@ -155,7 +153,7 @@ export default async function AdminTicketDetailPage({ params }: Props) {
         {/* WhatsApp button */}
         {ticket.whatsapp_number && (
           <a
-            href={waUrl}
+            href={waUrl ?? undefined}
             target="_blank"
             rel="noopener noreferrer"
             className="flex shrink-0 items-center gap-2 rounded-2xl bg-[#25D366] px-5 py-3 font-semibold text-white hover:bg-[#1ebe5d] transition-colors"

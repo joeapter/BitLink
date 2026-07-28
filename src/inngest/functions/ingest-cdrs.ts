@@ -15,6 +15,7 @@
 
 import { inngest } from '@/inngest/client';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { processFirstUsageWelcomeEmails } from '@/lib/welcome-usage-email';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ fn: 'ingest-cdrs' });
@@ -151,7 +152,12 @@ export const ingestCdrs = inngest.createFunction(
 
     if (!files.length) {
       log.info('No CDR files found');
-      return { processed: 0 };
+      // Still worth checking — a line could have usage from an earlier pull
+      // that hasn't been welcomed yet (e.g. a prior run erroring out).
+      const welcomeResult = await step.run('first-usage-welcome-emails', () =>
+        processFirstUsageWelcomeEmails(admin),
+      );
+      return { processed: 0, welcome: welcomeResult };
     }
 
     // Step 2: parse + store
@@ -217,7 +223,14 @@ export const ingestCdrs = inngest.createFunction(
     });
 
     log.info(result, 'CDR ingestion complete');
-    return result;
+
+    // Step 3: welcome any line that just recorded its first-ever usage.
+    const welcomeResult = await step.run('first-usage-welcome-emails', () =>
+      processFirstUsageWelcomeEmails(admin),
+    );
+    log.info(welcomeResult, 'First-usage welcome email check complete');
+
+    return { ...result, welcome: welcomeResult };
   },
 );
 

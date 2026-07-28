@@ -75,7 +75,7 @@ export default async function SupportPage({
           {/* Contact cards */}
           <div className="grid content-start gap-4">
             <a
-              href="https://wa.me/972555195335?text=Hi%20BitLink%20support%2C%20I%20need%20help%20with%20my%20plan."
+              href="https://wa.me/972555195335"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-5 hover:border-green-400/40 hover:bg-green-50/40 transition-colors"

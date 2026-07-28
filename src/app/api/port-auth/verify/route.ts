@@ -18,6 +18,9 @@ const log = logger.child({ route: 'port-auth/verify' });
 const bodySchema = z.object({
   number: z.string().min(8).max(20),
   code: z.string().regex(/^\d{4,8}$/, 'Code must be 4-8 digits'),
+  // Must match whatever type was used to start the authentication — kosher
+  // phones can't receive SMS, so those started (and must verify) via 'ivr'.
+  isKosher: z.boolean().default(false),
 });
 
 export async function POST(request: NextRequest): Promise<Response> {
@@ -30,7 +33,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Enter the code from the SMS.' }, { status: 400 });
+    return NextResponse.json({ error: 'Enter the verification code.' }, { status: 400 });
   }
 
   const normalized = normalizeIsraeliMobile(parsed.data.number);
@@ -40,10 +43,11 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   try {
     const provider = getTelecomProvider();
-    const verified = await provider.verifyNumberAuthentication(normalized, parsed.data.code);
+    const authenticationType = parsed.data.isKosher ? 'ivr' : 'sms_code';
+    const verified = await provider.verifyNumberAuthentication(normalized, parsed.data.code, authenticationType);
     if (!verified) {
       return NextResponse.json(
-        { verified: false, error: 'That code did not match. Check the SMS and try again.' },
+        { verified: false, error: parsed.data.isKosher ? 'That code did not match. Check the call and try again.' : 'That code did not match. Check the SMS and try again.' },
         { status: 422 },
       );
     }
