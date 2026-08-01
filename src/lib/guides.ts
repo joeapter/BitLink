@@ -1935,6 +1935,102 @@ export const guides: Guide[] = [
       { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
     ],
   },
+  {
+    slug: "is-my-israeli-number-kosher",
+    title: "How do I know if my Israeli number is kosher?",
+    metaTitle: "Is My Israeli Number Kosher? Prefix List & How to Check",
+    metaDescription:
+      "How to tell if an Israeli phone number is kosher, the actual carrier prefixes to check, what happens if a kosher SIM meets a regular phone, and how kosher-to-kosher porting really works.",
+    datePublished: "2026-07-29",
+    dateModified: "2026-07-29",
+    readingTime: "6 min read",
+    intro:
+      "The quickest way to tell if an Israeli number is kosher is its prefix — kosher lines are provisioned on specific number ranges assigned to each carrier, so the digits after the area code are a real, checkable clue. But a prefix is a clue, not a certificate: kosher status is something the carrier provisions on the line itself, not something a number carries automatically just by falling in a range. Here's how to actually check, the prefixes by carrier, and what we've learned firsthand about moving a kosher number between carriers.",
+    sections: [
+      {
+        heading: "What actually makes a number kosher?",
+        paragraphs: [
+          "A kosher number isn't a special category of digits — it's a regular Israeli mobile number that a carrier has provisioned as a kosher line: data and SMS excluded at the network level, recognized under the standards set by Vaadat Harabanim L'inyanei Tikshoret (the Rabbinical Committee for Communications). The prefix is simply a byproduct of how carriers allocate blocks of numbers to their kosher lines, which makes it a genuinely useful visual clue — but the real answer lives in the carrier's own records, not in the digits alone.",
+          "That distinction matters most when a number changes hands. A kosher-range prefix on a number that's since been reassigned to a regular line won't behave as kosher, and — as we found out directly while testing a kosher port-in ourselves — a number that was never provisioned as kosher at its original carrier generally can't simply become kosher by porting it somewhere else. More on that below.",
+        ],
+      },
+      {
+        heading: "What are the kosher number prefixes by carrier?",
+        paragraphs: [
+          "These are the prefix ranges the major Israeli carriers use for kosher lines. The \"X\" is a wildcard digit — for example, 058-32X-XXXX covers every number from 058-320-XXXX through 058-329-XXXX.",
+        ],
+        table: {
+          columns: ["Carrier", "Kosher prefix range"],
+          rows: [
+            { cells: ["Golan Telecom", "058-32X-XXXX"] },
+            { cells: ["Pelephone", "050-41X-XXXX"] },
+            { cells: ["Cellcom", "052-71X-XXXX and 052-76X-XXXX"] },
+            { cells: ["Hot Mobile", "053-31X-XXXX, 053-41X-XXXX, and 053-51X-XXXX"] },
+            { cells: ["Partner", "054-84X-XXXX and 054-85X-XXXX"] },
+          ],
+          note: "If your number matches one of these ranges, it's very likely a kosher line on that carrier.",
+        },
+      },
+      {
+        heading: "What about the smaller resellers on the 055 prefix?",
+        paragraphs: [
+          "A handful of smaller Israeli resellers (Rami Levy, Free Telecom, and others) also offer kosher lines, generally out of the shared 055 prefix block. We're intentionally not publishing exact sub-ranges for these here: 055 is a large block shared by many small MVNOs, sub-range assignments shift more often than the big five carriers above, and we found at least one public source with an internal inconsistency in its own numbers for a smaller reseller. If your number starts with 055 and isn't clearly explained by the table above, the reliable move is to ask that specific carrier directly rather than trust a prefix list — this is exactly the kind of detail worth getting from the source, not a table on the internet.",
+        ],
+      },
+      {
+        heading: "What happens if a kosher SIM ends up in a regular phone?",
+        paragraphs: [
+          "It locks. A kosher SIM card placed in a non-kosher (regular smartphone) will lock itself, and getting service back means a new SIM card, not just moving it back. This runs in the other direction too in practice — kosher phones are certified hardware built for kosher lines, carrying the \"Meushar\" (approved) certification mark, and the two are designed to be used together, not mixed and matched.",
+          "The practical takeaway: don't test a kosher SIM in a spare regular phone just to check if a line is working. If you need to confirm a line is active, ask the carrier or check with support instead.",
+        ],
+      },
+      {
+        heading: "Can a kosher number be ported to a different kosher carrier?",
+        paragraphs: [
+          "Yes — moving a kosher number from one kosher-certified carrier to another is a normal, supported operation, the same as porting any other Israeli mobile number between carriers.",
+          "What doesn't work the way people sometimes expect: taking an ordinary, never-kosher number and porting it in hoping it \"becomes\" kosher on arrival. We tested this directly, and a regular number was rejected for a kosher line with the carrier's system flagging that the number itself wasn't eligible — even with everything else set up correctly on our end. The honest read is that kosher status is tied to the number's standing at its current carrier, not something a new carrier can simply assign to any number handed to it. If your goal is a kosher number and your current one was never kosher, a fresh kosher number is the reliable path, not a port.",
+        ],
+      },
+      {
+        heading: "Switching to BitLink with an existing kosher number",
+        paragraphs: [
+          "If your number matches one of the ranges above, [BitLink's kosher plans](/kosher-phone-plans-israel) support porting it in the normal kosher-to-kosher way — [Kosher Basic](/plans/kosher-basic) at $19.99/month or [Kosher+](/plans/kosher-plus) at $24.99/month if US and Canada calling matters to you. [Message support](/support) with your current carrier and number, and the team will confirm eligibility and handle the port. If you don't have a kosher number yet and want one, the same plans work with a freshly assigned kosher number instead — no port needed.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "How can I tell if my Israeli number is kosher just from the digits?",
+        answer:
+          "Check the prefix against the major carriers' kosher ranges: Golan Telecom 058-32X, Pelephone 050-41X, Cellcom 052-71X/052-76X, Hot Mobile 053-31X/053-41X/053-51X, and Partner 054-84X/054-85X. A match is a strong sign, but the carrier's own records are the final word, since a number can theoretically be reassigned.",
+      },
+      {
+        question: "Can a regular (non-kosher) number become kosher by porting it to a kosher plan?",
+        answer:
+          "Generally no. Kosher status is tied to how the number is provisioned at its current carrier, not something a new carrier can assign on arrival — we confirmed this directly when a regular number was rejected for a kosher line. If your current number was never kosher, getting a freshly assigned kosher number is the reliable option, not porting your existing one.",
+      },
+      {
+        question: "What happens if I put a kosher SIM in a regular smartphone?",
+        answer:
+          "It locks, and you'll need a new SIM card to restore service — kosher SIMs and kosher-certified devices are designed to work together, not interchangeably with regular hardware.",
+      },
+      {
+        question: "Can I port my kosher number between two kosher carriers?",
+        answer:
+          "Yes — transferring a kosher number from one kosher-certified carrier to another is a normal, supported port, just like porting any other Israeli mobile number.",
+      },
+      {
+        question: "My number starts with 055 — is it kosher?",
+        answer:
+          "Possibly — several smaller resellers offer kosher lines on the shared 055 block, but exact sub-ranges shift more often than the major carriers' allocations and aren't reliable to publish as a fixed list. Ask that specific carrier directly to confirm.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/kosher-phones-israel-explained", label: "Kosher phones in Israel, explained" },
+      { href: "/kosher-phone-plans-israel", label: "Kosher phone plans" },
+      { href: "/guides/yeshiva-seminary-phone-checklist", label: "Yeshiva & seminary phone checklist" },
+    ],
+  },
 ];
 
 export function getGuide(slug: string) {

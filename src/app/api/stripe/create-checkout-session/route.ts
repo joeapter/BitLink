@@ -70,6 +70,10 @@ const bodySchema = z.object({
   referralCode: z.string().nullable().optional(),
   orgReferralCode: z.string().nullable().optional(),
   promoCode: z.string().nullable().optional(),
+  // Present only when arriving via an abandoned-checkout recovery email link
+  // (/recover/[token]). Resolved and validated server-side against
+  // abandoned_checkouts — never trust a client-sent fee waiver for this.
+  recoveryToken: z.string().nullable().optional(),
   successUrl: z.string().optional(),
   cancelUrl: z.string().optional(),
 });
@@ -107,8 +111,9 @@ export async function POST(request: NextRequest): Promise<Response> {
   const promo = getPromo(parsed.data.promoCode);
   const orgReferralCode = promo?.orgReferralCode || (parsed.data.orgReferralCode || null);
   // Server is the source of truth for the launch waiver — the fee is dropped
-  // for Student/Max regardless of what the client sends.
-  const effectiveSkipActivationFee =
+  // for Student/Max regardless of what the client sends. The recovery-token
+  // waiver (below, once we have an admin client) can still add to this.
+  let effectiveSkipActivationFee =
     skipActivationFee || Boolean(promo?.skipActivationFee) || isActivationFeeWaivedForPlan(planSlug);
 
   // Reject malformed Israeli port-in numbers BEFORE payment — Annatel requires
@@ -162,6 +167,24 @@ export async function POST(request: NextRequest): Promise<Response> {
   if (!stripe) {
     log.error('Stripe client unavailable — check STRIPE_SECRET_KEY');
     return NextResponse.json({ error: 'Checkout temporarily unavailable' }, { status: 503 });
+  }
+
+  // Recovery-link waiver — resolved server-side against abandoned_checkouts,
+  // never trusted from the client. Only a still-pending, unexpired token
+  // grants the waiver; a reused/expired token silently falls back to normal
+  // pricing rather than blocking checkout.
+  let recoveryCheckoutId: string | null = null;
+  if (parsed.data.recoveryToken) {
+    const { data: recovery } = await admin
+      .from('abandoned_checkouts')
+      .select('id, status, expires_at')
+      .eq('token', parsed.data.recoveryToken)
+      .maybeSingle();
+
+    if (recovery && recovery.status === 'pending' && new Date(recovery.expires_at) > new Date()) {
+      effectiveSkipActivationFee = true;
+      recoveryCheckoutId = recovery.id;
+    }
   }
 
   // ── 1. Look up plan + stripe_price_id from DB ────────────────────────────
@@ -372,6 +395,13 @@ export async function POST(request: NextRequest): Promise<Response> {
       'Failed to create Stripe checkout session',
     );
     return NextResponse.json({ error: 'Checkout temporarily unavailable' }, { status: 503 });
+  }
+
+  if (recoveryCheckoutId) {
+    await admin
+      .from('abandoned_checkouts')
+      .update({ status: 'recovered', updated_at: new Date().toISOString() })
+      .eq('id', recoveryCheckoutId);
   }
 
   log.info(

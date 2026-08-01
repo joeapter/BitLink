@@ -33,15 +33,31 @@ export function CheckoutForm({
   initialReferralCode = "",
   initialOrgReferralCode = "",
   initialPromoCode = "",
+  initialSimType = "esim",
+  initialFullName = "",
+  initialEmail = "",
+  initialPhone = "",
+  recoveryToken = null,
 }: {
   initialPlanSlug: PlanSlug;
   initialReferralCode?: string;
   initialOrgReferralCode?: string;
   initialPromoCode?: string;
+  initialSimType?: "esim" | "physical";
+  initialFullName?: string;
+  initialEmail?: string;
+  initialPhone?: string;
+  // Present only on the abandoned-checkout recovery landing page
+  // (/recover/[token]). Grants a time-limited activation-fee waiver,
+  // validated server-side — see create-checkout-session/route.ts.
+  recoveryToken?: string | null;
 }) {
   const promo = useMemo(() => getPromo(initialPromoCode), [initialPromoCode]);
   const [planSlug, setPlanSlug] = useState<PlanSlug>(initialPlanSlug);
-  const [simType, setSimType] = useState<SimType>("esim");
+  const [simType, setSimType] = useState<SimType>(initialSimType);
+  // A recovery link always waives the fee, no matter what the customer
+  // changes their plan/SIM selection to — it's a promise made in the email.
+  const recoveryFeeWaived = Boolean(recoveryToken);
   const [delivery, setDelivery] = useState<PhysicalSimDeliveryDetails>(emptyDeliveryDetails);
   const [numberChoice, setNumberChoice] = useState<NumberChoice>("new");
   const [wantsIntlNumber, setWantsIntlNumber] = useState(false);
@@ -137,7 +153,7 @@ export function CheckoutForm({
     }
     // Read the waiver fresh at submit time — the mounted state can be stale
     // if the unlock happened after this form loaded.
-    const waived = feeWaived || localStorage.getItem("bl_staff") === "1" || Boolean(promo?.skipActivationFee);
+    const waived = feeWaived || localStorage.getItem("bl_staff") === "1" || Boolean(promo?.skipActivationFee) || recoveryFeeWaived;
 
     const response = await fetch("/api/stripe/create-checkout-session", {
       method: "POST",
@@ -150,6 +166,7 @@ export function CheckoutForm({
         referralCode: formData.get("referralCode") || null,
         orgReferralCode: initialOrgReferralCode || null,
         promoCode: initialPromoCode || null,
+        recoveryToken,
         isKosher: selectedPlan.isKosher,
         isEsim: effectiveSimType === "esim",
         isPortIn,
@@ -208,7 +225,7 @@ export function CheckoutForm({
           <CheckoutSummary
             plan={selectedPlan}
             isPortIn={numberChoice === "port-in"}
-            feeWaived={feeWaived || planFeeWaived || Boolean(promo?.skipActivationFee)}
+            feeWaived={feeWaived || planFeeWaived || Boolean(promo?.skipActivationFee) || recoveryFeeWaived}
             launchWaiver={planFeeWaived}
             hasIntlNumber={wantsIntlNumber}
             intlIsPortIn={wantsIntlNumber && intlSource === "port"}
@@ -248,6 +265,15 @@ export function CheckoutForm({
               <p className="text-sm text-ink">
                 <span className="font-semibold">{promo.label} applied</span> — activation fee waived
                 {promo.intlAddonPriceCents != null ? `, and the US/Canada/UK add-on is ${formatMoney(promo.intlAddonPriceCents, "USD")}/mo instead of ${formatMoney(REGULAR_INTL_ADDON_CENTS, "USD")}/mo` : ""}.
+              </p>
+            </div>
+          )}
+          {!promo && recoveryFeeWaived && (
+            <div className="mt-4 flex items-start gap-3 rounded-2xl border border-trust-green/30 bg-trust-green/5 p-4">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-trust-green" aria-hidden="true" />
+              <p className="text-sm text-ink">
+                <span className="font-semibold">Welcome back</span> — your activation fee is waived, on us. Change
+                anything below, it still applies.
               </p>
             </div>
           )}
@@ -576,9 +602,9 @@ export function CheckoutForm({
         {/* ── Contact info ── */}
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <p className="text-sm font-semibold text-ink sm:col-span-2">Your details</p>
-          <Input label="Full name" name="fullName" autoComplete="name" required />
-          <Input label="Email" name="email" type="email" autoComplete="email" required />
-          <Input label="Phone" name="phone" type="tel" autoComplete="tel" required />
+          <Input label="Full name" name="fullName" autoComplete="name" defaultValue={initialFullName} required />
+          <Input label="Email" name="email" type="email" autoComplete="email" defaultValue={initialEmail} required />
+          <Input label="Phone" name="phone" type="tel" autoComplete="tel" defaultValue={initialPhone} required />
           <Input label="Referral code" name="referralCode" defaultValue={initialReferralCode} placeholder="Optional" />
         </div>
 

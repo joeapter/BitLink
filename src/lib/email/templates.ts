@@ -554,3 +554,29 @@ export function buildFirstUsageWelcomeEmail(params: { fullName: string }): strin
     ${p("Glad you're here!")}
   `);
 }
+
+// ── Abandoned-checkout recovery email — sent once for a Basic-plan checkout
+// session that's been open 2+ hours with no payment. Activation fee is
+// waived for 24h from send, to get cold-feet customers back. See
+// lib/abandoned-checkout.ts for the trigger/cron logic.
+
+export function buildAbandonedCheckoutRecoveryEmail(params: {
+  fullName: string;
+  planName: string;
+  recoverUrl: string;
+}): string {
+  const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  return layout(`
+    ${h1("Your Israeli number is waiting")}
+    ${p(`Hey ${firstName}, looks like you got right to the checkout page for your ${escapeHtml(params.planName)} plan and didn't finish. No problem, it happens.`)}
+    ${p("Come back in the next 24 hours and we'll waive your $14.99 activation fee, so you'll just pay for your first month to get started.")}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn("Finish signing up", params.recoverUrl)}
+    </div>
+    ${p("Any questions first? Just reply to this email or message us on WhatsApp, real people, always happy to help.")}
+    <p style="margin:24px 0 0;padding-top:16px;border-top:1px solid #f1f5f9;font-size:12px;line-height:1.6;color:#94a3b8;">
+      By the way: if it's ever not for you, just message us within 3 days of purchase and ask to cancel, we'll refund you in full, no questions asked.
+    </p>
+  `);
+}
