@@ -47,6 +47,10 @@ export default async function TrialPage() {
         <div className="mt-8">
           <TrialSignupForm />
         </div>
+        <div className="mt-4 max-w-2xl rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-800">
+          This is a real Israeli line, not a travel eSIM — it only works once you&apos;re actually in Israel. You can
+          install it before you fly, but it won&apos;t receive calls, texts, or data until you land.
+        </div>
       </div>
     </section>
   );
