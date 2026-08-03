@@ -14,6 +14,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { BalanceBucket } from "@/types/telecom";
 import { getPlan } from "@/lib/plans";
+import { topups, type TopUpId } from "@/lib/topups";
 
 export type CdrUsageResult = {
   buckets: BalanceBucket[];
@@ -28,9 +29,23 @@ export async function getCdrUsageBuckets(
   db: SupabaseClient,
   filter: LineFilter,
   planSlug: string | null | undefined,
+  // Active topup grants' ids for this line — folded into the base plan
+  // allowance below so "Remaining" reflects what the line actually has,
+  // not just the base plan. Omit to compute base-plan-only (existing
+  // callers unaffected).
+  activeTopupIds: string[] = [],
 ): Promise<CdrUsageResult | null> {
   const plan = getPlan(planSlug);
   if (!plan) return null;
+
+  let extraDataBytes = 0;
+  let extraVoiceSeconds = 0;
+  for (const topupId of activeTopupIds) {
+    const topup = topups.find((t) => t.id === (topupId as TopUpId));
+    if (!topup) continue;
+    extraDataBytes += topup.grantsDataBytes ?? 0;
+    extraVoiceSeconds += topup.grantsVoiceSeconds ?? 0;
+  }
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -66,9 +81,9 @@ export async function getCdrUsageBuckets(
   // Voice buckets are denominated in seconds (both meter components format
   // voice values via seconds→minutes).
   if (allowances.dataBytes !== null) {
-    buckets.push(makeBucket("data", allowances.dataBytes, dataBytes, monthEnd));
+    buckets.push(makeBucket("data", allowances.dataBytes + extraDataBytes, dataBytes, monthEnd));
   }
-  buckets.push(makeBucket("voice", allowances.voiceMinutes * 60, voiceSec, monthEnd));
+  buckets.push(makeBucket("voice", allowances.voiceMinutes * 60 + extraVoiceSeconds, voiceSec, monthEnd));
   if (allowances.smsCount !== null) {
     buckets.push(makeBucket("sms", allowances.smsCount, smsCount, monthEnd));
   }

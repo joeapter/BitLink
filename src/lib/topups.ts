@@ -16,6 +16,12 @@ export type TopUp = {
   annatelPlanName: string;
   forKosher: boolean;
   badge?: string;
+  // How much this topup actually adds to the line's balance meters, so an
+  // active grant can be folded into the "Remaining" figure shown in admin
+  // and the account portal — not just listed as a separate line item.
+  // Only one of these should be set per topup.
+  grantsDataBytes?: number;
+  grantsVoiceSeconds?: number;
 };
 
 export const topups: TopUp[] = [
@@ -30,6 +36,7 @@ export const topups: TopUp[] = [
     // bonus grant (see REFERRAL_BONUS_DEFAULT_TOPUP_NAME in lib/referrals.ts).
     annatelPlanName: "PLAN_DATA_SUPP_5GB",
     forKosher: false,
+    grantsDataBytes: 5_000_000_000,
   },
   {
     id: "data-10gb",
@@ -40,6 +47,7 @@ export const topups: TopUp[] = [
     stripeEnvKey: "STRIPE_PRICE_TOPUP_DATA_10GB",
     annatelPlanName: "PLAN_TOPUP_30D_DATA_10G",
     forKosher: false,
+    grantsDataBytes: 10_000_000_000,
   },
   {
     id: "data-20gb",
@@ -51,6 +59,7 @@ export const topups: TopUp[] = [
     annatelPlanName: "PLAN_TOPUP_30D_DATA_20G",
     forKosher: false,
     badge: "Best value",
+    grantsDataBytes: 20_000_000_000,
   },
   {
     id: "data-50gb",
@@ -61,6 +70,7 @@ export const topups: TopUp[] = [
     stripeEnvKey: "STRIPE_PRICE_TOPUP_DATA_50GB",
     annatelPlanName: "PLAN_TOPUP_30D_DATA_50G",
     forKosher: false,
+    grantsDataBytes: 50_000_000_000,
   },
   {
     id: "usa-ca-120min",
@@ -81,6 +91,7 @@ export const topups: TopUp[] = [
     stripeEnvKey: "STRIPE_PRICE_TOPUP_LOCAL_1000MIN",
     annatelPlanName: "PLAN_TOPUP_30D_NATIONAL_VOICE_1000MIN",
     forKosher: true,
+    grantsVoiceSeconds: 1000 * 60,
   },
 ];
 

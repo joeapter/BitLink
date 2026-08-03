@@ -64,7 +64,16 @@ export async function processDataUsageAlerts(admin: SupabaseClient, now = new Da
         continue;
       }
 
-      const usage = await getCdrUsageBuckets(admin, { telecomLineId: line.id as string }, planSlug);
+      // Fold in active topup grants — otherwise a topped-up line gets a false
+      // "running low" alert measured against the base plan alone.
+      const { data: activeGrants } = await admin
+        .from("line_topup_grants")
+        .select("topup_id")
+        .eq("line_id", line.id as string)
+        .eq("status", "active");
+      const activeTopupIds = (activeGrants ?? []).map((g) => g.topup_id as string);
+
+      const usage = await getCdrUsageBuckets(admin, { telecomLineId: line.id as string }, planSlug, activeTopupIds);
       const dataBucket = usage?.buckets.find((b) => b.type === "data");
       if (!usage || !dataBucket || dataBucket.initialValue <= 0) {
         result.skipped++;

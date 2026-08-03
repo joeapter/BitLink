@@ -37,6 +37,7 @@ export function LiveLineDataSkeleton() {
 
 type TopupGrantRow = {
   id: string;
+  topup_id: string;
   label: string;
   frequency: string;
   billing_mode: string;
@@ -84,7 +85,7 @@ export async function LiveLineData({
     ? await Promise.all([
         db
           .from("line_topup_grants")
-          .select("id, label, frequency, billing_mode, created_at")
+          .select("id, topup_id, label, frequency, billing_mode, created_at")
           .eq("line_id", lineId)
           .eq("status", "active")
           .order("created_at", { ascending: false })
@@ -100,7 +101,12 @@ export async function LiveLineData({
   let balanceNote: string | undefined;
   let balanceExpiryLabel: string | undefined;
   if (db && liveDetail && balances.length === 0) {
-    const cdrUsage = await getCdrUsageBuckets(db, { telecomLineId: lineId }, planSlug ?? undefined);
+    const cdrUsage = await getCdrUsageBuckets(
+      db,
+      { telecomLineId: lineId },
+      planSlug ?? undefined,
+      topupGrantRows.map((g) => g.topup_id),
+    );
     if (cdrUsage) {
       balances = cdrUsage.buckets;
       balanceNote = `Computed from carrier usage records (synced every ~4 hours) — ${cdrUsage.recordCount} records this calendar month. Voice and SMS count outgoing only.`;

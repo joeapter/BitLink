@@ -199,6 +199,7 @@ export default async function UsagePage({
                       <LineUsageMeter
                         providerLineId={line.provider_line_id}
                         planSlug={(line.metadata as Record<string, unknown>)?.plan_slug as string | undefined}
+                        lineId={line.id}
                       />
                     </Suspense>
                   </div>

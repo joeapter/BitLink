@@ -8,6 +8,10 @@ interface Props {
   // Used to size the CDR-derived fallback meter when the provider returns no
   // live balances (which, today, it never does — see lib/cdr/usage.ts).
   planSlug?: string | null;
+  // Internal telecom_lines.id — used to fold active topup grants into the
+  // CDR-derived allowance. Optional only so existing callers keep working;
+  // omitting it just means topups won't be reflected.
+  lineId?: string;
 }
 
 function fmtBytes(bytes: number): string {
@@ -53,7 +57,7 @@ function BucketBar({ bucket }: { bucket: BalanceBucket }) {
   );
 }
 
-export async function LineUsageMeter({ providerLineId, planSlug }: Props) {
+export async function LineUsageMeter({ providerLineId, planSlug, lineId }: Props) {
   let balances: BalanceBucket[] = [];
   let fromCdr = false;
 
@@ -67,7 +71,16 @@ export async function LineUsageMeter({ providerLineId, planSlug }: Props) {
   if (!balances.length) {
     try {
       const db = await createSupabaseServerClient();
-      const cdrUsage = await getCdrUsageBuckets(db, { providerLineId }, planSlug);
+      const activeTopupIds = lineId
+        ? (
+            await db
+              .from("line_topup_grants")
+              .select("topup_id")
+              .eq("line_id", lineId)
+              .eq("status", "active")
+          ).data?.map((g) => g.topup_id as string) ?? []
+        : [];
+      const cdrUsage = await getCdrUsageBuckets(db, { providerLineId }, planSlug, activeTopupIds);
       if (cdrUsage) {
         balances = cdrUsage.buckets;
         fromCdr = true;

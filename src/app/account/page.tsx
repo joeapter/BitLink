@@ -64,7 +64,7 @@ export default async function AccountPage() {
             </Link>
           </div>
           <Suspense fallback={<div className="mt-4 h-20 animate-pulse rounded-xl bg-slate-100" />}>
-            <LineUsageMeter providerLineId={activeLine.provider_line_id} />
+            <LineUsageMeter providerLineId={activeLine.provider_line_id} lineId={activeLine.id} />
           </Suspense>
         </section>
       ) : null}
