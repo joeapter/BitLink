@@ -17,6 +17,7 @@ import { dataUsageAlertsCron } from '@/inngest/functions/data-usage-alerts';
 import { abandonedCheckoutRecoveryCron } from '@/inngest/functions/abandoned-checkout-recovery';
 import { trialTopupGrant } from '@/inngest/functions/trial-topup-grant';
 import { trialOfferLifecycleCron } from '@/inngest/functions/trial-offer-lifecycle';
+import { notifyTrialSignup } from '@/inngest/functions/notify-trial-signup';
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -36,5 +37,6 @@ export const { GET, POST, PUT } = serve({
     abandonedCheckoutRecoveryCron,
     trialTopupGrant,
     trialOfferLifecycleCron,
+    notifyTrialSignup,
   ],
 });

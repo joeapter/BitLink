@@ -582,6 +582,26 @@ export function buildTrialDecisionReminderEmail(params: {
   `);
 }
 
+// ── Admin trial-signup notification — sent to Joe the moment someone starts
+// a free trial (card saved, before the line is even provisioned). Separate
+// from the "New sale" admin email — no money changed hands here.
+
+export function buildAdminTrialSignupEmail(params: {
+  fullName: string;
+  email: string;
+  phone: string;
+  lineId: string;
+}): string {
+  return layout(`
+    ${h1('New BitLink trial')}
+    ${p(`<strong>${escapeHtml(params.fullName)}</strong> just started a free trial. Card saved, nothing charged.`)}
+    ${p(`${escapeHtml(params.email)}<br/>${escapeHtml(params.phone)}`)}
+    <div style="text-align:center;margin:24px 0;">
+      ${btn('Open the line in admin', `${BASE_URL}/admin/lines/${params.lineId}`)}
+    </div>
+  `);
+}
+
 export function buildAbandonedCheckoutRecoveryEmail(params: {
   fullName: string;
   planName: string;

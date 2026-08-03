@@ -270,7 +270,7 @@ async function handleTrialSetupCompleted(
 
   const { data: customer } = await admin
     .from('customers')
-    .select('email')
+    .select('full_name, email, phone')
     .eq('id', customerRecordId)
     .maybeSingle();
 
@@ -279,6 +279,16 @@ async function handleTrialSetupCompleted(
     customerEmail: (customer?.email as string | undefined) ?? '',
     stripeCustomerId,
   });
+
+  await inngest.send({
+    name: 'trial/signup.completed',
+    data: {
+      fullName: (customer?.full_name as string | undefined) ?? 'Unknown',
+      email: (customer?.email as string | undefined) ?? '',
+      phone: (customer?.phone as string | undefined) ?? '',
+      lineId,
+    },
+  }).catch((err) => log.warn({ error: String(err) }, 'Failed to dispatch trial/signup.completed'));
 
   return { subscriberId: trialId, jobId, lineId };
 }
