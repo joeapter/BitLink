@@ -5,6 +5,7 @@ import { HumanSupportSection } from "@/components/marketing/HumanSupportSection"
 import { LiquidHero } from "@/components/marketing/LiquidHero";
 import { ReferralBand } from "@/components/marketing/ReferralBand";
 import { Testimonials, testimonials } from "@/components/marketing/Testimonials";
+import { TrialOfferPromo } from "@/components/marketing/TrialOfferPromo";
 import { TrustRibbon } from "@/components/marketing/TrustRibbon";
 import { AddOnCard } from "@/components/plans/AddOnCard";
 import { PlanSelector } from "@/components/plans/PlanSelector";
@@ -95,6 +96,12 @@ export default function Home() {
         dangerouslySetInnerHTML={jsonLdScriptProps(testimonialsJsonLd(testimonials.filter((t) => t.inSchema !== false)))}
       />
       <LiquidHero />
+
+      <section className="bg-white px-4 pt-12 sm:px-6 sm:pt-16 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          <TrialOfferPromo variant="hero" />
+        </div>
+      </section>
 
       <section className="border-b border-ink/10 bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="mx-auto max-w-4xl">

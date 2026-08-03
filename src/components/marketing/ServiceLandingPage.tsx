@@ -3,33 +3,45 @@ import { ArrowRight, CheckCircle2, MessageCircle } from "lucide-react";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ButtonLink } from "@/components/ui/Button";
 import { TextWithLinks } from "@/components/ui/TextWithLinks";
+import { TrialOfferPromo } from "@/components/marketing/TrialOfferPromo";
 import type { LandingPageContent } from "@/lib/public-content";
 import { getPlan } from "@/lib/plans";
+import { isTrialOfferEnabled } from "@/lib/settings";
 import { formatMoney } from "@/lib/utils";
 
-export function ServiceLandingPage({ content }: { content: LandingPageContent }) {
+export async function ServiceLandingPage({ content }: { content: LandingPageContent }) {
   const featuredPlans = content.planSlugs.map((slug) => getPlan(slug));
+  const trialOfferEnabled = await isTrialOfferEnabled();
 
   return (
     <div className="bg-white">
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#eef5f8_100%)] px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-        <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-soft-cyan/20 blur-3xl" />
-        <div className="relative mx-auto max-w-7xl">
-          <Breadcrumbs items={[{ label: content.eyebrow }]} />
-          <p className="text-sm font-semibold text-link-blue">{content.eyebrow}</p>
-          <h1 className="mt-3 max-w-4xl text-balance text-5xl font-semibold tracking-normal text-ink sm:text-6xl">
-            {content.h1}
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-slate">{content.intro}</p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href={content.primaryCta.href} size="lg">
-              {content.primaryCta.label}
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </ButtonLink>
-            <ButtonLink href={content.secondaryCta.href} variant="secondary" size="lg">
-              {content.secondaryCta.label}
-            </ButtonLink>
+        {!trialOfferEnabled && (
+          <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-soft-cyan/20 blur-3xl" />
+        )}
+        <div
+          className={`relative mx-auto max-w-7xl ${
+            trialOfferEnabled ? "grid gap-10 lg:grid-cols-[1.3fr_1fr] lg:items-center" : ""
+          }`}
+        >
+          <div>
+            <Breadcrumbs items={[{ label: content.eyebrow }]} />
+            <p className="text-sm font-semibold text-link-blue">{content.eyebrow}</p>
+            <h1 className="mt-3 max-w-4xl text-balance text-5xl font-semibold tracking-normal text-ink sm:text-6xl">
+              {content.h1}
+            </h1>
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-slate">{content.intro}</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <ButtonLink href={content.primaryCta.href} size="lg">
+                {content.primaryCta.label}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </ButtonLink>
+              <ButtonLink href={content.secondaryCta.href} variant="secondary" size="lg">
+                {content.secondaryCta.label}
+              </ButtonLink>
+            </div>
           </div>
+          {trialOfferEnabled && <TrialOfferPromo variant="hero" />}
         </div>
       </section>
 

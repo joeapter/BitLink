@@ -7,6 +7,7 @@ import { TrialOfferPromo } from "@/components/marketing/TrialOfferPromo";
 import { TextWithLinks } from "@/components/ui/TextWithLinks";
 import { plans } from "@/lib/plans";
 import { plansFaqItems } from "@/lib/public-content";
+import { isTrialOfferEnabled } from "@/lib/settings";
 import { createPageMetadata, faqPageJsonLd, jsonLdScriptProps, plansCollectionJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
@@ -16,27 +17,35 @@ export const metadata: Metadata = createPageMetadata({
   path: "/plans",
 });
 
-export default function PlansPage() {
+export default async function PlansPage() {
+  const trialOfferEnabled = await isTrialOfferEnabled();
+
   return (
     <div className="bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(plansCollectionJsonLd(plans))} />
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(faqPageJsonLd(plansFaqItems))} />
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#eef5f8_100%)] px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-        <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-soft-cyan/20 blur-3xl" />
-        <div className="relative mx-auto max-w-7xl">
-          <Breadcrumbs items={[{ label: "Plans" }]} />
-          <p className="text-sm font-semibold text-link-blue">BitLink plans</p>
-          <h1 className="mt-3 max-w-4xl text-balance text-5xl font-semibold tracking-normal text-ink sm:text-6xl">
-            Israeli phone plans with prices you can actually see.
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-slate">
-            Five monthly plans from $14.99 to $39.99 — priced in USD with VAT included, no hidden fees, and no
-            long-term contract. Every plan includes a real Israeli number and activates by eSIM or physical SIM, with
-            kosher voice-only options and a US/Canada/UK number add-on.
-          </p>
-          <div className="mt-6 max-w-2xl">
-            <TrialOfferPromo />
+        {!trialOfferEnabled && (
+          <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-soft-cyan/20 blur-3xl" />
+        )}
+        <div
+          className={`relative mx-auto max-w-7xl ${
+            trialOfferEnabled ? "grid gap-10 lg:grid-cols-[1.3fr_1fr] lg:items-center" : ""
+          }`}
+        >
+          <div>
+            <Breadcrumbs items={[{ label: "Plans" }]} />
+            <p className="text-sm font-semibold text-link-blue">BitLink plans</p>
+            <h1 className="mt-3 max-w-4xl text-balance text-5xl font-semibold tracking-normal text-ink sm:text-6xl">
+              Israeli phone plans with prices you can actually see.
+            </h1>
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-slate">
+              Five monthly plans from $14.99 to $39.99 — priced in USD with VAT included, no hidden fees, and no
+              long-term contract. Every plan includes a real Israeli number and activates by eSIM or physical SIM,
+              with kosher voice-only options and a US/Canada/UK number add-on.
+            </p>
           </div>
+          <TrialOfferPromo variant="hero" />
         </div>
       </section>
 
