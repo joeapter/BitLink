@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TrialDecisionForm } from "@/components/checkout/TrialDecisionForm";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getPlan } from "@/lib/plans";
+import { TRIAL_AUTO_CONTINUE_PLAN } from "@/lib/trial-offer";
 import { createNoIndexMetadata } from "@/lib/seo";
+
+const autoContinuePlanName = getPlan(TRIAL_AUTO_CONTINUE_PLAN).name;
 
 export const metadata: Metadata = createNoIndexMetadata("Pick your plan", "Choose your BitLink plan.");
 export const dynamic = "force-dynamic";
@@ -45,11 +49,20 @@ export default async function TrialDecisionPage({ params }: { params: Promise<{ 
     return <StatusCard title="You're already set" body="You've already picked a plan — your line is running normally." />;
   }
 
-  if (row.status === "frozen" || row.status === "cancelled") {
+  if (row.status === "cancelled") {
+    return (
+      <StatusCard
+        title="This trial was cancelled"
+        body="Your line is frozen and you weren't charged. Message us if you want to pick it back up."
+      />
+    );
+  }
+
+  if (row.status === "frozen") {
     return (
       <StatusCard
         title="This trial has ended"
-        body="Your line was frozen since no plan was chosen in time. Message us and we can get it going again."
+        body="We tried to continue your line automatically but the charge didn't go through, so it froze instead. Message us and we'll help you sort it out."
       />
     );
   }
@@ -63,10 +76,11 @@ export default async function TrialDecisionPage({ params }: { params: Promise<{ 
         </h1>
         <p className="mt-4 text-sm leading-6 text-muted-slate">
           Pick a plan and your line keeps running with no gap. We&apos;ll charge the card you already gave us — no new
-          checkout.
+          checkout. If you do nothing, we&apos;ll automatically continue you on {autoContinuePlanName} when the trial
+          ends — see below if you&apos;d rather not.
         </p>
         <div className="mt-8">
-          <TrialDecisionForm token={token} />
+          <TrialDecisionForm token={token} autoContinuePlanName={autoContinuePlanName} />
         </div>
       </div>
     </section>

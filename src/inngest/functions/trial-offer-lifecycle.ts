@@ -1,7 +1,9 @@
 // Inngest cron: daily sweep of active trials — sends the pick-a-plan
-// reminder around day 21, and freezes any trial whose month ran out with no
-// decision made. Runs regardless of the trial-offer kill switch — trials
-// already in flight finish on their own terms either way.
+// reminder around day 21, a final charge warning ~2 days before the
+// deadline, and auto-continues on Basic (real charge) at the deadline by
+// default, falling back to a freeze only if that charge fails. Runs
+// regardless of the trial-offer kill switch — trials already in flight
+// finish on their own terms either way.
 
 import { inngest } from '@/inngest/client';
 import { logger } from '@/lib/logger';
@@ -16,7 +18,7 @@ export const trialOfferLifecycleCron = inngest.createFunction(
   async ({ step }) => {
     const result = await step.run('sweep', async () => {
       const admin = createSupabaseAdminClient();
-      if (!admin) return { reminded: 0, expired: 0 };
+      if (!admin) return { reminded: 0, finalWarned: 0, autoContinued: 0, autoContinueFailed: 0 };
       return processTrialLifecycle(admin);
     });
     log.info(result, 'Trial offer lifecycle sweep complete');

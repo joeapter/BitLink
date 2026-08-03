@@ -577,7 +577,54 @@ export function buildTrialDecisionReminderEmail(params: {
     <div style="text-align:center;margin:28px 0;">
       ${btn("Pick your plan", params.decideUrl)}
     </div>
-    ${p("If you don't pick one, the line just freezes when the trial ends, your number is held, and you can come back and choose whenever you're ready.")}
+    ${p("Heads up: if you don't pick one, we'll automatically continue your line on our Basic plan and charge the card on file — we'll send you one more reminder with the exact date first. Want to cancel instead? You can do that from the same link above.")}
+    ${p("Questions? Just reply here or message us on WhatsApp, real people, always happy to help.")}
+  `);
+}
+
+// ── Trial final warning — sent once, ~2 days before the auto-continue
+// charge actually happens. This is the disclosure that makes defaulting to
+// a charge fair: nobody should be surprised by it.
+
+export function buildTrialFinalWarningEmail(params: {
+  fullName: string;
+  chargeDate: string;
+  planName: string;
+  priceLabel: string;
+  decideUrl: string;
+}): string {
+  const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  return layout(`
+    ${h1(`Hey ${firstName}, here's a heads up before we charge you`)}
+    ${p(`Your free trial ends soon. Unless you tell us otherwise, on <strong>${escapeHtml(params.chargeDate)}</strong> we'll automatically continue your line on our <strong>${escapeHtml(params.planName)}</strong> plan and charge <strong>${escapeHtml(params.priceLabel)}/month</strong> to the card you gave us at signup.`)}
+    ${p("Want to pick a different plan, or cancel instead? Both take one click, no phone call, no hoops.")}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn("Choose or cancel", params.decideUrl)}
+    </div>
+    ${p("If you're happy on Basic, you don't need to do anything — this email is just so nothing about your card ever surprises you.")}
+    ${p("Questions? Just reply here or message us on WhatsApp, real people, always happy to help.")}
+  `);
+}
+
+// ── Trial auto-continued confirmation — sent right after the automatic
+// day-30 charge succeeds, so the charge is never the first the customer
+// hears of it even if they missed both earlier emails.
+
+export function buildTrialAutoContinuedEmail(params: {
+  fullName: string;
+  planName: string;
+  priceLabel: string;
+}): string {
+  const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  return layout(`
+    ${h1(`You're all set, ${firstName}`)}
+    ${p(`Your trial ended, so as we told you it would, we continued your line on our <strong>${escapeHtml(params.planName)}</strong> plan and charged <strong>${escapeHtml(params.priceLabel)}</strong> to your card on file. Same number, no interruption.`)}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn("Manage my plan", `${BASE_URL}/account`)}
+    </div>
+    ${p("Want to change plans or cancel? You can do that anytime from your account, no penalty, no contract.")}
     ${p("Questions? Just reply here or message us on WhatsApp, real people, always happy to help.")}
   `);
 }

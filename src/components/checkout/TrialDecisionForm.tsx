@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/Button";
 
 const DECIDABLE_PLANS: PlanSlug[] = ["basic", "student-5g", "max-5g"];
 
-export function TrialDecisionForm({ token }: { token: string }) {
+export function TrialDecisionForm({ token, autoContinuePlanName }: { token: string; autoContinuePlanName: string }) {
   const [planSlug, setPlanSlug] = useState<PlanSlug>("student-5g");
   const [loading, setLoading] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
 
   const options = plans.filter((p) => DECIDABLE_PLANS.includes(p.slug));
 
@@ -36,12 +38,39 @@ export function TrialDecisionForm({ token }: { token: string }) {
     setDone(true);
   }
 
+  async function onCancel() {
+    if (!window.confirm("Cancel your trial? Your line will freeze now and you won't be charged.")) return;
+    setCancelling(true);
+    setError(null);
+
+    const response = await fetch(`/api/trial/${token}/cancel`, { method: "POST" });
+    const payload = (await response.json()) as { cancelled?: boolean; error?: string };
+    setCancelling(false);
+
+    if (!response.ok || !payload.cancelled) {
+      setError(payload.error ?? "Something went wrong. Please try again.");
+      return;
+    }
+    setCancelled(true);
+  }
+
   if (done) {
     return (
       <div className="rounded-4xl border border-ink/10 bg-white p-8 text-center shadow-soft">
         <h2 className="text-2xl font-semibold text-ink">You&apos;re set</h2>
         <p className="mt-3 text-sm leading-6 text-muted-slate">
           Your line keeps running with no gap, on the card you already gave us. No new number, nothing to redo.
+        </p>
+      </div>
+    );
+  }
+
+  if (cancelled) {
+    return (
+      <div className="rounded-4xl border border-ink/10 bg-white p-8 text-center shadow-soft">
+        <h2 className="text-2xl font-semibold text-ink">Trial cancelled</h2>
+        <p className="mt-3 text-sm leading-6 text-muted-slate">
+          Your line is frozen and you won&apos;t be charged. Change your mind later? Just message us.
         </p>
       </div>
     );
@@ -90,13 +119,28 @@ export function TrialDecisionForm({ token }: { token: string }) {
       )}
 
       <div className="mt-6">
-        <Button type="button" size="lg" disabled={loading} onClick={onSubmit}>
+        <Button type="button" size="lg" disabled={loading || cancelling} onClick={onSubmit}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
           Confirm my plan
         </Button>
         <p className="mt-3 text-xs leading-5 text-muted-slate">
           Charged to the card on file — no new checkout, nothing to re-enter.
         </p>
+      </div>
+
+      <div className="mt-6 border-t border-ink/8 pt-5">
+        <p className="text-xs leading-5 text-muted-slate">
+          Don&apos;t pick anything and we&apos;ll automatically continue your line on {autoContinuePlanName} when your
+          trial ends, charged to the card on file — we&apos;ll email you before that happens. Don&apos;t want that?
+        </p>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading || cancelling}
+          className="mt-2 text-xs font-semibold text-rose-700 underline decoration-rose-300 transition hover:text-rose-800 disabled:opacity-60"
+        >
+          {cancelling ? "Cancelling…" : "Cancel my trial instead — freeze now, no charge"}
+        </button>
       </div>
     </div>
   );

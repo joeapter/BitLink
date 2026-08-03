@@ -24,8 +24,8 @@ export async function TrialOfferPromo({ variant = "banner" }: { variant?: "banne
           Free for your first month.
         </h2>
         <p className="relative mt-3 max-w-sm text-sm leading-6 text-slate-300">
-          Students and new olim: start a real Israeli eSIM line with 11GB included, free for a month. No charge
-          unless you choose to keep it.
+          Students and new olim: start a real Israeli eSIM line with 11GB included, free for a month. After that it
+          continues on our Basic plan unless you cancel — we&apos;ll remind you first.
         </p>
         <div className="relative mt-6">
           <ButtonLink href="/trial" variant="dark" size="lg">
@@ -43,7 +43,8 @@ export async function TrialOfferPromo({ variant = "banner" }: { variant?: "banne
         <p className="text-sm font-semibold text-ink">Is there a free trial for a BitLink line?</p>
         <p className="mt-2 text-sm leading-6 text-muted-slate">
           Yes — for a limited time, students and new olim can start a real Israeli eSIM line free for a month, 11GB
-          included, no charge unless you choose to keep it.{" "}
+          included. After the month it continues on our Basic plan unless you cancel — we email you before charging
+          anything, twice.{" "}
           <Link href="/trial" className="font-semibold text-link-blue">
             Start your free trial
           </Link>

@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TrialSignupForm } from "@/components/checkout/TrialSignupForm";
 import { isTrialOfferEnabled } from "@/lib/settings";
+import { getPlan } from "@/lib/plans";
+import { TRIAL_AUTO_CONTINUE_PLAN } from "@/lib/trial-offer";
+import { formatMoney } from "@/lib/utils";
 import { createNoIndexMetadata } from "@/lib/seo";
+
+const autoContinuePlan = getPlan(TRIAL_AUTO_CONTINUE_PLAN);
 
 export const metadata: Metadata = createNoIndexMetadata(
   "Free Trial — Israeli eSIM",
@@ -40,9 +45,14 @@ export default async function TrialPage() {
           Your real Israeli eSIM line, free for a month
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-slate">
-          A real 05 Israeli number and 11GB of data, live in minutes, no charge for your first month. At the end of
-          the month, pick a plan and keep going, or don&apos;t and your line just freezes — no surprise charge
-          either way.
+          A real 05 Israeli number and 11GB of data, live in minutes, no charge for your first month.
+        </p>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-slate">
+          <strong className="text-ink">Be upfront with you:</strong> at the end of the month, pick any plan you want,
+          or do nothing and we&apos;ll automatically continue your line on our {autoContinuePlan.name} plan (
+          {formatMoney(autoContinuePlan.priceCents, autoContinuePlan.currency)}/month) and charge the card you give us
+          today. We&apos;ll email you before that happens, twice, with an easy one-click way to cancel instead if it&apos;s
+          not for you.
         </p>
         <div className="mt-8">
           <TrialSignupForm />
