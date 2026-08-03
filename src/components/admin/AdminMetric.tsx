@@ -9,13 +9,14 @@ export function AdminMetric({
   label: string;
   value: string | number;
   icon: LucideIcon;
-  tone?: "blue" | "green" | "amber" | "red";
+  tone?: "blue" | "green" | "amber" | "red" | "purple";
 }) {
   const toneClass = {
     blue: "bg-sky-50 text-sky-700",
     green: "bg-emerald-50 text-emerald-700",
     amber: "bg-amber-50 text-amber-700",
     red: "bg-rose-50 text-rose-700",
+    purple: "bg-purple-50 text-purple-700",
   }[tone];
 
   return (

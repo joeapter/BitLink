@@ -17,6 +17,7 @@ export async function getAdminOverview() {
       metrics: {
         activeCustomers: 0,
         activeSubscriptions: 0,
+        activeTrials: 0,
         provisioningQueue: 0,
         failedPayments: 0,
       },
@@ -33,6 +34,7 @@ export async function getAdminOverview() {
   const [
     customersCount,
     subscriptionsCount,
+    activeTrialsCount,
     provisioningCount,
     failedPaymentCount,
     recentOrders,
@@ -45,6 +47,7 @@ export async function getAdminOverview() {
   ] = await Promise.all([
     db.from("customers").select("id", { count: "exact", head: true }),
     db.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
+    db.from("trial_lines").select("id", { count: "exact", head: true }).eq("status", "active"),
     db
       .from("orders")
       .select("id", { count: "exact", head: true })
@@ -106,6 +109,7 @@ export async function getAdminOverview() {
     metrics: {
       activeCustomers: customersCount.count ?? 0,
       activeSubscriptions: subscriptionsCount.count ?? 0,
+      activeTrials: activeTrialsCount.count ?? 0,
       provisioningQueue: provisioningCount.count ?? 0,
       failedPayments: failedPaymentCount.count ?? 0,
     },

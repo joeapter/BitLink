@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { AlertTriangle, CreditCard, DollarSign, Globe2, Phone, RadioTower, Share2, Users } from "lucide-react";
+import { AlertTriangle, Clock, CreditCard, DollarSign, Globe2, Phone, RadioTower, Share2, Users } from "lucide-react";
 import { AdminMetric } from "@/components/admin/AdminMetric";
 import { ProvisioningQueue } from "@/components/admin/ProvisioningQueue";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -78,9 +78,10 @@ export default async function AdminPage() {
         <h1 className="mt-2 text-3xl font-semibold tracking-normal text-ink sm:text-4xl">Operations overview</h1>
       </section>
 
-      <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <section className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <AdminMetric label="Active customers" value={overview.metrics.activeCustomers} icon={Users} tone="blue" />
         <AdminMetric label="Active subscriptions" value={overview.metrics.activeSubscriptions} icon={CreditCard} tone="green" />
+        <AdminMetric label="Active trials" value={overview.metrics.activeTrials} icon={Clock} tone="purple" />
         <AdminMetric label="Provisioning queue" value={overview.metrics.provisioningQueue} icon={RadioTower} tone="amber" />
         <AdminMetric label="Failed payments" value={overview.metrics.failedPayments} icon={AlertTriangle} tone="red" />
       </section>
