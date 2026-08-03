@@ -54,7 +54,8 @@ export function TrialSignupForm() {
           Start my free trial
         </Button>
         <p className="mt-3 text-xs leading-5 text-muted-slate">
-          We&apos;ll ask for a card to hold your spot — you&apos;re not charged today, and won&apos;t be unless you choose a plan.
+          We&apos;ll ask for a card to hold your spot — you&apos;re not charged today. See below for what happens at
+          the end of the month.
         </p>
       </div>
     </form>

@@ -48,11 +48,11 @@ export default async function TrialPage() {
           A real 05 Israeli number and 11GB of data, live in minutes, no charge for your first month.
         </p>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-slate">
-          <strong className="text-ink">Be upfront with you:</strong> at the end of the month, pick any plan you want,
-          or do nothing and we&apos;ll automatically continue your line on our {autoContinuePlan.name} plan (
-          {formatMoney(autoContinuePlan.priceCents, autoContinuePlan.currency)}/month) and charge the card you give us
-          today. We&apos;ll email you before that happens, twice, with an easy one-click way to cancel instead if it&apos;s
-          not for you.
+          One thing to know upfront: at the end of the month you can pick any plan you want, or do nothing and
+          we&apos;ll automatically continue your line on our {autoContinuePlan.name} plan (
+          {formatMoney(autoContinuePlan.priceCents, autoContinuePlan.currency)}/month), charged to the card you give
+          us today. We&apos;ll email you twice before that happens, with an easy one-click way to cancel instead if
+          it&apos;s not for you.
         </p>
         <div className="mt-8">
           <TrialSignupForm />
