@@ -22,9 +22,32 @@ export type CustomerRow = {
   user_id: string | null;
   created_at: string;
   plans: string[];
+  trial: { expiresAt: string; daysLeft: number } | null;
   reviewRequestedAt: string | null;
   salesRep: { status: string; referral_code: string } | null;
 };
+
+function TrialBadge({ trial }: { trial: { expiresAt: string; daysLeft: number } }) {
+  const label =
+    trial.daysLeft > 1
+      ? `Trial · ${trial.daysLeft}d left`
+      : trial.daysLeft === 1
+        ? "Trial · ends tomorrow"
+        : trial.daysLeft === 0
+          ? "Trial · ends today"
+          : "Trial · overdue";
+  const urgent = trial.daysLeft <= 3;
+  return (
+    <span
+      title={`Decides by ${formatDate(trial.expiresAt)}`}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${
+        urgent ? "bg-amber-100 text-amber-800" : "bg-purple-100 text-purple-700"
+      }`}
+    >
+      {label}
+    </span>
+  );
+}
 
 export function CustomerTable({ customers, view }: { customers: CustomerRow[]; view: "active" | "archived" }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -136,8 +159,9 @@ export function CustomerTable({ customers, view }: { customers: CustomerRow[]; v
                 />
               </div>
 
-              {customer.plans.length ? (
+              {customer.plans.length || customer.trial ? (
                 <div className="mt-2 flex flex-wrap gap-1">
+                  {customer.trial ? <TrialBadge trial={customer.trial} /> : null}
                   {customer.plans.map((p, i) => (
                     <span key={i} className="rounded-full bg-link-blue/10 px-2 py-0.5 text-xs font-semibold text-link-blue">
                       {p}
@@ -233,8 +257,9 @@ export function CustomerTable({ customers, view }: { customers: CustomerRow[]; v
                     <div className="text-xs text-muted-slate">{customer.email}</div>
                   </td>
                   <td className="px-3 py-3">
-                    {customer.plans.length ? (
+                    {customer.plans.length || customer.trial ? (
                       <div className="flex flex-wrap gap-1">
+                        {customer.trial ? <TrialBadge trial={customer.trial} /> : null}
                         {customer.plans.map((p, i) => (
                           <span key={i} className="rounded-full bg-link-blue/10 px-2 py-0.5 text-xs font-semibold text-link-blue">
                             {p}

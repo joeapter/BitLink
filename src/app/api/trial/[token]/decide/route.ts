@@ -114,9 +114,22 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   });
 
   const now = new Date().toISOString();
+  const { data: lineRow } = await admin
+    .from('telecom_lines')
+    .select('metadata')
+    .eq('id', trial.telecom_line_id)
+    .maybeSingle();
   await admin
     .from('telecom_lines')
-    .update({ external_id: `stripe_sub_${subscription.id}`, updated_at: now })
+    .update({
+      external_id: `stripe_sub_${subscription.id}`,
+      metadata: {
+        ...((lineRow?.metadata as Record<string, unknown>) ?? {}),
+        plan_slug: planSlug,
+        is_trial: false,
+      },
+      updated_at: now,
+    })
     .eq('id', trial.telecom_line_id);
   await admin.from('trial_lines').update({ status: 'converted', decided_at: now, updated_at: now }).eq('id', trial.id);
 

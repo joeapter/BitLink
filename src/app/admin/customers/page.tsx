@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { CustomerTable, type CustomerRow } from "@/components/admin/CustomerTable";
 import { getAdminDb } from "@/lib/db/admin";
 import { getPlan } from "@/lib/plans";
+import { daysUntil } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Admin Customers",
@@ -61,11 +62,31 @@ export default async function AdminCustomersPage({
     : [];
   const plansByCustomer = new Map<string, string[]>();
   for (const line of lines) {
-    const planSlug = (line.metadata as Record<string, unknown> | null)?.plan_slug as string | undefined;
+    const metadata = line.metadata as Record<string, unknown> | null;
+    // Trial lines get their own badge + countdown below instead of a plan
+    // chip — until converted, "Basic" isn't the useful label here.
+    if (metadata?.is_trial) continue;
+    const planSlug = metadata?.plan_slug as string | undefined;
     if (!planSlug) continue;
     const existing = plansByCustomer.get(line.customer_id as string) ?? [];
     existing.push(getPlan(planSlug).name);
     plansByCustomer.set(line.customer_id as string, existing);
+  }
+
+  const trials = db && customerIds.length
+    ? (
+        await db
+          .from("trial_lines")
+          .select("customer_id, decision_due_at, status")
+          .in("customer_id", customerIds)
+          .in("status", ["pending_provision", "active"])
+      ).data ?? []
+    : [];
+  const trialByCustomer = new Map<string, { expiresAt: string; daysLeft: number }>();
+  for (const trial of trials) {
+    const expiresAt = trial.decision_due_at as string | null;
+    if (!expiresAt) continue;
+    trialByCustomer.set(trial.customer_id as string, { expiresAt, daysLeft: daysUntil(expiresAt) });
   }
 
   // Latest manual review-request per customer (see review-request-actions.ts)
@@ -98,6 +119,7 @@ export default async function AdminCustomersPage({
     user_id: (customer.user_id ?? null) as string | null,
     created_at: customer.created_at as string,
     plans: plansByCustomer.get(customer.id as string) ?? [],
+    trial: trialByCustomer.get(customer.id as string) ?? null,
     reviewRequestedAt: reviewRequestedByCustomer.get(customer.id as string) ?? null,
     salesRep: salesRepByCustomer.get(customer.id)
       ? {

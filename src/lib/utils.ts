@@ -11,6 +11,12 @@ export function formatDateTime(date: string | Date): string {
   return new Date(date).toLocaleString('en-US', { timeZone: IL_TZ });
 }
 
+// Whole days between now and a future date, rounded up (1 = "less than a
+// day left", 0 = "due today", negative = overdue).
+export function daysUntil(date: string | Date): number {
+  return Math.ceil((new Date(date).getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
