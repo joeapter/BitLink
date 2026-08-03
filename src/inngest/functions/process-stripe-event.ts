@@ -35,6 +35,7 @@ import { getStripeClient } from '@/lib/stripe/client';
 import { normalizeCustomOrderLines } from '@/lib/stripe/custom-orders';
 import { provisionSubscriptionLines } from '@/lib/custom-orders/provision-lines';
 import { listIntlPortInRequests, createIntlPortInRequest } from '@/lib/custom-orders/intl-port-in-requests';
+import { startTrial } from '@/lib/trial-offer';
 import { sendEmail } from '@/lib/email/send';
 import { logger } from '@/lib/logger';
 
@@ -223,6 +224,63 @@ async function handleCustomOrderCheckoutCompleted(
   );
 
   return result;
+}
+
+/**
+ * checkout.session.completed for a trial-offer setup session (mode: 'setup',
+ * metadata.source = 'bitlink_trial'). No subscription/payment happened — this
+ * just saved a card. Sets it as the customer's default payment method, then
+ * starts the trial (drafts the line, queues provisioning).
+ */
+async function handleTrialSetupCompleted(
+  admin: SupabaseClient,
+  session: Stripe.Checkout.Session,
+): Promise<HandlerResult> {
+  const stripeCustomerId = typeof session.customer === 'string' ? session.customer : null;
+  const customerRecordId = session.metadata?.customer_record_id ?? null;
+
+  if (!stripeCustomerId || !customerRecordId) {
+    log.warn({ sessionId: session.id }, 'Trial setup session missing customer or customer_record_id');
+    return { skipped: true, reason: 'no_customer' };
+  }
+
+  const { data: existingTrial } = await admin
+    .from('trial_lines')
+    .select('id, telecom_line_id')
+    .eq('stripe_customer_id', stripeCustomerId)
+    .maybeSingle();
+  if (existingTrial) {
+    log.info({ stripeCustomerId, trialId: existingTrial.id }, 'Trial already started for this customer — skipping');
+    return { skipped: true, reason: 'trial_already_started' };
+  }
+
+  const stripe = getStripeClient();
+
+  const setupIntentId = typeof session.setup_intent === 'string' ? session.setup_intent : session.setup_intent?.id;
+  if (setupIntentId) {
+    const setupIntent = await stripe.setupIntents.retrieve(setupIntentId);
+    const paymentMethodId =
+      typeof setupIntent.payment_method === 'string' ? setupIntent.payment_method : setupIntent.payment_method?.id;
+    if (paymentMethodId) {
+      await stripe.customers.update(stripeCustomerId, {
+        invoice_settings: { default_payment_method: paymentMethodId },
+      });
+    }
+  }
+
+  const { data: customer } = await admin
+    .from('customers')
+    .select('email')
+    .eq('id', customerRecordId)
+    .maybeSingle();
+
+  const { trialId, lineId, jobId } = await startTrial(admin, {
+    customerRecordId,
+    customerEmail: (customer?.email as string | undefined) ?? '',
+    stripeCustomerId,
+  });
+
+  return { subscriberId: trialId, jobId, lineId };
 }
 
 /**
@@ -761,8 +819,12 @@ export const processStripeEvent = inngest.createFunction(
     // Step 3: route to handler
     const handlerResult = await step.run('handle-event', async () => {
       switch (stripeEvent.type) {
-        case 'checkout.session.completed':
-          if ((stripeEvent.data.object as Stripe.Checkout.Session).metadata?.custom_order_token) {
+        case 'checkout.session.completed': {
+          const session = stripeEvent.data.object as Stripe.Checkout.Session;
+          if (session.mode === 'setup' && session.metadata?.source === 'bitlink_trial') {
+            return handleTrialSetupCompleted(admin, session);
+          }
+          if (session.metadata?.custom_order_token) {
             return handleCustomOrderCheckoutCompleted(
               admin,
               stripeEvent.data.object as Stripe.Checkout.Session,
@@ -774,6 +836,7 @@ export const processStripeEvent = inngest.createFunction(
             stripeEvent.data.object as Stripe.Checkout.Session,
             recordId,
           );
+        }
 
         case 'customer.subscription.created':
         case 'customer.subscription.updated':

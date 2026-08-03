@@ -560,6 +560,28 @@ export function buildFirstUsageWelcomeEmail(params: { fullName: string }): strin
 // waived for 24h from send, to get cold-feet customers back. See
 // lib/abandoned-checkout.ts for the trigger/cron logic.
 
+// ── Trial decision reminder — sent once, ~9 days before a free trial's
+// month runs out, pointing to the decision page. Never names the trial's
+// backing plan tier — see lib/trial-offer.ts.
+
+export function buildTrialDecisionReminderEmail(params: {
+  fullName: string;
+  decideUrl: string;
+}): string {
+  const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  return layout(`
+    ${h1(`Hey ${firstName}, your trial's wrapping up soon`)}
+    ${p("Your real Israeli eSIM line has been live for a few weeks now, hope it's been useful. In a little over a week your free trial ends, and we want to make sure you don't lose the number.")}
+    ${p("Pick a plan now and keep everything running with no gap, no new number, nothing to redo.")}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn("Pick your plan", params.decideUrl)}
+    </div>
+    ${p("If you don't pick one, the line just freezes when the trial ends, your number is held, and you can come back and choose whenever you're ready.")}
+    ${p("Questions? Just reply here or message us on WhatsApp, real people, always happy to help.")}
+  `);
+}
+
 export function buildAbandonedCheckoutRecoveryEmail(params: {
   fullName: string;
   planName: string;

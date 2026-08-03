@@ -3,6 +3,7 @@ import { AddOnCard } from "@/components/plans/AddOnCard";
 import { PlanComparison } from "@/components/plans/PlanComparison";
 import { PlanSelector } from "@/components/plans/PlanSelector";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { TrialOfferPromo } from "@/components/marketing/TrialOfferPromo";
 import { TextWithLinks } from "@/components/ui/TextWithLinks";
 import { plans } from "@/lib/plans";
 import { plansFaqItems } from "@/lib/public-content";
@@ -33,6 +34,9 @@ export default function PlansPage() {
             long-term contract. Every plan includes a real Israeli number and activates by eSIM or physical SIM, with
             kosher voice-only options and a US/Canada/UK number add-on.
           </p>
+          <div className="mt-6 max-w-2xl">
+            <TrialOfferPromo />
+          </div>
         </div>
       </section>
 

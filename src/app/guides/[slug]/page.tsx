@@ -6,7 +6,13 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ButtonLink } from "@/components/ui/Button";
 import { TextWithLinks } from "@/components/ui/TextWithLinks";
 import { DeviceCompatibilityChecker } from "@/components/guides/DeviceCompatibilityChecker";
+import { TrialOfferPromo } from "@/components/marketing/TrialOfferPromo";
 import { getGuide, guides } from "@/lib/guides";
+
+// Guides where the trial-offer promo is shown — kept in sync with
+// TRIAL_PROMO_PATHS in admin/settings/actions.ts (that's what makes the
+// kill switch instant on these specific static pages).
+const TRIAL_PROMO_GUIDE_SLUGS = ["gap-year-israel-phone-plan", "gap-year-israel-first-two-weeks"];
 import {
   breadcrumbJsonLd,
   canonicalUrl,
@@ -190,6 +196,12 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
                 <DeviceCompatibilityChecker />
               </div>
             </section>
+          ) : null}
+
+          {TRIAL_PROMO_GUIDE_SLUGS.includes(guide.slug) ? (
+            <div className="mb-12">
+              <TrialOfferPromo variant="faq" />
+            </div>
           ) : null}
 
           <section className="mb-12 rounded-lg border border-ink/10 bg-[#f8fbfc] p-7 sm:p-8">
