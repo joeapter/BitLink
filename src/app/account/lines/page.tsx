@@ -7,8 +7,10 @@ import { PauseLineCard } from "@/components/account/PauseLineCard";
 import { PlanChangeCard } from "@/components/account/PlanChangeCard";
 import { AddIntlNumberCard } from "@/components/account/AddIntlNumberCard";
 import { TopupCard } from "@/components/account/TopupCard";
+import { SmsForwarderCard } from "@/components/account/SmsForwarderCard";
 import { requireUser } from "@/lib/auth/server";
 import { getAccountSnapshot } from "@/lib/db/account";
+import { getSmsForwarderStatus } from "@/lib/account/sms-forwarder-actions";
 import { toLpaString } from "@/lib/esim";
 
 export const metadata: Metadata = { title: "Lines" };
@@ -17,6 +19,14 @@ export const dynamic = "force-dynamic";
 export default async function AccountLinesPage() {
   const user = await requireUser();
   const snapshot = await getAccountSnapshot(user.id, user.email);
+
+  const forwarderStatuses = new Map(
+    await Promise.all(
+      snapshot.lines
+        .filter((line) => line.status === "active" && line.provider_line_id)
+        .map(async (line) => [line.id, await getSmsForwarderStatus(line.provider_line_id!).catch(() => null)] as const),
+    ),
+  );
 
   return (
     <LinesPanel lines={snapshot.lines} lineBillings={snapshot.lineBillings}>
@@ -41,6 +51,14 @@ export default async function AccountLinesPage() {
               <Suspense fallback={<div className="mt-3 h-14 animate-pulse rounded-xl bg-slate-100" />}>
                 <LineUsageMeter providerLineId={line.provider_line_id} lineId={line.id} />
               </Suspense>
+            )}
+            {/* SMS-to-email — works even before landing in Israel (carrier-side) */}
+            {line.status === "active" && line.provider_line_id && (
+              <SmsForwarderCard
+                lineId={line.id}
+                initialStatus={forwarderStatuses.get(line.id) ?? null}
+                defaultEmail={snapshot.customer?.email ?? undefined}
+              />
             )}
             <PlanChangeCard
               lineId={line.id}

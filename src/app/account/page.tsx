@@ -4,8 +4,10 @@ import { Suspense } from "react";
 import { ArrowRight } from "lucide-react";
 import { AccountOverview } from "@/components/account/AccountOverview";
 import { LineUsageMeter } from "@/components/account/LineUsageMeter";
+import { SmsForwarderCard } from "@/components/account/SmsForwarderCard";
 import { requireUser } from "@/lib/auth/server";
 import { getAccountSnapshot } from "@/lib/db/account";
+import { getSmsForwarderStatus } from "@/lib/account/sms-forwarder-actions";
 
 export const metadata: Metadata = {
   title: "Account",
@@ -33,6 +35,9 @@ export default async function AccountPage() {
   const activeLinePhone = activeLine
     ? ((activeLine.metadata as Record<string, unknown>)?.phone_number as string | undefined)
     : undefined;
+  const forwarderStatus = activeLine?.provider_line_id
+    ? await getSmsForwarderStatus(activeLine.provider_line_id).catch(() => null)
+    : null;
 
   return (
     <div className="grid gap-6">
@@ -45,6 +50,21 @@ export default async function AccountPage() {
         referralLink={referralLink}
         referralStats={snapshot.referralStats}
       />
+
+      {activeLine?.provider_line_id ? (
+        <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">
+          <p className="text-sm font-semibold text-ink">Get your codes by email</p>
+          <p className="mt-1 text-xs leading-5 text-muted-slate">
+            Bank and Google verification texts to this number can also land in your inbox — set it up once, works
+            even before you land in Israel.
+          </p>
+          <SmsForwarderCard
+            lineId={activeLine.id}
+            initialStatus={forwarderStatus}
+            defaultEmail={snapshot.customer?.email ?? undefined}
+          />
+        </section>
+      ) : null}
 
       {activeLine?.provider_line_id ? (
         <section className="rounded-[2rem] border border-ink/10 bg-white p-6 shadow-soft">

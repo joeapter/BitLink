@@ -602,6 +602,26 @@ export function buildAdminTrialSignupEmail(params: {
   `);
 }
 
+// ── Admin notification — a customer enabled SMS-to-email forwarding
+// themselves, from their account. Worth knowing since it's a strong
+// retention signal (their bank/Google 2FA now depends on the number).
+
+export function buildAdminSmsForwarderEnabledEmail(params: {
+  customerName: string;
+  customerEmail: string;
+  forwardTo: string;
+  lineId: string;
+}): string {
+  return layout(`
+    ${h1('SMS-to-email enabled')}
+    ${p(`<strong>${escapeHtml(params.customerName)}</strong> just turned on SMS-to-email forwarding from their account.`)}
+    ${p(`${escapeHtml(params.customerEmail)}<br/>Forwarding to: ${escapeHtml(params.forwardTo)}`)}
+    <div style="text-align:center;margin:24px 0;">
+      ${btn('Open the line in admin', `${BASE_URL}/admin/lines/${params.lineId}`)}
+    </div>
+  `);
+}
+
 export function buildAbandonedCheckoutRecoveryEmail(params: {
   fullName: string;
   planName: string;
