@@ -52,11 +52,11 @@ export type LandingPageContent = {
 export const landingPages = {
   israelEsim: {
     slug: "/israel-esim",
-    metaTitle: "Israel eSIM with a Real Israeli Phone Number",
+    metaTitle: "Does Israel Have eSIM? Real Israeli Number Included",
     metaDescription:
-      "Unlike travel eSIMs, BitLink includes an Israeli number — for banks, SMS codes, and calls. Activate in minutes from $14.99/month. Human help if setup gets confusing.",
+      "Yes — Israel supports eSIM. BitLink adds a real Israeli number for banks, SMS codes, and calls, from $14.99/month. Human help if setup gets confusing.",
     eyebrow: "Israel eSIM",
-    h1: "Israel eSIM with a real Israeli phone number.",
+    h1: "Does Israel have eSIM? Yes — with a real Israeli number too.",
     intro:
       "Yes — Israel supports eSIM, and BitLink's standard plans (Basic, Student 5G, and Max 5G) activate by eSIM on compatible devices, with a physical SIM available as a backup. Choose a monthly plan from $14.99, and get guidance from a real person if the setup starts to feel unclear.",
     primaryCta: {
@@ -93,9 +93,9 @@ export const landingPages = {
     ],
     qaBlocks: [
       {
-        question: "Does Israel support eSIM?",
+        question: "Does Israel have eSIM support?",
         answer:
-          "Yes. Israel's mobile networks support eSIM, and BitLink's standard plans — Basic, Student 5G, and Max 5G — can activate on an eSIM if your device is unlocked and eSIM-compatible (most iPhones from XS onward and most recent Android flagships qualify). You choose your plan and pay through a secure checkout, then BitLink provisions an Israeli number and emails the eSIM activation QR code once your line is live, which typically takes a few minutes. If your device does not support eSIM, or you would simply rather have a physical card, the same plans ship as a physical SIM instead — nothing about pricing or data changes. Kosher-certified phones require a physical SIM specifically, since kosher devices are not built to support eSIM activation. If you are not sure which category your phone falls into, BitLink support can confirm compatibility over WhatsApp before you check out.",
+          "Yes. Israel's major carriers — including Partner and Pelephone, both established national networks with full 5G coverage — support eSIM activation, and BitLink's standard plans (Basic, Student 5G, and Max 5G) run on that same infrastructure. Your plan can activate on an eSIM if your device is unlocked and eSIM-compatible (most iPhones from XS onward and most recent Android flagships qualify). You choose your plan and pay through a secure checkout, then BitLink provisions an Israeli number and emails the eSIM activation QR code once your line is live, which typically takes a few minutes. If your device does not support eSIM, or you would simply rather have a physical card, the same plans ship as a physical SIM instead — nothing about pricing or data changes. Kosher-certified phones require a physical SIM specifically, since kosher devices are not built to support eSIM activation. If you are not sure which category your phone falls into, BitLink support can confirm compatibility over WhatsApp before you check out.",
       },
       {
         question: "How much data is included with an Israel eSIM?",
