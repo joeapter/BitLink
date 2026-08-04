@@ -44,7 +44,7 @@ export async function sendEmail(params: SendEmailParams): Promise<boolean> {
   if (!transport) return false;
 
   try {
-    await transport.sendMail({
+    const info = await transport.sendMail({
       from: FROM,
       to: params.to,
       subject: params.subject,
@@ -52,10 +52,23 @@ export async function sendEmail(params: SendEmailParams): Promise<boolean> {
       replyTo: params.replyTo ?? 'support@bitlink.co.il',
     });
 
-    log.info({ to: params.to, subject: params.subject }, 'Email sent via Migadu');
+    log.info(
+      { to: params.to, subject: params.subject, messageId: info.messageId, response: info.response },
+      'Email sent via Migadu',
+    );
     return true;
   } catch (err) {
     log.error({ error: err instanceof Error ? err.message : String(err), to: params.to }, 'Email send failed');
     return false;
+  } finally {
+    // sendMail()'s promise is documented to resolve only after the server
+    // accepts the message — but in production, Inngest-triggered admin
+    // notifications reported success while Migadu's own outbound log never
+    // showed the message ever arriving. Explicitly closing the connection
+    // (rather than letting Vercel freeze the function with an idle SMTP
+    // socket still open) is the standard mitigation for that class of
+    // serverless issue — forces a clean, complete handoff instead of
+    // trusting the callback alone.
+    transport.close();
   }
 }
