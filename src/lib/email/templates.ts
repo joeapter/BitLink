@@ -560,6 +560,42 @@ export function buildFirstUsageWelcomeEmail(params: { fullName: string }): strin
 // waived for 24h from send, to get cold-feet customers back. See
 // lib/abandoned-checkout.ts for the trigger/cron logic.
 
+// ── Trial welcome/credentials — sent once, the moment a free trial starts
+// (card saved, before the line is even provisioned). This is the only place
+// a trial customer gets a way to log in — the separate "eSIM ready" email
+// only fires once the line is live, and never includes credentials. Never
+// names the trial's backing plan tier — see lib/trial-offer.ts.
+
+export function buildTrialWelcomeEmail(params: {
+  fullName: string;
+  email: string;
+  loginUrl: string;
+  tempPassword?: string | null;
+}): string {
+  const { fullName, email, loginUrl, tempPassword } = params;
+  const firstName = (fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  const credBlock = tempPassword
+    ? `<div style="background:#f8fafc;border-radius:12px;padding:20px;margin:20px 0;">
+        <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">Your login credentials</p>
+        <p style="margin:0 0 8px;font-size:14px;color:#050606;">Email: ${mono(email)}</p>
+        <p style="margin:0;font-size:14px;color:#050606;">Temporary password: ${mono(tempPassword)}</p>
+        <p style="margin:8px 0 0;font-size:12px;color:#94a3b8;">You'll be prompted to change this on first login.</p>
+      </div>`
+    : '';
+
+  return layout(`
+    ${h1(`Welcome to BitLink, ${firstName}!`)}
+    ${p("You're all set — we're setting up your real Israeli eSIM line right now. This is your account login, so keep this email handy.")}
+    ${credBlock}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn('Open your account', loginUrl)}
+    </div>
+    ${p("Activation usually takes 3–5 minutes. Once your line is live we'll send your eSIM QR code separately, and you'll also see it in your account portal.")}
+    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">+972-55-519-5335</a>.')}
+  `);
+}
+
 // ── Trial decision reminder — sent once, ~9 days before a free trial's
 // month runs out, pointing to the decision page. Never names the trial's
 // backing plan tier — see lib/trial-offer.ts.

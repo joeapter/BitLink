@@ -283,6 +283,7 @@ async function handleTrialSetupCompleted(
   await inngest.send({
     name: 'trial/signup.completed',
     data: {
+      customerRecordId,
       fullName: (customer?.full_name as string | undefined) ?? 'Unknown',
       email: (customer?.email as string | undefined) ?? '',
       phone: (customer?.phone as string | undefined) ?? '',
