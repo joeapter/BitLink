@@ -1,9 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
-import { CheckCircle2, Mail, QrCode } from "lucide-react";
+import { CheckCircle2, Mail, QrCode, RefreshCw } from "lucide-react";
 import {
   resendProvisionedEmailAction,
+  recycleAndResendEsimAction,
   markEsimInstalledAction,
   type ResendState,
 } from "@/lib/admin/line-actions";
@@ -28,6 +29,10 @@ export function EsimActivationCard({
 }) {
   const [state, resendAction, resendPending] = useActionState<ResendState, FormData>(
     resendProvisionedEmailAction,
+    null,
+  );
+  const [recycleState, recycleAction, recyclePending] = useActionState<ResendState, FormData>(
+    recycleAndResendEsimAction,
     null,
   );
 
@@ -74,6 +79,22 @@ export function EsimActivationCard({
         </form>
         {state?.success ? <p className="text-xs font-semibold text-emerald-700">{state.success}</p> : null}
         {state?.error ? <p className="text-xs font-semibold text-rose-700">{state.error}</p> : null}
+
+        <form action={recycleAction}>
+          <input type="hidden" name="lineId" value={lineId} />
+          <input type="hidden" name="providerLineId" value={providerLineId} />
+          <button
+            type="submit"
+            disabled={recyclePending}
+            title="Use when the customer got 'this code is no longer valid' — issues a fresh, installable eSIM and emails the new QR"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-800 transition hover:bg-amber-100 disabled:opacity-50 sm:w-auto"
+          >
+            <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+            {recyclePending ? "Reissuing…" : "Recycle & resend"}
+          </button>
+        </form>
+        {recycleState?.success ? <p className="text-xs font-semibold text-emerald-700">{recycleState.success}</p> : null}
+        {recycleState?.error ? <p className="text-xs font-semibold text-rose-700">{recycleState.error}</p> : null}
 
         <form action={markEsimInstalledAction}>
           <input type="hidden" name="lineId" value={lineId} />
