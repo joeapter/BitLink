@@ -1,5 +1,6 @@
 import QRCode from "qrcode";
-import { QrCode } from "lucide-react";
+import { QrCode, Smartphone } from "lucide-react";
+import { buildAppleEsimInstallUrl } from "@/lib/esim";
 
 interface Props {
   activationCode: string;
@@ -15,6 +16,7 @@ export async function EsimQrCard({ activationCode, iccId }: Props) {
     margin: 1,
     errorCorrectionLevel: "M",
   });
+  const appleInstallUrl = buildAppleEsimInstallUrl(activationCode);
 
   return (
     <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4">
@@ -24,6 +26,19 @@ export async function EsimQrCard({ activationCode, iccId }: Props) {
       </p>
       <p className="mt-1 text-xs text-blue-700">
         Scan this QR code in your phone&apos;s settings, or use the activation code below.
+      </p>
+
+      {/* If they're viewing this page on the phone that needs the eSIM,
+          there's nothing to scan — this installs directly. */}
+      <a
+        href={appleInstallUrl}
+        className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-800"
+      >
+        <Smartphone className="h-3.5 w-3.5" aria-hidden="true" />
+        On an iPhone right now? Tap to install directly
+      </a>
+      <p className="mt-1.5 text-center text-[0.65rem] text-blue-600">
+        Only tap this if you&apos;re viewing this page on the iPhone you want the eSIM on.
       </p>
 
       <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
@@ -42,7 +57,10 @@ export async function EsimQrCard({ activationCode, iccId }: Props) {
           <p className="mt-0.5 text-xs text-blue-700 leading-5">Settings → Mobile → Add eSIM → Use QR Code</p>
 
           <p className="mt-2 text-xs font-semibold text-blue-800">Android</p>
-          <p className="mt-0.5 text-xs text-blue-700 leading-5">Settings → Connections → SIM Manager → Add eSIM</p>
+          <p className="mt-0.5 text-xs text-blue-700 leading-5">
+            Settings → Connections → SIM Manager → Add eSIM (look for &quot;scan from photo&quot; if you&apos;re on
+            the same device — no second phone needed)
+          </p>
 
           {/* Manual activation code */}
           <div className="mt-3">
@@ -57,6 +75,11 @@ export async function EsimQrCard({ activationCode, iccId }: Props) {
           )}
         </div>
       </div>
+
+      <p className="mt-4 text-[0.65rem] text-blue-600">
+        Only attempt install once — eSIM codes are single-use. If it seems stuck or fails, don&apos;t retry; message
+        support and we&apos;ll issue a fresh one.
+      </p>
     </div>
   );
 }

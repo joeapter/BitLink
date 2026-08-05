@@ -8,6 +8,7 @@ import {
   markEsimInstalledAction,
   type ResendState,
 } from "@/lib/admin/line-actions";
+import { buildAppleEsimInstallUrl } from "@/lib/esim";
 
 // Shown below the Provisioning Job box while an eSIM is ready but not yet
 // confirmed installed. There's no automatic "installed" signal from Annatel
@@ -61,6 +62,13 @@ export function EsimActivationCard({
             {activationCode}
           </p>
           {iccId ? <p className="mt-2 text-[0.6rem] text-slate-400">ICC: {iccId}</p> : null}
+
+          <p className="mt-3 text-xs font-semibold text-blue-800">
+            iPhone tap-to-install link (paste into WhatsApp for same-device installs)
+          </p>
+          <p className="mt-1 break-all rounded-lg border border-blue-200 bg-blue-50 px-2 py-2 font-mono text-[0.6rem] leading-5 text-blue-900">
+            {buildAppleEsimInstallUrl(activationCode)}
+          </p>
         </div>
       </div>
 

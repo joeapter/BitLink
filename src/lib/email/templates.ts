@@ -1,6 +1,8 @@
 // Email HTML templates for BitLink transactional emails.
 // Plain HTML — no React Email dependency needed.
 
+import { buildAppleEsimInstallUrl } from '@/lib/esim';
+
 const BRAND_COLOR = '#00A3A3';
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bitlink.co.il';
 
@@ -148,19 +150,27 @@ export function buildEsimReadyEmail(params: EsimReadyEmailParams): string {
 
   // QR code image via qrserver.com — no npm package needed
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=${encodeURIComponent(activationCode)}`;
+  const appleInstallUrl = buildAppleEsimInstallUrl(activationCode);
 
   return layout(`
     ${h1(`Your eSIM is ready, ${firstName}!`)}
     ${p(`Your <strong>${planName}</strong> line is active. Install your eSIM now to start making and receiving calls in Israel.`)}
 
+    <div style="background:#eff6ff;border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
+      <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#1e40af;">Reading this email on your iPhone?</p>
+      <p style="margin:0 0 16px;font-size:12px;color:#1e40af;">No need to scan anything — tap below to install directly on this device.</p>
+      ${btn('Install eSIM now', appleInstallUrl)}
+    </div>
+
     <div style="text-align:center;margin:28px 0;">
-      <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#050606;">Scan this QR code with your phone</p>
+      <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#050606;">Installing from a different device?</p>
+      <p style="margin:0 0 12px;font-size:12px;color:#94a3b8;">Scan this QR code with the phone that'll use the eSIM</p>
       <img src="${qrUrl}" alt="eSIM QR Code" width="220" height="220" style="border-radius:12px;border:1px solid #e2e8f0;" />
-      <p style="margin:12px 0 0;font-size:12px;color:#94a3b8;">iOS: Settings → Mobile → Add eSIM → Use QR Code<br/>Android: Settings → Connections → SIM Manager → Add eSIM</p>
+      <p style="margin:12px 0 0;font-size:12px;color:#94a3b8;">iOS: Settings → Mobile → Add eSIM → Use QR Code<br/>Android: Settings → Connections → SIM Manager → Add eSIM (Android can also install from a screenshot — look for "scan from photo" in that same screen)</p>
     </div>
 
     <div style="background:#f8fafc;border-radius:12px;padding:20px;margin:20px 0;">
-      <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">Manual entry (if QR doesn't work)</p>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">Manual entry (if the above doesn't work)</p>
       <p style="margin:0;font-size:12px;font-family:monospace;word-break:break-all;color:#050606;line-height:1.6;">${activationCode}</p>
     </div>
 
@@ -170,6 +180,7 @@ export function buildEsimReadyEmail(params: EsimReadyEmailParams): string {
 
     ${showIntlNumberNudge ? intlNumberNudge(portalUrl) : ''}
     ${p('Once installed, your eSIM QR will be removed from your portal to keep things tidy. If you need it again, just contact support.')}
+    ${p('One important thing: only attempt install once. eSIM codes are single-use — if an attempt seems stuck or fails, don\'t retry the same code, message us instead and we\'ll issue a fresh one.')}
     ${p('Need help installing? <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> and we\'ll walk you through it.')}
   `);
 }
