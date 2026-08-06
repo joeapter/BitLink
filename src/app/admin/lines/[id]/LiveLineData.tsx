@@ -217,13 +217,16 @@ export async function LiveLineData({
       {/* Israeli port-in to this existing line */}
       <IsraeliPortInCard lineId={lineId} requests={israeliPortInRequests} />
 
-      {/* Voicemail / SMS backup / aflalo — experimental, per number */}
-      {providerLineId && liveDetail && liveDetail.dids.length > 0 && (
+      {/* Voicemail / SMS backup / aflalo — experimental, per number.
+          Filter to currently-assigned DIDs only (no end_at) — a number moved
+          off this line still shows up in the raw list with its historical
+          record otherwise. */}
+      {providerLineId && liveDetail && liveDetail.dids.some((d) => !d.endAt) && (
         <LineNumberExtrasCard
           lineId={lineId}
           providerLineId={providerLineId}
           dids={liveDetail.dids
-            .filter((d): d is typeof d & { id: string } => Boolean(d.id))
+            .filter((d): d is typeof d & { id: string } => Boolean(d.id) && !d.endAt)
             .map((d) => ({ id: d.id, number: d.number }))}
         />
       )}
@@ -276,7 +279,13 @@ export async function LiveLineData({
       {(() => {
         const intlPortIn = metadata.intl_port_in as Record<string, unknown> | undefined;
         const intlNumber = metadata.intl_number as Record<string, unknown> | undefined;
-        const hasDids = liveDetail && liveDetail.dids.length > 0;
+        // A detached/moved DID still comes back from Annatel with its historical
+        // record (end_at set) — only ones with no end_at are actually assigned
+        // to this line right now. Without this filter, a number moved off the
+        // line (e.g. temporarily reassigned for support) keeps showing as
+        // "Active" here forever.
+        const activeDids = liveDetail ? liveDetail.dids.filter((did) => !did.endAt) : [];
+        const hasDids = activeDids.length > 0;
         const hasPortIn = Boolean(intlPortIn?.number);
         const hasIntlNumber = Boolean(intlNumber?.status);
         if (!hasDids && !hasPortIn && !hasIntlNumber) return null;
@@ -321,7 +330,7 @@ export async function LiveLineData({
               Assigned numbers
             </h2>
             <div className="mt-4 grid gap-2">
-              {hasDids && liveDetail!.dids.map((did) => (
+              {hasDids && activeDids.map((did) => (
                 <div key={did.number} className="flex items-center justify-between rounded-xl bg-slate-50 p-3 text-sm">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-ink">{did.number}</span>
