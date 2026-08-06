@@ -46,12 +46,12 @@ export default function PrivacyPolicyPage() {
               support@bitlink.co.il
             </a>
             , by WhatsApp at{" "}
-            <a href="https://wa.me/972555195335" className="font-semibold text-link-blue">
-              +972-55-519-5335
+            <a href="https://wa.me/972555195375" className="font-semibold text-link-blue">
+              +972-55-519-5375
             </a>
             , or by phone from Israel at{" "}
-            <a href="tel:+972555195335" className="font-semibold text-link-blue">
-              055-519-5335
+            <a href="tel:+972555195375" className="font-semibold text-link-blue">
+              055-519-5375
             </a>
             .
           </p>
@@ -266,8 +266,8 @@ export default function PrivacyPolicyPage() {
           </p>
           <p>
             WhatsApp:{" "}
-            <a href="https://wa.me/972555195335" className="font-semibold text-link-blue">
-              +972-55-519-5335
+            <a href="https://wa.me/972555195375" className="font-semibold text-link-blue">
+              +972-55-519-5375
             </a>
           </p>
           <p>

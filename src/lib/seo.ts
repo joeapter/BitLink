@@ -117,7 +117,7 @@ export const siteJsonLd: JsonLd = {
       url: SITE_URL,
       logo: canonicalUrl("/assets/logo-v2.png"),
       email: "support@bitlink.co.il",
-      telephone: "+972555195335",
+      telephone: "+972555195375",
       identifier: "341280188",
       foundingDate: "2026",
       address: {
@@ -135,7 +135,7 @@ export const siteJsonLd: JsonLd = {
         {
           "@type": "ContactPoint",
           contactType: "customer support",
-          telephone: "+972555195335",
+          telephone: "+972555195375",
           email: "support@bitlink.co.il",
           areaServed: "IL",
           availableLanguage: ["en"],

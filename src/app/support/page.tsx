@@ -75,7 +75,7 @@ export default async function SupportPage({
           {/* Contact cards */}
           <div className="grid content-start gap-4">
             <a
-              href="https://wa.me/972555195335"
+              href="https://wa.me/972555195375"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-5 hover:border-green-400/40 hover:bg-green-50/40 transition-colors"
@@ -97,12 +97,12 @@ export default async function SupportPage({
             </a>
 
             <a
-              href="tel:+972555195335"
+              href="tel:+972555195375"
               className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-5 hover:border-link-blue/30 hover:bg-blue-50/40 transition-colors"
             >
               <Phone className="h-5 w-5 text-link-blue" aria-hidden="true" />
               <h2 className="mt-4 text-lg font-semibold text-ink">Call us</h2>
-              <p className="mt-1 text-sm leading-6 text-link-blue">+972 55-519-5335</p>
+              <p className="mt-1 text-sm leading-6 text-link-blue">+972 55-519-5375</p>
             </a>
 
             <div className="rounded-lg border border-ink/10 bg-amber-50/60 p-5">

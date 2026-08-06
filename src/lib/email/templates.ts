@@ -122,7 +122,7 @@ export function buildWelcomeEmail(params: WelcomeEmailParams): string {
     <div style="text-align:center;margin:28px 0;">
       ${btn('Open your account', loginUrl)}
     </div>
-    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">+972-55-519-5335</a>.')}
+    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972555195375" style="color:' + BRAND_COLOR + ';">+972-55-519-5375</a>.')}
   `);
 }
 
@@ -181,7 +181,7 @@ export function buildEsimReadyEmail(params: EsimReadyEmailParams): string {
     ${showIntlNumberNudge ? intlNumberNudge(portalUrl) : ''}
     ${p('Once installed, your eSIM QR will be removed from your portal to keep things tidy. If you need it again, just contact support.')}
     ${p('One important thing: only attempt install once. eSIM codes are single-use — if an attempt seems stuck or fails, don\'t retry the same code, message us instead and we\'ll issue a fresh one.')}
-    ${p('Need help installing? <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> and we\'ll walk you through it.')}
+    ${p('Need help installing? <a href="https://wa.me/972555195375" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> and we\'ll walk you through it.')}
   `);
 }
 
@@ -206,7 +206,7 @@ export function buildSimShippedEmail(params: SimShippedEmailParams): string {
     <div style="text-align:center;margin:28px 0;">
       ${btn('Track in account portal', portalUrl)}
     </div>
-    ${p('Questions? <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> anytime.')}
+    ${p('Questions? <a href="https://wa.me/972555195375" style="color:' + BRAND_COLOR + ';">WhatsApp us</a> anytime.')}
   `);
 }
 
@@ -335,7 +335,7 @@ export function buildCustomerLoginCreatedEmail(params: {
     </div>
 
     ${p('For security, you can change this password anytime by using the forgot-password link on the login page.')}
-    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">+972-55-519-5335</a>.')}
+    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972555195375" style="color:' + BRAND_COLOR + ';">+972-55-519-5375</a>.')}
   `);
 }
 
@@ -366,7 +366,7 @@ export function buildFreeTopupGiftEmail(params: {
     <div style="text-align:center;margin:28px 0;">
       ${btn('Open my account', `${BASE_URL}/account/lines`)}
     </div>
-    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">+972-55-519-5335</a>.')}
+    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972555195375" style="color:' + BRAND_COLOR + ';">+972-55-519-5375</a>.')}
   `);
 }
 
@@ -560,7 +560,7 @@ export function buildFirstUsageWelcomeEmail(params: { fullName: string }): strin
     ${p("Your BitLink line just kicked in, welcome aboard!")}
     ${p("Need anything at all? Question about your plan, want more data, or just want to say hi, message us on WhatsApp anytime. Real people, always happy to help.")}
     <div style="text-align:center;margin:28px 0;">
-      ${btn("Message us on WhatsApp", "https://wa.me/972555195335")}
+      ${btn("Message us on WhatsApp", "https://wa.me/972555195375")}
     </div>
     ${p("Glad you're here!")}
   `);
@@ -603,7 +603,7 @@ export function buildTrialWelcomeEmail(params: {
       ${btn('Open your account', loginUrl)}
     </div>
     ${p("Activation usually takes 3–5 minutes. Once your line is live we'll send your eSIM QR code separately, and you'll also see it in your account portal.")}
-    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972555195335" style="color:' + BRAND_COLOR + ';">+972-55-519-5335</a>.')}
+    ${p('Questions? Reply to this email or WhatsApp us at <a href="https://wa.me/972555195375" style="color:' + BRAND_COLOR + ';">+972-55-519-5375</a>.')}
   `);
 }
 
