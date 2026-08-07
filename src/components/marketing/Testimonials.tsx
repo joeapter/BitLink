@@ -38,6 +38,14 @@ export const testimonials = [
       "One of the best english support I have experienced in Israel so far. Far above all the traditional mobile providers communication style.",
     inSchema: false,
   },
+  {
+    author: "Mia E.",
+    location: "via Google",
+    ratingValue: 5,
+    reviewBody:
+      "They were so amazing during my Aliyah process — from getting the number and setting it up on my phone, to getting WhatsApp set up and more. Highly recommend. I was able to text with someone on WhatsApp who helped me with everything, and the website was very easy to navigate too.",
+    inSchema: false,
+  },
 ];
 
 function Stars() {
