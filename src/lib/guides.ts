@@ -2031,6 +2031,98 @@ export const guides: Guide[] = [
       { href: "/guides/yeshiva-seminary-phone-checklist", label: "Yeshiva & seminary phone checklist" },
     ],
   },
+  {
+    slug: "israeli-phone-number-area-codes",
+    title: "What do the different area codes on an Israeli phone number mean?",
+    metaTitle: "Israeli Phone Area Codes Explained (050, 052, 053, 054, 055, 058)",
+    metaDescription:
+      "What 050, 052, 053, 054, 055, and 058 actually mean on an Israeli mobile number, which carriers they trace back to, and whether a 055 or 053 number is just as real as any other.",
+    datePublished: "2026-08-09",
+    dateModified: "2026-08-09",
+    readingTime: "5 min read",
+    intro:
+      "Every Israeli mobile number starts with 05, followed by one more digit that originally marked which carrier issued it — 050, 052, 053, 054, 055, or 058. If you've come across a 053 or 055 number and wondered whether it's a real Israeli line or something more like a virtual or spam number, the short answer is yes, it's completely real: all six ranges are official mobile prefixes regulated the same way, just tied to different carriers and resellers. Here's what each one actually traces back to, and why one of them — 055 — doesn't map to a single company at all.",
+    sections: [
+      {
+        heading: "How is an Israeli mobile number actually structured?",
+        paragraphs: [
+          "An Israeli mobile number is 10 digits written as 0XX-XXX-XXXX, or +972-XX-XXX-XXXX internationally (the leading 0 gets dropped and replaced by the country code). The two digits right after that leading 0 — 050, 052, 053, 054, 055, or 058 — are the part that identifies which range, and originally which carrier, the number was issued from.",
+        ],
+      },
+      {
+        heading: "Which carrier does each prefix trace back to?",
+        paragraphs: [
+          "These are the six mobile prefixes in use in Israel today, and the carrier each one was originally allocated to.",
+        ],
+        table: {
+          columns: ["Prefix", "Carrier"],
+          rows: [
+            { cells: ["050", "Pelephone"] },
+            { cells: ["052", "Cellcom"] },
+            { cells: ["053", "Hot Mobile"] },
+            { cells: ["054", "Partner"] },
+            { cells: ["058", "Golan Telecom"] },
+            { cells: ["055", "Shared block for resellers (MVNOs)"], highlight: true },
+          ],
+          note: "Numbers get ported between carriers constantly in Israel, so a prefix shows where a number was originally issued, not necessarily who provides service on it today.",
+        },
+      },
+      {
+        heading: "Why doesn't 055 belong to one company?",
+        paragraphs: [
+          "055 is officially allocated by Israel's Ministry of Communications as a shared range for MVNOs — resellers that don't own their own network, but provide service over an existing carrier's infrastructure. Dozens of smaller providers issue numbers out of this one block, which is exactly why a 055 number doesn't ring a bell the way a 054 or 052 number might: it was never meant to belong to a single, recognizable brand. That's a completely standard, official arrangement, not a workaround or anything to be wary of.",
+        ],
+      },
+      {
+        heading: "Does the prefix still tell you who provides service today?",
+        paragraphs: [
+          "Not reliably. Israeli mobile numbers are portable, so a number originally issued on Cellcom's 052 range could have been ported to a completely different carrier since — the prefix doesn't change when a number moves. Treat the prefix as a clue about a number's history, not a live directory of who's actually serving it right now.",
+        ],
+      },
+      {
+        heading: "Is a 053 or 055 number less legitimate than 050 or 052?",
+        paragraphs: [
+          "No. All six ranges are issued and regulated the same way, and there's no functional difference between them — the same calling, the same SMS, the same ability to receive bank, Bit, Pango, or WhatsApp verification codes. The only real difference is which company originally issued the number.",
+        ],
+      },
+      {
+        heading: "What prefix does a BitLink number use?",
+        paragraphs: [
+          "BitLink numbers are typically issued from Israel's shared reseller ranges, most often 055 — BitLink operates as a reseller running on [Partner's network](/guides/israeli-phone-number-for-banking-bit-pango), rather than holding its own dedicated consumer prefix block, which is the standard setup for a reseller anywhere. A BitLink number works exactly like any other Israeli mobile number for banks, Bit, Pango, WhatsApp, and every other verification flow that expects a real Israeli line — see [BitLink's Israel eSIM page](/israel-esim) for the full comparison against a data-only travel eSIM.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Is a 055 number a real Israeli phone number?",
+        answer:
+          "Yes. 055 is an official mobile prefix allocated by Israel's Ministry of Communications, specifically as a shared block for resellers (MVNOs) rather than one single carrier. It works exactly like any other Israeli mobile number.",
+      },
+      {
+        question: "What carrier is 053 in Israel?",
+        answer: "053 was originally allocated to Hot Mobile.",
+      },
+      {
+        question: "What carrier is 054 in Israel?",
+        answer: "054 was originally allocated to Partner.",
+      },
+      {
+        question: "Does an Israeli number's prefix tell you who provides service today?",
+        answer:
+          "Not reliably — Israeli mobile numbers are portable, so a number can move to a different carrier while keeping its original prefix. The prefix reflects who issued the number originally, not necessarily who serves it now.",
+      },
+      {
+        question: "What prefix do BitLink numbers use?",
+        answer:
+          "Most commonly 055, Israel's shared range for resellers — BitLink runs as a reseller on Partner's network rather than holding its own dedicated prefix block, the standard setup for a reseller.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/is-my-israeli-number-kosher", label: "Is my Israeli number kosher?" },
+      { href: "/guides/israeli-phone-number-for-banking-bit-pango", label: "Why banks and Bit need an Israeli number" },
+      { href: "/israel-esim", label: "Israel eSIM with a real Israeli number" },
+    ],
+  },
 ];
 
 export function getGuide(slug: string) {
