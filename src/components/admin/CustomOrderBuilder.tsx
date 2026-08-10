@@ -140,6 +140,10 @@ export function CustomOrderBuilder({
   const total = useMemo(() => lines.reduce((sum, line) => sum + lineTotalCents(line), 0), [lines]);
   const newCustomerIncomplete = customerMode === "new" && (!email.trim() || accountPassword.length < 8);
 
+  // Kept in sync with REGULAR_INTL_ADDON_CENTS in PartnerDiscountPage.tsx —
+  // the standard US/Canada/UK number add-on rate before any custom discount.
+  const INTL_ADDON_CENTS = 999;
+
   function updateLine(id: string, patch: Partial<BuilderLine>) {
     setLines((current) =>
       current.map((line) => {
@@ -149,6 +153,18 @@ export function CustomOrderBuilder({
         if (patch.planSlug) {
           next.customPrice = (plan.priceCents / 100).toFixed(2);
           if (plan.isKosher) next.isEsim = false;
+        }
+        // The line's monthly price is one combined Stripe price for the plan
+        // + intl number together (see customOrderLineName / toRecurringLineItems)
+        // — nudge it by the standard add-on rate on toggle so switching this
+        // on doesn't silently leave the customer uncharged for it. Admin can
+        // still edit the total afterward for a discount.
+        if (patch.wantsIntlNumber !== undefined && patch.wantsIntlNumber !== line.wantsIntlNumber) {
+          const priceCents = dollarsToCents(next.customPrice);
+          const adjusted = patch.wantsIntlNumber
+            ? priceCents + INTL_ADDON_CENTS
+            : Math.max(0, priceCents - INTL_ADDON_CENTS);
+          next.customPrice = (adjusted / 100).toFixed(2);
         }
         return next;
       }),
@@ -596,7 +612,9 @@ export function CustomOrderBuilder({
                           >
                             {topupCatalog.map((catalogTopup) => (
                               <option key={catalogTopup.id} value={catalogTopup.id}>
-                                {catalogTopup.name} ({formatMoney(catalogTopup.priceCents)}/mo list)
+                                {catalogTopup.name}
+                                {catalogTopup.forKosher ? " · kosher-only line" : " · any line"} (
+                                {formatMoney(catalogTopup.priceCents)}/mo list)
                               </option>
                             ))}
                           </Select>
