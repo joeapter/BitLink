@@ -21,6 +21,12 @@ export const PROMOS: Record<string, Promo> = {
     skipActivationFee: true,
     intlAddonPriceCents: 599,
   },
+  "elul-zman": {
+    label: "Elul zman email campaign (Neveh Zion parent list)",
+    orgReferralCode: "ORG-34CC7856",
+    skipActivationFee: true,
+    intlAddonPriceCents: 599,
+  },
 };
 
 export function getPromo(code?: string | null): Promo | null {
