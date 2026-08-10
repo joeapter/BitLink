@@ -3,6 +3,7 @@ import type Stripe from 'stripe';
 import { createSubscriber, getSubscriberByStripeSubscriptionItem, updateSubscriber } from '@/lib/db/subscribers';
 import { createProvisioningJob } from '@/lib/provisioning/orchestrator';
 import { getAnnatelPlanName, getPlan } from '@/lib/plans';
+import { topups } from '@/lib/topups';
 import type { CustomOrderLine } from '@/lib/stripe/custom-orders';
 
 export type ProvisionSubscriptionLineInput = {
@@ -17,6 +18,11 @@ export type ProvisionSubscriptionLineInput = {
   originatingStripeEventId?: string | null;
   customOrderToken?: string | null;
   source: 'stripe_custom_order' | 'account_add_line';
+  // Topup subscription items billed alongside this line (see
+  // toTopupLineItems in lib/stripe/custom-orders.ts) — stashed on the line's
+  // metadata as pending_topups and granted to the carrier once the line goes
+  // active, by custom-order-topup-grant.ts.
+  topupItems?: { topupId: string; subscriptionItem: Stripe.SubscriptionItem }[];
 };
 
 export type ProvisionSubscriptionLinesResult = {
@@ -44,6 +50,18 @@ function buildLineMetadata(input: ProvisionSubscriptionLineInput, correlationId:
 
   if (line.isPortIn && line.portNumber) {
     metadata.pending_port_in_number = line.portNumber;
+  }
+
+  if (input.topupItems?.length) {
+    metadata.pending_topups = input.topupItems.map(({ topupId, subscriptionItem }) => {
+      const catalogTopup = topups.find((t) => t.id === topupId);
+      return {
+        topupId,
+        annatelPlanName: catalogTopup?.annatelPlanName ?? '',
+        label: catalogTopup?.name ?? topupId,
+        stripeSubscriptionItemId: subscriptionItem.id,
+      };
+    });
   }
 
   if (line.wantsIntlNumber) {

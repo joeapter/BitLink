@@ -74,7 +74,7 @@ export async function POST(
 
   const { data: order, error: orderError } = await admin
     .from('custom_line_orders')
-    .select('id, token, customer_id, lines, status')
+    .select('id, token, customer_id, lines, status, trial_days')
     .eq('token', token)
     .maybeSingle();
 
@@ -303,6 +303,7 @@ export async function POST(
       uiMode: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() ? 'embedded' : 'hosted',
       successUrl: absoluteUrl(`/checkout/success?session_id={CHECKOUT_SESSION_ID}`),
       cancelUrl: absoluteUrl(`/pay/${token}`),
+      trialDays: (order.trial_days ?? null) as number | null,
     });
 
     await admin

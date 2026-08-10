@@ -18,6 +18,7 @@ import { abandonedCheckoutRecoveryCron } from '@/inngest/functions/abandoned-che
 import { trialTopupGrant } from '@/inngest/functions/trial-topup-grant';
 import { trialOfferLifecycleCron } from '@/inngest/functions/trial-offer-lifecycle';
 import { notifyTrialSignup } from '@/inngest/functions/notify-trial-signup';
+import { customOrderTopupGrant } from '@/inngest/functions/custom-order-topup-grant';
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -38,5 +39,6 @@ export const { GET, POST, PUT } = serve({
     trialTopupGrant,
     trialOfferLifecycleCron,
     notifyTrialSignup,
+    customOrderTopupGrant,
   ],
 });

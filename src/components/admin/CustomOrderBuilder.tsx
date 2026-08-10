@@ -16,6 +16,7 @@ import {
 } from "@/lib/delivery";
 import { formatMoney } from "@/lib/utils";
 import { getPlan, plans, type PlanSlug } from "@/lib/plans";
+import { topups as topupCatalog } from "@/lib/topups";
 
 type CustomerOption = {
   id: string;
@@ -26,6 +27,12 @@ type CustomerOption = {
 
 type IntlCountry = "us" | "canada" | "uk";
 type IntlSource = "new" | "port";
+
+type BuilderTopup = {
+  id: string;
+  topupId: string;
+  customPrice: string;
+};
 
 type BuilderLine = {
   id: string;
@@ -41,6 +48,7 @@ type BuilderLine = {
   intlPortNumber: string;
   intlChosenNumber: string;
   customPrice: string;
+  topups: BuilderTopup[];
 };
 
 function newLine(): BuilderLine {
@@ -59,7 +67,13 @@ function newLine(): BuilderLine {
     intlPortNumber: "",
     intlChosenNumber: "",
     customPrice: (plan.priceCents / 100).toFixed(2),
+    topups: [],
   };
+}
+
+function newTopup(): BuilderTopup {
+  const first = topupCatalog[0];
+  return { id: crypto.randomUUID(), topupId: first.id, customPrice: (first.priceCents / 100).toFixed(2) };
 }
 
 function dollarsToCents(value: string): number {
@@ -73,7 +87,12 @@ function lineLabel(line: BuilderLine) {
   const parts = [plan.name];
   if (line.isPortIn) parts.push("port");
   if (line.wantsIntlNumber) parts.push(`${line.intlCountry.toUpperCase()} ${line.intlSource}`);
+  if (line.topups.length) parts.push(`+${line.topups.length} topup${line.topups.length === 1 ? "" : "s"}`);
   return parts.join(" - ");
+}
+
+function lineTotalCents(line: BuilderLine): number {
+  return dollarsToCents(line.customPrice) + line.topups.reduce((sum, t) => sum + dollarsToCents(t.customPrice), 0);
 }
 
 function generateCustomerPassword() {
@@ -109,14 +128,16 @@ export function CustomOrderBuilder({
   const [createdUrl, setCreatedUrl] = useState<string | null>(null);
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
   const [loginEmailNotice, setLoginEmailNotice] = useState<{ tone: "success" | "warning"; message: string } | null>(null);
+  // Days before the first real charge — card saved at checkout, subscription
+  // sits in Stripe "trialing" status, lines provision/ship immediately.
+  // Empty = bill right away (existing behavior). Only applies to a brand-new
+  // payment link, not "add to existing billing" (that customer already pays).
+  const [trialDays, setTrialDays] = useState("");
 
   const selectedCustomer = customers.find((customer) => customer.id === customerId);
   const canAddToExisting = customerMode === "existing" && customersWithActiveSubscription.includes(customerId);
   const effectiveMode = canAddToExisting ? addMode : "new-link";
-  const total = useMemo(
-    () => lines.reduce((sum, line) => sum + dollarsToCents(line.customPrice), 0),
-    [lines],
-  );
+  const total = useMemo(() => lines.reduce((sum, line) => sum + lineTotalCents(line), 0), [lines]);
   const newCustomerIncomplete = customerMode === "new" && (!email.trim() || accountPassword.length < 8);
 
   function updateLine(id: string, patch: Partial<BuilderLine>) {
@@ -131,6 +152,40 @@ export function CustomOrderBuilder({
         }
         return next;
       }),
+    );
+  }
+
+  function addTopup(lineId: string) {
+    setLines((current) =>
+      current.map((line) => (line.id === lineId ? { ...line, topups: [...line.topups, newTopup()] } : line)),
+    );
+  }
+
+  function updateTopup(lineId: string, topupRowId: string, patch: Partial<BuilderTopup>) {
+    setLines((current) =>
+      current.map((line) => {
+        if (line.id !== lineId) return line;
+        return {
+          ...line,
+          topups: line.topups.map((t) => {
+            if (t.id !== topupRowId) return t;
+            const next = { ...t, ...patch };
+            if (patch.topupId) {
+              const catalogTopup = topupCatalog.find((c) => c.id === patch.topupId);
+              if (catalogTopup) next.customPrice = (catalogTopup.priceCents / 100).toFixed(2);
+            }
+            return next;
+          }),
+        };
+      }),
+    );
+  }
+
+  function removeTopup(lineId: string, topupRowId: string) {
+    setLines((current) =>
+      current.map((line) =>
+        line.id === lineId ? { ...line, topups: line.topups.filter((t) => t.id !== topupRowId) } : line,
+      ),
     );
   }
 
@@ -154,6 +209,7 @@ export function CustomOrderBuilder({
       intlPortNumber: line.wantsIntlNumber && line.intlSource === "port" ? line.intlPortNumber : null,
       intlChosenNumber: line.wantsIntlNumber && line.intlSource === "new" ? (line.intlChosenNumber || null) : null,
       customPriceCents: dollarsToCents(line.customPrice),
+      topups: line.topups.map((t) => ({ topupId: t.topupId, customPriceCents: dollarsToCents(t.customPrice) })),
     }));
   }
 
@@ -194,6 +250,7 @@ export function CustomOrderBuilder({
           : { fullName, email, phone, accountPassword },
         note,
         lines: buildLinePayload(),
+        trialDays: trialDays.trim() ? Number(trialDays) : null,
       }),
     });
 
@@ -326,6 +383,24 @@ export function CustomOrderBuilder({
           )}
 
           <Input label="Internal note" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional" />
+
+          {effectiveMode === "new-link" ? (
+            <div className="grid gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-3">
+              <Input
+                label="Free trial — delay first charge (days)"
+                type="number"
+                min="1"
+                max="90"
+                value={trialDays}
+                onChange={(event) => setTrialDays(event.target.value)}
+                placeholder="Leave blank to bill immediately"
+              />
+              <p className="text-xs text-amber-800">
+                Card is saved and verified now, nothing is charged. Lines still provision and ship immediately.
+                Stripe auto-charges the saved card the day the trial ends — no follow-up needed.
+              </p>
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-6 grid gap-4">
@@ -501,6 +576,55 @@ export function CustomOrderBuilder({
                     </div>
                   )
                 ) : null}
+
+                <div className="mt-4 rounded-2xl border border-ink/10 bg-slate-50 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-ink">Carrier topups</p>
+                    <Button type="button" variant="secondary" size="sm" onClick={() => addTopup(line.id)}>
+                      <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                      Add topup
+                    </Button>
+                  </div>
+                  {line.topups.length ? (
+                    <div className="mt-3 grid gap-3">
+                      {line.topups.map((topup) => (
+                        <div key={topup.id} className="grid items-end gap-3 sm:grid-cols-[1fr_auto_auto]">
+                          <Select
+                            label="Topup"
+                            value={topup.topupId}
+                            onChange={(event) => updateTopup(line.id, topup.id, { topupId: event.target.value })}
+                          >
+                            {topupCatalog.map((catalogTopup) => (
+                              <option key={catalogTopup.id} value={catalogTopup.id}>
+                                {catalogTopup.name} ({formatMoney(catalogTopup.priceCents)}/mo list)
+                              </option>
+                            ))}
+                          </Select>
+                          <Input
+                            label="Price this customer"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={topup.customPrice}
+                            onChange={(event) => updateTopup(line.id, topup.id, { customPrice: event.target.value })}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeTopup(line.id, topup.id)}
+                            className="grid h-9 w-9 place-items-center rounded-full border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                            aria-label="Remove topup"
+                          >
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-xs text-muted-slate">
+                      None added. Price is independent of the catalog rate — set your own for a discounted deal.
+                    </p>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -582,11 +706,16 @@ export function CustomOrderBuilder({
             <div key={line.id} className="rounded-2xl border border-ink/10 p-3 text-sm">
               <div className="flex items-start justify-between gap-3">
                 <p className="font-semibold text-ink">Line {index + 1}</p>
-                <span className="font-semibold text-ink">{formatMoney(dollarsToCents(line.customPrice))}</span>
+                <span className="font-semibold text-ink">{formatMoney(lineTotalCents(line))}</span>
               </div>
               <p className="mt-1 text-xs text-muted-slate">{lineLabel(line)}</p>
             </div>
           ))}
+          {trialDays.trim() && effectiveMode === "new-link" ? (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-800">
+              First charge delayed {trialDays} day{trialDays === "1" ? "" : "s"} — card saved now, $0 today.
+            </div>
+          ) : null}
         </div>
       </aside>
     </div>

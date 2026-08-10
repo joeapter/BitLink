@@ -158,9 +158,23 @@ async function handleCustomOrderCheckoutCompleted(
   const lines = normalizeCustomOrderLines(order.lines);
   const items = subscription.items.data as SubscriptionItemWithExpandedProduct[];
   const itemByIndex = new Map<number, SubscriptionItemWithExpandedProduct>();
+  const topupItemsByIndex = new Map<number, { topupId: string; subscriptionItem: Stripe.SubscriptionItem }[]>();
   for (const item of items) {
+    const isTopup = item.metadata?.is_topup === '1' || (
+      typeof item.price.product !== 'string' && !('deleted' in item.price.product) && item.price.product.metadata?.is_topup === '1'
+    );
     const index = subscriptionItemLineIndex(item);
-    if (index !== null) itemByIndex.set(index, item);
+    if (index === null) continue;
+    if (isTopup) {
+      const topupId = item.metadata?.topup_id
+        ?? (typeof item.price.product !== 'string' && !('deleted' in item.price.product) ? item.price.product.metadata?.topup_id : undefined);
+      if (!topupId) continue;
+      const existing = topupItemsByIndex.get(index) ?? [];
+      existing.push({ topupId, subscriptionItem: item });
+      topupItemsByIndex.set(index, existing);
+    } else {
+      itemByIndex.set(index, item);
+    }
   }
 
   const inputs = lines.map((line, index) => {
@@ -180,6 +194,7 @@ async function handleCustomOrderCheckoutCompleted(
       originatingStripeEventId: stripeEventRecordId,
       customOrderToken: token,
       source: 'stripe_custom_order' as const,
+      topupItems: topupItemsByIndex.get(index),
     };
   });
 

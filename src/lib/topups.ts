@@ -4,6 +4,7 @@ export type TopUpId =
   | "data-20gb"
   | "data-50gb"
   | "usa-ca-120min"
+  | "usa-ca-120min-standard"
   | "local-1000min";
 
 export type TopUp = {
@@ -81,6 +82,22 @@ export const topups: TopUp[] = [
     stripeEnvKey: "STRIPE_PRICE_TOPUP_USA_CA_120MIN",
     annatelPlanName: "PLAN_USA_VOICE_30D_120MIN",
     forKosher: true,
+  },
+  {
+    // Same Annatel topup plan as usa-ca-120min above (Annatel's own catalog
+    // just labels it a "kosher" topup — nothing about the mechanism is
+    // actually kosher-specific). Kept as a separate non-kosher entry rather
+    // than loosening the kosher one, so self-serve/reporting that filters by
+    // forKosher never mixes the two up. Only reachable today via an admin
+    // custom order (CustomOrderBuilder), not the self-serve topup picker.
+    id: "usa-ca-120min-standard",
+    name: "+120 Min USA/CA",
+    description: "Add 120 minutes of calling to US and Canadian numbers, valid for 30 days.",
+    priceCents: 1499,
+    currency: "USD",
+    stripeEnvKey: "STRIPE_PRICE_TOPUP_USA_CA_120MIN",
+    annatelPlanName: "PLAN_USA_VOICE_30D_120MIN",
+    forKosher: false,
   },
   {
     id: "local-1000min",

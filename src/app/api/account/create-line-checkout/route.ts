@@ -243,6 +243,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       intlChosenNumber: chosenIntlNumber,
       delivery: deliveryForStorage,
       customPriceCents: monthlyPriceCents,
+      topups: [],
     };
 
     try {

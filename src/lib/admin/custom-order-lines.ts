@@ -1,7 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { normalizeIsraeliMobile } from '@/lib/utils';
 import { getPlan, type PlanSlug } from '@/lib/plans';
+import { topups } from '@/lib/topups';
 import { resolveDeliveryMethod } from '@/lib/delivery';
+
+export type AdminOrderTopupInput = {
+  topupId: string;
+  customPriceCents: number;
+};
 
 export type AdminOrderLineInput = {
   planSlug: PlanSlug;
@@ -21,6 +27,7 @@ export type AdminOrderLineInput = {
     requestedDate?: string | null;
   } | null;
   customPriceCents: number;
+  topups?: AdminOrderTopupInput[];
 };
 
 export type NormalizedAdminOrderLine = {
@@ -36,6 +43,7 @@ export type NormalizedAdminOrderLine = {
   iccId: string | null;
   delivery: { method: 'courier' | 'israel_post'; city: string; addressLine1: string; addressLine2: string | null; requestedDate: string | null } | null;
   customPriceCents: number;
+  topups: AdminOrderTopupInput[];
 };
 
 // Validates and normalizes admin-entered custom-order lines: port number
@@ -60,6 +68,24 @@ export async function normalizeAdminOrderLines(
 
     if (line.wantsIntlNumber && (line.intlSource ?? 'new') === 'port' && !line.intlPortNumber?.trim()) {
       throw new Error(`Line ${index + 1}: enter the US/Canada/UK number to port.`);
+    }
+
+    const normalizedTopups: AdminOrderTopupInput[] = [];
+    for (const rawTopup of line.topups ?? []) {
+      const catalogTopup = topups.find((t) => t.id === rawTopup.topupId);
+      if (!catalogTopup) {
+        throw new Error(`Line ${index + 1}: unknown topup "${rawTopup.topupId}".`);
+      }
+      if (!Number.isFinite(rawTopup.customPriceCents) || rawTopup.customPriceCents < 0) {
+        throw new Error(`Line ${index + 1}: enter a valid price for ${catalogTopup.name}.`);
+      }
+      // Deliberately not checking catalogTopup.forKosher here — that gate is
+      // for the self-serve/admin single-topup grant UI (grantTopup). Custom
+      // orders are hand-built by an admin for a specific negotiated deal, so
+      // a topup like +120 Min USA/CA can be applied to a non-kosher line on
+      // purpose (see the custom-order-topup-grant Inngest function, which
+      // calls the carrier directly rather than going through grantTopup).
+      normalizedTopups.push({ topupId: rawTopup.topupId, customPriceCents: rawTopup.customPriceCents });
     }
 
     const wantsNewIntlNumber = line.wantsIntlNumber && (line.intlSource ?? 'new') === 'new';
@@ -102,6 +128,7 @@ export async function normalizeAdminOrderLines(
         requestedDate: line.delivery.requestedDate || null,
       } : null,
       customPriceCents: line.customPriceCents,
+      topups: normalizedTopups,
     };
   }));
 }

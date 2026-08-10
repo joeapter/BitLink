@@ -15,6 +15,11 @@ const planSlugSchema = z.enum(['basic', 'kosher-basic', 'kosher-plus', 'student-
 const intlCountrySchema = z.enum(['us', 'canada', 'uk']);
 const intlSourceSchema = z.enum(['new', 'port']);
 
+const topupSchema = z.object({
+  topupId: z.string().min(1),
+  customPriceCents: z.number().int().min(0).max(200_000),
+});
+
 const lineSchema = z.object({
   planSlug: planSlugSchema,
   isEsim: z.boolean().default(true),
@@ -37,6 +42,7 @@ const lineSchema = z.object({
     .nullable()
     .optional(),
   customPriceCents: z.number().int().min(100).max(200_000),
+  topups: z.array(topupSchema).max(10).default([]),
 });
 
 const bodySchema = z.object({
@@ -49,6 +55,10 @@ const bodySchema = z.object({
   }),
   note: z.string().trim().max(1000).optional(),
   lines: z.array(lineSchema).min(1).max(20),
+  // Days before the first real charge — card is saved at checkout, Stripe
+  // subscription sits in "trialing" status, lines provision immediately.
+  // Omitted/null bills right away, the pre-existing behavior.
+  trialDays: z.number().int().min(1).max(90).nullable().optional(),
 });
 
 function buildToken() {
@@ -260,6 +270,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         lines: lines as never,
         note: parsed.data.note || null,
         status: 'draft',
+        trial_days: parsed.data.trialDays || null,
       })
       .select('id, token')
       .single();
