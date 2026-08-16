@@ -22,6 +22,8 @@ export type SmsRecipient = {
   contactPhone: string | null;
   lineStatus: string | null;
   isKosher: boolean;
+  /** Address their texts forward to, or null if forwarding isn't on. */
+  forwardingEmail: string | null;
   referralCode: string | null;
   optOut: boolean;
 };
@@ -58,7 +60,10 @@ function personalize(template: string, recipient: SmsRecipient | null): string {
   const link = recipient?.referralCode
     ? `${SITE_URL}/signup?referral=${recipient.referralCode}`
     : SITE_URL;
-  return template.replaceAll("{name}", firstName).replaceAll("{link}", link);
+  return template
+    .replaceAll("{name}", firstName)
+    .replaceAll("{email}", recipient?.email?.trim() || "your email")
+    .replaceAll("{link}", link);
 }
 
 // iOS wants `sms:NUMBER&body=...`; Android and everything else use `?body=`.
@@ -94,6 +99,7 @@ export function SmsConsole({
   const [templateName, setTemplateName] = useState("");
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [search, setSearch] = useState("");
+  const [forwardingOnly, setForwardingOnly] = useState(false);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [opened, setOpened] = useState<Record<string, true>>({});
   const [banner, setBanner] = useState<string | null>(null);
@@ -101,11 +107,12 @@ export function SmsConsole({
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return recipients;
-    return recipients.filter((r) =>
-      [r.name, r.email, r.lineNumber, r.contactPhone].some((v) => v?.toLowerCase().includes(q)),
-    );
-  }, [recipients, search]);
+    return recipients.filter((r) => {
+      if (forwardingOnly && !r.forwardingEmail) return false;
+      if (!q) return true;
+      return [r.name, r.email, r.lineNumber, r.contactPhone].some((v) => v?.toLowerCase().includes(q));
+    });
+  }, [recipients, search, forwardingOnly]);
 
   const previewRecipient = recipients.find((r) => r.customerId === previewId) ?? filtered[0] ?? null;
   const seg = segmentInfo(personalize(body, previewRecipient));
@@ -184,6 +191,7 @@ export function SmsConsole({
             customerId: recipient.customerId,
             to,
             name: recipient.name,
+            email: recipient.email,
             referralCode: recipient.referralCode,
           },
         ],
@@ -200,7 +208,8 @@ export function SmsConsole({
           Pick a template, choose a student, and tap Text — it opens Messages on your phone with the text ready to
           send. Placeholders:{" "}
           <code className="rounded bg-slate-100 px-1">{"{name}"}</code> becomes their first name,{" "}
-          <code className="rounded bg-slate-100 px-1">{"{link}"}</code> becomes their referral link.
+          <code className="rounded bg-slate-100 px-1">{"{email}"}</code> their account email, and{" "}
+          <code className="rounded bg-slate-100 px-1">{"{link}"}</code> their referral link.
         </p>
       </section>
 
@@ -298,6 +307,15 @@ export function SmsConsole({
             className="sm:w-80"
           />
         </div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <input
+            type="checkbox"
+            checked={forwardingOnly}
+            onChange={(e) => setForwardingOnly(e.target.checked)}
+            className="h-4 w-4 rounded border-ink/20"
+          />
+          Only show customers with SMS-to-email already set up
+        </label>
 
         {filtered.length ? (
           <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -321,6 +339,14 @@ export function SmsConsole({
                   </p>
 
                   <div className="mt-2 flex flex-wrap gap-1">
+                    {r.forwardingEmail && (
+                      <span
+                        title={`Texts forward to ${r.forwardingEmail}`}
+                        className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700"
+                      >
+                        SMS→email on
+                      </span>
+                    )}
                     {r.optOut && (
                       <span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-semibold text-rose-700">
                         opted out

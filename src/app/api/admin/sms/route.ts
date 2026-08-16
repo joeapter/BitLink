@@ -66,6 +66,7 @@ const SendSchema = z.object({
         customerId: z.string().uuid().nullable(),
         to: z.string().min(9),
         name: z.string().nullable().optional(),
+        email: z.string().nullable().optional(),
         referralCode: z.string().nullable().optional(),
       }),
     )
@@ -75,7 +76,7 @@ const SendSchema = z.object({
 
 function personalize(
   template: string,
-  recipient: { name?: string | null; referralCode?: string | null },
+  recipient: { name?: string | null; email?: string | null; referralCode?: string | null },
 ): string {
   const firstName = recipient.name?.trim().split(/\s+/)[0] ?? '';
   const link = recipient.referralCode
@@ -83,6 +84,7 @@ function personalize(
     : SITE_URL;
   return template
     .replaceAll('{name}', firstName || 'there')
+    .replaceAll('{email}', recipient.email?.trim() || 'your email')
     .replaceAll('{link}', link);
 }
 

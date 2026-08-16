@@ -27,13 +27,16 @@ export default async function AdminSmsPage() {
     ? (
         await db
           .from("telecom_lines")
-          .select("customer_id, status, is_kosher, metadata")
+          .select("id, customer_id, status, is_kosher, metadata")
           .in("customer_id", customerIds)
           .in("status", ["active", "paused"])
       ).data ?? []
     : [];
 
-  const lineByCustomer = new Map<string, { phoneNumber: string | null; status: string; isKosher: boolean }>();
+  const lineByCustomer = new Map<
+    string,
+    { lineId: string; phoneNumber: string | null; status: string; isKosher: boolean }
+  >();
   for (const line of lines) {
     const customerId = line.customer_id as string;
     const metadata = line.metadata as Record<string, unknown> | null;
@@ -42,11 +45,43 @@ export default async function AdminSmsPage() {
     // Prefer an active line with a number over anything else
     if (!existing || (line.status === "active" && phoneNumber && !existing.phoneNumber)) {
       lineByCustomer.set(customerId, {
+        lineId: line.id as string,
         phoneNumber,
         status: line.status as string,
         isKosher: Boolean(line.is_kosher),
       });
     }
+  }
+
+  // Who already has SMS-to-email switched on. The admin forwarding actions
+  // write audit_logs rows, so the most recent add/remove per line is the
+  // current state — far cheaper than an Annatel round trip per customer.
+  // Caveat: only catches forwarding set up from the ADMIN side; a customer who
+  // switched it on themselves at /account doesn't write an audit log.
+  const lineIds = [...lineByCustomer.values()].map((l) => l.lineId);
+  const forwarderLogs = db && lineIds.length
+    ? (
+        await db
+          .from("audit_logs")
+          .select("entity_id, action, metadata, created_at")
+          .eq("entity_type", "telecom_line")
+          .in("action", ["sms_forwarder_added", "sms_forwarder_removed"])
+          .in("entity_id", lineIds)
+          .order("created_at", { ascending: false })
+      ).data ?? []
+    : [];
+
+  const forwardingByLine = new Map<string, string | null>();
+  for (const row of forwarderLogs) {
+    const lineId = row.entity_id as string;
+    if (forwardingByLine.has(lineId)) continue; // ordered desc — first row wins
+    const metadata = row.metadata as Record<string, unknown> | null;
+    forwardingByLine.set(
+      lineId,
+      row.action === "sms_forwarder_added"
+        ? ((metadata?.emailRecipientAddress as string | undefined) ?? null)
+        : null,
+    );
   }
 
   // Normalize to E.164 here so the sms: links the console builds are dialable
@@ -62,6 +97,7 @@ export default async function AdminSmsPage() {
       contactPhone: contactPhone ? normalizeToE164(contactPhone) : null,
       lineStatus: line?.status ?? null,
       isKosher: line?.isKosher ?? false,
+      forwardingEmail: line ? (forwardingByLine.get(line.lineId) ?? null) : null,
       referralCode: (customer.referral_code ?? null) as string | null,
       optOut: Boolean((customer as Record<string, unknown>).sms_opt_out),
     };
