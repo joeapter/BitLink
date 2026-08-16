@@ -319,6 +319,92 @@ type BonusRunResult = {
   failed: number;
 };
 
+// Idempotently upsert one grant row and apply the provider topup. Shared by
+// the referrer-side and referred-side passes — the grants table's unique key
+// (beneficiary_customer_id, beneficiary_line_id, referred_line_id, grant_month)
+// keeps the two sides' rows distinct because the beneficiary differs.
+async function applyBonusGrant(
+  db: DbClient,
+  params: {
+    salesRepId: string | null;
+    referrerCustomerId: string | null;
+    beneficiaryCustomerId: string;
+    beneficiaryLineId: string;
+    beneficiaryProviderLineId: string;
+    referredLineId: string;
+    grantMonth: string;
+    topupName: string;
+  },
+  result: BonusRunResult,
+): Promise<void> {
+  const { data: existingGrant } = await db
+    .from("referral_bonus_grants")
+    .select("id, status")
+    .eq("beneficiary_customer_id", params.beneficiaryCustomerId)
+    .eq("beneficiary_line_id", params.beneficiaryLineId)
+    .eq("referred_line_id", params.referredLineId)
+    .eq("grant_month", params.grantMonth)
+    .maybeSingle();
+
+  if (existingGrant?.status === "applied") {
+    result.skipped++;
+    return;
+  }
+
+  const grantPatch = {
+    sales_rep_id: params.salesRepId,
+    referrer_customer_id: params.referrerCustomerId,
+    beneficiary_customer_id: params.beneficiaryCustomerId,
+    beneficiary_line_id: params.beneficiaryLineId,
+    referred_line_id: params.referredLineId,
+    grant_month: params.grantMonth,
+    bonus_gb: REFERRAL_BONUS_GB,
+    provider_line_id: params.beneficiaryProviderLineId,
+    provider_topup_name: params.topupName,
+    updated_at: nowIso(),
+  };
+
+  const grantId = existingGrant?.id as string | undefined;
+  const pendingGrant = { ...grantPatch, status: "pending", error: null };
+  if (grantId) {
+    await db.from("referral_bonus_grants").update(pendingGrant).eq("id", grantId);
+  } else {
+    await db.from("referral_bonus_grants").insert(pendingGrant);
+  }
+
+  const finalizeGrant = (patch: Record<string, unknown>) =>
+    db
+      .from("referral_bonus_grants")
+      .update(patch)
+      .eq("beneficiary_customer_id", params.beneficiaryCustomerId)
+      .eq("beneficiary_line_id", params.beneficiaryLineId)
+      .eq("referred_line_id", params.referredLineId)
+      .eq("grant_month", params.grantMonth);
+
+  try {
+    const provider = getTelecomProvider();
+    await withProviderContext(
+      {
+        correlationId: crypto.randomUUID(),
+        telecomLineId: params.beneficiaryLineId,
+      },
+      () => provider.addTopup(params.beneficiaryProviderLineId, params.topupName),
+    );
+
+    await finalizeGrant({
+      status: "applied",
+      error: null,
+      applied_at: nowIso(),
+      updated_at: nowIso(),
+    });
+    result.applied++;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    await finalizeGrant({ status: "failed", error: message, updated_at: nowIso() });
+    result.failed++;
+  }
+}
+
 export async function processMonthlyReferralBonuses(db: DbClient, date = new Date()): Promise<BonusRunResult> {
   const grantMonth = firstOfMonthIso(date);
   const topupName = getReferralBonusTopupName();
@@ -383,86 +469,71 @@ export async function processMonthlyReferralBonuses(db: DbClient, date = new Dat
     }
 
     for (const activeReferral of activeReferrals) {
-      const referredLineId = activeReferral.referredLineId;
-
-      const { data: existingGrant } = await db
-        .from("referral_bonus_grants")
-        .select("id, status")
-        .eq("beneficiary_customer_id", referrerCustomerId)
-        .eq("beneficiary_line_id", beneficiaryLine.id)
-        .eq("referred_line_id", referredLineId)
-        .eq("grant_month", grantMonth)
-        .maybeSingle();
-
-      if (existingGrant?.status === "applied") {
-        result.skipped++;
-        continue;
-      }
-
-      const grantPatch = {
-        sales_rep_id: activeReferral.salesRepId,
-        referrer_customer_id: referrerCustomerId,
-        beneficiary_customer_id: referrerCustomerId,
-        beneficiary_line_id: beneficiaryLine.id as string,
-        referred_line_id: referredLineId,
-        grant_month: grantMonth,
-        bonus_gb: REFERRAL_BONUS_GB,
-        provider_line_id: beneficiaryLine.provider_line_id as string,
-        provider_topup_name: topupName,
-        updated_at: nowIso(),
-      };
-
-      const grantId = existingGrant?.id as string | undefined;
-      const pendingGrant = {
-        ...grantPatch,
-        status: "pending",
-        error: null,
-      };
-      if (grantId) {
-        await db.from("referral_bonus_grants").update(pendingGrant).eq("id", grantId);
-      } else {
-        await db.from("referral_bonus_grants").insert(pendingGrant);
-      }
-
-      try {
-        const provider = getTelecomProvider();
-        await withProviderContext(
-          {
-            correlationId: crypto.randomUUID(),
-            telecomLineId: beneficiaryLine.id as string,
-          },
-          () => provider.addTopup(beneficiaryLine.provider_line_id as string, topupName),
-        );
-
-        await db
-          .from("referral_bonus_grants")
-          .update({
-            status: "applied",
-            error: null,
-            applied_at: nowIso(),
-            updated_at: nowIso(),
-          })
-          .eq("beneficiary_customer_id", referrerCustomerId)
-          .eq("beneficiary_line_id", beneficiaryLine.id)
-          .eq("referred_line_id", referredLineId)
-          .eq("grant_month", grantMonth);
-        result.applied++;
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        await db
-          .from("referral_bonus_grants")
-          .update({
-            status: "failed",
-            error: message,
-            updated_at: nowIso(),
-          })
-          .eq("beneficiary_customer_id", referrerCustomerId)
-          .eq("beneficiary_line_id", beneficiaryLine.id)
-          .eq("referred_line_id", referredLineId)
-          .eq("grant_month", grantMonth);
-        result.failed++;
-      }
+      await applyBonusGrant(
+        db,
+        {
+          salesRepId: activeReferral.salesRepId,
+          referrerCustomerId,
+          beneficiaryCustomerId: referrerCustomerId,
+          beneficiaryLineId: beneficiaryLine.id as string,
+          beneficiaryProviderLineId: beneficiaryLine.provider_line_id as string,
+          referredLineId: activeReferral.referredLineId,
+          grantMonth,
+          topupName,
+        },
+        result,
+      );
     }
+  }
+
+  // ── Referred-side bonus (added Aug 2026) ──────────────────────────
+  // The person who was referred also gets 5GB/month while their line stays
+  // active. Runs over ALL active referrals (sales-rep ones included), not the
+  // referrer's capped list — the friend's bonus shouldn't depend on how many
+  // other people their referrer signed up. Unlike the referrer side, the
+  // grant goes on the referred line itself, only while it's genuinely active
+  // (a paused line keeps earning for the referrer but can't receive data).
+  const { data: referredSideReferrals } = await db
+    .from("referrals")
+    .select("id, sales_rep_id, referrer_customer_id, referred_customer_id, referred_line_id")
+    .eq("status", "active")
+    .not("referred_line_id", "is", null);
+
+  const seenReferredLines = new Set<string>();
+  for (const referral of referredSideReferrals ?? []) {
+    const referredLineId = referral.referred_line_id as string;
+    if (seenReferredLines.has(referredLineId)) continue;
+    seenReferredLines.add(referredLineId);
+
+    const { data: referredLine } = await db
+      .from("telecom_lines")
+      .select("id, customer_id, provider_line_id, status, is_kosher")
+      .eq("id", referredLineId)
+      .maybeSingle();
+
+    if (
+      !referredLine?.customer_id ||
+      !referredLine.provider_line_id ||
+      referredLine.status !== "active" ||
+      referredLine.is_kosher
+    ) {
+      continue;
+    }
+
+    await applyBonusGrant(
+      db,
+      {
+        salesRepId: (referral.sales_rep_id ?? null) as string | null,
+        referrerCustomerId: (referral.referrer_customer_id ?? null) as string | null,
+        beneficiaryCustomerId: referredLine.customer_id as string,
+        beneficiaryLineId: referredLine.id as string,
+        beneficiaryProviderLineId: referredLine.provider_line_id as string,
+        referredLineId,
+        grantMonth,
+        topupName,
+      },
+      result,
+    );
   }
 
   return result;

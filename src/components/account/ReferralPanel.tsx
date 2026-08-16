@@ -108,12 +108,12 @@ export function ReferralPanel({
             <div>
               <p className="text-sm font-semibold text-soft-cyan">Referral program</p>
               <h1 className="mt-1 text-3xl font-semibold tracking-normal">
-                Earn +5GB for every friend you bring.
+                You get +5GB. Your friend gets +5GB.
               </h1>
               <p className="mt-3 max-w-lg text-sm leading-6 text-slate-300">
-                When a friend signs up and activates service using your link, you both benefit —
-                they get set up faster, and you earn {REFERRAL_BONUS_GB}GB of extra monthly data.
-                Up to {cap} friends, {cap * REFERRAL_BONUS_GB}GB maximum per month.
+                When a friend signs up and activates service using your link, you each earn{" "}
+                {REFERRAL_BONUS_GB}GB of extra monthly data — yours stacks up to {cap} friends,{" "}
+                {cap * REFERRAL_BONUS_GB}GB maximum per month, and theirs lands on their new line.
               </p>
             </div>
           </div>

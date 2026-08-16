@@ -15,7 +15,7 @@ export function ReferralBand() {
             Refer friends. Earn up to 25GB of free data monthly.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-muted-slate sm:text-lg sm:leading-8">
-            Every active referral adds 5GB of bonus data to your plan each month. We&apos;ll track eligible referrals and apply the bonus data when they qualify.
+            Every active referral adds 5GB of bonus data to your plan each month — and 5GB to your friend&apos;s new line too. We&apos;ll track eligible referrals and apply the bonus data when they qualify.
           </p>
         </div>
 

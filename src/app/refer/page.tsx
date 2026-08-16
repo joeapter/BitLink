@@ -30,7 +30,7 @@ export default function ReferPage() {
             Refer friends. Earn free data every month.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-slate">
-            Every active referral adds 5GB of bonus data to your plan each month — up to 25GB per month. Share your link, friends join, and the extra data keeps coming while they stay active.
+            Every active referral adds 5GB of bonus data to your plan each month — up to 25GB per month — and your friend gets 5GB of monthly bonus data on their new line too. Share your link, friends join, and the extra data keeps coming for both of you while they stay active.
           </p>
         </div>
       </section>
@@ -40,7 +40,7 @@ export default function ReferPage() {
           {[
             ["Share your link", "Every customer account includes a referral link.", Link2],
             ["Friends join", "Each friend who signs up through your link and stays active counts as a referral.", UsersRound],
-            ["Earn monthly data", "Get 5GB of bonus data per active referral, every month — up to 25GB per month.", Gift],
+            ["You both earn data", "You get 5GB of bonus data per active referral, every month — up to 25GB — and your friend gets 5GB monthly on their new line.", Gift],
           ].map(([title, body, Icon]) => (
             <div key={title as string} className="rounded-lg border border-ink/10 bg-[#f8fbfc] p-6">
               <Icon className="h-6 w-6 text-link-blue" aria-hidden="true" />

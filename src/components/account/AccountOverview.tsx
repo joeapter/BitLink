@@ -91,7 +91,7 @@ export function AccountOverview({
           </p>
         ) : (
           <p className="mt-2 text-xs text-muted-slate">
-            Earn +5GB/mo for each friend who activates — up to 5 friends, 25GB maximum.
+            Earn +5GB/mo for each friend who activates — and they get +5GB/mo too. Up to 5 friends, 25GB maximum.
           </p>
         )}
       </section>
