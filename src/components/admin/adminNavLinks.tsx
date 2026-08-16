@@ -1,4 +1,4 @@
-import { Activity, BarChart3, Building2, CreditCard, FilePlus2, Handshake, Headphones, Home, Phone, RadioTower, Receipt, Settings, Share2, ShoppingCart, Users, Webhook, CarFront } from "lucide-react";
+import { Activity, BarChart3, Building2, CreditCard, FilePlus2, Handshake, Headphones, Home, MessageSquareText, Phone, RadioTower, Receipt, Settings, Share2, ShoppingCart, Users, Webhook, CarFront } from "lucide-react";
 
 // Single source of truth for the admin nav, shared by the desktop sidebar
 // (AdminShell) and the mobile hamburger menu (AdminMobileNav).
@@ -16,6 +16,7 @@ export const adminNavLinks = [
   { href: "/admin/drivers", label: "Drivers", icon: CarFront },
   { href: "/admin/organizations", label: "Organizations", icon: Building2 },
   { href: "/admin/carrier-rates", label: "Carrier Rates", icon: Receipt },
+  { href: "/admin/sms", label: "SMS", icon: MessageSquareText },
   { href: "/admin/webhooks", label: "Webhooks", icon: Webhook },
   { href: "/admin/events", label: "Events", icon: Activity },
   { href: "/admin/support", label: "Support", icon: Headphones },
