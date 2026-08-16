@@ -2123,6 +2123,511 @@ export const guides: Guide[] = [
       { href: "/israel-esim", label: "Israel eSIM with a real Israeli number" },
     ],
   },
+  {
+    slug: "gap-year-israel-cost",
+    title: "How much does a gap year in Israel actually cost?",
+    metaTitle: "Gap Year in Israel Cost: A Real Monthly Budget",
+    metaDescription:
+      "What a yeshiva or seminary year in Israel really costs beyond tuition: honest monthly spending numbers, food, buses, off-Shabbat weekends, bein hazmanim, and where families overspend.",
+    datePublished: "2026-08-16",
+    dateModified: "2026-08-16",
+    readingTime: "7 min read",
+    intro:
+      "Tuition is the number everyone knows. The number nobody publishes is what the year costs after tuition — the felafel, the buses, the off-Shabbat weekends, the coffee that somehow becomes daily. Ask three families and you'll get three wildly different answers, because kids spend wildly differently. So here's the honest version: what the money actually goes to, real monthly ranges from frugal to free-spending, the one-time costs that catch parents off guard, and where the overspending usually hides.",
+    sections: [
+      {
+        heading: "What does tuition already cover?",
+        paragraphs: [
+          "Most yeshiva and seminary programs cover housing, most meals, and the organized tiyulim in the tuition — so the year-in-Israel budget question is really about everything else. That's food outside the meal plan, transportation, weekends away, laundry in some programs, phone, and the discretionary layer of snacks, coffee, and going out that varies enormously from kid to kid.",
+          "Check your specific program's fine print before budgeting, because the gaps differ: some serve three meals a day, some serve two, some close the kitchen on off-Shabbat weekends, and a few charge separately for optional trips. The size of the meal-plan gap is the single biggest driver of monthly spending.",
+        ],
+      },
+      {
+        heading: "What does a normal month look like?",
+        paragraphs: [
+          "The recurring spending falls into a handful of buckets. Food beyond the meal plan is the big one — the Thursday-night felafel, pizza after seder, the shwarma habit — and it ranges from almost nothing for a kid who eats every program meal to a few hundred dollars for a kid who mostly doesn't. Transportation is modest: buses and light rail are cheap, and a month of normal city travel plus a couple of intercity trips usually stays around 150–250 shekels. Then there's the everything-else layer: coffee, snacks, toiletries, laundry, a haircut, the occasional outing.",
+          "Off-Shabbat weekends deserve their own line. A weekend at a host family costs almost nothing beyond the bus fare and something for the host — flowers, wine, or chocolates, figure 40–60 shekels. A weekend of hostels or Airbnb with friends is a different order of magnitude. Kids who are hosted most weekends spend dramatically less over the year than kids who travel independently, and this one habit separates the frugal year from the expensive one more than any other.",
+        ],
+        table: {
+          columns: ["Monthly bucket", "Frugal", "Typical", "Spender"],
+          rows: [
+            { cells: ["Food beyond the meal plan", "$40", "$120", "$300+"] },
+            { cells: ["Buses, trains & light rail", "$30", "$50", "$80"] },
+            { cells: ["Off-Shabbat weekends", "$20", "$60", "$200+"] },
+            { cells: ["Coffee, snacks & going out", "$20", "$70", "$150+"] },
+            { cells: ["Toiletries, laundry & misc.", "$20", "$40", "$60"] },
+            { cells: ["Phone plan (Student 5G, 50GB)", "$35", "$35", "$35"], highlight: true },
+            { cells: ["Roughly per month", "~$165", "~$375", "~$825+"] },
+          ],
+          note:
+            "Ranges reflect what families consistently report, converted at roughly 3.5 shekels to the dollar. The spread is real — the difference is mostly eating habits and how weekends are spent, not prices.",
+        },
+      },
+      {
+        heading: "So what should we budget for the whole year?",
+        paragraphs: [
+          "For monthly spending money, most families land somewhere between $250 and $450 a month, with genuinely frugal kids under $200 and free-spenders well past $600. Over a nine-to-ten-month year, that's roughly $2,000–4,500 in spending money for the typical range.",
+          "Then add the one-time and seasonal costs, which is where budgets actually get blown: flights (including a possible trip home for Pesach), bein hazmanim — the weeks around Sukkot and Pesach when many programs close and students travel — gifts and Judaica to bring home, and a buffer for the unplanned. Bein hazmanim alone can run $300–800 per break depending on whether it's hosted weekends and day trips or a full traveling-with-friends production. A realistic all-in number beyond tuition, for a typical kid: $4,000–7,000 for the year.",
+        ],
+      },
+      {
+        heading: "How do they actually pay for things — and how do parents send money?",
+        paragraphs: [
+          "Most gap-year students run the whole year on a parent's card plus cash withdrawn from ATMs — no Israeli bank account needed. Before the flight, sort out a card with no foreign-transaction fee (1–3% on every purchase adds up over a year) and tell the bank the travel dates. The fuller setup — cards, cash, transfers, and what to test before flying — is in [the phone, banking, and money guide](/guides/gap-year-israel-phone-banking-money).",
+          "One wrinkle worth knowing: Israeli friends split costs with Bit, Israel's Venmo, and Bit wants an Israeli phone number and Israeli banking. Most gap-year students won't have the banking side, so they'll pay their share in cash or by card — fine, just slightly less convenient. The Israeli phone number itself they'll need regardless, for [verification codes and everyday apps](/guides/israeli-phone-number-for-banking-bit-pango).",
+        ],
+      },
+      {
+        heading: "Where does the overspending usually hide?",
+        paragraphs: [
+          "Three places, consistently. First, food delivery: Wolt is excellent and dangerous, and a delivery habit quietly doubles the food budget. Second, taxis: Gett is great at midnight, expensive as a lifestyle — the bus costs a tenth as much. Third, bein hazmanim plans made at the last minute with no budget agreed in advance; two weeks of improvised travel with friends is where a year's careful spending goes to die.",
+          "The fix isn't a lecture, it's a structure: a fixed monthly transfer rather than an open card, an agreed bein hazmanim budget before the break starts, and a norm of asking before big one-off spends. Kids rise to a clear number surprisingly well.",
+        ],
+      },
+      {
+        heading: "What's genuinely cheap in Israel — and what isn't?",
+        paragraphs: [
+          "Cheap: public transport, produce and supermarket basics, felafel and street food, and phone service — plans cost far less than American ones. Expensive: eating out at real restaurants, delivery, taxis, imported brand-name products, and anything bought in a hurry at a convenience store. A kid who eats program meals, rides buses, and shops at the supermarket lives well on little; a kid who lives on Wolt and Gett spends like a tourist in Manhattan.",
+          "Set the phone up before the flight and it becomes one of the flat, predictable lines in the budget: [Student 5G](/israeli-phone-plans-for-students) is $34.99 a month for 50GB, billed in dollars to a parent's card, with no Israeli ID or bank account needed — no airport kiosk markup, no surprise roaming line on the family bill.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "How much spending money does a gap-year student in Israel need per month?",
+        answer:
+          "Most families land between $250 and $450 a month. Genuinely frugal students manage under $200; free-spenders pass $600. Eating habits and how off-Shabbat weekends are spent drive most of the spread.",
+      },
+      {
+        question: "What does a gap year in Israel cost beyond tuition?",
+        answer:
+          "A realistic all-in number for a typical student is $4,000–7,000 for the year: monthly spending money plus flights, bein hazmanim travel, and one-time costs. Frugal years come in well under that.",
+      },
+      {
+        question: "What is bein hazmanim and how much does it cost?",
+        answer:
+          "The breaks around Sukkot and Pesach when many programs close and students travel. Budget $300–800 per break depending on plans — hosted weekends cost little, while traveling with friends adds up fast. Agree the budget before the break starts.",
+      },
+      {
+        question: "Does a gap-year student need an Israeli bank account?",
+        answer:
+          "Usually not. A parent's no-foreign-fee card plus ATM cash covers the year. An Israeli phone number is the thing they do need — for verification codes and everyday Israeli apps.",
+      },
+      {
+        question: "Is Israel expensive for students?",
+        answer:
+          "The staples are cheap: buses, supermarket food, street food, and phone plans. Restaurants, delivery, and taxis are where money disappears. A student living on program meals and buses spends little.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/gap-year-israel-phone-banking-money", label: "Phone, banking & money before they land" },
+      { href: "/guides/gap-year-israel-checklist", label: "The full gap year checklist" },
+      { href: "/guides/gap-year-israel-first-two-weeks", label: "Their first two weeks in Israel" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+    ],
+  },
+  {
+    slug: "getting-packages-in-israel",
+    title: "How do I get packages and Amazon orders during a year in Israel?",
+    metaTitle: "Packages & Amazon Orders in Israel: What Actually Works",
+    metaDescription:
+      "How gap-year students get packages in Israel: Amazon shipping, the customs tax thresholds, courier SMS and pickup points, addressing mail to a yeshiva, and why sending with a traveler beats the mail.",
+    datePublished: "2026-08-16",
+    dateModified: "2026-08-16",
+    readingTime: "6 min read",
+    intro:
+      "Sooner or later every gap-year family hits this: the kid needs something from America, or the parents want to send a care package, and nobody knows how packages in Israel actually work. The short version — Amazon does deliver to Israel, small orders arrive tax-free, the courier will text an Israeli number, and for anything sentimental or urgent, a person flying over beats the postal system every time. Here's the whole picture.",
+    sections: [
+      {
+        heading: "Does Amazon deliver to Israel?",
+        paragraphs: [
+          "Yes. Amazon.com ships a large share of its catalog to Israeli addresses directly — look for the shipping-to-Israel eligibility on the product page, and check the shipping cost at checkout since it varies by item and the free-shipping promotions Amazon runs for Israel have changed over the years. Delivery typically takes one to three weeks depending on the shipping speed chosen.",
+          "For plenty of things, though, ordering from America is solving the wrong problem. Israel has pharmacies, electronics chains, and local delivery that's often faster and cheaper once you account for shipping and tax — and AliExpress is hugely popular in Israel for cheap non-urgent items. The question to ask before any US order: can this just be bought here? The [packing list guide](/guides/gap-year-israel-packing-list) has the bring-versus-buy logic, and it applies all year, not just to the suitcase.",
+        ],
+      },
+      {
+        heading: "Will they have to pay customs tax?",
+        paragraphs: [
+          "This is the part that surprises people, and the rules are actually friendly for small orders. Personal imports valued under $75 enter Israel exempt from tax entirely. From $75 up to $500, the order clears customs but pays VAT (currently 18%). Above $500, customs duties join the party too. The thresholds go by the order's value, and shipping charges get pulled into the tax calculation once you're over the exemption line.",
+          "Two practical consequences. First, keep individual orders under $75 when you can — two $60 orders placed separately beat one $120 order. Second, don't try to game it with fake invoices; customs can and does check, and a held package with a tax dispute is a weeks-long headache. For a one-off larger purchase, just budget the 18% into the decision.",
+        ],
+      },
+      {
+        heading: "How does delivery actually work in Israel?",
+        paragraphs: [
+          "Differently from home, and this is where students get burned. Israeli couriers run on SMS and WhatsApp: they text a delivery notice or a pickup-point code to the phone number on the order, and if that number doesn't answer or the text goes nowhere, the package stalls and eventually goes back. Many deliveries don't come to the door at all — they land at a pickup point or locker at a nearby store, and the collection code arrives by text.",
+          "So the single most important field on any order form is the phone number: it needs to be the student's working Israeli number, not the US number and not the parents' number back home. This is one of those places where the [Israeli number they set up before landing](/guides/israeli-phone-number-before-you-land) quietly earns its keep — the courier's text arrives, the code works, the package gets collected.",
+        ],
+      },
+      {
+        heading: "What address should packages go to?",
+        paragraphs: [
+          "Use the yeshiva or seminary's address with the student's name — care of the program office is the standard move, and the office deals with deliveries constantly. Before the first order, have the student ask the office two questions: exactly how they like the address written, and whether packages come to the office or to a nearby pickup point. English addresses work fine; the phone number matters more than perfect Hebrew formatting.",
+        ],
+        steps: [
+          "Line 1: Student's full name (as on their passport)",
+          "Line 2: c/o [Program name], and the office/room if the program specifies one",
+          "Line 3: Street address, building number",
+          "Line 4: City, postal code (the office will know the 7-digit code), Israel",
+          "Phone: the student's Israeli mobile number — this is the field the courier actually uses",
+        ],
+      },
+      {
+        heading: "Should parents mail a care package from home?",
+        paragraphs: [
+          "Honest answer: usually not by mail. Regular international post to Israel is slow — weeks, sometimes a couple of months around the chagim — and a box of American snacks can arrive stale, taxed, or both. Food items can also get held at customs. The care-package instinct is right; the postal system is the wrong vehicle.",
+          "The community solves this the old-fashioned way: somebody is always flying. Neighbors, cousins, a friend's parent visiting for Sukkot — sending a duffel or a padded envelope with a traveler is faster, free, and how it's actually done. The other underrated move is ordering the care package from inside Israel: local delivery from an Israeli supermarket or Wolt, a gift order from an Israeli bakery, or an Amazon order shipped domestically-priced to their door. Same warm gesture, days instead of weeks.",
+        ],
+      },
+      {
+        heading: "What about prescription medication and valuables?",
+        paragraphs: [
+          "Don't mail either. Medication should come in the suitcase — a full year's supply in original labeled containers with a doctor's note, as covered in [the packing guide](/guides/gap-year-israel-packing-list) — because importing medicine by mail runs into health-ministry rules and holds. If a refill becomes unavoidable mid-year, involve the program and a local doctor rather than the postal system; there's usually an Israeli equivalent. Valuables — a replacement phone, jewelry, anything with a real price tag — travel with a person or get bought locally. A phone mailed from the US pays VAT on arrival anyway, which usually erases the price difference.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Does Amazon ship to Israel?",
+        answer:
+          "Yes — much of the catalog ships to Israeli addresses directly. Check per-item eligibility and shipping cost at checkout, and expect one to three weeks for delivery.",
+      },
+      {
+        question: "How much can you import to Israel without paying tax?",
+        answer:
+          "Personal imports under $75 are tax-exempt. From $75 to $500 you pay 18% VAT; above $500, customs duties apply too. Splitting orders under the $75 line keeps small purchases tax-free.",
+      },
+      {
+        question: "Why didn't the courier deliver my package in Israel?",
+        answer:
+          "Almost always the phone number. Israeli couriers coordinate by SMS and WhatsApp to the number on the order — if it's a US number or unreachable, the package stalls at a pickup point or goes back. Use the student's working Israeli number on every order.",
+      },
+      {
+        question: "How long does mail from the US take to reach Israel?",
+        answer:
+          "Regular post takes weeks, sometimes longer around the holidays. Courier services are faster but pricey. For anything urgent or sentimental, sending it with someone flying over beats the mail.",
+      },
+      {
+        question: "Can you mail medication to Israel?",
+        answer:
+          "Avoid it — imported medicine hits health-ministry rules and customs holds. Bring a full supply in the luggage in original containers; for a mid-year refill, work with the program and a local doctor instead.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/gap-year-israel-packing-list", label: "The honest packing list" },
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get an Israeli number before you land" },
+      { href: "/guides/gap-year-israel-cost", label: "What a gap year actually costs" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+    ],
+  },
+  {
+    slug: "sick-in-israel-gap-year",
+    title: "What happens if my kid gets sick during their gap year in Israel?",
+    metaTitle: "Getting Sick in Israel on a Gap Year: How Care Works",
+    metaDescription:
+      "How healthcare works for gap-year students in Israel: the program's insurance, Terem urgent care, pharmacies, what a doctor visit costs, when to use the ER, and what parents should set up before the flight.",
+    datePublished: "2026-08-16",
+    dateModified: "2026-08-16",
+    readingTime: "7 min read",
+    intro:
+      "This is the question parents actually lose sleep over, and the honest answer is reassuring: Israel has excellent, accessible medical care, your child's program has handled sick students hundreds of times, and the system for a gap-year kid is simpler than most families expect. What trips people up isn't the care — it's not knowing the sequence. Who to tell, where to go, what it costs, and what should be set up before the flight. Here's the whole picture, calmly.",
+    sections: [
+      {
+        heading: "Who takes care of a sick student — the parents or the program?",
+        paragraphs: [
+          "The program, first. Every yeshiva and seminary has staff whose job includes exactly this — a madrich or em bayit who has walked a hundred students through a fever, a sprained ankle, or a strep test. The student's first move when something's wrong is telling the staff, not calling home in a panic — the staff know which clinic the insurance uses, who speaks English, and when something needs a doctor versus soup and a day in bed.",
+          "For parents, the pre-flight version of this: know the name of the person your child should go to, and save the program office's number. When something happens mid-year, your call is to the program, and seven time zones away, that's a much better first call than trying to remote-diagnose over WhatsApp.",
+        ],
+      },
+      {
+        heading: "What insurance does a gap-year student have in Israel?",
+        paragraphs: [
+          "Almost every program requires health coverage and most arrange it — typically a group policy with an Israeli insurer built for foreign students, either bundled into tuition or billed alongside it. These policies generally cover doctor visits, urgent care, prescriptions, and hospitalization through the insurer's network, and they come with a hotline that tells you where to go and issues the approval the clinic wants to see.",
+          "Before the flight, get three things from the program and put them in the student's phone and yours: the insurer's name, the policy or member number, and the hotline number. Also ask what the policy doesn't cover — dental and pre-existing conditions are the usual gaps, and glasses and therapy vary. Ten minutes of asking in August prevents the 2 a.m. scramble in January.",
+        ],
+      },
+      {
+        heading: "Where do they actually go when they're sick?",
+        paragraphs: [
+          "For everyday illness — fever, infection, the thing that needs antibiotics — the answer is usually a clinic visit arranged through the insurer's hotline or the program, often with English-speaking doctors used to student policies. Many insurers also run telehealth, where a doctor video-calls, diagnoses, and sends a prescription to a nearby pharmacy.",
+          "For evenings, weekends, and anything urgent-but-not-emergency — a bad cut, a possible fracture, a kid who got much worse at 11 p.m. — Israel has Terem, a chain of walk-in urgent-care centers that do X-rays, stitches, and labs on the spot. Terem is the middle tier American families don't always know exists, and it handles most of what would otherwise become a miserable ER night. The ER (miyun) is for genuine emergencies; without a referral it's also expensive, so the habit to teach is: insurer hotline or Terem first, ER when it's serious, and for a true emergency call 101 — Magen David Adom, Israel's ambulance service — immediately.",
+        ],
+        table: {
+          columns: ["Situation", "Where to go", "What to expect"],
+          rows: [
+            { cells: ["Cold, fever, everyday illness", "Program staff → insurer's clinic or telehealth", "Covered visit, prescription sent to a pharmacy"] },
+            { cells: ["Nights, weekends, minor injuries", "Terem urgent care", "Walk-in; X-rays, stitches, and labs on site"] },
+            { cells: ["Serious emergency", "Call 101 (Magen David Adom) / ER", "Ambulance and ER care; insurer notified after"] },
+            { cells: ["Minor aches, questions", "Any pharmacy (Superpharm and others)", "Pharmacists give real advice; much is over-the-counter"] },
+          ],
+          note:
+            "Save the insurer's hotline, the program office, and 101 in the student's phone before the flight — the sequence matters more than any single number.",
+        },
+      },
+      {
+        heading: "What does medical care cost in Israel?",
+        paragraphs: [
+          "Less than Americans fear. With the program's insurance, routine care is typically covered or nearly so through the network. Even paying fully out of pocket, the numbers are un-American: a private doctor visit runs a few hundred shekels, a Terem visit several hundred — often reimbursable under the policy — and prescriptions are usually cheap. The one genuinely expensive door is the ER without a referral, which can run over a thousand shekels before treatment; that's the financial reason the hotline-or-Terem-first habit matters, not just the medical one.",
+          "Keep every receipt. Reimbursement claims are routine with these policies, and a photo of each receipt sent to the parents the same day is the entire filing system a gap-year student needs.",
+        ],
+      },
+      {
+        heading: "What about prescriptions and medication from home?",
+        paragraphs: [
+          "The rule from [the packing guide](/guides/gap-year-israel-packing-list) is the rule: a full year's supply of any regular prescription, in original labeled containers, with a doctor's note. Mailing medication mid-year runs into customs and health-ministry holds — [don't ship it](/guides/getting-packages-in-israel). If a refill becomes unavoidable, the path is a local doctor through the insurance, who can usually prescribe the Israeli equivalent.",
+          "For everything else, Israeli pharmacies are a pleasant surprise: pharmacists dispense real advice, many medications that need prescriptions in the US are over-the-counter, and there's a Superpharm within walking distance of nearly every program.",
+        ],
+      },
+      {
+        heading: "What about homesickness and the harder stuff?",
+        paragraphs: [
+          "Worth saying plainly: the most common health issue on a gap year isn't physical. Homesickness, a rough adjustment, anxiety flaring in a new country — programs see it every single year, expect it, and have staff for it. The first weeks are the wobble, as [the survival guide](/guides/gap-year-israel-first-two-weeks) puts it, and it mostly passes. When it's more than a wobble, tell the program — many insurance policies include counseling, English-speaking therapists exist in every city with a gap-year population, and no good program treats a struggling kid as an inconvenience.",
+          "For parents: a kid who sounds miserable in week two is normal. A kid who's still isolated and flat in week eight is a phone call to the program. The staff can see what you can't from seven time zones away.",
+        ],
+      },
+      {
+        heading: "What should be set up before the flight?",
+        paragraphs: [
+          "One phone-related note inside all of this: the insurer's hotline, the telehealth callback, the clinic's appointment reminder, and the pharmacy's ready-for-pickup text all go to an Israeli number — one more quiet reason the [phone gets set up before the flight](/guides/israeli-phone-number-before-you-land), not after.",
+        ],
+        steps: [
+          "Get the insurer's name, policy number, and hotline from the program; save them in the student's phone and the parents'.",
+          "Ask the program what the policy excludes (dental and pre-existing conditions are the usual suspects) and how claims are filed.",
+          "Pack a year of prescriptions in original containers with a doctor's note, plus a small kit of the over-the-counter basics they actually use.",
+          "Save the emergency sequence in the phone: program staff, insurer hotline, Terem's nearest branch, and 101.",
+          "Agree on the escalation rule: student tells the staff first, parents call the program — nobody diagnoses over WhatsApp.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Do gap-year students in Israel need health insurance?",
+        answer:
+          "Yes, and nearly every program requires it — most arrange a group policy with an Israeli insurer built for foreign students, covering doctor visits, urgent care, prescriptions, and hospitalization through a network.",
+      },
+      {
+        question: "What is Terem?",
+        answer:
+          "Israel's chain of walk-in urgent-care centers — open evenings and weekends, with X-rays, stitches, and labs on site. It covers most situations American families would take to an ER, faster and far cheaper.",
+      },
+      {
+        question: "How much does a doctor visit cost in Israel without insurance?",
+        answer:
+          "A few hundred shekels privately, and a Terem visit several hundred — often reimbursable under a student policy. The expensive door is the ER without a referral, which can exceed a thousand shekels.",
+      },
+      {
+        question: "What's the emergency number in Israel?",
+        answer:
+          "101 for Magen David Adom, the national ambulance service. Police are 100 and fire is 102. Save all three plus the program's staff numbers before the flight.",
+      },
+      {
+        question: "Can parents talk to the yeshiva or seminary when their child is sick?",
+        answer:
+          "Yes — and they should. The program staff handle sick students constantly and can see the situation up close. The healthy sequence: the student tells the staff, and parents call the program office rather than trying to manage care from abroad.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/gap-year-israel-first-two-weeks", label: "Their first two weeks in Israel" },
+      { href: "/guides/gap-year-israel-packing-list", label: "The honest packing list" },
+      { href: "/guides/gap-year-israel-checklist", label: "The full gap year checklist" },
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get an Israeli number before you land" },
+    ],
+  },
+  {
+    slug: "getting-around-israel",
+    title: "How do I get around Israel for the year? Buses, trains, Rav-Kav, and the apps",
+    metaTitle: "Getting Around Israel: Rav-Kav, Buses, Trains & Apps",
+    metaDescription:
+      "The gap-year student's guide to Israeli transport: how Rav-Kav and contactless fares work, Moovit, buses and the fast train, sherut taxis and Gett, and planning around Shabbat.",
+    datePublished: "2026-08-16",
+    dateModified: "2026-08-16",
+    readingTime: "6 min read",
+    intro:
+      "Israeli public transport is one of the genuinely great deals of the gap year: cheap, frequent, and it goes everywhere — once you understand the system. The learning curve is really four things: the Rav-Kav card, the Moovit app, the Friday-afternoon shutdown, and knowing when a bus beats a taxi. Master those in week one and the whole country opens up for the price of a coffee.",
+    sections: [
+      {
+        heading: "What is a Rav-Kav and how do I get one?",
+        paragraphs: [
+          "The Rav-Kav is Israel's tap card for buses, light rail, and trains — the Israeli MetroCard or Oyster. You can pick up an anonymous card at light rail stations, train stations, and public-transport service counters, load money onto it, and tap on every ride. There's also a personal Rav-Kav with your name and photo that unlocks discount profiles, but for a one-year student the anonymous card plus phone-based payment covers everything without paperwork.",
+          "The modern alternative: skip the card queue entirely and pay contactless. Israeli buses and light rail accept payment by phone and contactless credit card through the fare apps, and most students end up running fares from their phone within a few weeks anyway. Either way, fares are distance-and-time based with free transfers inside a 90-minute window, and daily and monthly caps mean a heavy travel day stops costing more at some point. A normal month of city buses plus a few intercity trips lands around 150–250 shekels — [one of the cheap lines in the gap-year budget](/guides/gap-year-israel-cost).",
+        ],
+      },
+      {
+        heading: "Which apps actually matter?",
+        paragraphs: [
+          "Moovit is the one that matters — the door-to-door transit bible for every bus, train, and light rail in the country, in English, with live arrival times. Trip planning happens in Moovit; everything else is secondary. Alongside it: a fare app for paying by phone, Google Maps or Waze for walking and general orientation, and Gett for taxis. Israel Railways has its own app for train schedules and tickets, worth having in the phone for intercity trips.",
+          "Small print that saves frustration: these apps confirm sign-ups with an SMS code, and delivery and taxi apps in particular want a working Israeli mobile number. It's the same pattern as [everything else in Israeli daily life](/guides/israeli-phone-number-for-banking-bit-pango) — set the number up before you need the app, and Moovit's live times plus a day of navigating burn almost no data against a 50GB plan.",
+        ],
+      },
+      {
+        heading: "How do buses, trains, and the light rail fit together?",
+        paragraphs: [
+          "City buses and light rail handle daily life — getting to the Old City, the shuk, a friend's neighborhood. Jerusalem's light rail runs through the center of town; Tel Aviv has its own light rail line plus a dense bus network. Between cities, intercity buses go essentially everywhere cheaply, and the train shines on specific routes — the fast train connects Jerusalem and Tel Aviv's airport-and-center line in around 35 minutes, and the coastal line strings together Tel Aviv, Herzliya, Netanya, and Haifa.",
+          "Two habits worth building early: check Moovit before leaving rather than trusting memory, because routes and frequencies shift, and for popular long-distance runs — Eilat especially, and anything around bein hazmanim — book the intercity bus ahead in the app rather than gambling on a seat.",
+        ],
+        table: {
+          columns: ["Getting...", "Best option", "Worth knowing"],
+          rows: [
+            { cells: ["Around the neighborhood", "Walk", "Israeli cities are compact; students walk more than they expect"] },
+            { cells: ["Across the city", "Bus or light rail", "Tap Rav-Kav or pay by phone; free transfers within 90 minutes"] },
+            { cells: ["Jerusalem ↔ Tel Aviv", "Fast train", "Around 35 minutes; check Israel Railways for schedules"] },
+            { cells: ["Between most cities", "Intercity bus", "Cheap and frequent; book ahead for Eilat and holiday travel"] },
+            { cells: ["Late night / no bus", "Gett or a sherut", "Gett is Israel's Uber; sherut shared taxis run fixed routes"] },
+            { cells: ["Friday afternoon–Saturday night", "Plan ahead", "Buses and trains stop for Shabbat; sherut lines run in some cities"] },
+          ],
+          note:
+            "Moovit answers almost every \"how do I get there\" question door to door, in English, with live times — it's the first app to install.",
+        },
+      },
+      {
+        heading: "What are sherut taxis, and when is Gett worth it?",
+        paragraphs: [
+          "A sherut is a shared van running a fixed route for a fixed per-seat price — between cities, and along major streets within them. They leave when full, cost a fraction of a private taxi, and crucially, some intercity and Tel Aviv lines keep running on Shabbat and holidays when everything else stops. Knowing the sherut option exists is the difference between stranded and fine on a Saturday night.",
+          "Gett is Israel's ride-hailing app — real taxis, app-booked, card-paid, no cash negotiation. The right tool at midnight, in the rain, or hauling luggage; an expensive habit as daily transport, since the bus costs a tenth as much. The budget rule from [the cost guide](/guides/gap-year-israel-cost) applies: taxis are for exceptions, buses are for life.",
+        ],
+      },
+      {
+        heading: "How does Shabbat change the map?",
+        paragraphs: [
+          "From mid-afternoon Friday until after dark Saturday, public transport stops in most of the country — the last buses out of Jerusalem run early Friday afternoon, earlier in winter when Shabbat starts early. Getting to an [off-Shabbat host](/guides/off-shabbos-gap-year) means leaving with margin, not catching the theoretical last bus. The return trip matters too: buses resume Saturday night, but the first hour is crowded and slow, and sherut lines fill the gap in the bigger cities.",
+          "The planning rhythm students learn fast: know Friday's candle-lighting time, work backwards through Moovit, and be on a bus by midday. Friday-afternoon Israel is not the place to discover the 2:15 was the last one.",
+        ],
+      },
+      {
+        heading: "Should anyone rent a car or use Pango?",
+        paragraphs: [
+          "For a gap-year student: no. Between buses, trains, sheruts, and Gett, a car is an expense, a parking problem, and an insurance question nobody needs at eighteen. Pango — the parking app the [banking guide](/guides/israeli-phone-number-for-banking-bit-pango) mentions — only matters if you drive, which rules out nearly every student. The one exception is a family visit mid-year where parents rent a car; that's the parents' project, not the student's.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "How do I get a Rav-Kav card in Israel?",
+        answer:
+          "Pick up an anonymous card at light rail stations, train stations, or public-transport service counters and load money onto it — or skip it and pay contactless by phone through the fare apps, which is what most students end up doing.",
+      },
+      {
+        question: "How much does public transport cost in Israel?",
+        answer:
+          "Cheap — fares include free transfers within 90 minutes, daily and monthly caps limit heavy use, and a typical student month of city travel plus a few intercity trips runs about 150–250 shekels.",
+      },
+      {
+        question: "Does public transport run on Shabbat in Israel?",
+        answer:
+          "Mostly no — buses and trains stop from Friday afternoon until Saturday night. Sherut shared taxis keep running on some routes, especially in Tel Aviv, and Gett works throughout.",
+      },
+      {
+        question: "What's the best transit app for Israel?",
+        answer:
+          "Moovit — door-to-door routing for every bus, train, and light rail in English with live times. Add a fare app for paying by phone, Gett for taxis, and Israel Railways for train tickets.",
+      },
+      {
+        question: "How long is the train from Jerusalem to Tel Aviv?",
+        answer:
+          "The fast train runs about 35 minutes. It's the best way between the two cities — check schedules in the Israel Railways app, especially before holidays.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/gap-year-israel-first-two-weeks", label: "Their first two weeks in Israel" },
+      { href: "/guides/off-shabbos-gap-year", label: "Where do students go for off Shabbos?" },
+      { href: "/guides/gap-year-israel-cost", label: "What a gap year actually costs" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+    ],
+  },
+  {
+    slug: "off-shabbos-gap-year",
+    title: "Where do gap year students go for off Shabbos?",
+    metaTitle: "Off Shabbos on a Gap Year: Finding Hosts & Being a Great Guest",
+    metaDescription:
+      "How off Shabbos actually works for yeshiva and seminary students in Israel: finding host families, the etiquette of being invited back, Friday travel logistics, and what to do when you have nowhere to go.",
+    datePublished: "2026-08-16",
+    dateModified: "2026-08-16",
+    readingTime: "6 min read",
+    intro:
+      "Every yeshiva and seminary runs the same rhythm: some Shabbatot are \"in\" — everyone stays at the program — and some are \"off,\" when the building empties and everyone scatters to hosts around the country. For students with family in Israel, off Shabbos solves itself. For everyone else, it's the year's recurring logistics puzzle: where am I going, how do I get there before candle lighting, and how do I get invited back? Here's how it actually works.",
+    sections: [
+      {
+        heading: "How does the in-Shabbos / off-Shabbos system work?",
+        paragraphs: [
+          "Programs publish a calendar: in-Shabbatot, where meals and davening happen at the program and attendance is expected, and off-Shabbatot, where students arrange their own plans — usually every second or third week, with everyone out for the long chagim breaks. The calendar is your friend; the students who glance at it Sunday and start arranging then have relaxed weeks, and the ones who realize on Thursday that it's an off week have stressful ones.",
+          "One planning note parents appreciate: off-Shabbat plans are also the answer to \"how do we know where our kid is?\" The healthy norm is simple — by midweek, home knows the host's name and city. Not surveillance, just the same courtesy the host is extending.",
+        ],
+      },
+      {
+        heading: "How do students actually find Shabbos hosts?",
+        paragraphs: [
+          "In rough order of how it really happens: relatives, however distant — the second cousin in Ramat Beit Shemesh you've never met is a completely normal Shabbos invitation, and they expect the call. Then family friends and your parents' network; a single WhatsApp from a parent — \"my son is in yeshiva this year, can he come for a Shabbos?\" — produces months of invitations. Then friends' hosts: the roommate going to his aunt brings you along, which is how half of all off-Shabbos plans actually form. Then the program's own network — madrichim, rebbeim, and teachers host students constantly and know alumni families who do too.",
+          "Beyond the personal web, Shabbat.com matches guests with host families across Israel and is widely used and legitimate. Anglo neighborhoods — Ramat Beit Shemesh, Efrat, Raanana, Modiin, and half of Jerusalem — run deep hosting cultures where taking gap-year students is simply what families do. The real lesson of the first months: Israel wants to host you. The barrier is almost never finding a family; it's being organized enough to ask by Tuesday instead of Thursday night.",
+        ],
+      },
+      {
+        heading: "How do you get invited back?",
+        paragraphs: [
+          "Being a great Shabbos guest is a learnable skill, and it compounds — the students with standing invitations by Chanukah are the ones who nailed the basics early. None of it is complicated:",
+        ],
+        steps: [
+          "Confirm early in the week, and tell the host when you're arriving — then actually arrive before candle lighting, with margin. Friday buses are not the place for optimism.",
+          "Bring something. Wine, chocolates, or flowers, around 40–60 shekels. Hand it over at the door; it's the universal language of Shabbos guests.",
+          "Offer to help — setting up, clearing, watching the little kids. Being helpful with the kids is famously the fastest route to a standing invitation.",
+          "Bring some Torah to the table. A thought on the parsha from that week's shiur is exactly what the host hoped a yeshiva or seminary student would show up with.",
+          "Send a thank-you message after Shabbos. Thirty seconds on motzaei Shabbos is the difference between a one-time guest and \"come back whenever you want.\"",
+        ],
+      },
+      {
+        heading: "How do you get there before Shabbos?",
+        paragraphs: [
+          "The logistics rule is unforgiving: buses and trains stop mid-afternoon Friday and don't resume until Saturday night, and in winter — when candle lighting creeps toward 4 p.m. — the real deadline is earlier than everyone thinks. The habit that works: check the week's candle-lighting time, plan the route in Moovit, and be traveling by midday. [The getting-around guide](/guides/getting-around-israel) covers the system; the off-Shabbos version is simply \"do all of that, earlier.\"",
+          "Coordination runs on WhatsApp — the host sending directions, the \"I'm on the 12:40 bus\" update, the Saturday-night \"made it back.\" It's one more bit of Israeli life that assumes [a working Israeli number](/guides/israeli-phone-number-before-you-land), and phones go on the charger before candle lighting, so the travel plan home should be settled before Shabbos starts, not after it ends.",
+        ],
+      },
+      {
+        heading: "What if you have nowhere to go?",
+        paragraphs: [
+          "It happens to everyone at least once, and there are two honest answers. First: say something. Tell the madrich or em bayit by Wednesday — programs keep lists of families who host and will happily place you; no good program lets a student fall through the cracks, but they can't place someone who never asked. Embarrassment is the only real obstacle here, and it's misplaced — connecting students to hosts is a normal part of the staff's week.",
+          "Second: staying in is underrated. Most programs run a quiet Shabbos for whoever remains, and a low-key weekend — a long nap, davening without a bus ride, the building to yourselves — is sometimes exactly what a packed year needs. The students who alternate hosted weekends with restful in-Shabbatot tend to enjoy both more. And as [the budget guide](/guides/gap-year-israel-cost) notes, hosted and in-Shabbatot are also what keep the year affordable — the expensive weekends are the improvised hostel-with-friends kind.",
+        ],
+      },
+      {
+        heading: "What about Shabbos with friends, hostels, or trips?",
+        paragraphs: [
+          "Sometimes the plan is a crew of friends doing Shabbos in Tzfat or a hostel weekend somewhere scenic — a real part of the year, and often a highlight. The honest notes: it costs meaningfully more than being hosted, quality varies (a hostel Shabbos is only as good as the people organizing the meals), and programs usually have rules about where students may spend off Shabbos — knowing them beats testing them. Once or twice a year as the special weekend, wonderful; as the default, it's a budget line and a missed chance to sit at Israeli families' tables, which is quietly one of the best parts of the whole year.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "What does \"off Shabbos\" mean in yeshiva or seminary?",
+        answer:
+          "A Shabbat when the program doesn't run meals or programming and students arrange their own plans — usually every second or third week. \"In\" Shabbatot are spent at the program, and attendance is generally expected.",
+      },
+      {
+        question: "How do gap-year students find Shabbat host families in Israel?",
+        answer:
+          "Relatives (however distant), parents' networks, friends' hosts, and the program's madrichim and teachers cover most weekends. Shabbat.com matches guests with hosts too. Finding a family is rarely the hard part — asking early in the week is.",
+      },
+      {
+        question: "What should you bring a Shabbos host?",
+        answer:
+          "Wine, chocolates, or flowers — around 40–60 shekels. Arrive before candle lighting, help where you can, and send a thank-you message after Shabbos. That combination gets students invited back.",
+      },
+      {
+        question: "When do buses stop on Friday in Israel?",
+        answer:
+          "Mid-afternoon, and effectively earlier in winter when Shabbat starts around 4 p.m. Plan with Moovit and travel by midday Friday — the theoretical last bus is not a plan.",
+      },
+      {
+        question: "What if a student has no Shabbos plans?",
+        answer:
+          "Tell the madrich or em bayit by midweek — programs keep hosting lists and place students routinely. Staying in for the program's quiet Shabbos is also a perfectly good, restful option.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/getting-around-israel", label: "Getting around Israel: buses, trains & Rav-Kav" },
+      { href: "/guides/gap-year-israel-cost", label: "What a gap year actually costs" },
+      { href: "/guides/gap-year-israel-first-two-weeks", label: "Their first two weeks in Israel" },
+      { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+    ],
+  },
 ];
 
 export function getGuide(slug: string) {
