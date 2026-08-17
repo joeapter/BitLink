@@ -123,6 +123,19 @@ async function attachSubscriptionToExistingLine(
     .eq('telecom_line_id', params.line.id)
     .eq('status', 'active');
 
+  // Orders are stamped 'payment_confirmed' at checkout and normally advanced to
+  // 'active' by the provisioning orchestrator once the line goes live. This
+  // path never provisions anything — the line was already up — so it has to
+  // advance the order itself, or the order sits in the admin provisioning queue
+  // forever. Same customer_id correlation the orchestrator uses.
+  if (params.customerRecordId) {
+    await admin
+      .from('orders')
+      .update({ provisioning_status: 'active', updated_at: now })
+      .eq('customer_id', params.customerRecordId)
+      .eq('provisioning_status', 'payment_confirmed');
+  }
+
   log.info(
     { lineId: params.line.id, subscriberId: subscriber.id, planSlug: params.planSlug },
     'Self-port detected — attached subscription to existing line instead of provisioning a new one',
