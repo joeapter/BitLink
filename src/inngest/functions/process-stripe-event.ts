@@ -41,6 +41,108 @@ import { logger } from '@/lib/logger';
 
 const log = logger.child({ fn: 'process-stripe-event' });
 
+// ── Self-port detection (trial → paid conversion) ────────────────────────────
+
+// Numbers reach us in assorted shapes (+972555195352, 0555195352,
+// 972555195352). The last 9 digits identify an Israeli mobile unambiguously.
+function isSameIsraeliNumber(a?: string | null, b?: string | null): boolean {
+  const tail = (value?: string | null) => (value ?? '').replace(/\D/g, '').slice(-9);
+  const left = tail(a);
+  return left.length === 9 && left === tail(b);
+}
+
+// Is the customer asking to "port" a number that is already on one of their own
+// BitLink lines? That is a conversion, not a port — see the guard at the call
+// site for why the carrier can never satisfy it.
+async function findOwnLineForPortRequest(
+  admin: SupabaseClient,
+  params: { customerRecordId: string | null; isPortIn: boolean; portInNumber: string | null },
+): Promise<{ id: string; metadata: Record<string, unknown> } | null> {
+  if (!params.isPortIn || !params.portInNumber || !params.customerRecordId) return null;
+
+  const { data: lines } = await admin
+    .from('telecom_lines')
+    .select('id, metadata')
+    .eq('customer_id', params.customerRecordId)
+    .in('status', ['active', 'paused']);
+
+  for (const line of lines ?? []) {
+    const metadata = (line.metadata ?? {}) as Record<string, unknown>;
+    if (isSameIsraeliNumber(metadata.phone_number as string | undefined, params.portInNumber)) {
+      return { id: line.id as string, metadata };
+    }
+  }
+  return null;
+}
+
+// Bind the freshly-paid subscription to a line the customer already has, close
+// any trial on it, and skip provisioning entirely — the line is already live,
+// so there is nothing for the carrier to create.
+async function attachSubscriptionToExistingLine(
+  admin: SupabaseClient,
+  params: {
+    line: { id: string; metadata: Record<string, unknown> };
+    customerRecordId: string | null;
+    stripeSubscriptionId: string;
+    stripeCustomerId: string;
+    stripeEventRecordId: string | null;
+    correlationId: string;
+    planSlug: string;
+    externalId: string;
+  },
+) {
+  const now = new Date().toISOString();
+
+  const subscriber = await createSubscriber(admin, {
+    customerId: params.customerRecordId,
+    stripeSubscriptionId: params.stripeSubscriptionId,
+    stripeCustomerId: params.stripeCustomerId,
+    planSlug: params.planSlug,
+    originatingStripeEventId: params.stripeEventRecordId,
+    correlationId: params.correlationId,
+    status: 'active',
+  });
+  await updateSubscriber(admin, subscriber.id, {
+    telecomLineId: params.line.id,
+    activatedAt: now,
+  });
+
+  await admin
+    .from('telecom_lines')
+    .update({
+      external_id: params.externalId,
+      metadata: { ...params.line.metadata, is_trial: false, plan_slug: params.planSlug },
+      updated_at: now,
+    })
+    .eq('id', params.line.id);
+
+  // Close any live trial so the day-30 sweep can't freeze a paying line.
+  await admin
+    .from('trial_lines')
+    .update({ status: 'converted', decided_at: now, updated_at: now })
+    .eq('telecom_line_id', params.line.id)
+    .eq('status', 'active');
+
+  log.info(
+    { lineId: params.line.id, subscriberId: subscriber.id, planSlug: params.planSlug },
+    'Self-port detected — attached subscription to existing line instead of provisioning a new one',
+  );
+
+  await sendEmail({
+    to: 'joe@bitlink.co.il',
+    subject: `Trial converted to ${params.planSlug} — existing line kept`,
+    html: [
+      `<p>A customer paid for <b>${params.planSlug}</b> and asked to keep a number already on their own BitLink line.</p>`,
+      `<p>Rather than provisioning a second line (which the carrier rejects), the subscription was attached to the existing line and any trial was closed. No action needed — this is the intended path.</p>`,
+      `<p><a href="https://www.bitlink.co.il/admin/lines/${params.line.id}">Open the line in admin</a></p>`,
+    ].join(''),
+  }).catch(() => {
+    // alerting is best-effort; never let it fail the conversion
+  });
+
+  return { subscriberId: subscriber.id, jobId: null, lineId: params.line.id };
+}
+
 // ── Stripe status → subscriber status map ────────────────────────────────────
 
 function stripeStatusToSubscriberStatus(stripeStatus: string): string {
@@ -62,7 +164,9 @@ function stripeStatusToSubscriberStatus(stripeStatus: string): string {
 
 type HandlerResult =
   | { skipped: true; reason: string }
-  | { subscriberId: string; jobId: string; lineId: string }
+  // jobId is null when checkout attached the subscription to a line the
+  // customer already had (self-port), so there is nothing to provision.
+  | { subscriberId: string; jobId: string | null; lineId: string }
   | { subscriberIds: string[]; jobIds: string[]; lineIds: string[] }
   | { updated: true; subscriberId: string }
   | { updated: true; subscriberIds: string[] }
@@ -406,6 +510,40 @@ async function handleCheckoutCompleted(
   // checkout — they're invoiced manually when the port actually runs.
   const intlPortDeferred = session.metadata?.intl_port_deferred === '1';
   const intlChosenNumber = session.metadata?.intl_chosen_number || null;
+
+  // ── Guard: "porting" a number BitLink already holds ───────────────────────
+  //
+  // A trial customer who buys a plan often enters their own BitLink number as
+  // the one to "keep". That is never a port: the carrier rejects it with
+  // 422 dids.number "already exists in network_manager", because the number is
+  // already on our own tenant. The real intent is to convert the existing line
+  // onto the paid plan, not to provision a second one.
+  //
+  // Real incident 2026-08-16 (Joshua Naccache): the paid line failed overnight
+  // while his trial line kept working, leaving him billed with no live line
+  // and a trial clock still counting down on the line he was actually using.
+  // Only the paying customer's OWN lines are matched here. If the number turns
+  // out to belong to a different BitLink customer, we deliberately fall through
+  // and let the carrier reject it — silently attaching someone else's line to
+  // this subscription would be far worse than a failed job.
+  const ownLineForPort = await findOwnLineForPortRequest(admin, {
+    customerRecordId,
+    isPortIn: session.metadata?.is_port_in === '1',
+    portInNumber: session.metadata?.port_in_number ?? null,
+  });
+
+  if (ownLineForPort) {
+    return attachSubscriptionToExistingLine(admin, {
+      line: ownLineForPort,
+      customerRecordId,
+      stripeSubscriptionId,
+      stripeCustomerId,
+      stripeEventRecordId,
+      correlationId,
+      planSlug,
+      externalId,
+    });
+  }
 
   const { data: existingLine } = await admin
     .from('telecom_lines')
