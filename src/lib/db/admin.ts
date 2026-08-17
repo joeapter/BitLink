@@ -46,7 +46,10 @@ export async function getAdminOverview() {
     activeLines,
   ] = await Promise.all([
     db.from("customers").select("id", { count: "exact", head: true }),
-    db.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
+    // `subscribers` is canonical. The legacy `subscriptions` table is stale and
+    // under-reported this tile by 3 (19 vs 22) — same trap that hit the org
+    // profit report in Jul 2026.
+    db.from("subscribers").select("id", { count: "exact", head: true }).eq("status", "active"),
     db.from("trial_lines").select("id", { count: "exact", head: true }).eq("status", "active"),
     db
       .from("orders")
