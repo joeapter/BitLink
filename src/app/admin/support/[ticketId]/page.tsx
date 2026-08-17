@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { updateTicketStatusAction, updateTicketPriorityAction, addTicketNoteAction, addCallNoteAction } from "@/lib/admin/support-actions";
 import { MacroCard } from "@/components/admin/MacroCard";
 import { formatDateTime } from "@/lib/utils";
+import { getPlan } from "@/lib/plans";
 import { whatsappWebUrl, whatsappGreeting } from "@/lib/whatsapp";
 
 export const metadata: Metadata = { title: "Support Ticket" };
@@ -85,9 +86,12 @@ export default async function AdminTicketDetailPage({ params }: Props) {
   }
 
   if (customer) {
+    // `subscribers` carries plan_slug directly. This used to read the legacy
+    // `subscriptions` table and join plans through plan_id, which is null on
+    // every row — so the Plan line silently showed "—" for every customer.
     const { data: sub } = await db
-      .from("subscriptions")
-      .select("*, plans(name, slug)")
+      .from("subscribers")
+      .select("plan_slug, status")
       .eq("customer_id", customer.id)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -332,7 +336,9 @@ export default async function AdminTicketDetailPage({ params }: Props) {
                   <>
                     <div className="flex justify-between">
                       <span className="text-muted-slate">Plan</span>
-                      <span className="text-ink">{(subscription.plans as { name?: string } | null)?.name ?? "—"}</span>
+                      <span className="text-ink">
+                        {subscription.plan_slug ? getPlan(subscription.plan_slug as string).name : "—"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-slate">Sub status</span>

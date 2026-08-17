@@ -29,13 +29,12 @@ async function getPlanBilling(admin: AdminClient, planSlug: PlanSlug) {
   const plan = getPlan(planSlug);
   const { data: planRow } = await admin
     .from('plans')
-    .select('id, stripe_price_id, monthly_price_cents')
+    .select('stripe_price_id, monthly_price_cents')
     .eq('slug', planSlug)
     .maybeSingle();
 
   return {
     plan,
-    planId: (planRow?.id ?? null) as string | null,
     priceId: ((planRow?.stripe_price_id as string | null | undefined) ?? getStripePriceId(plan)).trim(),
     priceCents: Number(planRow?.monthly_price_cents ?? plan.priceCents),
   };
@@ -216,13 +215,6 @@ export async function changeLinePlan(params: {
     };
     subscriberPatch.monthly_price_cents = billingMode === 'paid' ? newBilling.priceCents : preservedBillingCents;
     await admin.from('subscribers').update(subscriberPatch as never).eq('id', subscriber.id);
-  }
-
-  if (billingMode === 'paid' && newBilling.planId && subscriber?.stripe_subscription_id) {
-    await admin
-      .from('subscriptions')
-      .update({ plan_id: newBilling.planId, updated_at: changedAt })
-      .eq('stripe_subscription_id', subscriber.stripe_subscription_id);
   }
 
   await logPlanChange(admin, params.actorUserId, lineId, {
