@@ -6,8 +6,8 @@ import { AdminMetric } from "@/components/admin/AdminMetric";
 import { ProvisioningQueue } from "@/components/admin/ProvisioningQueue";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { getAdminOverview } from "@/lib/db/admin";
-import { getMonthlyRevenue } from "@/lib/stripe/revenue";
+import { getAdminDb, getAdminOverview } from "@/lib/db/admin";
+import { getExpectedRevenue, getMonthlyRevenue } from "@/lib/stripe/revenue";
 import { formatMoney } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -18,7 +18,8 @@ export const metadata: Metadata = {
 // rendered in its own Suspense boundary so the rest of the overview (metrics,
 // queues, all from the DB) paints immediately and this tile streams in after.
 async function RevenueCard({ monthLabel }: { monthLabel: string }) {
-  const revenue = await getMonthlyRevenue();
+  const [revenue, expected] = await Promise.all([getMonthlyRevenue(), getAdminDb().then(getExpectedRevenue)]);
+  const projectedCents = (revenue?.totalCents ?? 0) + (expected?.totalCents ?? 0);
   return (
     <div className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-6">
       <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
@@ -43,8 +44,33 @@ async function RevenueCard({ monthLabel }: { monthLabel: string }) {
       ) : (
         <p className="mt-4 text-sm text-muted-slate">Stripe is not configured.</p>
       )}
+
+      {expected && (
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-dashed border-link-blue/40 bg-sky-50/60 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">
+              Still expected this month
+            </p>
+            <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(expected.totalCents)}</p>
+            <p className="mt-1 text-xs text-muted-slate">
+              {expected.renewalCount} renewal{expected.renewalCount === 1 ? "" : "s"}
+              {expected.trialCount > 0
+                ? ` · ${expected.trialCount} trial${expected.trialCount === 1 ? "" : "s"} converting (${formatMoney(expected.trialCents)})`
+                : ""}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-dashed border-link-blue/40 bg-sky-50/60 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">Projected month total</p>
+            <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(projectedCents)}</p>
+            <p className="mt-1 text-xs text-muted-slate">Banked so far plus what&apos;s still due</p>
+          </div>
+        </div>
+      )}
+
       <p className="mt-3 text-xs text-muted-slate">
         Pulled live from paid Stripe invoices this month. One-time includes activation fees and topup purchases.
+        Expected is a forecast of renewals still due before month end plus trials auto-continuing onto Basic — it
+        moves if someone cancels mid-month or a card fails.
       </p>
     </div>
   );
