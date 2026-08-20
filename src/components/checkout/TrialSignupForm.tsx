@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
-export function TrialSignupForm() {
+export function TrialSignupForm({ referralCode = "" }: { referralCode?: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,6 +20,7 @@ export function TrialSignupForm() {
         fullName: formData.get("fullName"),
         email: formData.get("email"),
         phone: formData.get("phone"),
+        ...(referralCode ? { referralCode } : {}),
       }),
     });
 

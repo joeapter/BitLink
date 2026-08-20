@@ -22,6 +22,10 @@ const bodySchema = z.object({
   fullName: z.string().min(2),
   email: z.string().email(),
   phone: z.string().min(6),
+  // Affiliate / driver code carried in from ?ref= on the trial link. Stored raw
+  // on the customer, exactly as the paid checkout does — no validation, so a
+  // link works the moment it's handed out.
+  referralCode: z.string().trim().max(64).optional(),
 });
 
 export async function POST(request: NextRequest): Promise<Response> {
@@ -42,6 +46,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     return NextResponse.json({ error: 'Invalid signup details' }, { status: 400 });
   }
   const { fullName, email, phone } = parsed.data;
+  const referralCode = parsed.data.referralCode?.toUpperCase() || null;
 
   const admin = createSupabaseAdminClient();
   const stripe = getStripe();
@@ -54,20 +59,26 @@ export async function POST(request: NextRequest): Promise<Response> {
   let customerRecordId: string;
   const { data: existing } = await admin
     .from('customers')
-    .select('id')
+    .select('id, referred_by')
     .eq('email', email)
     .maybeSingle();
 
   if (existing) {
     await admin
       .from('customers')
-      .update({ full_name: fullName, phone, updated_at: new Date().toISOString() })
+      .update({
+        full_name: fullName,
+        phone,
+        // Never overwrite an existing attribution — first referrer keeps the credit.
+        ...(!existing.referred_by && referralCode ? { referred_by: referralCode } : {}),
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', existing.id);
     customerRecordId = existing.id as string;
   } else {
     const { data: created, error: createError } = await admin
       .from('customers')
-      .insert({ full_name: fullName, email, phone })
+      .insert({ full_name: fullName, email, phone, referred_by: referralCode })
       .select('id')
       .single();
     if (createError || !created) {

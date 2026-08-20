@@ -15,7 +15,15 @@ export const metadata: Metadata = createNoIndexMetadata(
 );
 export const dynamic = "force-dynamic";
 
-export default async function TrialPage() {
+export default async function TrialPage({
+  searchParams,
+}: {
+  // ?ref= carries a BitLink Rep's code in from their link. Kept alongside
+  // ?referral= so the same shapes work here as on the paid checkout.
+  searchParams: Promise<{ ref?: string; referral?: string }>;
+}) {
+  const { ref, referral } = await searchParams;
+  const referralCode = (referral ?? ref ?? "").trim().slice(0, 64);
   const enabled = await isTrialOfferEnabled();
 
   if (!enabled) {
@@ -55,7 +63,7 @@ export default async function TrialPage() {
           it&apos;s not for you.
         </p>
         <div className="mt-8">
-          <TrialSignupForm />
+          <TrialSignupForm referralCode={referralCode} />
         </div>
         <div className="mt-4 max-w-2xl rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-800">
           This is a real Israeli line, not a travel eSIM — it only works once you&apos;re actually in Israel. You can
