@@ -736,3 +736,61 @@ export function buildAbandonedCheckoutRecoveryEmail(params: {
     </p>
   `);
 }
+
+// ── BitLink Rep: a trial they sent just converted ─────────────────────────────
+//
+// The payout is a ONE-TIME commission on that conversion, not a recurring cut
+// of the customer's monthly bill. The copy has to be unambiguous about that —
+// a Rep who thinks they're earning monthly will feel cheated the second month.
+
+export function buildRepConversionEmail(params: {
+  repName: string;
+  customerName: string;
+  planName: string;
+  payoutCents: number;
+  liveTrials: number;
+  monthConversions: number;
+  monthEarnedCents: number;
+  monthLabel: string;
+}): string {
+  const firstName = (params.repName ?? "").trim().split(/\s+/)[0] || "there";
+  const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+
+  const row = (label: string, value: string) =>
+    `<tr>
+       <td style="padding:7px 0;font-size:14px;color:#94a3b8;">${label}</td>
+       <td style="padding:7px 0;font-size:14px;font-weight:700;color:#050606;text-align:right;">${value}</td>
+     </tr>`;
+
+  return layout(`
+    ${h1(`Nice one, ${escapeHtml(firstName)} — that's a conversion 🎉`)}
+    ${p("Someone who started a free trial on your link just kept their plan. That means you've earned a commission.")}
+
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:18px 20px;margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;">
+        ${row("Customer", escapeHtml(params.customerName))}
+        ${row("Plan they chose", escapeHtml(params.planName))}
+        ${row("You earned", money(params.payoutCents))}
+      </table>
+    </div>
+
+    <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">
+      Where you're at
+    </p>
+    <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin:0 0 20px;">
+      <table style="width:100%;border-collapse:collapse;">
+        ${row("Trials currently running on your link", String(params.liveTrials))}
+        ${row(`Conversions in ${escapeHtml(params.monthLabel)}`, String(params.monthConversions))}
+        ${row(`Earned in ${escapeHtml(params.monthLabel)}`, money(params.monthEarnedCents))}
+      </table>
+    </div>
+
+    ${p(`Those ${params.liveTrials} live trial${params.liveTrials === 1 ? "" : "s"} haven't earned anything yet — each one pays out only if they keep their plan when their free month ends.`)}
+
+    <p style="margin:24px 0 0;padding-top:16px;border-top:1px solid #f1f5f9;font-size:12px;line-height:1.6;color:#94a3b8;">
+      Just so it's clear: each commission is a one-time payment for that conversion, not a monthly share of what the
+      customer pays. You earn once per person who keeps their plan. Questions, or want to change how you're paid?
+      Just reply to this email.
+    </p>
+  `);
+}

@@ -21,6 +21,7 @@ import {
   buildTrialAutoContinuedEmail,
 } from "@/lib/email/templates";
 import { absoluteUrl } from "@/lib/utils";
+import { notifyRepOfConversion } from "@/lib/admin/notify-rep";
 import { logger } from "@/lib/logger";
 
 // Auto-continue plan when a trial reaches its decision deadline with no
@@ -266,6 +267,10 @@ export async function convertTrialToPlan(
     })
     .eq("id", trial.telecom_line_id);
   await admin.from("trial_lines").update({ status: "converted", decided_at: now, updated_at: now }).eq("id", trial.id);
+
+  // Tell the BitLink Rep who sent this customer, if there is one. Best-effort:
+  // awaited so it survives a serverless invocation ending, but never throws.
+  await notifyRepOfConversion(admin, { customerId: trial.customer_id, planSlug });
 
   log.info({ trialId: trial.id, planSlug, subscriptionId: subscription.id }, "Trial converted to paid plan");
   return { success: true };

@@ -37,6 +37,7 @@ export async function createRepAction(formData: FormData) {
   await db.from("affiliates").insert({
     name,
     code,
+    email: String(formData.get("email") ?? "").trim() || null,
     contact: String(formData.get("contact") ?? "").trim() || null,
     notes: String(formData.get("notes") ?? "").trim() || null,
     rate_basic_cents: parseCents(formData.get("rateBasic"), 500),

@@ -69,7 +69,8 @@ export default async function AdminRepsPage() {
             <form action={createRepAction} className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <Input name="name" label="Name" placeholder="Racheli" required />
               <Input name="code" label="Code" placeholder="RACHELI" required />
-              <Input name="contact" label="Contact" placeholder="@racheli / email" />
+              <Input name="email" label="Email (for conversion alerts)" type="email" placeholder="racheli@gmail.com" />
+              <Input name="contact" label="Contact" placeholder="@racheli / whatsapp" />
               <Input name="rateBasic" label="Basic pays ($)" placeholder="5" defaultValue="5" />
               <Input name="ratePremium" label="Student / Max pays ($)" placeholder="10" defaultValue="10" />
               <div className="flex items-end">

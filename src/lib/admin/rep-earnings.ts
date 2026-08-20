@@ -134,9 +134,10 @@ export async function getRepSummaries(db: SupabaseClient): Promise<RepSummary[] 
           amountCents,
           convertedAt: (t.decided_at ?? null) as string | null,
         });
-      } else if (status === "cancelled" || status === "expired") {
+      } else if (status === "cancelled" || status === "frozen") {
         cancelled++;
       } else {
+        // pending_provision | active — live, not yet earning
         running++;
       }
     }
