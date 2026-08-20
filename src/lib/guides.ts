@@ -2664,7 +2664,7 @@ export const guides: Guide[] = [
       {
         heading: "Is this a real Israeli number, or a virtual one?",
         paragraphs: [
-          "This is the part that matters most, and it's where most alternatives fall down. A BitLink number is a real Israeli mobile number on Partner's network — usually in the 055 range, which is Israel's shared range for resellers. It is a genuine mobile line with a SIM behind it, registered in your name.",
+          "This is the part that matters most, and it's where most alternatives fall down. A BitLink number is a real Israeli mobile number running on Israel's Partner network — a genuine mobile line, with a SIM behind it, registered in your name.",
           "That distinction is not cosmetic. The cheap alternative — an online \"virtual Israeli number\" or a VoIP number from a messaging service — is exactly what banks and serious platforms are built to reject. Financial institutions routinely check whether a number is a real mobile line or a VoIP one, and refuse the VoIP ones for two-factor authentication. That's why people who try the virtual route usually get through WhatsApp and then hit a wall at the bank. A real mobile number doesn't fail that check, because it isn't the thing being screened out.",
         ],
       },
@@ -2696,7 +2696,7 @@ export const guides: Guide[] = [
         ],
         steps: [
           "Pick a plan at [bitlink.co.il/plans](/plans) and check out in dollars. No Israeli ID or bank account is required.",
-          "You'll get a real Israeli number, in the 055 range, registered in your name.",
+          "You'll get a real Israeli mobile number, registered in your name.",
           "In your BitLink account, switch on SMS-to-email and enter the address you want the texts delivered to.",
           "Give that Israeli number to your bank, to WhatsApp, or to whichever service needs it, and verify as normal — the code arrives in your inbox.",
           "When you land in Israel, install the eSIM (or insert the SIM) and the same number starts working as a normal phone line.",
@@ -2727,7 +2727,7 @@ export const guides: Guide[] = [
       {
         question: "Is this a virtual number?",
         answer:
-          "No. It's a genuine Israeli mobile number with a SIM behind it, usually in the 055 range, registered in your name — not a VoIP or online number.",
+          "No. It's a genuine Israeli mobile number on Israel's Partner network, with a SIM behind it and registered in your name — not a VoIP or online number.",
       },
       {
         question: "Does the number change when I move to Israel?",
