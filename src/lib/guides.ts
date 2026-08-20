@@ -2628,6 +2628,120 @@ export const guides: Guide[] = [
       { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
     ],
   },
+  {
+    slug: "israeli-sms-verification-from-abroad",
+    title: "How do I receive Israeli SMS verification codes from abroad?",
+    metaTitle: "Israeli SMS Verification Codes From Abroad: How It Works",
+    metaDescription:
+      "Locked out of an Israeli bank, Bit, or gov.il because the code goes to a number you can't reach? How a real Israeli mobile number delivers verification texts to your email while you're still overseas.",
+    datePublished: "2026-08-20",
+    dateModified: "2026-08-20",
+    readingTime: "7 min read",
+    intro:
+      "This is one of the most frustrating situations in Israeli daily life, and it hits people who are nowhere near Israel. Your bank, Bit, gov.il, or Kupat Cholim wants to send a code to an Israeli mobile number — and you're in New York, London, or Toronto, with no Israeli number that can receive it. The account is yours, the money is yours, and you simply cannot get in. Here's why it happens, and how a real Israeli number can deliver those codes to your inbox while you're still overseas.",
+    sections: [
+      {
+        heading: "Why do Israeli banks and services insist on an Israeli number?",
+        paragraphs: [
+          "Israel runs an unusual amount of daily life through SMS to an 05 mobile number. Bank logins and transfer confirmations, Bit, gov.il, Kupat Cholim appointments, insurance portals, the tax authority, and most Israeli companies' account recovery all assume you are holding an Israeli phone. It isn't a policy anyone wrote down deliberately — it's just what the infrastructure grew into, and it's far more SMS-dependent than the equivalent systems in the US or UK.",
+          "That works fine while you live there. It becomes a wall the moment you don't. An Israeli citizen working abroad for two years, an oleh who hasn't flown yet but already opened an account, someone who inherited an Israeli account, a dual citizen with an Israeli business — all of them still have live Israeli accounts that can only be unlocked by a text to a number they no longer hold.",
+        ],
+      },
+      {
+        heading: "Why doesn't my Israeli number work while I'm abroad?",
+        paragraphs: [
+          "Two separate things can be going on, and they have different answers. If you let an Israeli prepaid line lapse, the number is simply gone — idle prepaid numbers in Israel expire after roughly six to twelve months, and once released the number goes back to the pool. No amount of roaming will bring it back.",
+          "If the line is still alive but you're overseas, the problem is roaming. BitLink lines don't roam outside Israel — the SIM has no network to attach to abroad, so a text sent to your number never reaches the handset in your pocket. That's a real limitation and worth being clear about rather than discovering it at an airport.",
+        ],
+      },
+      {
+        heading: "Can I receive Israeli verification codes without being in Israel?",
+        paragraphs: [
+          "Yes — because the fix doesn't happen on the handset. SMS-to-email forwarding is a carrier-side setting: the message is intercepted on the network, before it is ever delivered to a phone. Your handset's location, and whether it's even switched on, is irrelevant. The text arrives in your inbox instead.",
+          "So the sequence is: you get a real Israeli number, switch on SMS-to-email in your BitLink account with the address you want, and give that number to your bank or to WhatsApp. When they send a code, it lands in your email wherever in the world you happen to be. Nothing needs to be installed, and no app is involved — which also means it works on a laptop, a work computer, or a phone that can't take another SIM.",
+        ],
+      },
+      {
+        heading: "Is this a real Israeli number, or a virtual one?",
+        paragraphs: [
+          "This is the part that matters most, and it's where most alternatives fall down. A BitLink number is a real Israeli mobile number on Partner's network — usually in the 055 range, which is Israel's shared range for resellers. It is a genuine mobile line with a SIM behind it, registered in your name.",
+          "That distinction is not cosmetic. The cheap alternative — an online \"virtual Israeli number\" or a VoIP number from a messaging service — is exactly what banks and serious platforms are built to reject. Financial institutions routinely check whether a number is a real mobile line or a VoIP one, and refuse the VoIP ones for two-factor authentication. That's why people who try the virtual route usually get through WhatsApp and then hit a wall at the bank. A real mobile number doesn't fail that check, because it isn't the thing being screened out.",
+        ],
+      },
+      {
+        heading: "What can this not do while you're abroad?",
+        paragraphs: [
+          "Be clear-eyed about what you're buying, because this is not a normal phone service until you land. While you are outside Israel, the number cannot make or receive calls, and you cannot send texts from it. There is no roaming. What works is inbound SMS delivered to your email — that is the whole of it.",
+          "For the verification problem, that's usually enough, because codes are one-way and inbound. But if what you actually need is to speak to your bank in Israel, or to reply to a text, this doesn't solve that on its own, and you shouldn't buy it expecting otherwise. Some services also insist on a voice call rather than an SMS for verification, and those won't work from abroad either.",
+        ],
+      },
+      {
+        heading: "Who is this genuinely useful for?",
+        paragraphs: [
+          "The people it fits best are those who already have Israeli accounts and have lost the number that unlocks them: Israelis living or working abroad, olim who opened accounts on a pilot trip and haven't made the move yet, dual citizens with Israeli businesses or property, and people managing an elderly parent's or a late relative's Israeli affairs from overseas.",
+          "It also fits anyone with a date in the diary. If you're making aliyah, starting a program, or moving for work in the coming months, getting the number now means every account you set up in advance is tied to a number you will still hold after you land — rather than to an airport SIM you'll lose, or a number you have to change everywhere later.",
+        ],
+      },
+      {
+        heading: "What happens when you actually arrive in Israel?",
+        paragraphs: [
+          "The number stops being an inbox-only service and becomes an ordinary phone line. Put the SIM or eSIM in your phone, and it works like any Israeli mobile — calls, texts, and data on the local network. The number does not change, so every account you registered while you were abroad carries over untouched. Nothing needs re-verifying.",
+          "You can leave SMS-to-email switched on after you land if you like — plenty of people do, because having a written copy of every code in their inbox is useful in itself. Or switch it off from your account at any point. If you're arriving for a gap year or a program, [get the eSIM installed before the flight](/guides/israeli-phone-number-before-you-land) so the line is live the moment you touch down.",
+        ],
+      },
+      {
+        heading: "How do you set it up?",
+        paragraphs: [
+          "The whole thing is done online, from wherever you are. You'll need a name, an email, and a regular US, UK, or Canadian card — no Israeli ID, no Israeli bank account, and no Hebrew paperwork.",
+        ],
+        steps: [
+          "Pick a plan at [bitlink.co.il/plans](/plans) and check out in dollars. No Israeli ID or bank account is required.",
+          "You'll get a real Israeli number, in the 055 range, registered in your name.",
+          "In your BitLink account, switch on SMS-to-email and enter the address you want the texts delivered to.",
+          "Give that Israeli number to your bank, to WhatsApp, or to whichever service needs it, and verify as normal — the code arrives in your inbox.",
+          "When you land in Israel, install the eSIM (or insert the SIM) and the same number starts working as a normal phone line.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Can I get an Israeli phone number while living abroad?",
+        answer:
+          "Yes. You can buy a real Israeli mobile number online from outside Israel with no Israeli ID or bank account, and have its incoming texts delivered to your email until you arrive in the country.",
+      },
+      {
+        question: "Will an Israeli bank accept this number for verification?",
+        answer:
+          "It's a real mobile line on Partner's network rather than a VoIP or virtual number, so it isn't caught by the checks that reject virtual numbers for two-factor authentication. Individual institutions set their own rules, so test it with a low-stakes login before relying on it for anything critical.",
+      },
+      {
+        question: "Can I use it to register WhatsApp?",
+        answer:
+          "Yes. WhatsApp sends a registration code by SMS, and that code reaches you by email through the forwarder, so you can complete registration from anywhere.",
+      },
+      {
+        question: "Does the number work as a phone while I'm abroad?",
+        answer:
+          "No. BitLink lines do not roam outside Israel, so no calls, no outgoing texts. Until you land, it delivers incoming SMS to your email and nothing more. Once you're in Israel it works as a normal mobile line.",
+      },
+      {
+        question: "Is this a virtual number?",
+        answer:
+          "No. It's a genuine Israeli mobile number with a SIM behind it, usually in the 055 range, registered in your name — not a VoIP or online number.",
+      },
+      {
+        question: "Does the number change when I move to Israel?",
+        answer:
+          "No. It stays exactly the same, so every account you registered with it while abroad keeps working. You just start using it as a normal phone.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/israeli-phone-number-for-banking-bit-pango", label: "Why banks, Bit & Pango need an Israeli number" },
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get an Israeli number before you land" },
+      { href: "/guides/us-phone-number-before-aliyah", label: "Your US number before aliyah" },
+      { href: "/israeli-phone-plans-for-olim", label: "Plans for olim" },
+    ],
+  },
 ];
 
 export function getGuide(slug: string) {
