@@ -160,6 +160,7 @@ export const guides: Guide[] = [
       { href: "/guides/israeli-phone-number-before-you-land", label: "Get an Israeli number before you land" },
       { href: "/keep-your-number", label: "Keep your US number" },
       { href: "/us-number-in-israel", label: "US number in Israel" },
+          { href: "/guides/israeli-sms-verification-from-abroad", label: "Israeli verification codes from abroad" },
     ],
   },
   {
@@ -226,6 +227,8 @@ export const guides: Guide[] = [
       { href: "/israel-esim", label: "Israel eSIM" },
       { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
       { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
+          { href: "/guides/esim-israel", label: "How to set up an eSIM in Israel" },
+          { href: "/guides/travel-esim-or-phone-plan-israel", label: "Travel eSIM or phone plan?" },
     ],
   },
   {
@@ -233,7 +236,7 @@ export const guides: Guide[] = [
     title: "Why banks, Bit, Pango, and gov.il all want an Israeli phone number",
     metaTitle: "Why Banks, Bit & Pango Need an Israeli Number",
     metaDescription:
-      "Israeli banks, Bit, Pango, Kupat Cholim, and gov.il verify you by SMS to an Israeli mobile number. Here's what breaks without one — and how to fix it before it matters.",
+      "Israeli banks, Bit, Pango and gov.il all verify you by SMS to an Israeli number. What breaks without one, and how to fix it before it matters.",
     datePublished: "2026-07-05",
     dateModified: "2026-07-13",
     readingTime: "5 min read",
@@ -301,6 +304,8 @@ export const guides: Guide[] = [
       { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
       { href: "/israel-esim", label: "Israel eSIM" },
       { href: "/keep-your-number", label: "Porting your number" },
+          { href: "/guides/israeli-sms-verification-from-abroad", label: "Getting Israeli codes while abroad" },
+      { href: "/guides/israeli-phone-number-area-codes", label: "What Israeli mobile prefixes mean" },
     ],
   },
   {
@@ -308,7 +313,7 @@ export const guides: Guide[] = [
     title: "How to set up an eSIM in Israel",
     metaTitle: "How to Set Up an eSIM in Israel — iPhone, Samsung & Pixel",
     metaDescription:
-      "A clear guide to eSIM in Israel: how it works, how long activation takes, which phones support eSIM, and step-by-step install for iPhone, Samsung Galaxy, and Google Pixel.",
+      "How eSIM works in Israel: activation time, which phones support it, and step-by-step install for iPhone, Samsung Galaxy and Google Pixel.",
     datePublished: "2026-07-08",
     dateModified: "2026-07-08",
     readingTime: "8 min read",
@@ -473,6 +478,7 @@ export const guides: Guide[] = [
       { href: "/israel-esim", label: "Israel eSIM plans" },
       { href: "/keep-your-number", label: "Keep your number" },
       { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
+          { href: "/guides/travel-esim-or-phone-plan-israel", label: "Travel eSIM or phone plan?" },
     ],
   },
   {
@@ -661,6 +667,7 @@ export const guides: Guide[] = [
       { href: "/kosher-phone-plans-israel", label: "Kosher phone plans" },
       { href: "/yeshiva-seminary-phone-plans", label: "Yeshiva & seminary phone plans" },
       { href: "/guides/yeshiva-seminary-phone-checklist", label: "Student phone checklist" },
+          { href: "/guides/israeli-phone-number-area-codes", label: "What Israeli mobile prefixes mean" },
     ],
   },
   {
@@ -668,7 +675,7 @@ export const guides: Guide[] = [
     title: "The airport SIM trap: don't give the bank a number you're about to lose",
     metaTitle: "The Airport SIM Trap in Israel — Keep Your Number",
     metaDescription:
-      "Airport SIMs are often registered to the kiosk, not to you, and idle numbers expire in 6–12 months. How olim lose the number their bank knows — and how to avoid it.",
+      "Airport SIMs are often registered to the kiosk, not to you, and idle numbers expire in 6–12 months. How olim lose the number their bank knows.",
     datePublished: "2026-07-12",
     dateModified: "2026-07-12",
     readingTime: "7 min read",
@@ -886,7 +893,7 @@ export const guides: Guide[] = [
     title: "Do US phones work in Israel? What your carrier won't tell you",
     metaTitle: "Do US Phones Work in Israel? Roaming vs. Israeli eSIM",
     metaDescription:
-      "Yes — if it's unlocked. But Verizon and AT&T roaming run $12/day, T-Mobile throttles to 256kbps, and none of them give you the Israeli number daily life requires.",
+      "Yes, if it's unlocked. But Verizon and AT&T roaming run $12/day, T-Mobile throttles hard, and none of them give you an Israeli number.",
     datePublished: "2026-07-16",
     dateModified: "2026-07-16",
     readingTime: "7 min read",
@@ -1017,6 +1024,7 @@ export const guides: Guide[] = [
       { href: "/guides/israeli-phone-number-before-you-land", label: "Get your number before you land" },
       { href: "/keep-your-number", label: "Port your US number to Israel" },
       { href: "/us-number-in-israel", label: "US number add-on" },
+          { href: "/guides/how-to-call-israel-from-the-us", label: "Calling Israel from the US" },
     ],
   },
   {
@@ -1024,7 +1032,7 @@ export const guides: Guide[] = [
     title: "Will my phone work in Israel? What to check before you go",
     metaTitle: "Will My Phone Work in Israel? What to Check Before You Go",
     metaDescription:
-      "Almost certainly yes — if it's unlocked. Here's how to check your phone's unlocked, confirm it supports Israel's bands, and pick between an eSIM, local SIM, pocket WiFi, or roaming.",
+      "Almost certainly, if it's unlocked. How to check it's unlocked, confirm Israel's bands, and choose between eSIM, local SIM and roaming.",
     datePublished: "2026-07-24",
     dateModified: "2026-07-24",
     readingTime: "7 min read",
@@ -1188,6 +1196,8 @@ export const guides: Guide[] = [
       { href: "/israel-sim-for-tourists", label: "Israel SIM for tourists" },
       { href: "/guides/do-us-phones-work-in-israel", label: "Do US phones work in Israel?" },
       { href: "/guides/israeli-phone-number-before-you-land", label: "Get your number before you land" },
+          { href: "/guides/esim-israel", label: "Setting up your eSIM in Israel" },
+          { href: "/guides/travel-esim-or-phone-plan-israel", label: "Travel eSIM or phone plan?" },
     ],
   },
   {
@@ -1195,7 +1205,7 @@ export const guides: Guide[] = [
     title: "How much data do I need in Israel?",
     metaTitle: "How Much Data Do I Need in Israel? Real Numbers by Lifestyle",
     metaDescription:
-      "Real per-app numbers and honest monthly estimates for students, families, tourists, and remote workers in Israel — plus how BitLink's no-overage plans work (data pauses at the cap, never a surprise bill).",
+      "Real per-app numbers and honest monthly estimates for students, families and tourists in Israel — plus how no-overage plans avoid surprise bills.",
     datePublished: "2026-07-24",
     dateModified: "2026-07-24",
     readingTime: "8 min read",
@@ -1307,9 +1317,9 @@ export const guides: Guide[] = [
   {
     slug: "how-to-call-israel-from-the-us",
     title: "How to call Israel from the US (and home from Israel)",
-    metaTitle: "How to Call Israel from the US: +972 Dialing, Costs & WhatsApp",
+    metaTitle: "How to Call Israel From the US (+972 Explained)",
     metaDescription:
-      "The +972 format explained with examples, what it costs to call Israel from a US phone, how families avoid international rates entirely, and how to call the US from Israel.",
+      "The +972 format with examples, what calling Israel costs from a US phone, and how families avoid international rates entirely.",
     datePublished: "2026-07-24",
     dateModified: "2026-07-24",
     readingTime: "6 min read",
@@ -1396,7 +1406,7 @@ export const guides: Guide[] = [
     title: "The gap year phone guide: setting up your phone for a year in Israel",
     metaTitle: "Gap Year in Israel: The Phone Plan Guide",
     metaDescription:
-      "Phone setup for a gap year in Israel — yeshiva, seminary, Masa, mechina, or volunteering. Why travel eSIMs fail at month two, what a year actually needs, from $14.99/mo.",
+      "Phone setup for a gap year in Israel — yeshiva, seminary, Masa or mechina. Why travel eSIMs fail at month two, and what a full year needs.",
     datePublished: "2026-07-16",
     dateModified: "2026-07-16",
     readingTime: "7 min read",
@@ -1491,6 +1501,8 @@ export const guides: Guide[] = [
       { href: "/guides/yeshiva-seminary-phone-checklist", label: "Yeshiva & seminary phone checklist" },
       { href: "/guides/israeli-phone-number-before-you-land", label: "Get your number before you land" },
       { href: "/guides/do-us-phones-work-in-israel", label: "Do US phones work in Israel?" },
+          { href: "/guides/how-much-data-do-i-need-in-israel", label: "How much data do you actually need?" },
+          { href: "/guides/travel-esim-or-phone-plan-israel", label: "Travel eSIM or phone plan?" },
     ],
   },
   {
@@ -1604,6 +1616,7 @@ export const guides: Guide[] = [
       { href: "/guides/gap-year-israel-phone-banking-money", label: "Phone, banking & money before they land" },
       { href: "/guides/gap-year-israel-first-two-weeks", label: "Their first two weeks in Israel" },
       { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+          { href: "/guides/sick-in-israel-gap-year", label: "What if they get sick in Israel?" },
     ],
   },
   {
@@ -1611,7 +1624,7 @@ export const guides: Guide[] = [
     title: "The honest packing list for a gap year in Israel",
     metaTitle: "Gap Year in Israel Packing List (Bring vs Buy)",
     metaDescription:
-      "An honest bring-versus-buy packing list for a gap year in Israel: what's worth the luggage weight, what to buy there, voltage and adapters, weather, and what students always forget.",
+      "An honest bring-versus-buy packing list for a gap year in Israel: what earns its luggage weight, what to buy there, and what students forget.",
     datePublished: "2026-07-25",
     dateModified: "2026-07-25",
     readingTime: "6 min read",
@@ -1720,7 +1733,7 @@ export const guides: Guide[] = [
     title: "Before they land: phone, banking, and money for a gap year in Israel",
     metaTitle: "Gap Year in Israel: Phone, Banking & Money Setup",
     metaDescription:
-      "How gap-year students set up a phone, keep their home number, and pay for a year in Israel: eSIM before landing, US bank texts, Bit and Pango, cash, and what to test before the flight.",
+      "Setting up a phone and money for a gap year in Israel: eSIM before landing, keeping US bank texts, Bit and Pango, and what to test before the flight.",
     datePublished: "2026-07-25",
     dateModified: "2026-07-25",
     readingTime: "7 min read",
@@ -1824,7 +1837,7 @@ export const guides: Guide[] = [
     title: "Their first two weeks in Israel: a gap year survival guide",
     metaTitle: "Gap Year in Israel: The First Two Weeks",
     metaDescription:
-      "A practical survival guide for a gap-year student's first two weeks in Israel: the airport, getting around, must-have apps, staying reachable to home, Shabbat, and emergency numbers.",
+      "A survival guide for a gap-year student's first two weeks in Israel: the airport, getting around, the apps, Shabbat and emergency numbers.",
     datePublished: "2026-07-25",
     dateModified: "2026-07-25",
     readingTime: "7 min read",
@@ -1933,6 +1946,8 @@ export const guides: Guide[] = [
       { href: "/guides/gap-year-israel-phone-banking-money", label: "Phone, banking & money before they land" },
       { href: "/guides/gap-year-israel-checklist", label: "The full gap year checklist" },
       { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+          { href: "/guides/how-to-call-israel-from-the-us", label: "Calling home from Israel" },
+      { href: "/guides/sick-in-israel-gap-year", label: "If they get sick in Israel" },
     ],
   },
   {
@@ -1940,7 +1955,7 @@ export const guides: Guide[] = [
     title: "How do I know if my Israeli number is kosher?",
     metaTitle: "Is My Israeli Number Kosher? Prefix List & How to Check",
     metaDescription:
-      "How to tell if an Israeli phone number is kosher, the actual carrier prefixes to check, what happens if a kosher SIM meets a regular phone, and how kosher-to-kosher porting really works.",
+      "How to tell if an Israeli number is kosher, the carrier prefixes to check, and how kosher-to-kosher porting actually works.",
     datePublished: "2026-07-29",
     dateModified: "2026-07-29",
     readingTime: "6 min read",
@@ -1974,7 +1989,7 @@ export const guides: Guide[] = [
       {
         heading: "What about the smaller resellers on the 055 prefix?",
         paragraphs: [
-          "A handful of smaller Israeli resellers (Rami Levy, Free Telecom, and others) also offer kosher lines, generally out of the shared 055 prefix block. We're intentionally not publishing exact sub-ranges for these here: 055 is a large block shared by many small MVNOs, sub-range assignments shift more often than the big five carriers above, and we found at least one public source with an internal inconsistency in its own numbers for a smaller reseller. If your number starts with 055 and isn't clearly explained by the table above, the reliable move is to ask that specific carrier directly rather than trust a prefix list — this is exactly the kind of detail worth getting from the source, not a table on the internet.",
+          "A handful of smaller Israeli resellers (Rami Levy, Free Telecom, and others) also offer kosher lines, generally out of the shared 055 prefix block. If you're wondering what 055 means in the first place, or how it differs from 050, 052, 053, 054 and 058, [the full breakdown of Israeli mobile prefixes](/guides/israeli-phone-number-area-codes) explains which carrier each one traces back to. We're intentionally not publishing exact sub-ranges for the smaller providers here: 055 is a large block shared by many small MVNOs, sub-range assignments shift more often than the big five carriers above, and we found at least one public source with an internal inconsistency in its own numbers for a smaller reseller. If your number starts with 055 and isn't clearly explained by the table above, the reliable move is to ask that specific carrier directly rather than trust a prefix list — this is exactly the kind of detail worth getting from the source, not a table on the internet.",
         ],
       },
       {
@@ -2034,9 +2049,9 @@ export const guides: Guide[] = [
   {
     slug: "israeli-phone-number-area-codes",
     title: "What do the different area codes on an Israeli phone number mean?",
-    metaTitle: "Israeli Phone Area Codes Explained (050, 052, 053, 054, 055, 058)",
+    metaTitle: "Israeli Mobile Prefixes: 050–058 Explained",
     metaDescription:
-      "What 050, 052, 053, 054, 055, and 058 actually mean on an Israeli mobile number, which carriers they trace back to, and whether a 055 or 053 number is just as real as any other.",
+      "What 050, 052, 053, 054, 055 and 058 mean on an Israeli mobile number, which carrier each traces back to, and whether 055 is just as real.",
     datePublished: "2026-08-09",
     dateModified: "2026-08-09",
     readingTime: "5 min read",
@@ -2094,6 +2109,16 @@ export const guides: Guide[] = [
     ],
     faq: [
       {
+        question: "Is 055 an area code in Israel?",
+        answer:
+          "Not in the way an area code works elsewhere. Israeli mobile prefixes are carrier ranges, not geographic ones — a 055 number tells you nothing about where in the country the person is. Landline area codes are geographic (02 Jerusalem, 03 Tel Aviv, 04 Haifa, 08 the south, 09 Sharon), but every mobile number starts 05 wherever it was issued.",
+      },
+      {
+        question: "Who owns the 055 prefix in Israel?",
+        answer:
+          "No single company. The Ministry of Communications allocates 055 as a shared range for MVNOs, so dozens of smaller providers issue numbers from it. That's an official arrangement, which is why a 055 number can't be traced to one recognisable brand the way an 052 or 054 number can.",
+      },
+      {
         question: "Is a 055 number a real Israeli phone number?",
         answer:
           "Yes. 055 is an official mobile prefix allocated by Israel's Ministry of Communications, specifically as a shared block for resellers (MVNOs) rather than one single carrier. It works exactly like any other Israeli mobile number.",
@@ -2128,7 +2153,7 @@ export const guides: Guide[] = [
     title: "How much does a gap year in Israel actually cost?",
     metaTitle: "Gap Year in Israel Cost: A Real Monthly Budget",
     metaDescription:
-      "What a yeshiva or seminary year in Israel really costs beyond tuition: honest monthly spending numbers, food, buses, off-Shabbat weekends, bein hazmanim, and where families overspend.",
+      "What a yeshiva or seminary year in Israel really costs beyond tuition: honest monthly numbers, bein hazmanim, and where families overspend.",
     datePublished: "2026-08-16",
     dateModified: "2026-08-16",
     readingTime: "7 min read",
@@ -2231,7 +2256,7 @@ export const guides: Guide[] = [
     title: "How do I get packages and Amazon orders during a year in Israel?",
     metaTitle: "Packages & Amazon Orders in Israel: What Actually Works",
     metaDescription:
-      "How gap-year students get packages in Israel: Amazon shipping, the customs tax thresholds, courier SMS and pickup points, addressing mail to a yeshiva, and why sending with a traveler beats the mail.",
+      "How students get packages in Israel: Amazon shipping, the customs thresholds, courier SMS, addressing mail to a yeshiva, and what not to post.",
     datePublished: "2026-08-16",
     dateModified: "2026-08-16",
     readingTime: "6 min read",
@@ -2325,7 +2350,7 @@ export const guides: Guide[] = [
     title: "What happens if my kid gets sick during their gap year in Israel?",
     metaTitle: "Getting Sick in Israel on a Gap Year: How Care Works",
     metaDescription:
-      "How healthcare works for gap-year students in Israel: the program's insurance, Terem urgent care, pharmacies, what a doctor visit costs, when to use the ER, and what parents should set up before the flight.",
+      "How healthcare works for gap-year students in Israel: the program's insurance, Terem urgent care, what a doctor costs, and when to use the ER.",
     datePublished: "2026-08-16",
     dateModified: "2026-08-16",
     readingTime: "7 min read",
@@ -2438,7 +2463,7 @@ export const guides: Guide[] = [
     title: "How do I get around Israel for the year? Buses, trains, Rav-Kav, and the apps",
     metaTitle: "Getting Around Israel: Rav-Kav, Buses, Trains & Apps",
     metaDescription:
-      "The gap-year student's guide to Israeli transport: how Rav-Kav and contactless fares work, Moovit, buses and the fast train, sherut taxis and Gett, and planning around Shabbat.",
+      "The student's guide to Israeli transport: Rav-Kav and contactless fares, Moovit, buses and the fast train, sheruts, and planning around Shabbat.",
     datePublished: "2026-08-16",
     dateModified: "2026-08-16",
     readingTime: "6 min read",
@@ -2532,14 +2557,15 @@ export const guides: Guide[] = [
       { href: "/guides/off-shabbos-gap-year", label: "Where do students go for off Shabbos?" },
       { href: "/guides/gap-year-israel-cost", label: "What a gap year actually costs" },
       { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
+          { href: "/guides/how-much-data-do-i-need-in-israel", label: "How much data you'll need" },
     ],
   },
   {
     slug: "off-shabbos-gap-year",
     title: "Where do gap year students go for off Shabbos?",
-    metaTitle: "Off Shabbos on a Gap Year: Finding Hosts & Being a Great Guest",
+    metaTitle: "Off Shabbos on a Gap Year: Finding Hosts",
     metaDescription:
-      "How off Shabbos actually works for yeshiva and seminary students in Israel: finding host families, the etiquette of being invited back, Friday travel logistics, and what to do when you have nowhere to go.",
+      "How off Shabbos works for yeshiva and seminary students in Israel: finding host families, getting invited back, and Friday travel timings.",
     datePublished: "2026-08-16",
     dateModified: "2026-08-16",
     readingTime: "6 min read",
@@ -2633,7 +2659,7 @@ export const guides: Guide[] = [
     title: "How do I receive Israeli SMS verification codes from abroad?",
     metaTitle: "Israeli SMS Verification Codes From Abroad: How It Works",
     metaDescription:
-      "Locked out of an Israeli bank, Bit, or gov.il because the code goes to a number you can't reach? How a real Israeli mobile number delivers verification texts to your email while you're still overseas.",
+      "Locked out of an Israeli bank or Bit because the code goes to a number you can't reach? How a real Israeli number delivers texts to your email.",
     datePublished: "2026-08-20",
     dateModified: "2026-08-20",
     readingTime: "7 min read",
@@ -2740,6 +2766,116 @@ export const guides: Guide[] = [
       { href: "/guides/israeli-phone-number-before-you-land", label: "Get an Israeli number before you land" },
       { href: "/guides/us-phone-number-before-aliyah", label: "Your US number before aliyah" },
       { href: "/israeli-phone-plans-for-olim", label: "Plans for olim" },
+    ],
+  },
+  {
+    slug: "travel-esim-or-phone-plan-israel",
+    title: "Travel eSIM or phone plan — which do I need for Israel?",
+    metaTitle: "Travel eSIM or Phone Plan for Israel?",
+    metaDescription:
+      "A travel eSIM is a package with an expiry date. A phone plan is a line you keep. Which one you need comes down to how long you're staying.",
+    datePublished: "2026-08-23",
+    dateModified: "2026-08-23",
+    readingTime: "6 min read",
+    intro:
+      "These look like the same product and they aren't. A travel eSIM is a package: a set amount of data, valid for a set number of days, after which it stops. A phone plan is a line: an ongoing service with a number that stays yours. For a week in Israel the package is usually the better buy, and this guide will say so plainly. For a year, it's the wrong shape of product — and the reason has nothing to do with speed or coverage.",
+    sections: [
+      {
+        heading: "What's actually the difference?",
+        paragraphs: [
+          "A travel eSIM is sold the way a ticket is sold. You buy 5GB valid for 15 days, or 10GB valid for 30, and when the days run out the package is finished. To carry on, you buy another one. It's designed for a trip with an end date, and for that it works well.",
+          "A phone plan is sold the way a utility is sold. It renews monthly, the number is registered to you, and it carries on until you stop it. There's no expiry to manage and nothing to rebuy. That difference sounds administrative, but it's the thing that decides which one suits you.",
+        ],
+      },
+      {
+        heading: "When is a travel eSIM the right answer?",
+        paragraphs: [
+          "Often, and we'd rather say so than pretend otherwise. If you're in Israel for a week or two, you mostly need maps, WhatsApp and a bit of browsing, and you're keeping your home number switched on for anything important, a travel eSIM is cheaper, faster to buy, and completely adequate. Paying for a monthly plan you'll use for nine days makes no sense.",
+          "The same is true for a second trip later in the year, or for a parent visiting for two weeks. Short and self-contained is exactly the shape a package is built for.",
+        ],
+      },
+      {
+        heading: "So what changes when you're staying longer?",
+        paragraphs: [
+          "Two things, and the first one is the one people don't see coming. A package has an end date, and Israeli life attaches itself to your phone number faster than you'd expect. Within a fortnight your number is sitting inside your bank's records, your Bit account, gov.il, the program's WhatsApp group, the pharmacy, and the courier who texts before delivering. All of that is anchored to one number.",
+          "So the question to ask before buying any package for a long stay is a simple one: when this expires and I buy the next one, do I keep the same number? Ask it explicitly, because if the answer is no, then everything tied to that number comes loose every time you renew — and you'll be re-verifying your bank instead of getting on with your year.",
+          "The second thing is arithmetic. Ten months of rebuying a thirty-day package is ten purchases, ten expiry dates to remember, and ten opportunities to be without service because you forgot. A plan renews on its own.",
+        ],
+      },
+      {
+        heading: "Don't some travel eSIMs include an Israeli number now?",
+        paragraphs: [
+          "Yes, and it's worth knowing. The category has moved: alongside the data-only packages, several travel eSIMs now sell Israel bundles that include a real +972 number with calls and texts. If you'd assumed a travel eSIM can never give you an Israeli number, that's out of date.",
+          "What tends to stay thin is the talk time. Voice bundles on packages are usually measured in tens or low hundreds of minutes for the month — fine for the occasional call, tight if you actually use your phone as a phone. For comparison, [BitLink's Basic plan](/plans) includes 1,000 minutes and 500 texts at $14.99 a month, and Student 5G includes 5,000 minutes with 50GB of data. Whether that matters depends entirely on whether you make calls.",
+        ],
+      },
+      {
+        heading: "How do the costs actually compare?",
+        paragraphs: [
+          "For light data over a short window, packages usually win on headline price, and for a two-week trip they win comfortably. Across a full year the comparison narrows and then flips, because you're buying twelve of something rather than one of something — and at the larger data sizes a monthly plan tends to be better value than the equivalent package.",
+          "The honest summary: if you're deciding between $12 for a fortnight and $14.99 for a month you'll barely use, buy the package. If you're deciding how to be connected from Elul to June, compare the whole year, not the first purchase.",
+        ],
+        table: {
+          columns: ["What you need", "Travel eSIM package", "Phone plan"],
+          rows: [
+            { cells: ["A week or two in Israel", "Yes — cheaper and simpler", "Overkill"] },
+            { cells: ["Data only, keeping your home number", "Yes", "Not necessary"] },
+            { cells: ["A number that lasts the whole year", "Ask whether it survives renewal", "Yes, it's yours"], highlight: true },
+            { cells: ["Real talk time", "Usually thin", "1,000–5,000 minutes"] },
+            { cells: ["Bank, Bit, gov.il, deliveries", "Only with a number bundle", "Yes"] },
+            { cells: ["Nothing to remember or rebuy", "Expires; repurchase each time", "Renews on its own"] },
+          ],
+          note:
+            "Neither column is the right answer on its own — the row you're in decides it. Short and self-contained favours a package; long and anchored to Israeli services favours a plan.",
+        },
+      },
+      {
+        heading: "What else comes with a plan rather than a package?",
+        paragraphs: [
+          "The things you only need occasionally, but badly when you do. A plan can be paused rather than cancelled if you go home for the summer and want the number waiting for you. You can [add a US, Canadian or UK number](/us-number-in-israel) so family dial a local number that rings your phone in Israel. You can port the number out to another Israeli carrier whenever you like, because it's registered to you. And you can top up mid-month instead of watching a package die.",
+          "There's also somebody to ask. A package is a self-serve product by design, which is fine until the eSIM won't install at 11pm on your first night. With BitLink there's a person on WhatsApp who answers when you need them — that's the service, not a safety net.",
+        ],
+      },
+      {
+        heading: "So which should you buy?",
+        paragraphs: [
+          "Two weeks or less, data-led, home number staying on: buy the travel eSIM. It's the cheaper, simpler, correct answer, and you don't need a plan.",
+          "A gap year, a semester, aliyah, a work posting, or anything where Israeli services will end up knowing your number: buy the plan. Not because packages are bad, but because you're not taking a trip — you're living somewhere, and living somewhere wants a phone line rather than a ticket with an expiry date. If that's you, [the student and olim plans](/israeli-phone-plans-for-students) are built for exactly that, and [setting the eSIM up before you fly](/guides/israeli-phone-number-before-you-land) means you land already connected.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Is a travel eSIM enough for a gap year in Israel?",
+        answer:
+          "Usually not. Packages expire and have to be repurchased, and the number they give you may not survive that — which matters once your bank, Bit and gov.il know it. For a stay measured in months, a monthly plan is the better shape of product.",
+      },
+      {
+        question: "Do travel eSIMs give you an Israeli phone number?",
+        answer:
+          "Some do now. Alongside data-only packages, several sell Israel bundles including a real +972 number with calls and texts. Check the specific package — and check whether you keep that number when you renew.",
+      },
+      {
+        question: "Is a travel eSIM cheaper than a phone plan?",
+        answer:
+          "For a short trip, usually yes, and noticeably so. Across a whole year the comparison narrows and often reverses, because you're buying a package repeatedly rather than paying once a month. Compare the year, not the first purchase.",
+      },
+      {
+        question: "What happens to my number when a travel eSIM package expires?",
+        answer:
+          "That depends on the provider, which is exactly why it's worth asking before you buy for a long stay. If the number doesn't carry over, every Israeli account tied to it needs re-verifying each time you renew.",
+      },
+      {
+        question: "Can I start with a travel eSIM and switch to a plan later?",
+        answer:
+          "Yes, and plenty of people do — they land on a package and move to a plan once they realise how much of Israeli life runs through an Israeli number. The only cost is that anything already registered to the old number has to be updated.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/esim-israel", label: "How to set up an eSIM in Israel" },
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get an Israeli number before you land" },
+      { href: "/guides/israeli-phone-number-for-banking-bit-pango", label: "Why banks and Bit need an Israeli number" },
+      { href: "/israel-esim", label: "Israel eSIM with a real Israeli number" },
     ],
   },
 ];
