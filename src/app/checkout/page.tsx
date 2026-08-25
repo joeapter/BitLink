@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
 import { defaultPlanSlug, plans, type PlanSlug } from "@/lib/plans";
 import { createNoIndexMetadata } from "@/lib/seo";
+import { showKosherPlusPromo } from "@/lib/kosher-plus-promo";
 
 export const metadata: Metadata = createNoIndexMetadata("Checkout", "Start BitLink monthly checkout securely.");
 
@@ -25,6 +26,7 @@ export default async function CheckoutPage({
           initialReferralCode={initialReferralCode}
           initialOrgReferralCode={initialOrgReferralCode}
           initialPromoCode={promo ?? ""}
+          kosherPlusPromoActive={showKosherPlusPromo("kosher-plus")}
         />
       </div>
     </section>

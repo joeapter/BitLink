@@ -14,6 +14,7 @@ export function AddOnCard() {
         <div>
           <p className="text-sm font-semibold text-ink">{addon.tagline}</p>
           <p className="mt-1 text-sm leading-6 text-muted-slate">{addon.body}</p>
+          <p className="mt-1 text-sm font-semibold text-emerald-700">Included with Kosher+ — no extra charge.</p>
         </div>
       </div>
       <div className="shrink-0 pl-11 sm:pl-0">

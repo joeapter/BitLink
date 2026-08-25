@@ -25,6 +25,10 @@ export type BitLinkPlan = {
   stripeEnvKey: string;
   tone: string;
   isKosher: boolean;
+  // The US/Canada/UK local number ships with the plan instead of being the
+  // $9.99/mo add-on. Checkout skips billing for it and provisioning attaches
+  // it alongside the Israeli number.
+  includesIntlNumber?: boolean;
   featured?: boolean;
   badge?: string;
   features: string[];
@@ -236,7 +240,7 @@ export const plans: BitLinkPlan[] = [
       "Physical SIM card",
       "VAT included",
       "No hidden fees",
-      "US/Canada local number available as add-on: +$9.99/mo",
+      "US, Canada, or UK local number included (normally $9.99/mo)",
     ],
     comparison: {
       data: "None",
@@ -252,27 +256,28 @@ export const plans: BitLinkPlan[] = [
     priceCents: 2499,
     currency: "USD",
     allowances: { dataBytes: null, voiceMinutes: 5000, smsCount: null },
-    description: "Kosher calling with USA/CA international minutes.",
+    description: "Kosher calling with a US, Canada, or UK number included.",
     detail:
-      "Everything in Kosher Basic, plus 150 minutes to US and Canadian numbers — for staying connected with family back home.",
-    seoTitle: "Kosher+ — $24.99/mo Kosher Plan + US/CA Minutes",
+      "Everything in Kosher Basic, plus 150 minutes to US and Canadian numbers — and a local US, Canada, or UK number included, so family abroad reaches you with a local call.",
+    seoTitle: "Kosher+ — $24.99/mo Kosher Plan With a US Number Included",
     seoDescription:
-      "Kosher voice-only plan with 5,000 Israeli minutes plus 150 minutes to US & Canada. $24.99/month, physical SIM, VAT included.",
+      "Kosher voice-only plan with 5,000 Israeli minutes, 150 minutes to US & Canada, and an included US, Canada, or UK local number. $24.99/month — first 3 months $19.99.",
     faq: [
       {
         question: "What does Kosher+ add over Kosher Basic?",
         answer:
-          "For $5 more per month, Kosher+ adds 150 minutes of calling to US and Canadian numbers on top of the same 5,000 minutes to Israeli numbers. It's the kosher plan for staying in regular touch with family abroad — same certified kosher line, same physical SIM, same voice-only limits.",
+          "For $5 more per month, Kosher+ adds 150 minutes of calling to US and Canadian numbers on top of the same 5,000 minutes to Israeli numbers, and includes a local US, Canada, or UK number so family abroad can call in without dialing internationally — a number that costs $9.99/month on any other plan. Same certified kosher line, same physical SIM, same voice-only limits.",
       },
       {
         question: "Can family in the US or Canada reach me easily on Kosher+?",
         answer:
-          "Two ways. Your included 150 US/Canada minutes cover the calls you make to them. For the calls they make to you, the US or Canada local-number add-on ($9.99/month) gives your line a number that's local on their end — parents dial a regular local number and it rings your kosher phone in Israel.",
+          "Two ways, both included. Your 150 US/Canada minutes cover the calls you make to them. For the calls they make to you, Kosher+ includes a local number in the US, Canada, or UK — parents dial a regular local number in their own country and it rings your kosher phone in Israel. The line stays voice-only, so that number carries incoming calls and nothing else.",
       },
     ],
     stripeEnvKey: "STRIPE_PRICE_KOSHER_PLUS",
     tone: "Kosher with USA/CA calling",
     isKosher: true,
+    includesIntlNumber: true,
     badge: "Kosher",
     features: [
       "Kosher phone number",
@@ -284,7 +289,7 @@ export const plans: BitLinkPlan[] = [
       "Physical SIM card",
       "VAT included",
       "No hidden fees",
-      "US/Canada local number available as add-on: +$9.99/mo",
+      "US, Canada, or UK local number included (normally $9.99/mo)",
     ],
     comparison: {
       data: "None",

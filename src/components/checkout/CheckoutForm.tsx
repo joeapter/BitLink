@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
 import { plans, isActivationFeeWaivedForPlan, type PlanSlug } from "@/lib/plans";
 import { getPromo } from "@/lib/promos";
+import { KOSHER_PLUS_PROMO } from "@/lib/kosher-plus-promo";
 import { formatMoney } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -30,6 +31,7 @@ const REGULAR_INTL_ADDON_CENTS = 999;
 
 export function CheckoutForm({
   initialPlanSlug,
+  kosherPlusPromoActive = false,
   initialReferralCode = "",
   initialOrgReferralCode = "",
   initialPromoCode = "",
@@ -40,6 +42,8 @@ export function CheckoutForm({
   recoveryToken = null,
 }: {
   initialPlanSlug: PlanSlug;
+  /** Resolved on the server: true only when the Stripe coupon really exists. */
+  kosherPlusPromoActive?: boolean;
   initialReferralCode?: string;
   initialOrgReferralCode?: string;
   initialPromoCode?: string;
@@ -60,7 +64,11 @@ export function CheckoutForm({
   const recoveryFeeWaived = Boolean(recoveryToken);
   const [delivery, setDelivery] = useState<PhysicalSimDeliveryDetails>(emptyDeliveryDetails);
   const [numberChoice, setNumberChoice] = useState<NumberChoice>("new");
-  const [wantsIntlNumber, setWantsIntlNumber] = useState(false);
+  // Direct landings on ?plan=kosher-plus skip handlePlanChange, so the bundled
+  // number has to be on from the first render too.
+  const [wantsIntlNumber, setWantsIntlNumber] = useState(
+    () => plans.find((p) => p.slug === initialPlanSlug)?.includesIntlNumber === true,
+  );
   const [intlCountry, setIntlCountry] = useState<IntlCountry>("us");
   const [intlSource, setIntlSource] = useState<IntlSource>("new");
   const [intlNumbers, setIntlNumbers] = useState<Array<{ number: string; region?: string | null; city?: string | null }>>([]);
@@ -127,6 +135,11 @@ export function CheckoutForm({
 
   // Kosher plans are physical-SIM only
   const forcePhysical = selectedPlan.isKosher;
+  // Kosher+ bundles the international number into the plan price. The picker
+  // below is the same one every plan uses — only the price label and the
+  // default change, so there's one code path for choosing a number.
+  const intlNumberIncluded = selectedPlan.includesIntlNumber === true && intlSource === "new";
+  const introPromoActive = kosherPlusPromoActive && selectedPlan.slug === KOSHER_PLUS_PROMO.planSlug;
   const effectiveSimType: SimType = forcePhysical ? "physical" : simType;
 
   // Keep simType in sync when plan changes to kosher
@@ -134,6 +147,13 @@ export function CheckoutForm({
     setPlanSlug(slug);
     const plan = plans.find((p) => p.slug === slug);
     if (plan?.isKosher) setSimType("physical");
+    // A plan that bundles the number arrives with it switched on — leaving a
+    // free included benefit unchecked is how people miss it entirely. Still a
+    // checkbox, so anyone who doesn't want one can decline.
+    if (plan?.includesIntlNumber) {
+      setWantsIntlNumber(true);
+      setIntlSource("new");
+    }
   };
 
   async function onSubmit(formData: FormData) {
@@ -231,6 +251,9 @@ export function CheckoutForm({
             intlIsPortIn={wantsIntlNumber && intlSource === "port"}
             intlPortDeferred={wantsIntlNumber && intlSource === "port" && intlPortDeferred}
             intlAddonPriceCentsOverride={promo?.intlAddonPriceCents ?? null}
+            intlNumberIncluded={intlNumberIncluded}
+            introPriceCents={introPromoActive ? KOSHER_PLUS_PROMO.introPriceCents : null}
+            introMonths={KOSHER_PLUS_PROMO.months}
           />
         </div>
         <div className="border-t border-ink/10 p-6 sm:p-8 lg:border-l lg:border-t-0">
@@ -415,7 +438,14 @@ export function CheckoutForm({
             <div className="flex-1">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-ink">Add a US, Canadian, or UK number</p>
-                {promo?.intlAddonPriceCents != null ? (
+                {intlNumberIncluded ? (
+                  <span className="flex items-center gap-2 text-sm font-semibold">
+                    <span className="text-muted-slate line-through opacity-60">
+                      +{formatMoney(REGULAR_INTL_ADDON_CENTS, "USD")}/mo
+                    </span>
+                    <span className="text-emerald-700">Included</span>
+                  </span>
+                ) : promo?.intlAddonPriceCents != null ? (
                   <span className="flex items-center gap-2 text-sm font-semibold">
                     <span className="text-muted-slate line-through opacity-60">
                       +{formatMoney(REGULAR_INTL_ADDON_CENTS, "USD")}/mo
@@ -426,7 +456,11 @@ export function CheckoutForm({
                   <span className="text-sm font-semibold text-link-blue">+$9.99/mo</span>
                 )}
               </div>
-              <p className="text-xs text-muted-slate">Let family call you like a local number — no international dialing</p>
+              <p className="text-xs text-muted-slate">
+                {intlNumberIncluded
+                  ? "Included with Kosher+ — family dials a local number in their country and your kosher phone rings in Israel."
+                  : "Let family call you like a local number — no international dialing"}
+              </p>
             </div>
           </label>
 
@@ -634,6 +668,9 @@ export function CheckoutForm({
         intlIsPortIn={wantsIntlNumber && intlSource === "port"}
         intlPortDeferred={wantsIntlNumber && intlSource === "port" && intlPortDeferred}
         intlAddonPriceCentsOverride={promo?.intlAddonPriceCents ?? null}
+        intlNumberIncluded={intlNumberIncluded}
+        introPriceCents={introPromoActive ? KOSHER_PLUS_PROMO.introPriceCents : null}
+        introMonths={KOSHER_PLUS_PROMO.months}
       />
     </div>
   );

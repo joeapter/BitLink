@@ -29,6 +29,7 @@ import { logger } from '@/lib/logger';
 import { generateReferralCode, normalizeReferralCode } from '@/lib/referrals';
 import { getPromo } from '@/lib/promos';
 import { isActivationFeeWaivedForPlan } from '@/lib/plans';
+import { kosherPlusPromoCouponId, planIncludesIntlNumber } from '@/lib/kosher-plus-promo';
 import { resolveDeliveryMethod } from '@/lib/delivery';
 
 export const dynamic = 'force-dynamic';
@@ -352,7 +353,20 @@ export async function POST(request: NextRequest): Promise<Response> {
   // brand-new foreign number ('new').
   const intlIsPort = wantsIntlNumber && intlNumberSource === 'port';
   const deferIntlPort = intlIsPort && intlPortDeferred;
-  const billIntlAddonNow = wantsIntlNumber && !deferIntlPort;
+
+  // Kosher+ ships with the international number in the plan price, so the
+  // $9.99/mo add-on line item is skipped — but the request still has to reach
+  // provisioning, which keys off wants_intl_number in the session metadata.
+  // Only a brand-new number is free: porting an existing foreign number is a
+  // different job with a real one-time cost, and still bills normally.
+  const planBundlesIntlNumber = planIncludesIntlNumber(planSlug) && !intlIsPort;
+  const intlNumberIncluded = planBundlesIntlNumber && wantsIntlNumber;
+  const billIntlAddonNow = wantsIntlNumber && !deferIntlPort && !intlNumberIncluded;
+
+  // Three-month intro discount. Resolved server-side only: the client can ask
+  // for any plan it likes, but the coupon is chosen here from the plan slug and
+  // the promo window, never from anything the browser sent.
+  const promoCouponId = kosherPlusPromoCouponId(planSlug);
 
   let session: Awaited<ReturnType<typeof createCheckoutSession>>;
   try {
@@ -362,6 +376,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       intlNumberAddonPriceId: billIntlAddonNow ? (process.env.STRIPE_PRICE_US_CANADA_ADDON?.trim() ?? null) : null,
       intlNumberAddonDiscountCents: billIntlAddonNow ? (promo?.intlAddonPriceCents ?? null) : null,
       intlPortInFeeId: (intlIsPort && !deferIntlPort) ? (process.env.STRIPE_PRICE_INTL_PORT_IN_FEE?.trim() ?? null) : null,
+      promoCouponId,
       stripeCustomerId,
       planSlug,
       isKosher,

@@ -15,6 +15,9 @@ export function CheckoutSummary({
   intlIsPortIn = false,
   intlPortDeferred = false,
   intlAddonPriceCentsOverride = null,
+  intlNumberIncluded = false,
+  introPriceCents = null,
+  introMonths = 0,
 }: {
   plan: BitLinkPlan;
   isPortIn?: boolean;
@@ -28,10 +31,15 @@ export function CheckoutSummary({
   // are not due today.
   intlPortDeferred?: boolean;
   intlAddonPriceCentsOverride?: number | null;
+  /** Plan bundles the international number — show it as included, not billed. */
+  intlNumberIncluded?: boolean;
+  /** Monthly price for the first `introMonths` months, when a promo applies. */
+  introPriceCents?: number | null;
+  introMonths?: number;
 }) {
   // A deferred foreign-number port has nothing due today — neither the monthly
   // add-on nor the one-time fee is charged at checkout.
-  const showIntlAddonNow = hasIntlNumber && !intlPortDeferred;
+  const showIntlAddonNow = hasIntlNumber && !intlPortDeferred && !intlNumberIncluded;
   return (
     <aside className="rounded-4xl border border-ink/10 bg-ink p-6 text-white shadow-liquid">
       <p className="text-sm font-semibold text-soft-cyan">Monthly plan</p>
@@ -41,10 +49,22 @@ export function CheckoutSummary({
       <div className="mt-8 rounded-3xl border border-white/12 bg-white/10 p-5">
         <div className="flex items-end justify-between gap-4">
           <span className="text-sm text-slate-300">Due monthly</span>
-          <span className="text-4xl font-semibold">
-            {formatMoney(plan.priceCents, plan.currency)}
-            <span className="text-base font-medium text-slate-300">/mo</span>
-          </span>
+          {introPriceCents != null ? (
+            <span className="text-right">
+              <span className="block text-4xl font-semibold">
+                {formatMoney(introPriceCents, plan.currency)}
+                <span className="text-base font-medium text-slate-300">/mo</span>
+              </span>
+              <span className="mt-1 block text-xs text-slate-300">
+                for {introMonths} months, then {formatMoney(plan.priceCents, plan.currency)}/mo
+              </span>
+            </span>
+          ) : (
+            <span className="text-4xl font-semibold">
+              {formatMoney(plan.priceCents, plan.currency)}
+              <span className="text-base font-medium text-slate-300">/mo</span>
+            </span>
+          )}
         </div>
         <div className="mt-3 border-t border-white/10 pt-3 flex items-center justify-between gap-4">
           <span className="text-sm text-slate-300">One-time activation fee</span>
@@ -83,6 +103,17 @@ export function CheckoutSummary({
                 <span className="text-base font-medium text-slate-300">/mo</span>
               </span>
             )}
+          </div>
+        )}
+        {hasIntlNumber && intlNumberIncluded && (
+          <div className="mt-3 border-t border-white/10 pt-3 flex items-center justify-between gap-4">
+            <span className="text-sm text-slate-300">US/Canada/UK number</span>
+            <span className="flex items-center gap-2">
+              <span className="text-sm text-slate-400 line-through opacity-60">
+                {formatMoney(INTL_NUMBER_ADDON_CENTS, plan.currency)}
+              </span>
+              <span className="text-sm font-semibold text-trust-green">Included</span>
+            </span>
           </div>
         )}
         {hasIntlNumber && intlIsPortIn && !intlPortDeferred && (

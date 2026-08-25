@@ -289,6 +289,139 @@ export const landingPages = {
     finalBody:
       "Review the included minutes, device requirements, and plan contract before choosing a kosher plan.",
   },
+  kosherUsaNumber: {
+    slug: "/kosher-phone-plan-with-usa-number",
+    metaTitle: "Kosher Phone Plan With a USA Number",
+    metaDescription:
+      "Kosher+ is $24.99/month and now includes a US, Canada, or UK local number so family abroad calls locally. First 3 months $19.99. Voice-only kosher line, physical SIM.",
+    eyebrow: "Kosher+ with a home number",
+    h1: "A kosher phone your family abroad can call as a local call.",
+    intro:
+      "BitLink Kosher+ is $24.99/month and includes a local US, Canadian, or UK phone number attached to the kosher line — so grandparents in Brooklyn, Toronto, or Manchester dial a number that's local to them and the kosher phone in Israel rings. The first three months are $19.99, and the international number stays included after that. The line remains a fully voice-only kosher line on the certified kosher range: 5,000 minutes of Israeli calling, 150 minutes of outbound US and Canada calling, a physical SIM, and no data or SMS of any kind.",
+    primaryCta: {
+      href: "/plans/kosher-plus",
+      label: "See Kosher+",
+    },
+    secondaryCta: {
+      href: "/support",
+      label: "Ask before you buy",
+    },
+    highlights: [
+      {
+        title: "Local for them, kosher for you",
+        body: "Family dials a regular local number in their own country — no international dialing, no calling cards, nothing for a grandparent to learn. The call rings the kosher phone in Israel.",
+      },
+      {
+        title: "Included, not an add-on",
+        body: "The international number normally costs $9.99/month on top of a plan. On Kosher+ it is included in the $24.99, and it stays included after the promotional period ends.",
+      },
+      {
+        title: "Still a voice-only kosher line",
+        body: "Nothing about the kosher certification changes. No data, no SMS, no internet — the international number carries incoming calls only.",
+      },
+    ],
+    comparisonTable: {
+      heading: "Kosher Basic vs. Kosher+ with a home number",
+      body: "Both are voice-only kosher lines on a physical SIM and both require a certified kosher phone. The difference is how family abroad reaches you.",
+      columns: ["Kosher Basic", "Kosher+ with a home number"],
+      rows: [
+        {
+          label: "Monthly price",
+          a: "$19.99",
+          b: "$24.99 — first 3 months $19.99",
+        },
+        {
+          label: "Israeli calling",
+          a: "5,000 minutes",
+          b: "5,000 minutes",
+        },
+        {
+          label: "Calling the US and Canada",
+          a: "Not included",
+          b: "150 minutes of outbound calling",
+        },
+        {
+          label: "How family abroad calls you",
+          a: "They dial +972 internationally",
+          b: "They dial a local US, Canada, or UK number — included",
+        },
+        {
+          label: "Data and SMS",
+          a: "None — voice only",
+          b: "None — voice only",
+        },
+      ],
+    },
+    details: [
+      {
+        title: "Which countries the number can be from",
+        body: "United States, Canada, or the United Kingdom — one included number per line, and you choose the country at checkout from the numbers available. The number is a normal local number in that country, so whoever calls it is making a local call on their own plan. Numbers come from a limited block, so availability in a specific country can run out. What's included is a new number: bringing an existing American or British number across is a separate porting service with its own one-time fee, and isn't part of this offer.",
+      },
+      {
+        title: "Why this exists",
+        body: "Kosher phones are common in anglo Israeli families, and the grandparents are usually the ones paying for international calls or fighting with calling cards to reach a grandchild. Attaching a local number in their country turns that into an ordinary phone call from their end, without changing anything about the kosher line on this end.",
+      },
+      {
+        title: "What stays exactly the same",
+        body: "The line is on the certified kosher number range recognized by Vaadat Harabanim L'inyanei Tikshoret, requires a certified kosher phone, and activates on a physical SIM. Kosher lines do not support eSIM. Adding an incoming international number does not add data, SMS, or internet to the line in any form.",
+      },
+      {
+        title: "Getting set up",
+        body: "Choose Kosher+ at checkout and BitLink provisions the Israeli kosher number and the international number together. If you are buying for a child's first kosher phone and want to confirm device compatibility or a school's requirement first, support can check before you pay.",
+      },
+    ],
+    qaBlocks: [
+      {
+        question: "How much is a kosher phone plan with a USA number?",
+        answer:
+          "BitLink Kosher+ is $24.99 per month and includes a local US number attached to the kosher line, with the first three months at $19.99. That covers 5,000 minutes of Israeli calling, 150 minutes of outbound calling to US and Canadian numbers, and an incoming US, Canadian, or UK local number that family abroad can dial as a local call. VAT is included. The international number is normally a $9.99/month add-on on other BitLink plans, so on Kosher+ it is effectively bundled into the plan price rather than charged separately. Kosher lines require a certified kosher phone and a physical SIM, and remain voice-only.",
+      },
+      {
+        question: "Can a kosher phone in Israel have a US number?",
+        answer:
+          "Yes. The kosher line keeps its Israeli number on the certified kosher range, and a local US, Canadian, or UK number is attached to the same line for incoming calls. When someone dials the US number from America, it is a local call for them, and the kosher phone in Israel rings like any other incoming call. Nothing about the device changes — it is still a certified kosher phone with no data, no internet, and no SMS. The international number only carries voice calls in.",
+      },
+      {
+        question: "Does the US number on a kosher line receive text messages?",
+        answer:
+          "No. Kosher lines are voice-only by design, and that applies to the international number as well — it carries incoming phone calls and nothing else. No SMS, no verification codes, no data. This is deliberate: a kosher line is certified on the basis that it does not send or receive text messages, and BitLink does not offer a way around that on kosher plans. If you need a US number that receives bank and service verification texts, that works on BitLink's standard plans, where the same $9.99/month add-on does receive US SMS — but it requires a standard, non-kosher phone and line.",
+      },
+      {
+        question: "Do my parents pay international rates to call an Israeli kosher phone?",
+        answer:
+          "Not with the included number. They dial a normal local number in the United States, Canada, or the United Kingdom, and their own carrier treats it as a local call — which on most plans there costs nothing extra. The call rings the kosher phone in Israel. Without an arrangement like this, family abroad has to dial +972 internationally or use calling cards, which is exactly the friction that stops grandparents from calling as often as they would like.",
+      },
+      {
+        question: "Is the line still kosher with an international number attached?",
+        answer:
+          "Yes. The Israeli number stays on the certified kosher number range recognized by Vaadat Harabanim L'inyanei Tikshoret (registered association no. 580440824), the rabbinical committee that oversees kosher phone service in Israel, and the phone must still be a certified kosher device on a physical SIM. The international number adds one thing only: a second way for calls to come in. It adds no data, no SMS, and no internet access. If your school, yeshiva, or community asks for specific certification details before you buy, support can confirm them first.",
+      },
+      {
+        question: "Is the included number new, or can I bring my existing US number?",
+        answer:
+          "The number included with Kosher+ is a new local number — you pick the country at checkout and choose from the numbers available in it. Bringing an existing US, Canadian, or UK number onto the line is a different service: it's a port, it takes 3 to 5 business days, and it carries a one-time fee plus the regular $9.99/month, so it isn't part of this offer. If everyone already has your old American number saved, porting may still be the right choice — [support](/support) can walk through which one fits.",
+      },
+      {
+        question: "What happens to the price after three months?",
+        answer:
+          "The plan moves to its regular $24.99 per month and the international number stays included at no extra charge. There is no separate add-on fee later and nothing to cancel — the $19.99 introductory rate simply ends and billing continues at the standard Kosher+ price. You can cancel at any time.",
+      },
+      {
+        question: "Which is better for a child's first kosher phone, Kosher Basic or Kosher+?",
+        answer:
+          "Kosher Basic at $19.99/month is the simpler choice if everyone who calls the phone is in Israel: 5,000 Israeli minutes, voice-only, physical SIM. Kosher+ makes sense when family lives abroad — it adds 150 minutes of outbound US and Canada calling so the child can call grandparents directly, plus the included local number so grandparents can call in without dialing internationally. For the first three months both plans cost the same $19.99, so the practical question is simply whether there is family overseas who should be able to reach the phone easily.",
+      },
+    ],
+    planSlugs: ["kosher-plus", "kosher-basic"],
+    relatedLinks: [
+      { href: "/kosher-phone-plans-israel", label: "All kosher phone plans" },
+      { href: "/us-number-in-israel", label: "US numbers on standard plans" },
+      { href: "/guides/kosher-phones-israel-explained", label: "Kosher phones in Israel, explained" },
+    ],
+    finalHeading: "Let them call without thinking about it.",
+    finalBody:
+      "Kosher+ with an included US, Canada, or UK number — $19.99 for the first three months, then $24.99 with the number still included.",
+  },
   olimPlans: {
     slug: "/israeli-phone-plans-for-olim",
     metaTitle: "Israeli Phone Plans for Olim",
@@ -534,11 +667,11 @@ export const landingPages = {
     slug: "/us-number-in-israel",
     metaTitle: "US Number in Israel — $9.99/mo Add-On",
     metaDescription:
-      "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family dials a local number, your phone rings in Israel — and US bank & verification texts arrive too.",
+      "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family dials a local number, your phone rings in Israel — and on standard plans, US bank & verification texts arrive too.",
     eyebrow: "US / Canada / UK number",
     h1: "A US number that rings — and texts — in Israel.",
     intro:
-      "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family and clients back home dial a number that's local to them — no international dialing, no calling cards — and the call rings your phone in Israel. It works on every plan, including kosher lines. And it's not just calls: the number receives US text messages too, including the verification codes American banks and services send — tested with real Chase and Google codes arriving in Israel.",
+      "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family and clients back home dial a number that's local to them — no international dialing, no calling cards — and the call rings your phone in Israel. It works on every plan, including kosher lines. On standard plans it's not just calls: the number receives US text messages too, including the verification codes American banks and services send — tested with real Chase and Google codes arriving in Israel. Kosher lines are the exception by design — they stay voice-only, so the number carries incoming calls and nothing else.",
     primaryCta: {
       href: "/plans",
       label: "Choose a plan",
@@ -584,7 +717,7 @@ export const landingPages = {
         {
           label: "Bank & verification texts",
           a: "Arrive on the US SIM you're still paying a carrier to keep alive",
-          b: "Arrive on the add-on number — tested with real Chase and Google codes",
+          b: "Arrive on the add-on number on standard plans — tested with real Chase and Google codes. Kosher lines stay voice-only",
         },
         {
           label: "Your existing US number",
@@ -635,7 +768,7 @@ export const landingPages = {
       {
         question: "Does the add-on work with kosher plans?",
         answer:
-          "Yes. A US or Canadian local number can be added to [Kosher Basic](/plans/kosher-basic) or [Kosher+](/plans/kosher-plus) for the same $9.99/month, and it rings the kosher phone like any other call. Combined with Kosher+'s included 150 minutes of outbound US/Canada calling, a kosher line can stay closely connected with family abroad in both directions.",
+          "Yes, for incoming calls. A US or Canadian local number can be added to [Kosher Basic](/plans/kosher-basic) or [Kosher+](/plans/kosher-plus) for the same $9.99/month, and it rings the kosher phone like any other call. Texts are the one thing it does not carry on a kosher line: kosher lines are voice-only by certification, so no SMS or verification codes arrive on them. Combined with Kosher+'s included 150 minutes of outbound US/Canada calling, a kosher line can stay closely connected with family abroad in both directions.",
       },
     ],
     planSlugs: ["student-5g", "max-5g", "kosher-plus"],

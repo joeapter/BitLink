@@ -7,6 +7,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ButtonLink } from "@/components/ui/Button";
 import { TextWithLinks } from "@/components/ui/TextWithLinks";
 import { formatMoney } from "@/lib/utils";
+import { showKosherPlusPromo, KOSHER_PLUS_PROMO } from "@/lib/kosher-plus-promo";
 import { getPlan, plans } from "@/lib/plans";
 import { contractData } from "@/lib/contracts";
 import { createPageMetadata, faqPageJsonLd, jsonLdScriptProps, planJsonLd } from "@/lib/seo";
@@ -84,10 +85,24 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ slu
           </div>
 
           <div className="rounded-[2rem] border border-white/14 bg-white/10 p-6 backdrop-blur">
-            <div className="text-5xl font-semibold">
-              {formatMoney(plan.priceCents, plan.currency)}
-              <span className="text-lg font-medium text-slate-300">/mo</span>
-            </div>
+            {showKosherPlusPromo(plan.slug) ? (
+              <>
+                <div className="text-5xl font-semibold">
+                  {formatMoney(KOSHER_PLUS_PROMO.introPriceCents, plan.currency)}
+                  <span className="text-lg font-medium text-slate-300">/mo</span>
+                </div>
+                <p className="mt-2 text-sm font-medium text-soft-cyan">
+                  for your first {KOSHER_PLUS_PROMO.months} months, then{" "}
+                  {formatMoney(plan.priceCents, plan.currency)}/mo — and the US, Canada, or UK
+                  number stays included.
+                </p>
+              </>
+            ) : (
+              <div className="text-5xl font-semibold">
+                {formatMoney(plan.priceCents, plan.currency)}
+                <span className="text-lg font-medium text-slate-300">/mo</span>
+              </div>
+            )}
             <p className="mt-4 text-sm leading-6 text-slate-200">Checkout securely. We&apos;ll get your connection moving.</p>
             <ButtonLink href={`/checkout?plan=${plan.slug}`} variant="dark" size="lg" className="mt-6 w-full">
               Choose this plan

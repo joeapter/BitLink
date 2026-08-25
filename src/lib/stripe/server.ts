@@ -28,6 +28,11 @@ export interface CreateCheckoutSessionParams {
   // (see src/lib/promos.ts). Resolved server-side only, never client-supplied.
   intlNumberAddonDiscountCents?: number | null;
   intlPortInFeeId?: string | null;
+  // Stripe coupon applied to the subscription (e.g. the Kosher+ 3-month intro
+  // discount). Stripe expires a repeating coupon by itself, so nothing has to
+  // restore the price later. Mutually exclusive with allow_promotion_codes —
+  // Stripe rejects a session that sets both.
+  promoCouponId?: string | null;
   stripeCustomerId: string;
   planSlug: string;
   isKosher: boolean;
@@ -128,7 +133,12 @@ export async function createCheckoutSession(
     mode: 'subscription',
     customer: params.stripeCustomerId,
     line_items: lineItems,
-    allow_promotion_codes: true,
+    // Stripe allows a session to carry EITHER a pre-applied coupon or a
+    // promotion-code box, never both. An automatic offer beats a code the
+    // customer would have to know about, so the coupon wins when present.
+    ...(params.promoCouponId
+      ? { discounts: [{ coupon: params.promoCouponId }] }
+      : { allow_promotion_codes: true }),
     billing_address_collection: 'auto',
     phone_number_collection: { enabled: true },
     // Card-first checkout: Link otherwise takes over the top of the form for
