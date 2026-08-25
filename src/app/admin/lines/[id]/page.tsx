@@ -14,6 +14,8 @@ import { formatDateTime } from "@/lib/utils";
 import QRCode from "qrcode";
 import { toLpaString } from "@/lib/esim";
 import { whatsappGreeting, whatsappWebUrl } from "@/lib/whatsapp";
+import { RefundAndCancelCard } from "@/components/admin/RefundAndCancelCard";
+import { getRefundContext } from "@/lib/admin/refund-cancel";
 import { LiveLineData, LiveLineDataSkeleton } from "./LiveLineData";
 
 export const metadata: Metadata = { title: "Line Detail" };
@@ -60,6 +62,21 @@ export default async function AdminLineDetailPage({ params }: Props) {
 
   const metadata = (line.metadata ?? {}) as Record<string, unknown>;
   const isEsim = metadata.is_esim === true || metadata.is_esim === "true" || metadata.is_esim === 1;
+
+  // Only used to warn on the Terminate button, which does not touch Stripe.
+  // Read from `subscribers` rather than Stripe so the panel doesn't wait on a
+  // network round trip; the status can lag reality, but erring towards showing
+  // the warning is the safe direction for a destructive button.
+  const { data: billingRow } = await db
+    .from("subscribers")
+    .select("status")
+    .eq("telecom_line_id", id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const hasActiveSubscription = ["active", "trialing", "past_due", "unpaid"].includes(
+    String(billingRow?.status ?? ""),
+  );
 
   return (
     <div className="grid gap-4 sm:gap-6">
@@ -228,15 +245,41 @@ export default async function AdminLineDetailPage({ params }: Props) {
             />
           )}
 
+          <Suspense fallback={<RefundAndCancelSkeleton />}>
+            <RefundAndCancelSection lineId={line.id} />
+          </Suspense>
+
           {providerLineId && (
             <LineActionsPanel
               lineId={line.id}
               providerLineId={providerLineId}
               currentStatus={line.status}
+              hasActiveSubscription={hasActiveSubscription}
             />
           )}
         </div>
       </div>
     </div>
+  );
+}
+
+
+// Streamed separately: building this card costs two or three Stripe round
+// trips, and the rest of the page has no reason to wait for them.
+async function RefundAndCancelSection({ lineId }: { lineId: string }) {
+  const db = await getAdminDb();
+  if (!db) return null;
+  const context = await getRefundContext(db, lineId);
+  // Nothing was ever paid on this line — don't take up space on the page.
+  if (!context.lastPayment && !context.subscriptionId) return null;
+  return <RefundAndCancelCard lineId={lineId} context={context} />;
+}
+
+function RefundAndCancelSkeleton() {
+  return (
+    <section className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-5">
+      <div className="h-5 w-40 animate-pulse rounded bg-slate-200" />
+      <div className="mt-4 h-24 animate-pulse rounded-xl bg-slate-100" />
+    </section>
   );
 }

@@ -10,6 +10,8 @@ import { changeLinePlan, type PlanChangeResult } from "@/lib/line-plan-change";
 import { sendProvisionedNotifications } from "@/lib/notifications/send-provisioned";
 import { addIntlNumberToLine, removeIntlNumberFromLine, type AddIntlNumberResult, type RemoveIntlNumberResult } from "@/lib/custom-orders/international-numbers";
 import { grantTopup, cancelTopupGrant, type GrantTopupResult } from "@/lib/topups/grant-topup";
+import { refundAndCancelLine } from '@/lib/admin/refund-cancel';
+import { formatMoney } from '@/lib/utils';
 import { createIntlPortInRequest, setIntlPortInStatus, completeIntlPortInRequest } from "@/lib/custom-orders/intl-port-in-requests";
 import {
   createIsraeliPortInRequest,
@@ -937,4 +939,47 @@ export async function cancelIsraeliPortInAction(formData: FormData) {
   await logAction(user.id, 'israeli_port_in_cancelled', lineId, { requestId });
   revalidatePath(`/admin/lines/${lineId}`);
   return result;
+}
+
+// ── Refund & cancel ───────────────────────────────────────────────────────────
+
+export type RefundState = { error?: string; success?: string } | null;
+
+// Refunds the last payment and cancels the subscription. The carrier line is
+// NOT terminated here — cancelling at Stripe fires customer.subscription.deleted,
+// which already terminates the line and returns the DID to the number bank.
+// See src/lib/admin/refund-cancel.ts for why that split matters.
+export async function refundAndCancelLineAction(
+  _prev: RefundState,
+  formData: FormData,
+): Promise<RefundState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const expectedAmountCents = Number(formData.get('expectedAmountCents') ?? NaN);
+  if (!lineId) return { error: 'Missing line reference.' };
+  if (!Number.isFinite(expectedAmountCents)) return { error: 'Missing the amount to refund.' };
+
+  const admin = getAdmin();
+  const result = await refundAndCancelLine(admin, lineId, expectedAmountCents);
+
+  if (result.refundedCents === undefined) {
+    return { error: result.error ?? 'Refund did not go through.' };
+  }
+
+  await logAction(user.id, 'line_refunded_and_cancelled', lineId, {
+    refundedCents: result.refundedCents,
+    currency: result.currency,
+    cancelled: result.cancelled ?? false,
+  });
+  revalidatePath(`/admin/lines/${lineId}`);
+  revalidatePath('/admin/lines');
+
+  const amount = formatMoney(result.refundedCents, result.currency ?? 'ILS');
+  // A refund that landed but failed to cancel still reports as an error, so the
+  // remaining manual step can't be missed — but it names the refund first.
+  if (result.error) return { error: `${amount} refunded. ${result.error}` };
+
+  return {
+    success: `${amount} refunded and the subscription cancelled. The line terminates automatically within a minute or two, once Stripe's cancellation webhook lands.`,
+  };
 }

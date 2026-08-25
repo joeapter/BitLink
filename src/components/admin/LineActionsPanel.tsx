@@ -15,6 +15,12 @@ interface Props {
   lineId: string;
   providerLineId: string;
   currentStatus: string;
+  /**
+   * True when Stripe still bills this line. Terminating alone does NOT touch
+   * Stripe, so without this warning it's easy to kill the service and leave the
+   * customer paying every month. Refund & cancel is the button that does both.
+   */
+  hasActiveSubscription?: boolean;
 }
 
 function ActionButton({
@@ -48,7 +54,7 @@ function ActionButton({
   );
 }
 
-export function LineActionsPanel({ lineId, providerLineId, currentStatus }: Props) {
+export function LineActionsPanel({ lineId, providerLineId, currentStatus, hasActiveSubscription }: Props) {
   const [pending, startTransition] = useTransition();
   const isSuspended = currentStatus === "suspended";
 
@@ -125,7 +131,10 @@ export function LineActionsPanel({ lineId, providerLineId, currentStatus }: Prop
         {/* Terminate — destructive */}
         <form
           action={(fd) => {
-            if (!confirm("Permanently terminate this line? This cannot be undone.")) return;
+            const warning = hasActiveSubscription
+              ? "This line still has an ACTIVE Stripe subscription. Terminating does not stop the billing \u2014 they'll keep being charged for a dead line. Use \u201cRefund & cancel\u201d instead unless you mean to cancel the subscription separately.\n\nTerminate anyway?"
+              : "Permanently terminate this line? This cannot be undone.";
+            if (!confirm(warning)) return;
             startTransition(() => { void terminateLineAction(fd); });
           }}
         >
@@ -139,6 +148,11 @@ export function LineActionsPanel({ lineId, providerLineId, currentStatus }: Prop
           <AlertTriangle className="h-3 w-3" />
           Permanent — removes line from Annatel network.
         </p>
+        {hasActiveSubscription ? (
+          <p className="ml-2 text-xs font-semibold text-amber-700">
+            Billing keeps running — this does not cancel their subscription.
+          </p>
+        ) : null}
       </div>
     </section>
   );
