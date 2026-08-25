@@ -7,6 +7,7 @@ import { plans, defaultKosherPlanSlug, type PlanSlug } from "@/lib/plans";
 import { formatMoney, cn } from "@/lib/utils";
 import { ButtonLink } from "@/components/ui/Button";
 import { PlanFeatureList } from "./PlanFeatureList";
+import { KOSHER_PLUS_PROMO } from "@/lib/kosher-plus-promo";
 
 type Tab = "plans" | "kosher";
 
@@ -15,7 +16,20 @@ const TAB_DEFAULTS: Record<Tab, PlanSlug> = {
   kosher: defaultKosherPlanSlug,
 };
 
-export function PlanSelector({ initialSlug = "student-5g" }: { initialSlug?: PlanSlug }) {
+export function PlanSelector({
+  initialSlug = "student-5g",
+  kosherPlusPromoActive = false,
+}: {
+  initialSlug?: PlanSlug;
+  /** Resolved on the server — true only when the Stripe coupon really exists. */
+  kosherPlusPromoActive?: boolean;
+}) {
+  // One helper so the card and the detail panel can never disagree about
+  // whether an intro price is on offer.
+  const introPriceFor = (slug: string) =>
+    kosherPlusPromoActive && slug === KOSHER_PLUS_PROMO.planSlug
+      ? KOSHER_PLUS_PROMO.introPriceCents
+      : null;
   const initialTab: Tab = plans.find((p) => p.slug === initialSlug)?.isKosher ? "kosher" : "plans";
   const [tab, setTab] = useState<Tab>(initialTab);
   const [selectedSlug, setSelectedSlug] = useState<PlanSlug>(initialSlug);
@@ -80,6 +94,11 @@ export function PlanSelector({ initialSlug = "student-5g" }: { initialSlug?: Pla
                   <span className="text-sm font-medium text-current/60">/mo</span>
                 </span>
                 <span className="mt-2 block text-xs leading-5 text-current/62">{plan.tone}</span>
+                {introPriceFor(plan.slug) != null ? (
+                  <span className="mt-2 block text-xs font-semibold leading-5 text-emerald-700">
+                    {formatMoney(introPriceFor(plan.slug)!, plan.currency)} for 3 months
+                  </span>
+                ) : null}
               </button>
             );
           })}
@@ -109,9 +128,17 @@ export function PlanSelector({ initialSlug = "student-5g" }: { initialSlug?: Pla
                   {selected.name}
                 </h2>
               </div>
-              <div className="shrink-0 text-3xl font-semibold text-ink sm:text-4xl">
-                {formatMoney(selected.priceCents, selected.currency)}
-                <span className="text-base font-medium text-muted-slate">/mo</span>
+              <div className="shrink-0 text-right">
+                <div className="text-3xl font-semibold text-ink sm:text-4xl">
+                  {formatMoney(selected.priceCents, selected.currency)}
+                  <span className="text-base font-medium text-muted-slate">/mo</span>
+                </div>
+                {introPriceFor(selected.slug) != null ? (
+                  <p className="mt-1 text-sm font-semibold text-emerald-700">
+                    {formatMoney(introPriceFor(selected.slug)!, selected.currency)}/mo for your first{" "}
+                    {KOSHER_PLUS_PROMO.months} months
+                  </p>
+                ) : null}
               </div>
             </div>
 

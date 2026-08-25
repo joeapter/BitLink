@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AddOnCard } from "@/components/plans/AddOnCard";
 import { PlanComparison } from "@/components/plans/PlanComparison";
 import { PlanSelector } from "@/components/plans/PlanSelector";
+import { showKosherPlusPromo } from "@/lib/kosher-plus-promo";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { TrialOfferPromo } from "@/components/marketing/TrialOfferPromo";
 import { TextWithLinks } from "@/components/ui/TextWithLinks";
@@ -51,7 +52,7 @@ export default async function PlansPage() {
 
       <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <PlanSelector />
+          <PlanSelector kosherPlusPromoActive={showKosherPlusPromo("kosher-plus")} />
           <AddOnCard />
         </div>
       </section>
