@@ -346,7 +346,11 @@ async function completeJob(
   // Auto-assign a DID and collect eSIM activation code for storage in metadata
   if (providerLineId) {
     try {
-      const currentMeta = ((await linesRepo.getLine(admin, lineId))?.metadata ?? {}) as Record<string, unknown>;
+      const lineRow = (await linesRepo.getLine(admin, lineId)) as Record<string, unknown> | null;
+      const currentMeta = (lineRow?.metadata ?? {}) as Record<string, unknown>;
+      // The stored column is what the carrier line was actually created with;
+      // the payload flag is only a fallback for jobs written before it existed.
+      const isKosherLine = lineRow?.is_kosher === true || payload.isKosher === true;
       const portInParams = payload.portInParams as { number?: string } | undefined;
       if (portInParams) {
         // The job only completes once the port has executed — the ported
@@ -363,10 +367,12 @@ async function completeJob(
         // number) — assigning another would double-book inventory.
         log.info({ jobId: job.id, lineId, did: currentMeta.phone_number }, 'Line already has a number — skipping DID auto-assign');
       } else {
-        // getAvailableDid() only ever offers Israeli (+972) candidates, but
-        // its listing has no way to know a number is already attached
-        // elsewhere at the provider (no live assignment status in the DID
-        // pool endpoint) — a candidate can still get rejected with a 422.
+        // getAvailableDid() only ever offers Israeli (+972) candidates from
+        // the side of the bank that matches the line (kosher lines only get
+        // numbers from a kosher-provisioned block), but its listing has no
+        // way to know a number is already attached elsewhere at the provider
+        // (no live assignment status in the DID pool endpoint) — a candidate
+        // can still get rejected with a 422.
         // Retry against the next candidate instead of giving up on the
         // first rejection, which used to leave the line silently numberless.
         const excluded = await collectUsedNumbers(admin);
@@ -374,7 +380,7 @@ async function completeJob(
         let lastError = '';
         const MAX_DID_ATTEMPTS = 5;
         for (let attempt = 0; attempt < MAX_DID_ATTEMPTS; attempt++) {
-          const candidate = await provider.getAvailableDid(excluded);
+          const candidate = await provider.getAvailableDid(excluded, { isKosher: isKosherLine });
           if (!candidate) break;
           try {
             await provider.assignDid(providerLineId, candidate);

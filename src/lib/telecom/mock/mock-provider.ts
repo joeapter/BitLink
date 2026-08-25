@@ -244,7 +244,7 @@ export class MockTelecomProvider implements TelecomProvider {
     return [{ id: 'mock-plan-1', name: 'mock-basic', isMain: true }];
   }
 
-  async getAvailableDid(_usedNumbers?: string[]): Promise<string | null> {
+  async getAvailableDid(_usedNumbers?: string[], _options?: { isKosher?: boolean }): Promise<string | null> {
     return '+972551234567';
   }
 

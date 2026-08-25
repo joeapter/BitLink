@@ -119,7 +119,7 @@ export interface TelecomProvider {
   listPlansCatalog(): Promise<PlanCatalogEntry[]>;
   addTopup(providerLineId: string, topupName: string): Promise<void>;
   getAvailableEsimIccId(excludeIccIds?: string[]): Promise<string | null>;
-  getAvailableDid(usedNumbers?: string[]): Promise<string | null>;
+  getAvailableDid(usedNumbers?: string[], options?: { isKosher?: boolean }): Promise<string | null>;
 
   // ── Usage & balance ──────────────────────────────────────────
   getBalances(providerLineId: string): Promise<BalanceBucket[]>;

@@ -141,6 +141,18 @@ interface AnnatelDidListResponse {
 
 const LINES_BASE = '/api/operational/network_manager/lines';
 
+// Annatel splits our Israeli DID inventory into blocks of 100, and only some
+// blocks are provisioned on the kosher network — attaching any other number
+// to a kosher line is refused with a 422 ("did ... is not compatible with
+// kosher line"). Nothing in the /api/dids response marks a number as kosher,
+// so the block prefix is the only signal available; Annatel tells us which
+// block it allocated as kosher (2026-08-24: +9725552165xx, 100 numbers).
+// Add a prefix here when Annatel allocates another kosher block.
+// NB: the four +97258 numbers in the bank are customer port-ins, not kosher
+// stock — 058 is not a kosher range.
+const KOSHER_DID_PREFIXES = ['+9725552165'];
+const isKosherDid = (number: string) => KOSHER_DID_PREFIXES.some((p) => number.startsWith(p));
+
 export class AnnatelProvider implements TelecomProvider {
   readonly providerId = 'annatel';
 
@@ -427,13 +439,31 @@ export class AnnatelProvider implements TelecomProvider {
   // Canadian number on a brand-new line — or, when that candidate was
   // already attached elsewhere, a silent 422 that left the line active with
   // no number at all.
-  async getAvailableDid(usedNumbers: string[] = []): Promise<string | null> {
+  //
+  // Kosher lines take the split further: they may only be given a number from
+  // a kosher-provisioned block (see KOSHER_DID_PREFIXES), and ordinary lines
+  // deliberately never touch that block, so a run of standard orders can't
+  // drain the stock a kosher order depends on. If the matching side of the
+  // bank is exhausted this returns null and the caller raises the
+  // "line active without phone number" admin alert rather than attaching a
+  // number the carrier will reject.
+  async getAvailableDid(
+    usedNumbers: string[] = [],
+    options: { isKosher?: boolean } = {},
+  ): Promise<string | null> {
     try {
       const usedSet = new Set(usedNumbers);
+      const wantsKosher = options.isKosher === true;
       let page = 1;
       while (true) {
         const result = await this.listTenantDids(page, 50);
-        const available = result.dids.find((d) => !usedSet.has(d.number) && !d.isTechnical && d.number.startsWith('+972'));
+        const available = result.dids.find(
+          (d) =>
+            !usedSet.has(d.number) &&
+            !d.isTechnical &&
+            d.number.startsWith('+972') &&
+            isKosherDid(d.number) === wantsKosher,
+        );
         if (available) return available.number;
         if (result.dids.length < 50 || result.meta.total <= page * 50) break;
         page++;
