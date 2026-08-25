@@ -293,7 +293,7 @@ export const landingPages = {
     slug: "/kosher-phone-plan-with-usa-number",
     metaTitle: "Kosher Phone Plan With a USA Number",
     metaDescription:
-      "Kosher+ is $24.99/month and now includes a US, Canada, or UK local number so family abroad calls locally. First 3 months $19.99. Voice-only kosher line, physical SIM.",
+      "Kosher+ is $24.99/month and includes a US, Canada, or UK local number so family abroad calls locally. First 3 months $19.99. Voice-only kosher line, same-day SIM delivery in Beit Shemesh.",
     eyebrow: "Kosher+ with a home number",
     h1: "A kosher phone your family abroad can call as a local call.",
     intro:
@@ -318,6 +318,10 @@ export const landingPages = {
       {
         title: "Still a voice-only kosher line",
         body: "Nothing about the kosher certification changes. No data, no SMS, no internet — the international number carries incoming calls only.",
+      },
+      {
+        title: "Same-day delivery in Beit Shemesh",
+        body: "Order before 3pm and the SIM is delivered in Beit Shemesh the same day. Courier delivery covers Jerusalem, Modiin, Beitar Illit and nearby, and Israel Post reaches everywhere else.",
       },
     ],
     comparisonTable: {
@@ -405,6 +409,11 @@ export const landingPages = {
         question: "What happens to the price after three months?",
         answer:
           "The plan moves to its regular $24.99 per month and the international number stays included at no extra charge. There is no separate add-on fee later and nothing to cancel — the $19.99 introductory rate simply ends and billing continues at the standard Kosher+ price. You can cancel at any time.",
+      },
+      {
+        question: "How quickly can I get the SIM in Beit Shemesh?",
+        answer:
+          "Same day, on orders placed before 3pm — the kosher SIM is delivered to you in Beit Shemesh that afternoon rather than posted. Courier delivery also covers Jerusalem, Modiin, Beitar Illit, Beit Meir, Telstone, and Mevaseret, and anywhere else in Israel goes by Israel Post. Kosher plans are physical-SIM only, since certified kosher phones don't support eSIM, so the delivery is the activation — which matters most in the days before the school year starts, when a child's phone needs to be working now rather than next week.",
       },
       {
         question: "Which is better for a child's first kosher phone, Kosher Basic or Kosher+?",

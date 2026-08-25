@@ -73,7 +73,9 @@ export function PhysicalSimDeliveryPicker({
           {method === "courier" ? (
             <>
               <Truck className="h-4 w-4 shrink-0" aria-hidden="true" />
-              Next-day courier delivery available
+              {value.citySelection === "Beit Shemesh"
+                ? "Same-day delivery in Beit Shemesh on orders before 3pm"
+                : "Next-day courier delivery available"}
             </>
           ) : (
             <>
