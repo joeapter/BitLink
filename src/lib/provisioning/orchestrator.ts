@@ -404,14 +404,50 @@ async function completeJob(
       log.error({ jobId: job.id, lineId, error: err instanceof Error ? err.message : String(err) }, 'DID assignment failed — continuing');
     }
 
-    // Attach a reserved international add-on number (US/CA/UK), if the
-    // customer picked one at checkout — same assignDid() call used for the
-    // primary Israeli DID above, attaching a second number to the same line.
+    // Attach the international add-on number (US/CA/UK) — same assignDid()
+    // call used for the primary Israeli DID above, attaching a second number
+    // to the same line.
+    //
+    // Two ways to get here. The customer picked a specific number at checkout
+    // ('reserved'), or they took "no preference" and left it to us
+    // ('awaiting_fulfillment'). The second case used to sit untouched until an
+    // admin noticed, which was survivable while the number was a paid add-on
+    // someone had deliberately chosen — but Kosher+ now BUNDLES the number, so
+    // most buyers never see the picker at all and a manual queue would mean
+    // silently undelivered plans. Pick one for them instead.
     try {
       const metaForIntl = ((lineUpdates.metadata ?? (await linesRepo.getLine(admin, lineId))?.metadata ?? {}) as Record<string, unknown>);
       const intlNumber = metaForIntl.intl_number as Record<string, unknown> | undefined;
-      if (intlNumber && intlNumber.status === 'reserved' && intlNumber.number) {
-        const number = intlNumber.number as string;
+
+      let intlNumberToAttach = (intlNumber?.number as string | undefined) ?? null;
+      if (intlNumber && !intlNumberToAttach && intlNumber.status === 'awaiting_fulfillment') {
+        const country = (intlNumber.country as string | undefined) ?? 'us';
+        // Same pool and the same 90-day post-release cooldown the checkout
+        // picker honours, so a number can't be handed out twice.
+        const { data: candidate } = await admin
+          .from('international_dids')
+          .select('number')
+          .eq('country', country)
+          .eq('status', 'available')
+          .or(`released_at.is.null,released_at.lt.${new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()}`)
+          .limit(1)
+          .maybeSingle();
+        intlNumberToAttach = candidate?.number ?? null;
+        if (!intlNumberToAttach) {
+          log.error(
+            { jobId: job.id, lineId, country },
+            'No international number available to fulfil an included-number plan — needs manual attention',
+          );
+          await notifyAdminOfDidAssignmentFailure(
+            lineId,
+            1,
+            `No ${country.toUpperCase()} number left in the pool for a plan that includes one`,
+          );
+        }
+      }
+
+      if (intlNumber && intlNumberToAttach && intlNumber.status !== 'assigned') {
+        const number = intlNumberToAttach;
         await provider.assignDid(providerLineId, number);
         await admin
           .from('international_dids')
@@ -419,7 +455,7 @@ async function completeJob(
           .eq('number', number);
         lineUpdates.metadata = {
           ...metaForIntl,
-          intl_number: { ...intlNumber, status: 'assigned', assigned_at: new Date().toISOString() },
+          intl_number: { ...intlNumber, number, status: 'assigned', assigned_at: new Date().toISOString() },
         };
         log.info({ jobId: job.id, lineId, number }, 'International add-on number assigned');
       }
