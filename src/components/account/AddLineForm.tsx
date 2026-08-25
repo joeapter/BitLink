@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { ArrowLeft, Loader2, PlusCircle } from "lucide-react";
 import { plans, type PlanSlug } from "@/lib/plans";
 import { Button } from "@/components/ui/Button";
@@ -41,7 +42,6 @@ export function AddLineForm({
   const [wantsIntlNumber, setWantsIntlNumber] = useState(false);
   const [intlCountry, setIntlCountry] = useState<IntlCountry>("us");
   const [intlSource, setIntlSource] = useState<IntlSource>("new");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [feeWaived, setFeeWaived] = useState(false);
@@ -78,24 +78,35 @@ export function AddLineForm({
     if (plan?.isKosher) setSimType("physical");
   }
 
+  // Same duplicate-submit guard as the public checkout — see the note on
+  // AddLineSubmitButton below for why the button's own disabled state wasn't
+  // enough on its own.
+  const submittingRef = useRef(false);
+
   async function onSubmit(formData: FormData) {
-    setLoading(true);
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    try {
+      await submitAddLine(formData);
+    } finally {
+      submittingRef.current = false;
+    }
+  }
+
+  async function submitAddLine(formData: FormData) {
     setError(null);
     setSuccess(null);
 
     const isPortIn = numberChoice === "port-in";
     if (isPortIn && !verifiedPortNumber) {
-      setLoading(false);
       setError("Verify the number you're porting first — we text a code to it.");
       return;
     }
     if (wantsIntlNumber && intlSource === "new" && !chosenIntlNumber) {
-      setLoading(false);
       setError("Choose your international number before continuing.");
       return;
     }
     if (effectiveSimType === "physical" && !isDeliveryDetailsComplete(delivery)) {
-      setLoading(false);
       setError("Enter your delivery city and address for the physical SIM.");
       return;
     }
@@ -125,7 +136,6 @@ export function AddLineForm({
     });
 
     const payload = (await response.json()) as { url?: string; clientSecret?: string; added?: boolean; error?: string };
-    setLoading(false);
 
     if (!response.ok || (!payload.url && !payload.clientSecret && !payload.added)) {
       setError(payload.error ?? "Line checkout could not be started.");
@@ -384,15 +394,9 @@ export function AddLineForm({
           </div>
         ) : null}
 
-        <Button
-          type="submit"
-          size="lg"
-          disabled={loading || (wantsIntlNumber && intlSource === "new" && !chosenIntlNumber)}
-          className="mt-6"
-        >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <PlusCircle className="h-4 w-4" aria-hidden="true" />}
-          Continue to payment
-        </Button>
+        <AddLineSubmitButton
+          disabled={wantsIntlNumber && intlSource === "new" && !chosenIntlNumber}
+        />
       </form>
 
       <CheckoutSummary
@@ -403,5 +407,24 @@ export function AddLineForm({
         intlIsPortIn={wantsIntlNumber && intlSource === "port"}
       />
     </div>
+  );
+}
+
+// Child of the <form> so useFormStatus can see it. React runs a form action
+// inside a transition, so a `loading` flag set at the top of the handler may
+// not commit until the action finishes, leaving the button live for the whole
+// network round trip — which produced duplicate Stripe checkout sessions on
+// the public checkout form. `pending` flips as soon as the action starts.
+function AddLineSubmitButton({ disabled }: { disabled: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" size="lg" disabled={pending || disabled} className="mt-6">
+      {pending ? (
+        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+      ) : (
+        <PlusCircle className="h-4 w-4" aria-hidden="true" />
+      )}
+      {pending ? "Starting checkout…" : "Continue to payment"}
+    </Button>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
 import { plans, isActivationFeeWaivedForPlan, type PlanSlug } from "@/lib/plans";
 import { getPromo } from "@/lib/promos";
@@ -78,7 +79,6 @@ export function CheckoutForm({
   // US don't cut over their line early and don't get a scary first bill —
   // nothing for the foreign number is charged until we actually run the port.
   const [intlPortDeferred, setIntlPortDeferred] = useState(true);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [feeWaived, setFeeWaived] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -156,18 +156,31 @@ export function CheckoutForm({
     }
   };
 
+  // Belt and braces against duplicate submissions on a money path. React
+  // disables the button via useFormStatus (below), but a ref check is
+  // synchronous — it holds even for an Enter keypress, a mobile double-tap, or
+  // anything else that slips in before React has re-rendered.
+  const submittingRef = useRef(false);
+
   async function onSubmit(formData: FormData) {
-    setLoading(true);
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    try {
+      await submitCheckout(formData);
+    } finally {
+      submittingRef.current = false;
+    }
+  }
+
+  async function submitCheckout(formData: FormData) {
     setError(null);
 
     const isPortIn = numberChoice === "port-in";
     if (isPortIn && !verifiedPortNumber) {
-      setLoading(false);
       setError("Verify the number you're porting first — we text a code to it.");
       return;
     }
     if (effectiveSimType === "physical" && !isDeliveryDetailsComplete(delivery)) {
-      setLoading(false);
       setError("Enter your delivery city and address for the physical SIM.");
       return;
     }
@@ -210,7 +223,6 @@ export function CheckoutForm({
     });
 
     const payload = (await response.json()) as { url?: string; clientSecret?: string; error?: string };
-    setLoading(false);
 
     if (!response.ok || (!payload.url && !payload.clientSecret)) {
       setError(payload.error ?? "Checkout could not be started. Please try again.");
@@ -649,10 +661,7 @@ export function CheckoutForm({
         )}
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Button type="submit" size="lg" disabled={loading}>
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-            Continue to secure payment
-          </Button>
+          <CheckoutSubmitButton />
           <p className="text-xs leading-5 text-muted-slate">
             Monthly subscription + one-time activation fee. Activation subject to BitLink confirmation.
           </p>
@@ -673,5 +682,26 @@ export function CheckoutForm({
         introMonths={KOSHER_PLUS_PROMO.months}
       />
     </div>
+  );
+}
+
+// Must be a CHILD of the <form> — useFormStatus reads the status of the form
+// above it, and returns a permanently-false pending in the component that
+// renders the form itself.
+//
+// This replaces a hand-rolled `loading` useState that was set at the top of the
+// submit handler. React runs a form `action` inside a transition, so state set
+// there is deprioritised and may not commit until the action finishes — which
+// left the button live for the ~1s the Stripe call takes. Three customers'
+// worth of duplicate checkout sessions (two created in the same second) came
+// from exactly that gap. useFormStatus flips synchronously when the action
+// starts, so the button is unclickable from the first click.
+function CheckoutSubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" size="lg" disabled={pending}>
+      {pending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+      {pending ? "Starting checkout…" : "Continue to secure payment"}
+    </Button>
   );
 }
