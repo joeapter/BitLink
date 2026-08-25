@@ -716,17 +716,28 @@ export function buildAdminSmsForwarderEnabledEmail(params: {
   `);
 }
 
+// `feeAlreadyWaived` distinguishes a real concession from a plan feature.
+// Student 5G and Max 5G never charge the activation fee (see
+// ACTIVATION_FEE_WAIVED_PLANS), so telling those customers we'll "waive it for
+// 24 hours" would promise a discount their price doesn't move by — and the
+// first thing an abandoning customer does is compare the new total to the one
+// they walked away from. Said plainly as a fact about the plan, it's true and
+// still worth saying.
 export function buildAbandonedCheckoutRecoveryEmail(params: {
   fullName: string;
   planName: string;
   recoverUrl: string;
+  feeAlreadyWaived?: boolean;
 }): string {
   const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+  const offerLine = params.feeAlreadyWaived
+    ? `There's no $14.99 activation fee on ${escapeHtml(params.planName)} — you'll just pay for your first month to get started.`
+    : "Come back in the next 24 hours and we'll waive your $14.99 activation fee, so you'll just pay for your first month to get started.";
 
   return layout(`
     ${h1("Your Israeli number is waiting")}
     ${p(`Hey ${firstName}, looks like you got right to the checkout page for your ${escapeHtml(params.planName)} plan and didn't finish. No problem, it happens.`)}
-    ${p("Come back in the next 24 hours and we'll waive your $14.99 activation fee, so you'll just pay for your first month to get started.")}
+    ${p(offerLine)}
     <div style="text-align:center;margin:28px 0;">
       ${btn("Finish signing up", params.recoverUrl)}
     </div>

@@ -1,12 +1,15 @@
-// Abandoned-checkout recovery for cold-feet Basic-plan customers.
+// Abandoned-checkout recovery for customers who reached payment and stopped.
 //
 // A cron (every 2h, see inngest/functions/abandoned-checkout-recovery.ts)
 // lists still-open Stripe Checkout sessions 2+ hours old, filters to plain
-// public-site Basic-plan signups, and for each one not already recorded:
+// public-site signups on a recovery-eligible plan, and for each one not
+// already recorded:
 //   1. Inserts an `abandoned_checkouts` row (unique on session id — this is
 //      the dedup guard against double-processing on cron overlap).
 //   2. Emails a recovery link to /recover/[token] with the activation fee
-//      waived for 24h.
+//      waived for 24h — on the plans that actually charge one. Student 5G and
+//      Max 5G already waive it for everybody, so their email states that as a
+//      plan feature rather than inventing a concession.
 //
 // The recovery landing page lets the customer change anything (plan, SIM
 // type, etc.) before paying — this only decides who gets emailed and
@@ -18,13 +21,16 @@ import { getStripe } from '@/lib/stripe/server';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/send';
 import { buildAbandonedCheckoutRecoveryEmail } from '@/lib/email/templates';
-import { plans } from '@/lib/plans';
+import { plans, isActivationFeeWaivedForPlan } from '@/lib/plans';
 import { absoluteUrl } from '@/lib/utils';
 import { logger } from '@/lib/logger';
 
 const log = logger.child({ module: 'abandoned-checkout' });
 
-const RECOVERY_ELIGIBLE_PLAN = 'basic';
+// Kosher plans are deliberately excluded for now: Kosher+ already carries the
+// 3-month intro price, so what a recovery offer should be there is a pricing
+// decision that hasn't been made yet.
+const RECOVERY_ELIGIBLE_PLANS: readonly string[] = ['basic', 'student-5g', 'max-5g'];
 const MIN_AGE_MS = 2 * 60 * 60 * 1000; // 2 hours
 // Wide enough to never miss a session between cron runs (every 2h), narrow
 // enough to not keep re-scanning sessions from days ago.
@@ -40,7 +46,7 @@ function isEligibleSession(session: Stripe.Checkout.Session): boolean {
     session.mode === 'subscription' &&
     session.status === 'open' &&
     session.metadata?.source === 'bitlink_web' &&
-    session.metadata?.plan_slug === RECOVERY_ELIGIBLE_PLAN &&
+    RECOVERY_ELIGIBLE_PLANS.includes(session.metadata?.plan_slug ?? '') &&
     Boolean(session.metadata?.customer_record_id)
   );
 }
@@ -115,14 +121,21 @@ export async function processAbandonedCheckoutRecovery(): Promise<{
 
     const planName = plans.find((p) => p.slug === planSlug)?.name ?? planSlug;
     const recoverUrl = absoluteUrl(`/recover/${token}`);
+    // Student 5G and Max 5G never charge the fee, so there's nothing to waive
+    // for them — the subject and body say so as a plan feature instead of
+    // dangling an offer that wouldn't change their total.
+    const feeAlreadyWaived = isActivationFeeWaivedForPlan(planSlug);
 
     const sent = await sendEmail({
       to: customer.email,
-      subject: "Your Israeli number is waiting — activation fee's on us for 24 hours",
+      subject: feeAlreadyWaived
+        ? `Your Israeli number is waiting — no activation fee on ${planName}`
+        : "Your Israeli number is waiting — activation fee's on us for 24 hours",
       html: buildAbandonedCheckoutRecoveryEmail({
         fullName: customer.full_name ?? '',
         planName,
         recoverUrl,
+        feeAlreadyWaived,
       }),
     });
 
