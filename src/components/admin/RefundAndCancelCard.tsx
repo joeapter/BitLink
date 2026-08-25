@@ -44,8 +44,14 @@ export function RefundAndCancelCard({
   const amountLabel = formatMoney(outstandingCents, payment.currency);
   // Typing the major-unit amount (e.g. "14.99") is the confirmation gate —
   // deliberately more friction than a confirm() because this moves money.
+  // Compared by value, not by string, so a pasted "$29.98", a stray space, or a
+  // comma decimal still arms the button — the gate is meant to make you read
+  // the amount, not to make you fight the keyboard.
   const expectedTyped = (outstandingCents / 100).toFixed(2);
-  const armed = typed.trim() === expectedTyped && !fullyRefunded;
+  const typedCents = Math.round(
+    parseFloat(typed.replace(/[^0-9.,]/g, "").replace(",", ".")) * 100,
+  );
+  const armed = !fullyRefunded && typedCents === outstandingCents;
 
   return (
     <section className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft sm:rounded-4xl sm:p-5">
@@ -145,18 +151,35 @@ export function RefundAndCancelCard({
           <input type="hidden" name="expectedAmountCents" value={payment.amountCents} />
 
           <label className="text-xs text-muted-slate" htmlFor={`refund-confirm-${lineId}`}>
-            Type <span className="font-mono font-semibold text-ink">{expectedTyped}</span> to confirm
-            the refund
+            Type <span className="font-mono font-semibold text-ink">{expectedTyped}</span> in the box
+            below to unlock the refund button
           </label>
+          {/* No placeholder here on purpose: showing the expected amount inside
+              the empty box makes it look already filled in. */}
           <input
             id={`refund-confirm-${lineId}`}
             value={typed}
             onChange={(e) => setTyped(e.target.value)}
             inputMode="decimal"
             autoComplete="off"
-            placeholder={expectedTyped}
+            aria-describedby={`refund-hint-${lineId}`}
             className="rounded-xl border border-ink/15 px-3 py-2 font-mono text-sm text-ink outline-none focus:border-link-blue"
           />
+          <p id={`refund-hint-${lineId}`} className="text-xs">
+            {armed ? (
+              <span className="font-semibold text-emerald-700">
+                Amount matches — the refund button is unlocked.
+              </span>
+            ) : typed.trim().length > 0 ? (
+              <span className="font-semibold text-amber-700">
+                Doesn&apos;t match {expectedTyped} yet.
+              </span>
+            ) : (
+              <span className="text-muted-slate">
+                The button stays greyed out until the box matches.
+              </span>
+            )}
+          </p>
 
           <button
             type="submit"
