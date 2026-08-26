@@ -759,17 +759,29 @@ export class AnnatelProvider implements TelecomProvider {
     };
   }
 
+  // Annatel does not delete a released DID — it closes the association by
+  // stamping end_at and keeps the row, so this endpoint returns history as
+  // well as what's live. Verified 2026-08-26 by attaching a US number to a
+  // kosher line and releasing it: the DELETE returned 204 and the row stayed,
+  // with end_at set. Returning those as current numbers is wrong everywhere,
+  // and actively harmful in the direct port-in check, which treats "the number
+  // appears on the line" as proof the port landed — a number that had once
+  // been attached and released would report success forever.
   async getAssignedNumbers(providerLineId: string): Promise<PhoneNumber[]> {
     const result = await this.client.get<{
       data: Array<{ id: string; number: string; start_at: string; end_at?: string }>;
     }>(`${LINES_BASE}/${providerLineId}/dids`);
-    return (result.data ?? []).map((did) => ({
-      id: did.id,
-      number: did.number,
-      isPrimary: true,
-      startAt: new Date(did.start_at),
-      endAt: did.end_at ? new Date(did.end_at) : undefined,
-    }));
+    const now = Date.now();
+    return (result.data ?? [])
+      // A future end_at is a scheduled release — still live until it passes.
+      .filter((did) => !did.end_at || new Date(did.end_at).getTime() > now)
+      .map((did) => ({
+        id: did.id,
+        number: did.number,
+        isPrimary: true,
+        startAt: new Date(did.start_at),
+        endAt: did.end_at ? new Date(did.end_at) : undefined,
+      }));
   }
 
   async assignDid(providerLineId: string, number: string): Promise<void> {
