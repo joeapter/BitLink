@@ -161,6 +161,8 @@ export interface TelecomProvider {
 
   // ── Number (DID) management ──────────────────────────────────
   listTenantDids(page?: number, pageSize?: number): Promise<TenantDidPage>;
+  /** How many SIMs the tenant holds, by type. Totals held, not what is free. */
+  getSimInventory(): Promise<{ esimTotal: number; physicalTotal: number }>;
   getAssignedNumbers(providerLineId: string): Promise<PhoneNumber[]>;
   assignDid(providerLineId: string, number: string): Promise<void>;
   releaseDid(providerLineId: string, number: string): Promise<void>;

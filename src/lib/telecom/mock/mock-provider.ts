@@ -196,6 +196,10 @@ export class MockTelecomProvider implements TelecomProvider {
     return { dids: [], meta: { pageNumber: 1, pageSize: 100, total: 0 } };
   }
 
+  async getSimInventory(): Promise<{ esimTotal: number; physicalTotal: number }> {
+    return { esimTotal: 100, physicalTotal: 50 };
+  }
+
   async getAssignedNumbers(_providerLineId: string): Promise<PhoneNumber[]> {
     await this.tick();
     return [{ number: '+9725512345678', isPrimary: true, startAt: new Date() }];

@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { AlertTriangle, Clock, CreditCard, DollarSign, Globe2, Phone, RadioTower, Share2, Users } from "lucide-react";
 import { AdminMetric } from "@/components/admin/AdminMetric";
 import { ProvisioningQueue } from "@/components/admin/ProvisioningQueue";
+import { InventoryPanel, InventoryPanelSkeleton } from "@/components/admin/InventoryPanel";
+import { getInventorySnapshot } from "@/lib/admin/inventory";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getAdminDb, getAdminOverview } from "@/lib/db/admin";
@@ -91,6 +93,15 @@ function RevenueCardSkeleton({ monthLabel }: { monthLabel: string }) {
       <p className="mt-3 text-xs text-muted-slate">Loading live Stripe revenue…</p>
     </div>
   );
+}
+
+// Streamed like RevenueCard: the SIM counts come from the carrier, so this waits
+// on a network call the rest of the overview has no reason to sit behind.
+async function InventorySection() {
+  const db = await getAdminDb();
+  if (!db) return null;
+  const snapshot = await getInventorySnapshot(db);
+  return <InventoryPanel snapshot={snapshot} />;
 }
 
 export default async function AdminPage() {
@@ -235,6 +246,10 @@ export default async function AdminPage() {
           </div>
         </div>
       </section>
+
+      <Suspense fallback={<InventoryPanelSkeleton />}>
+        <InventorySection />
+      </Suspense>
     </div>
   );
 }

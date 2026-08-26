@@ -767,6 +767,21 @@ export class AnnatelProvider implements TelecomProvider {
   // and actively harmful in the direct port-in check, which treats "the number
   // appears on the line" as proof the port landed — a number that had once
   // been attached and released would report success forever.
+  // Counts only — asks for a single row per type and reads meta.total, so this
+  // stays one cheap call each however large the inventory grows. Annatel names
+  // physical cards "sim_card"; there is no "physical" type.
+  async getSimInventory(): Promise<{ esimTotal: number; physicalTotal: number }> {
+    const count = async (type: string) => {
+      const qs = new URLSearchParams({ 'filter[type]': type, 'page[number]': '1', 'page[size]': '1' });
+      const r = await this.client.get<{ meta?: { total?: number } }>(
+        `/api/operational/sim_manager/sims?${qs}`,
+      );
+      return r.meta?.total ?? 0;
+    };
+    const [esimTotal, physicalTotal] = await Promise.all([count('esim'), count('sim_card')]);
+    return { esimTotal, physicalTotal };
+  }
+
   async getAssignedNumbers(providerLineId: string): Promise<PhoneNumber[]> {
     const result = await this.client.get<{
       data: Array<{ id: string; number: string; start_at: string; end_at?: string }>;
