@@ -5,8 +5,11 @@ import type { BalanceBucket } from "@/types/telecom";
 
 interface Props {
   providerLineId: string;
-  // Used to size the CDR-derived fallback meter when the provider returns no
-  // live balances (which, today, it never does — see lib/cdr/usage.ts).
+  // Sizes the CDR-derived fallback meter when the provider returns no live
+  // balances (which, today, it never does — see lib/cdr/usage.ts). Optional
+  // because the component looks it up from the line when it isn't given:
+  // two of the three portal surfaces forgot to pass it, and every customer not
+  // on Student 5G was shown that plan's 50GB allowance as a result.
   planSlug?: string | null;
   // Internal telecom_lines.id — used to fold active topup grants into the
   // CDR-derived allowance. Optional only so existing callers keep working;
@@ -80,7 +83,22 @@ export async function LineUsageMeter({ providerLineId, planSlug, lineId }: Props
               .eq("status", "active")
           ).data?.map((g) => g.topup_id as string) ?? []
         : [];
-      const cdrUsage = await getCdrUsageBuckets(db, { providerLineId }, planSlug, activeTopupIds);
+      // Fall back to reading the plan off the line itself. getCdrUsageBuckets
+      // now refuses to guess, so without this a caller that omits the prop
+      // would get no meter at all rather than a wrong one — better, but still
+      // not what the customer should see.
+      let resolvedPlanSlug = planSlug ?? null;
+      if (!resolvedPlanSlug) {
+        const { data: lineRow } = await db
+          .from("telecom_lines")
+          .select("metadata")
+          .eq(lineId ? "id" : "provider_line_id", lineId ?? providerLineId)
+          .maybeSingle();
+        resolvedPlanSlug =
+          ((lineRow?.metadata ?? {}) as Record<string, unknown>).plan_slug as string | null ?? null;
+      }
+
+      const cdrUsage = await getCdrUsageBuckets(db, { providerLineId }, resolvedPlanSlug, activeTopupIds);
       if (cdrUsage) {
         balances = cdrUsage.buckets;
         fromCdr = true;

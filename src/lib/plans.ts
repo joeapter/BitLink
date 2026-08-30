@@ -311,8 +311,21 @@ export const usCanadaNumberAddOn: AddOn = {
 export const defaultPlanSlug: PlanSlug = "student-5g";
 export const defaultKosherPlanSlug: PlanSlug = "kosher-basic";
 
+// Forgiving: always returns a plan, falling back to the default. Fine for
+// display surfaces that need *something*; dangerous anywhere the answer is a
+// number the customer will act on — see findPlan.
 export function getPlan(slug?: string | null) {
   return plans.find((plan) => plan.slug === slug) ?? plans.find((plan) => plan.slug === defaultPlanSlug)!;
+}
+
+// Strict: returns undefined when the slug is missing or unrecognised, so a
+// caller has to decide what an unknown plan means rather than silently
+// inheriting the default plan's allowances. getPlan()'s fallback is
+// student-5g — 50GB — which is how every non-Student customer came to be
+// shown a 50GB data meter regardless of what they actually bought.
+export function findPlan(slug?: string | null): BitLinkPlan | undefined {
+  if (!slug) return undefined;
+  return plans.find((plan) => plan.slug === slug);
 }
 
 export function getStripePriceId(plan: BitLinkPlan) {

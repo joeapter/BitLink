@@ -49,7 +49,11 @@ export default async function AccountLinesPage() {
             {/* Usage meters — only for active provisioned lines */}
             {line.status === "active" && line.provider_line_id && (
               <Suspense fallback={<div className="mt-3 h-14 animate-pulse rounded-xl bg-slate-100" />}>
-                <LineUsageMeter providerLineId={line.provider_line_id} lineId={line.id} />
+                <LineUsageMeter
+                  providerLineId={line.provider_line_id}
+                  planSlug={meta.plan_slug as string | undefined}
+                  lineId={line.id}
+                />
               </Suspense>
             )}
             {/* SMS-to-email — works even before landing in Israel (carrier-side) */}

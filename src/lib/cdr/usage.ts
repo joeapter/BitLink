@@ -13,7 +13,7 @@
 // if live balances ever arrive.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { BalanceBucket } from "@/types/telecom";
-import { getPlan } from "@/lib/plans";
+import { findPlan } from "@/lib/plans";
 import { topups, type TopUpId } from "@/lib/topups";
 
 export type CdrUsageResult = {
@@ -35,7 +35,11 @@ export async function getCdrUsageBuckets(
   // callers unaffected).
   activeTopupIds: string[] = [],
 ): Promise<CdrUsageResult | null> {
-  const plan = getPlan(planSlug);
+  // Strict lookup on purpose. getPlan() falls back to the default plan, so an
+  // unknown slug used to yield Student 5G's 50GB — a confident wrong number on
+  // a meter customers use to decide whether they can stream tonight. No plan,
+  // no meter.
+  const plan = findPlan(planSlug);
   if (!plan) return null;
 
   let extraDataBytes = 0;
