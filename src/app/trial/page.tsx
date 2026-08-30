@@ -4,15 +4,44 @@ import { TrialSignupForm } from "@/components/checkout/TrialSignupForm";
 import { isTrialOfferEnabled } from "@/lib/settings";
 import { getPlan } from "@/lib/plans";
 import { TRIAL_AUTO_CONTINUE_PLAN } from "@/lib/trial-offer";
-import { formatMoney } from "@/lib/utils";
+import { formatMoney, absoluteUrl } from "@/lib/utils";
 import { createNoIndexMetadata } from "@/lib/seo";
 
 const autoContinuePlan = getPlan(TRIAL_AUTO_CONTINUE_PLAN);
 
-export const metadata: Metadata = createNoIndexMetadata(
-  "Free Trial — Israeli eSIM",
-  "Start your real Israeli eSIM line free for a month, 11GB included.",
-);
+// Static metadata can't see ?ref=, so a Rep's link has to build its own.
+// Each ref is a distinct URL to a scraper, which is what gives every Rep a
+// separate cached preview instead of one shared image.
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ ref?: string; referral?: string }>;
+}): Promise<Metadata> {
+  const base = createNoIndexMetadata(
+    "Free Trial — Israeli eSIM",
+    "Start your real Israeli eSIM line free for a month, 11GB included.",
+  );
+
+  const { ref, referral } = await searchParams;
+  const code = (referral ?? ref ?? "").trim().toUpperCase().slice(0, 32);
+  if (!/^[A-Z0-9-]{1,32}$/.test(code)) return base;
+
+  return {
+    ...base,
+    openGraph: {
+      title: "Your free month on BitLink",
+      description: "Scan the code to start a real Israeli eSIM line — free for a month, 11GB included.",
+      images: [
+        {
+          url: absoluteUrl(`/api/og/rep?code=${encodeURIComponent(code)}`),
+          width: 1200,
+          height: 630,
+          alt: "Scan to start your free BitLink trial",
+        },
+      ],
+    },
+  };
+}
 export const dynamic = "force-dynamic";
 
 export default async function TrialPage({
