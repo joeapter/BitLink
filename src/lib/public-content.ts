@@ -431,6 +431,130 @@ export const landingPages = {
     finalBody:
       "Kosher+ with an included US, Canada, or UK number — $19.99 for the first three months, then $24.99 with the number still included.",
   },
+  israeliNumberFromAbroad: {
+    slug: "/israeli-number-from-abroad",
+    metaTitle: "Israeli Number From Abroad — Codes to Your Inbox",
+    metaDescription:
+      "A real Israeli mobile number that forwards every text to your email, immediately, from anywhere in the world. Bank and gov.il codes that actually arrive. $14.99/month.",
+    eyebrow: "Israeli number from abroad",
+    h1: "Your Israeli number, working from anywhere in the world.",
+    intro:
+      "If your Israeli bank, Bit, gov.il or Kupat Cholim is texting a code to a number you can no longer reach, this is the fix. BitLink gives you a real Israeli mobile number — a genuine 05 line with a SIM registered on an Israeli network — and forwards every text it receives straight to your email, immediately. Set it up online from wherever you live, for $14.99/month. No Israeli ID, no Israeli bank account, no visit, no Hebrew paperwork.",
+    primaryCta: {
+      href: "/plans",
+      label: "Get an Israeli number",
+    },
+    secondaryCta: {
+      href: "/support",
+      label: "Ask before you buy",
+    },
+    highlights: [
+      {
+        title: "A real number, not a virtual one",
+        body: "A genuine Israeli mobile line with a SIM behind it — which is why banks accept it, where VoIP and “virtual Israeli numbers” get filtered out automatically.",
+      },
+      {
+        title: "Codes arrive immediately",
+        body: "Forwarding happens on the network the moment a text lands, not on a schedule. Codes reach your inbox in seconds — which is what makes it usable, since most expire within minutes.",
+      },
+      {
+        title: "The number stays yours",
+        body: "For as long as the line is active it never expires, unlike an idle Israeli line. Port your existing number in and you keep the one every Israeli service already has on file.",
+      },
+    ],
+    comparisonTable: {
+      heading: "A virtual number vs. a real Israeli line",
+      body: "Most people find this page after a virtual number failed at their bank. Here is the difference that causes it.",
+      columns: ["A virtual / VoIP number", "A BitLink Israeli line"],
+      rows: [
+        {
+          label: "What it actually is",
+          a: "An entry in a routing table, no SIM, no mobile network",
+          b: "A real 05 mobile line with a SIM registered on an Israeli network",
+        },
+        {
+          label: "Israeli bank 2FA",
+          a: "Routinely refused — the number is identifiable as non-mobile",
+          b: "Accepted like any Israeli mobile, because that is what it is",
+        },
+        {
+          label: "gov.il and Bituach Leumi",
+          a: "Usually rejected at the form, before any code is sent",
+          b: "Works — the portals see an ordinary Israeli mobile number",
+        },
+        {
+          label: "How codes reach you",
+          a: "An app you have to be logged into, if it arrives at all",
+          b: "Forwarded to your email immediately, wherever you are",
+        },
+        {
+          label: "If you visit or move to Israel",
+          a: "Nothing to use — it was never a phone line",
+          b: "Put the eSIM in your phone and the same number is a normal mobile",
+        },
+      ],
+    },
+    details: [
+      {
+        title: "How it works",
+        body: "You get a real Israeli mobile number in your own name. In your BitLink account you switch on SMS-to-email and enter the address you want texts delivered to. From then on, every text sent to that number — bank codes, Bit, gov.il, Kupat Cholim, WhatsApp verification — is forwarded on the network and arrives in your inbox immediately. Your handset's location is irrelevant, because the message never has to reach a phone at all.",
+      },
+      {
+        title: "Bringing your existing Israeli number",
+        body: "If you still hold an Israeli number, port it in rather than starting fresh — it is the number your bank, your health fund and every Israeli portal already has on file, so nothing needs updating anywhere. It has to still be active to be ported: an Israeli line left idle expires after roughly six to twelve months and the number is released permanently, which is why this is worth doing before it lapses rather than after.",
+      },
+      {
+        title: "What it does not do while you are abroad",
+        body: "Used from outside Israel this is an inbound-text service, by design. The line does not roam, so it makes and receives no calls and cannot send texts. That is what keeps it at $14.99/month rather than the price of a full phone plan. If you need to speak to your bank in Israel, that needs a different arrangement.",
+      },
+      {
+        title: "And when you come to Israel",
+        body: "Nothing has to change and nothing expires. Put the eSIM on your phone when you land and the same number becomes an ordinary Israeli mobile — calls, texts and data on the local network — keeping the number you have held all along. Fly home and it goes back to delivering texts to your inbox.",
+      },
+    ],
+    qaBlocks: [
+      {
+        question: "How do I receive Israeli SMS verification codes while living abroad?",
+        answer:
+          "With a real Israeli mobile number whose incoming texts are forwarded to your email. BitLink issues a genuine Israeli 05 line — a SIM registered on an Israeli network — and forwards every text it receives to the address you choose, immediately. Because the forwarding happens on the network before the message is routed to any handset, it works from any country and does not require the SIM to be in a phone. Bank codes, Bit, gov.il, Bituach Leumi, Kupat Cholim and WhatsApp verification all arrive in your inbox within seconds. It costs $14.99/month and is set up entirely online, with no Israeli ID and no Israeli bank account required.",
+      },
+      {
+        question: "Why do Israeli banks reject virtual and VoIP numbers?",
+        answer:
+          "Because a number that can be rented instantly and anonymously is weak proof of identity, and it is the standard tool for account takeover. Every number carries an operator and service-type record, so a bank can tell a real mobile line from a VoIP endpoint automatically — and Israeli financial institutions filter the virtual category out. The rejection is often silent: the form accepts the number and the code simply never arrives. A BitLink number is not in that category. It is an actual Israeli mobile line, indistinguishable in those lookups from the number of someone standing in a branch in Tel Aviv. [Why virtual numbers fail 2FA](/guides/virtual-israeli-number-bank-2fa) covers the mechanism in detail.",
+      },
+      {
+        question: "How fast do the codes actually arrive?",
+        answer:
+          "Immediately — within seconds of the sender pressing send. Forwarding is triggered on the network at the moment the message arrives, not batched or polled on a schedule, so the only delay is your email provider's. This is the detail that decides whether a service like this is usable at all: Israeli bank and government codes typically expire in two to five minutes, and some portals lock you out temporarily after a few failed attempts, so a forwarding service that is even a few minutes slow is worse than useless.",
+      },
+      {
+        question: "Do I keep my number, and what if I visit Israel?",
+        answer:
+          "The number is yours for as long as the line is active, and it does not expire the way an unused Israeli line does. If you ported your existing number in, that is the number you keep — the one your bank and every Israeli service already has on file. When you visit or move to Israel, put the eSIM on your phone and the same number works as an ordinary Israeli mobile with calls, texts and data. When you leave again, it goes back to forwarding texts to your inbox. Nothing needs re-registering anywhere at any point.",
+      },
+      {
+        question: "Do I need an Israeli ID or bank account to sign up?",
+        answer:
+          "No. You need a name, an email address and an ordinary foreign credit card — the whole process is online, in English, from wherever you live. There is no Israeli ID requirement, no Israeli bank account, no Hebrew paperwork and no need to travel. That matters particularly for people who need Bituach Leumi or the Tax Authority but have no Israeli banking relationship at all.",
+      },
+      {
+        question: "Who is this actually for?",
+        answer:
+          "People with Israeli ties and a life somewhere else: Israelis working or raising families abroad, dual citizens with an Israeli bank account, pension or mortgage, someone managing an elderly parent's affairs from another country, people who inherited an Israeli account, and anyone holding Israeli property or investments from overseas. It also fits people moving to Israel later who want their accounts opened in advance under a number they will keep — though the timing for that case is covered in [getting an Israeli number before you land](/guides/israeli-phone-number-before-you-land).",
+      },
+    ],
+    planSlugs: ["basic", "student-5g"],
+    relatedLinks: [
+      { href: "/guides/israeli-sms-verification-from-abroad", label: "Israeli SMS codes from abroad" },
+      { href: "/guides/virtual-israeli-number-bank-2fa", label: "Why virtual numbers fail bank 2FA" },
+      { href: "/guides/israeli-bank-account-from-abroad", label: "Keeping an Israeli bank account from abroad" },
+      { href: "/guides/israeli-number-after-leaving-israel", label: "Leaving Israel: keeping your number" },
+    ],
+    finalHeading: "Get back into your own accounts.",
+    finalBody:
+      "A real Israeli number, texts delivered to your inbox immediately, from $14.99/month — set up online from anywhere in the world.",
+  },
   olimPlans: {
     slug: "/israeli-phone-plans-for-olim",
     metaTitle: "Israeli Phone Plans for Olim",

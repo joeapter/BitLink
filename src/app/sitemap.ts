@@ -58,6 +58,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.82,
     },
     {
+      url: canonicalUrl("/israeli-number-from-abroad"),
+      lastModified: new Date("2026-08-30"),
+      changeFrequency: "monthly",
+      priority: 0.82,
+    },
+    {
       url: canonicalUrl("/kosher-phone-plan-with-usa-number"),
       lastModified: new Date("2026-08-25"),
       changeFrequency: "monthly",

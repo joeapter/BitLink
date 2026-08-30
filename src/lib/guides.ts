@@ -2880,6 +2880,371 @@ export const guides: Guide[] = [
       { href: "/israel-esim", label: "Israel eSIM with a real Israeli number" },
     ],
   },
+  {
+    slug: "virtual-israeli-number-bank-2fa",
+    title: "Can I use a virtual Israeli number for bank 2FA?",
+    metaTitle: "Virtual Israeli Number for Bank 2FA: Why It Usually Fails",
+    metaDescription:
+      "Why Israeli banks reject virtual and VoIP numbers for verification codes, how to tell what you're being sold, and what actually receives a bank SMS from abroad.",
+    datePublished: "2026-08-30",
+    dateModified: "2026-08-30",
+    readingTime: "6 min read",
+    intro:
+      "Almost everyone arrives at this question the same way: you needed an Israeli number for your bank, you found a cheap virtual Israeli number online, you gave it to the bank — and the code never came, or the bank refused the number outright. That is not bad luck, and buying a second virtual number will not fix it. Israeli financial institutions deliberately filter the category. Here is how that filtering works, how to tell what you are actually being sold, and what does receive a bank code when you are not in Israel.",
+    sections: [
+      {
+        heading: "Why do Israeli banks reject virtual numbers?",
+        paragraphs: [
+          "Because a phone number is being used as proof of identity, and a number anybody can rent for a few dollars a month with no identity check is weak proof. Numbers issued over VoIP or through online “virtual number” services can be bought instantly, in bulk, and disposed of just as fast, which makes them the obvious tool for taking over someone else's account. Banks and payment platforms respond by treating the whole category as untrusted.",
+          "The filtering is usually automatic. Every number sits in a public database that identifies which operator it belongs to and what kind of service it is, and that lookup tells the bank whether a number is a real mobile line or a VoIP endpoint. So the rejection often happens before a message is ever sent — you enter the number, the form refuses it, and there is nothing to troubleshoot.",
+          "When the block is silent it is worse. Some services accept the number, appear to send a code, and it simply never arrives. People spend hours assuming a delivery fault when the message was never routed at all.",
+        ],
+      },
+      {
+        heading: "How do I tell whether a number is real or virtual?",
+        paragraphs: [
+          "Ask one question of any provider: is there a SIM behind this number, registered on an Israeli mobile network? A real Israeli mobile line is issued by a licensed operator, sits in the 05 mobile ranges, and has a physical or embedded SIM associated with it, whether or not that SIM is ever put in a phone. A virtual number has no SIM and no mobile network — it is an entry in a routing table that forwards to an app.",
+          "Price is a fair tell. Israeli mobile numbers cost the operator real money to hold, so a genuine line is priced like a phone plan. A number offered for a dollar or two a month, or free with an app, is almost certainly not a mobile line.",
+          "The other tell is what the provider will not say. Services that route over VoIP tend to avoid the words “SIM” and “mobile network” entirely, describing themselves as “cloud numbers” or “online numbers” instead. That vagueness is the answer.",
+        ],
+      },
+      {
+        heading: "What actually works from outside Israel?",
+        paragraphs: [
+          "A real Israeli mobile line, with the incoming texts delivered to your email instead of to a handset. The number is a genuine 05 mobile number on an Israeli network with a SIM behind it, so it passes the checks that reject virtual numbers — as far as your bank is concerned it is an ordinary Israeli mobile, because it is one.",
+          "The delivery is what makes it usable abroad. SMS-to-email forwarding happens on the network, before the message is ever sent toward a phone, so it does not matter where you are or whether the SIM is in a device at all. A code sent to the number arrives in your inbox in seconds. That immediacy matters more than it sounds: most verification codes expire within a few minutes, so a service that batches or delays delivery is useless for logging in even when it technically works.",
+          "This is what [BitLink's SMS-to-email service](/israeli-number-from-abroad) is — a real Israeli line from $14.99/month whose texts land in your inbox, set up online from anywhere, with no Israeli ID and no Israeli bank account required.",
+        ],
+      },
+      {
+        heading: "What are the honest limits?",
+        paragraphs: [
+          "Used from abroad this is an inbound-text service, not a phone. The line does not roam, so it makes no calls, receives no calls, and cannot send texts while you are outside Israel. If your bank insists on reading a code to you over the phone rather than texting it, this does not solve that.",
+          "It also cannot rescue an account that has already been locked. If the bank has frozen access because of failed attempts, you will still need to deal with the bank — the number gets you through verification once the account is usable again, not through the bank's own security process.",
+          "And it is not a way to appear to be in Israel. It is a real Israeli number that belongs to you, used from wherever you live. Nothing about it disguises your location, and it should not be used to imply residence you do not have.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Why did my bank reject the virtual Israeli number I bought?",
+        answer:
+          "Because it was identifiable as a VoIP or virtual number rather than a mobile line. Every number carries an operator and service-type record that banks can look up, and Israeli financial institutions routinely refuse the virtual category outright, since those numbers can be bought instantly and anonymously and are the standard tool for account takeover. The rejection is usually automatic and often silent — the code simply never arrives. Buying a different virtual number from another provider runs into the same filter. What passes is a real Israeli mobile number with a SIM behind it, registered on an Israeli network.",
+      },
+      {
+        question: "Is a SIM-based Israeli number really treated differently?",
+        answer:
+          "Yes, because it is a different kind of number rather than a better version of the same thing. A real mobile line is issued by a licensed Israeli operator, sits in the 05 mobile ranges, and has a SIM registered to it on the network. In the lookups banks run, it returns as an ordinary Israeli mobile — indistinguishable from the number of someone standing in a branch in Tel Aviv, because technically it is the same thing. Where you happen to be does not enter into it.",
+      },
+      {
+        question: "How fast do the codes actually arrive by email?",
+        answer:
+          "Effectively immediately. The forwarding happens on the network the moment the message arrives, not on a schedule, so a code reaches your inbox within seconds of the bank sending it. That matters because most one-time codes expire in two to five minutes — a forwarding service that delays delivery by even a few minutes is unusable for logging in, however reliable it is otherwise.",
+      },
+      {
+        question: "Do I need to be in Israel to set this up?",
+        answer:
+          "No. The whole process is online — you need a name, an email address, and an ordinary foreign credit card. There is no Israeli ID requirement, no Israeli bank account, no Hebrew paperwork and no visit. Once the line is active you switch on SMS-to-email in your account, enter the address you want texts delivered to, and give the number to your bank.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/israeli-number-from-abroad", label: "Israeli number from abroad" },
+      { href: "/guides/israeli-sms-verification-from-abroad", label: "Israeli SMS codes from abroad" },
+      { href: "/guides/israeli-bank-account-from-abroad", label: "Keeping an Israeli bank account from abroad" },
+    ],
+  },
+  {
+    slug: "israeli-bank-account-from-abroad",
+    title: "How do I keep my Israeli bank account working after I move abroad?",
+    metaTitle: "Keeping an Israeli Bank Account While Living Abroad",
+    metaDescription:
+      "Leumi, Hapoalim, Discount and Mizrahi all verify by SMS to an Israeli mobile. What breaks when you move abroad, and how to keep online banking working from anywhere.",
+    datePublished: "2026-08-30",
+    dateModified: "2026-08-30",
+    readingTime: "7 min read",
+    intro:
+      "People rarely close an Israeli bank account when they leave. They keep it for a pension, a rental income, a mortgage, an inheritance, or simply because closing it from abroad is harder than keeping it. Then, months later, they discover they cannot get into it — the bank wants to text a code to an Israeli mobile number that no longer exists. The account is fine. The money is fine. The phone number is the thing that broke, and it is the thing to fix.",
+    sections: [
+      {
+        heading: "Why does the account stop being reachable?",
+        paragraphs: [
+          "Israeli banking has standardised on the mobile phone as the second factor. Leumi, Hapoalim, Discount and Mizrahi-Tefahot all send one-time codes by SMS to the mobile number on file, for logging in, for approving transfers, and for resetting a password. The bank is not doing anything unusual — it is doing what every Israeli service does.",
+          "What breaks is the number, not the account. An Israeli prepaid line left unused expires after roughly six to twelve months and the number is released. A postpaid line gets cancelled when someone finally notices they are paying for a phone nobody uses. In both cases the bank still holds a number that no longer reaches you, and there is no notification when that happens — you find out the next time you try to log in.",
+          "The uncomfortable part is that fixing it at the bank usually requires the thing you have lost. Changing the registered number is itself a secured action, verified by SMS to the old number. That circularity is why people end up stuck for months over something that sounds trivial.",
+        ],
+      },
+      {
+        heading: "What are the options, honestly?",
+        paragraphs: [
+          "There are four, and three of them are worse than they sound. Flying to Israel to sort it in a branch works and is absurdly expensive for the problem. Asking a relative to receive your codes works until it doesn't, and it hands someone else the key to your account — most banks' terms prohibit it outright. Keeping an old Israeli line alive on a full-price plan works and costs several times what it needs to.",
+          "The fourth is to hold a real Israeli mobile number whose texts are delivered to your email. It keeps the number under your own name and control, costs about what a coffee costs, and requires no travel and no favours.",
+          "If you still have your old Israeli number and it has not yet lapsed, that changes the ranking — porting it to a cheaper line keeps the exact number the bank already has on file, and skips the whole problem of updating it. That is covered in [what happens to your Israeli number when you leave](/guides/israeli-number-after-leaving-israel), and it is the reason to act before the number expires rather than after.",
+        ],
+      },
+      {
+        heading: "How does an email-delivered Israeli number work with a bank?",
+        paragraphs: [
+          "Exactly like a normal Israeli mobile, from the bank's point of view. The number is a genuine 05 line on an Israeli network with a SIM registered to it, so it passes the checks that reject [virtual and VoIP numbers](/guides/virtual-israeli-number-bank-2fa) — which is the failure mode most people hit before they find this.",
+          "The difference is only in where the message goes. Forwarding happens on the network, before the text is routed to any handset, so the code lands in your inbox within seconds wherever in the world you are. That speed is the whole point: bank codes typically expire in two to five minutes, so anything slower than immediate is useless for actually logging in.",
+          "One thing worth knowing if you might ever return: as long as the line stays active, the number stays yours. Someone who ports their old Israeli number in keeps it indefinitely — the same number their bank, their Kupat Cholim and everyone else already has on file — and it becomes an ordinary working mobile again the moment they put the SIM in a phone in Israel.",
+        ],
+      },
+      {
+        heading: "What this does not fix",
+        paragraphs: [
+          "It does not open an account, and it does not reopen one the bank has restricted. If access is already blocked or the account has been flagged as dormant, that is a conversation with the bank, and the number helps only once they are ready to verify you again.",
+          "It also will not help if your bank still verifies by phone call rather than SMS, which a few branches and some higher-value transactions still do. Used from outside Israel this is an inbound-text service — no calls in either direction, no outbound texts.",
+          "And it is not a way to present yourself as resident in Israel. It is a real Israeli number that belongs to you, used from wherever you live; your bank's own rules about residency and reporting are unaffected by it and worth being straight with them about.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "My Israeli number expired. Can I get the same one back?",
+        answer:
+          "Almost never, once it has been released. Israeli operators return lapsed numbers to the pool and reissue them, so the specific number is usually gone for good — which is why acting before it expires is worth far more than acting after. If it has already gone, the practical path is a new Israeli number that reaches you, then updating it with the bank through their identity process. That process is more involved than it would have been, and it is the reason this guide exists.",
+      },
+      {
+        question: "Can I just use my relative's Israeli number for the bank?",
+        answer:
+          "It works technically and it is a bad idea. Most Israeli banks' terms prohibit registering a number you do not control, and beyond the rules, anyone receiving your codes can approve transfers on your account and reset your access. It also creates a permanent dependency on someone else's availability, at exactly the moments you most need to get in. Holding your own Israeli number costs a few dollars a month and removes all of it.",
+      },
+      {
+        question: "Which Israeli banks does this work with?",
+        answer:
+          "Any of them, because nothing about the number is special from the bank's side. Leumi, Hapoalim, Discount, Mizrahi-Tefahot and the smaller banks all send codes by SMS to the Israeli mobile number on file, and a real Israeli mobile receives them. The number simply needs to be registered with the bank as your contact number, exactly as any Israeli mobile would be.",
+      },
+      {
+        question: "Do I need to tell the bank the number is forwarded to email?",
+        answer:
+          "There is nothing to declare — it is an ordinary Israeli mobile number registered in your name, and forwarding is a setting on your own line, not a change to the number. The bank sends a text to an Israeli mobile, exactly as it always has. What does matter is keeping the bank's own records honest about where you live and your residency status, which is a separate question from which number receives your codes.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/israeli-number-from-abroad", label: "Israeli number from abroad" },
+      { href: "/guides/virtual-israeli-number-bank-2fa", label: "Why virtual numbers fail bank 2FA" },
+      { href: "/guides/israeli-number-after-leaving-israel", label: "Leaving Israel: what happens to your number" },
+    ],
+  },
+  {
+    slug: "israeli-number-after-leaving-israel",
+    title: "What happens to my Israeli phone number when I leave Israel?",
+    metaTitle: "Leaving Israel: What Happens to Your Israeli Phone Number",
+    metaDescription:
+      "Israeli numbers expire when they go unused, and everything verifying you by SMS goes with them. What to do with the number before you fly, and how to keep it cheaply.",
+    datePublished: "2026-08-30",
+    dateModified: "2026-08-30",
+    readingTime: "6 min read",
+    intro:
+      "The number is the last thing anyone thinks about when they leave Israel, and it is the one that causes trouble a year later. Cancel it and every Israeli service that verifies you by SMS quietly stops working. Leave it running and you keep paying a full price for a phone nobody uses. Do nothing and it expires on its own, which is the most expensive outcome of the three. There is a fourth option, and it costs about a coffee a month — but only if you take it before the number is gone.",
+    sections: [
+      {
+        heading: "What actually happens if you just stop using it?",
+        paragraphs: [
+          "A prepaid Israeli line left idle expires. Operators reclaim numbers that go unused for roughly six to twelve months and reissue them to new customers. A postpaid line lasts as long as you keep paying, and disappears when the direct debit is cancelled — usually by someone tidying up finances long after the move.",
+          "Nothing warns the services that hold that number. Your bank, Bit, Kupat Cholim, gov.il, your insurer and your Israeli logins all still have it on file, and they carry on sending codes to a number that now belongs to somebody else, or to nobody. You discover it one by one, each time you need to log in.",
+          "Recovering from that is disproportionately hard. Changing the number on file at an Israeli bank is itself verified by SMS to the old number, so losing the number can lock you out of the process for replacing it. That circularity is the real cost, and it is invisible on the day you decide to cancel.",
+        ],
+      },
+      {
+        heading: "Should I keep the number or let it go?",
+        paragraphs: [
+          "Keep it if anything Israeli is still attached to you: a bank account, a pension, a mortgage, property, Bituach Leumi, a Kupat Cholim membership, an Israeli employer, or family whose services list you. That is most people who have lived there, including plenty who consider the move permanent.",
+          "Let it go only if you genuinely have nothing left — no account, no portal, no likelihood of returning. Even then, be aware that opening anything Israeli later will want an Israeli mobile number, and a number you have held continuously is far easier than a new one you have to register everywhere from scratch.",
+          "The cost of keeping it should not decide this. Held as an inbound-text line whose messages are delivered to your inbox, an Israeli number runs from $14.99/month — less than most people were paying for the phone plan they cancelled, and a fraction of what recovering from a lost number costs in time.",
+        ],
+      },
+      {
+        heading: "How do I keep it without paying for a full phone plan?",
+        paragraphs: [
+          "Port the number you already have onto a line built for exactly this. Porting keeps the number itself — the one every Israeli service already has on file — which is the whole point, because it means nothing needs updating anywhere.",
+          "From there the line stops behaving like a phone and starts behaving like a mailbox. It does not roam, makes no calls and sends no texts, so it costs almost nothing to run; incoming texts are forwarded on the network and arrive in your email within seconds of being sent, wherever you are.",
+          "And the number stays yours for as long as the line is active — it will not expire underneath you the way an idle prepaid line does. If you visit or move back, the same number becomes an ordinary Israeli mobile again the moment you put the SIM in a phone, with everything still pointing at it. [Keeping an Israeli number from abroad](/israeli-number-from-abroad) covers the setup.",
+        ],
+      },
+      {
+        heading: "The timing that actually matters",
+        paragraphs: [
+          "Do this before the number lapses, not after. A number that still exists can be ported in a few business days and keeps working throughout. A number that has expired is usually gone permanently — Israeli operators reissue released numbers, and there is no mechanism for getting a specific one back.",
+          "If you are still in Israel and about to leave, that makes this a pre-flight task rather than a someday task. If you have already left and the line is still alive, it is urgent in a way it does not feel: you are inside a window that closes quietly.",
+          "If the number has already gone, it is not a catastrophe — a new Israeli number still solves the ongoing problem, and [keeping an Israeli bank account from abroad](/guides/israeli-bank-account-from-abroad) covers updating the services that need to be told.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "How long before an unused Israeli number expires?",
+        answer:
+          "For prepaid lines, typically six to twelve months of no activity, though the exact rule varies by operator and can change. A postpaid line survives as long as it is being paid for, and ends when the payment does. Neither gives you a warning that is likely to reach you abroad, and neither notifies the banks and services holding the number. The practical takeaway is that the window is shorter than most people assume and closes without any signal.",
+      },
+      {
+        question: "Can I port my Israeli number if I have already left the country?",
+        answer:
+          "Yes, as long as the line is still active — porting is done remotely and does not require you to be in Israel. What you need is the number still being live with its current operator and the account details to authorise the transfer. The port itself takes a few business days, and the number keeps working while it happens. Once a number has actually expired and been released, though, porting is no longer possible.",
+      },
+      {
+        question: "Is it worth keeping the number if I am never moving back?",
+        answer:
+          "It depends entirely on what is still attached to it rather than on your travel plans. If you hold an Israeli bank account, pension, property, Bituach Leumi record or Kupat Cholim membership, those relationships continue whether or not you return, and each of them verifies you by SMS. Plenty of people who left permanently still need to log into an Israeli bank a few times a year, and the number is what makes that possible.",
+      },
+      {
+        question: "What if I want the number to work as a normal phone when I visit?",
+        answer:
+          "It does. The line is a real Israeli mobile — while you are abroad it simply is not attached to any network, because it does not roam. Put the SIM or eSIM into a phone in Israel and it behaves like an ordinary Israeli line, with calls, texts and data on the local network, using the number you have kept all along.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/israeli-number-from-abroad", label: "Israeli number from abroad" },
+      { href: "/guides/israeli-bank-account-from-abroad", label: "Keeping an Israeli bank account from abroad" },
+      { href: "/keep-your-number", label: "Porting your number to BitLink" },
+    ],
+  },
+  {
+    slug: "israeli-number-for-govil-bituach-leumi-abroad",
+    title: "Israeli number for gov.il, Bituach Leumi and the tax authority from overseas",
+    metaTitle: "Israeli Number for gov.il & Bituach Leumi From Abroad",
+    metaDescription:
+      "Israeli government portals verify by SMS to an Israeli mobile. How to reach gov.il, Bituach Leumi and the tax authority from another country without flying in.",
+    datePublished: "2026-08-30",
+    dateModified: "2026-08-30",
+    readingTime: "6 min read",
+    intro:
+      "Israeli government services moved online faster than almost anyone expected, and they all verify the same way: a code by SMS to an Israeli mobile number. That is excellent if you live in Israel and a wall if you do not. Unlike the banking version of this problem, it catches people who have no Israeli bank account at all — anyone with a Bituach Leumi record, a tax file, a pension entitlement, or a document to request. Here is what these portals actually need, and how to reach them from another country.",
+    sections: [
+      {
+        heading: "Which services need an Israeli number, and for what?",
+        paragraphs: [
+          "The identification layer most Israeli government services sit behind expects an Israeli mobile number, and everything built on top inherits that requirement. In practice that means gov.il itself, Bituach Leumi for entitlements, payments and certificates, the Tax Authority for filings and refunds, the Population Authority for documents, and the health funds for anything beyond booking an appointment.",
+          "What people need from them is rarely exotic. Confirming a Bituach Leumi status, requesting a document, checking a pension entitlement, following up a tax refund, downloading a certificate that some foreign institution has asked for — small, ordinary tasks that become impossible without the code.",
+          "The frustrating part is that these services have no branch you can walk into abroad and no alternative verification for someone overseas. There is often no phone route either. The SMS is the door.",
+        ],
+      },
+      {
+        heading: "Why doesn't a foreign number work?",
+        paragraphs: [
+          "Because the forms will not take one. Most Israeli government portals validate the number format itself and reject anything that is not an Israeli 05 mobile, so the problem shows up before any message is sent — there is nothing to wait for and nothing to troubleshoot.",
+          "Where a foreign number is technically accepted, delivery is unreliable in a way that is worse than outright refusal: some codes arrive, some do not, and you cannot tell which case you are in. People burn hours on this assuming they have mistyped something.",
+          "Virtual and VoIP Israeli numbers fail here for the same reason they fail at banks — they are identifiable as non-mobile and filtered out. [Why virtual numbers fail 2FA](/guides/virtual-israeli-number-bank-2fa) covers how that filtering works, and it applies to government portals as much as to financial ones.",
+        ],
+      },
+      {
+        heading: "What works from another country?",
+        paragraphs: [
+          "A real Israeli mobile number, with its texts delivered to your email. Because it is a genuine 05 mobile line with a SIM registered on an Israeli network, the portals accept it in the form and the code routes to it normally. Forwarding happens on the network, so the code reaches your inbox within seconds — which matters, because these codes expire quickly and some portals lock you out for a while after a few failed attempts.",
+          "It requires no travel and no Israeli paperwork to obtain: a name, an email, and an ordinary foreign card. [An Israeli number from abroad](/israeli-number-from-abroad) starts at $14.99/month, and the same number covers every one of these services at once rather than needing a separate arrangement for each.",
+          "If you still hold your old Israeli number, porting it is better than starting fresh, because these portals may already have it on record and updating a registered number in Israeli government systems is its own ordeal.",
+        ],
+      },
+      {
+        heading: "What it will not do",
+        paragraphs: [
+          "It does not create an identity you do not have. If you have never been issued an Israeli ID number, or your record is incomplete, a phone number does not resolve that — the portals are verifying an existing person, and the SMS is only the second factor.",
+          "Some processes still require a physical presence, an appointment, or a signed and apostilled document. Those remain unchanged; the number opens the online routes, not the in-person ones.",
+          "And used from abroad this is inbound text only, so if a clerk needs to call you back, that call cannot arrive on this line. For anything requiring a conversation, plan on being reachable another way.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Can I use my foreign mobile number for gov.il?",
+        answer:
+          "Usually not. Most Israeli government portals validate the number as an Israeli 05 mobile at the point of entry and simply refuse anything else, so you never reach the stage of waiting for a code. Where a foreign number is accepted, delivery of Israeli government SMS to overseas numbers is inconsistent enough that you cannot rely on it for anything time-sensitive — and these codes expire in minutes.",
+      },
+      {
+        question: "Do I need an Israeli bank account to get an Israeli number?",
+        answer:
+          "No, and that matters for exactly this audience, since plenty of people needing Bituach Leumi or the Tax Authority have no Israeli bank at all. Setting up a line takes a name, an email address and an ordinary foreign credit card. There is no Israeli ID requirement to buy the service, no Israeli bank account, and no Hebrew paperwork.",
+      },
+      {
+        question: "Will one number cover Bituach Leumi, the tax authority and gov.il?",
+        answer:
+          "Yes. They all verify the same way — a code texted to the Israeli mobile number registered against you — so a single working Israeli number serves all of them, plus the health funds and any other Israeli service that texts codes. You register it once with each service that needs it, and from then on every code lands in the same inbox.",
+      },
+      {
+        question: "How quickly do the codes arrive?",
+        answer:
+          "Within seconds. Forwarding happens on the network at the moment the message arrives rather than on any schedule, so the delay is essentially the time it takes an email to reach you. That is the difference between a service that works and one that does not: Israeli government portals expire codes fast and some lock you out temporarily after repeated failures, so a slow forwarding service can leave you worse off than before.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/israeli-number-from-abroad", label: "Israeli number from abroad" },
+      { href: "/guides/israeli-sms-verification-from-abroad", label: "Israeli SMS codes from abroad" },
+      { href: "/guides/israeli-bank-account-from-abroad", label: "Keeping an Israeli bank account from abroad" },
+    ],
+  },
+  {
+    slug: "israeli-bank-account-before-aliyah",
+    title: "Opening an Israeli bank account before you make aliyah",
+    metaTitle: "Opening an Israeli Bank Account Before Aliyah",
+    metaDescription:
+      "You can start Israeli banking before you land, but every step verifies by SMS to an Israeli mobile. How to sequence it so nothing stalls waiting for a code.",
+    datePublished: "2026-08-30",
+    dateModified: "2026-08-30",
+    readingTime: "6 min read",
+    intro:
+      "Getting the bank account started before you land is one of the genuinely good pieces of aliyah advice — it means your Sal Klita has somewhere to go, your rent can be paid, and your first weeks are not spent in queues. What nobody mentions is the ordering problem: almost every step of Israeli banking is verified by a code texted to an Israeli mobile number, which is the one thing you do not have yet. Solve that first and the rest of the sequence works.",
+    sections: [
+      {
+        heading: "What can actually be done before you land?",
+        paragraphs: [
+          "More than most people expect, and less than the banks' marketing implies. Several Israeli banks run olim desks with English-speaking staff who will begin the process remotely, gather documents, and have an account ready to activate. Nefesh B'Nefesh and similar organisations can introduce you to the right department rather than a general branch queue.",
+          "What generally cannot be finished remotely is final identity verification. Most banks want to see you, your teudat zehut or visa, and an original passport at some point — often at a branch in the first weeks after arrival. Treat pre-arrival work as getting to the front of the queue, not skipping it.",
+          "The paperwork worth having ready is consistent across banks: passport, aliyah documentation or visa, proof of address abroad, and something showing the source of the funds you intend to bring. Having it scanned before you fly turns a multi-week exchange into a couple of days.",
+        ],
+      },
+      {
+        heading: "Where the phone number breaks the sequence",
+        paragraphs: [
+          "Every meaningful step wants an Israeli mobile. Setting up online access sends a code to it. Approving your first transfer sends a code to it. Registering for the bank's app sends a code to it. The bank asks for an Israeli number on the first form, and if you do not have one, that field either blocks you or gets filled with something that will need changing later.",
+          "Filling it with a relative's number is the common improvisation and the one that causes the most trouble. Their number ends up on your account, their phone receives your codes, and changing it afterwards is itself a secured action requiring a code sent to their phone. People spend months undoing that.",
+          "Using a foreign number is usually refused outright, and where it is accepted, delivery of Israeli bank SMS abroad is unreliable enough that you cannot count on it for anything urgent.",
+        ],
+      },
+      {
+        heading: "The order that works",
+        paragraphs: [
+          "Get the Israeli number first, weeks before the flight, and switch on SMS-to-email so codes reach you while you are still abroad. This is the step that unblocks everything after it, and it is the cheapest thing on the list.",
+          "Then open the account conversation with the bank, giving that Israeli number as your contact number from the very first form. Every code from that point lands in your inbox within seconds — online banking setup, app registration, first transfers — with nothing routed through anyone else's phone and nothing to change later.",
+          "When you land, the same number becomes an ordinary Israeli mobile the moment you put the eSIM on your phone. The bank, the health fund and every service you registered in the meantime already have the right number, and none of them need updating. [Getting an Israeli phone number before you land](/guides/israeli-phone-number-before-you-land) covers the timing in full.",
+        ],
+      },
+      {
+        heading: "What this does not replace",
+        paragraphs: [
+          "It does not open the account for you, and it does not remove the in-branch visit most banks require. What it removes is the stalling — the weeks lost waiting on a code that has nowhere to go.",
+          "It is also not financial advice about which bank to choose, what to declare, or how to move money. Olim have specific tax and reporting considerations in both countries, and those are worth proper professional advice rather than a phone company's guide.",
+          "One thing genuinely worth doing early, though, is asking the bank directly what they can complete before arrival and what needs you in person. The answer varies by bank and by branch, and knowing it shapes everything else in your first month.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Can I open an Israeli bank account before I arrive?",
+        answer:
+          "You can start it, and in many cases get most of the way. Several banks run olim desks that will take documents and prepare an account remotely, though nearly all require in-person identity verification at a branch before the account is fully usable. The realistic goal is to arrive with the process underway and an appointment booked, rather than to arrive with a working account.",
+      },
+      {
+        question: "Do I need an Israeli phone number to open the account?",
+        answer:
+          "Effectively yes. The bank asks for an Israeli mobile on the first form and uses it for every verification afterwards — online access, app registration, transfer approvals. You can start conversations without one, but you will stall at the first secured step. Getting the number first is what keeps the rest of the sequence moving, and it costs far less than the delay does.",
+      },
+      {
+        question: "Can I use my parents' or a relative's Israeli number for now?",
+        answer:
+          "It is the most common shortcut and the one that causes the most trouble later. Their number becomes the registered number on your account, meaning they receive codes that approve your transfers — and replacing it afterwards is itself verified by a code to their phone, so it requires their cooperation at every step. Most banks' terms also prohibit registering a number you do not control.",
+      },
+      {
+        question: "What happens to the number after I land?",
+        answer:
+          "It becomes your normal Israeli mobile. The line is a real Israeli number the whole time — while you are abroad it simply is not attached to a network, with texts forwarded to your email instead. Once you are in Israel, put the eSIM on your phone and it works like any Israeli line, keeping the number your bank and every other service already has on file.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get an Israeli number before you land" },
+      { href: "/israeli-number-from-abroad", label: "Israeli number from abroad" },
+      { href: "/aliyah", label: "Aliyah phone service" },
+    ],
+  },
 ];
 
 export function getGuide(slug: string) {
