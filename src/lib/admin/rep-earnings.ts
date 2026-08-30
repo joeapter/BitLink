@@ -8,15 +8,25 @@
 //
 // Counting rules:
 //   trials     — every trial started by a customer carrying the Rep's code
-//   converted  — those trials whose status is 'converted' (they kept the plan)
-//   earned     — per converted trial, priced off the plan it landed on
+//   paid lines — lines belonging to those customers that are on a real paid
+//                plan, whether they came via a converted trial or a straight
+//                purchase
+//   earned     — per paid line, priced off the plan it's on
 //
-// A trial that is still running earns nothing yet, and one that was cancelled
-// earns nothing ever — matching what the Rep was told: "anyone who keeps their
-// plan after the free month, you get paid for".
+// Earnings count PAID LINES, not trials. Reps can be pointed at the free trial
+// or at the plans page (affiliates.landing), and someone who buys outright
+// earns their Rep exactly what a converted trial does — otherwise a Rep sending
+// people to /plans would show conversions and earn nothing.
+//
+// Counting lines rather than trials is also what keeps a converted trial from
+// paying twice: the conversion turns the *same* line into a paid one
+// (is_trial: false + a Stripe subscription), so it appears once either way.
+//
+// A running trial earns nothing yet; a cancelled one earns nothing ever.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PlanSlug } from "@/lib/plans";
+import { isRepLanding, type RepLanding } from "@/lib/rep-links";
 
 /** Plans that pay the higher rate. Everything else pays the basic rate. */
 const PREMIUM_PLANS: ReadonlySet<string> = new Set<PlanSlug>(["student-5g", "max-5g"]);
@@ -35,6 +45,7 @@ export type RepSummary = {
   code: string;
   contact: string | null;
   status: string;
+  landing: RepLanding;
   rateBasicCents: number;
   ratePremiumCents: number;
   trials: number;
@@ -49,13 +60,13 @@ export type RepSummary = {
 
 type AffiliateRow = {
   id: string; name: string; code: string; contact: string | null;
-  status: string; rate_basic_cents: number; rate_premium_cents: number;
+  status: string; landing: string | null; rate_basic_cents: number; rate_premium_cents: number;
 };
 
 export async function getRepSummaries(db: SupabaseClient): Promise<RepSummary[] | null> {
   const { data: affiliates, error } = await db
     .from("affiliates")
-    .select("id, name, code, contact, status, rate_basic_cents, rate_premium_cents")
+    .select("id, name, code, contact, status, landing, rate_basic_cents, rate_premium_cents")
     .order("created_at", { ascending: true });
 
   // Table not applied yet — the page renders a setup notice instead of crashing.
@@ -90,14 +101,37 @@ export async function getRepSummaries(db: SupabaseClient): Promise<RepSummary[] 
         .in("customer_id", customerIds)
     : { data: [] };
 
-  const lineIds = (trials ?? []).map((t) => t.telecom_line_id as string).filter(Boolean);
-  const { data: lines } = lineIds.length
-    ? await db.from("telecom_lines").select("id, metadata").in("id", lineIds)
+  // Every line these customers hold, so a direct purchase counts even when no
+  // trial was ever started.
+  const { data: lines } = customerIds.length
+    ? await db
+        .from("telecom_lines")
+        .select("id, customer_id, status, metadata")
+        .in("customer_id", customerIds)
     : { data: [] };
+
   const planByLine = new Map<string, string | null>();
   for (const l of lines ?? []) {
     const metadata = (l.metadata ?? {}) as Record<string, unknown>;
     planByLine.set(l.id as string, (metadata.plan_slug as string | undefined) ?? null);
+  }
+
+  // "A real paid plan was executed": the line carries a Stripe subscription and
+  // is no longer a trial. A converted trial satisfies both — process-stripe-event
+  // stamps is_trial:false and the subscription id onto the same line — so it is
+  // counted here once and nowhere else.
+  type PaidLine = { id: string; customerId: string; planSlug: string | null; at: string | null };
+  const paidLines: PaidLine[] = [];
+  for (const l of lines ?? []) {
+    const metadata = (l.metadata ?? {}) as Record<string, unknown>;
+    if (!metadata.stripe_subscription_id) continue;
+    if (metadata.is_trial === true || metadata.is_trial === "true") continue;
+    paidLines.push({
+      id: l.id as string,
+      customerId: l.customer_id as string,
+      planSlug: (metadata.plan_slug as string | undefined) ?? null,
+      at: (metadata.provisioned_email_sent_at as string | undefined) ?? null,
+    });
   }
 
   const { data: payments } = await db
@@ -114,33 +148,39 @@ export async function getRepSummaries(db: SupabaseClient): Promise<RepSummary[] 
     const nameById = new Map(theirCustomers.map((c) => [c.id, c]));
     const theirTrials = (trials ?? []).filter((t) => nameById.has(t.customer_id as string));
 
-    let converted = 0, cancelled = 0, running = 0, earnedCents = 0;
+    let cancelled = 0, running = 0, earnedCents = 0;
     const conversions: RepConversion[] = [];
 
+    // Trials are still worth showing — they're the leading indicator of a Rep
+    // who is active — but they no longer decide the money.
     for (const t of theirTrials) {
       const status = String(t.status);
-      if (status === "converted") {
-        converted++;
-        const planSlug = planByLine.get(t.telecom_line_id as string) ?? null;
-        const amountCents = planSlug && PREMIUM_PLANS.has(planSlug)
-          ? rep.rate_premium_cents
-          : rep.rate_basic_cents;
-        earnedCents += amountCents;
-        const c = nameById.get(t.customer_id as string);
-        conversions.push({
-          customerName: c?.name ?? null,
-          customerEmail: c?.email ?? null,
-          planSlug,
-          amountCents,
-          convertedAt: (t.decided_at ?? null) as string | null,
-        });
-      } else if (status === "cancelled" || status === "frozen") {
-        cancelled++;
-      } else {
-        // pending_provision | active — live, not yet earning
-        running++;
-      }
+      if (status === "cancelled" || status === "frozen") cancelled++;
+      else if (status !== "converted") running++;
     }
+
+    const decidedAtByLine = new Map(
+      theirTrials.map((t) => [t.telecom_line_id as string, (t.decided_at ?? null) as string | null]),
+    );
+
+    const theirPaidLines = paidLines.filter((l) => nameById.has(l.customerId));
+    for (const line of theirPaidLines) {
+      const amountCents = line.planSlug && PREMIUM_PLANS.has(line.planSlug)
+        ? rep.rate_premium_cents
+        : rep.rate_basic_cents;
+      earnedCents += amountCents;
+      const c = nameById.get(line.customerId);
+      conversions.push({
+        customerName: c?.name ?? null,
+        customerEmail: c?.email ?? null,
+        planSlug: line.planSlug,
+        amountCents,
+        // A converted trial has a decision date; a straight purchase doesn't,
+        // so fall back to when the line was provisioned.
+        convertedAt: decidedAtByLine.get(line.id) ?? line.at,
+      });
+    }
+    const converted = theirPaidLines.length;
 
     conversions.sort((a, b) => (b.convertedAt ?? "").localeCompare(a.convertedAt ?? ""));
     const paidCents = paidByAffiliate.get(rep.id) ?? 0;
@@ -151,6 +191,7 @@ export async function getRepSummaries(db: SupabaseClient): Promise<RepSummary[] 
       code: rep.code,
       contact: rep.contact,
       status: rep.status,
+      landing: isRepLanding(rep.landing) ? rep.landing : "trial",
       rateBasicCents: rep.rate_basic_cents,
       ratePremiumCents: rep.rate_premium_cents,
       trials: theirTrials.length,

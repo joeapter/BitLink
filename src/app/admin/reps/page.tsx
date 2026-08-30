@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Handshake } from "lucide-react";
 import { getAdminDb } from "@/lib/db/admin";
 import { getRepSummaries } from "@/lib/admin/rep-earnings";
-import { setRepStatusAction, recordRepPaymentAction } from "@/lib/admin/rep-actions";
+import { setRepStatusAction, recordRepPaymentAction, setRepLandingAction } from "@/lib/admin/rep-actions";
+import { REP_LANDINGS, repSharePath } from "@/lib/rep-links";
 import { RepCreateForm } from "@/components/admin/RepCreateForm";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -77,7 +78,9 @@ export default async function AdminRepsPage() {
           {reps.length ? (
             <section className="grid gap-4">
               {reps.map((rep) => {
-                const link = `${SITE}/trial?ref=${encodeURIComponent(rep.code)}`;
+                // One stable link per Rep whatever their destination — see
+                // lib/rep-links.ts. Switching where it points doesn't reissue it.
+                const link = `${SITE}${repSharePath(rep.code)}`;
                 return (
                   <div key={rep.id} className="overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-soft sm:rounded-4xl">
                     <div className="flex flex-col gap-4 border-b border-ink/8 p-5 lg:flex-row lg:items-start lg:justify-between">
@@ -92,6 +95,24 @@ export default async function AdminRepsPage() {
                         {rep.contact && <p className="mt-1 text-sm text-muted-slate">{rep.contact}</p>}
                         <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-muted-slate">Their link</p>
                         <p className="mt-1 break-all font-mono text-sm text-link-blue">{link}</p>
+                        <form action={setRepLandingAction} className="mt-3 flex flex-wrap items-center gap-2">
+                          <input type="hidden" name="repId" value={rep.id} />
+                          <span className="text-xs text-muted-slate">Opens</span>
+                          <select
+                            name="landing"
+                            defaultValue={rep.landing}
+                            className="h-8 rounded-full border border-ink/15 bg-white px-3 text-xs font-semibold text-ink outline-none focus:border-link-blue"
+                          >
+                            {REP_LANDINGS.map((l) => (
+                              <option key={l.value} value={l.value}>
+                                {l.label}
+                              </option>
+                            ))}
+                          </select>
+                          <Button type="submit" size="sm" variant="secondary">
+                            Update
+                          </Button>
+                        </form>
                         <p className="mt-2 text-xs text-muted-slate">
                           Pays {formatMoney(rep.rateBasicCents)} on Basic · {formatMoney(rep.ratePremiumCents)} on
                           Student 5G or Max 5G

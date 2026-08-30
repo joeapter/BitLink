@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isRepLanding } from "@/lib/rep-links";
 
 async function getWritableDb() {
   return createSupabaseAdminClient() ?? (await createSupabaseServerClient());
@@ -53,6 +54,7 @@ export async function createRepAction(
     notes: String(formData.get("notes") ?? "").trim() || null,
     rate_basic_cents: parseCents(formData.get("rateBasic"), 500),
     rate_premium_cents: parseCents(formData.get("ratePremium"), 1000),
+    landing: isRepLanding(formData.get("landing")) ? String(formData.get("landing")) : "trial",
     created_by: user.id,
   });
 
@@ -98,5 +100,21 @@ export async function recordRepPaymentAction(formData: FormData) {
   });
   if (error) throw new Error(`Could not record the payment: ${error.message}`);
 
+  revalidatePath("/admin/reps");
+}
+
+/**
+ * Switch where a Rep's link sends people. Takes effect on links they have
+ * already shared — /r/<code> resolves the destination at click time.
+ */
+export async function setRepLandingAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("repId") ?? "");
+  const landing = formData.get("landing");
+  if (!id || !isRepLanding(landing)) return;
+
+  const db = await getWritableDb();
+  const { error } = await db.from("affiliates").update({ landing }).eq("id", id);
+  if (error) throw new Error(`Could not change where the link points: ${error.message}`);
   revalidatePath("/admin/reps");
 }

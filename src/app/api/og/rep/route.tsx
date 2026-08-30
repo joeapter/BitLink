@@ -15,6 +15,7 @@
 import { ImageResponse } from 'next/og';
 import QRCode from 'qrcode';
 import { absoluteUrl } from '@/lib/utils';
+import { repSharePath } from '@/lib/rep-links';
 
 export const runtime = 'nodejs';
 
@@ -28,9 +29,10 @@ const SLATE = '#5b7183';
 
 export async function GET(request: Request): Promise<Response> {
   const code = (new URL(request.url).searchParams.get('code') ?? '').trim().toUpperCase();
-  const target = CODE.test(code)
-    ? absoluteUrl(`/trial?ref=${encodeURIComponent(code)}`)
-    : absoluteUrl('/trial');
+  // Encodes the Rep's stable /r/<code> link, not a destination. A printed or
+  // forwarded QR keeps working after the Rep is switched between the trial and
+  // the plans page.
+  const target = CODE.test(code) ? absoluteUrl(repSharePath(code)) : absoluteUrl('/plans');
 
   // Rendered large and scaled down by the layout — a QR resampled up from a
   // small bitmap loses the crisp module edges scanners rely on.

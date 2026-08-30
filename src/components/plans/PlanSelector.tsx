@@ -2,7 +2,8 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, PhoneCall } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { plans, defaultKosherPlanSlug, type PlanSlug } from "@/lib/plans";
 import { formatMoney, cn } from "@/lib/utils";
 import { ButtonLink } from "@/components/ui/Button";
@@ -16,14 +17,28 @@ const TAB_DEFAULTS: Record<Tab, PlanSlug> = {
   kosher: defaultKosherPlanSlug,
 };
 
-export function PlanSelector({
-  initialSlug = "student-5g",
-  kosherPlusPromoActive = false,
-}: {
+type PlanSelectorProps = {
   initialSlug?: PlanSlug;
   /** Resolved on the server — true only when the Stripe coupon really exists. */
   kosherPlusPromoActive?: boolean;
-}) {
+};
+
+// useSearchParams opts any statically prerendered page containing it out of
+// the prerender unless a Suspense boundary marks where client resolution
+// begins. Owning that boundary here means no call site — /plans, the home
+// page, or the next one — has to remember.
+export function PlanSelector(props: PlanSelectorProps) {
+  return (
+    <Suspense fallback={<div className="h-96 animate-pulse rounded-lg bg-slate-100" />}>
+      <PlanSelectorInner {...props} />
+    </Suspense>
+  );
+}
+
+function PlanSelectorInner({
+  initialSlug = "student-5g",
+  kosherPlusPromoActive = false,
+}: PlanSelectorProps) {
   // One helper so the card and the detail panel can never disagree about
   // whether an intro price is on offer.
   const introPriceFor = (slug: string) =>
@@ -34,6 +49,15 @@ export function PlanSelector({
   const [tab, setTab] = useState<Tab>(initialTab);
   const [selectedSlug, setSelectedSlug] = useState<PlanSlug>(initialSlug);
   const reduceMotion = useReducedMotion();
+  // A Rep's code arrives as ?ref= and has to survive the hop into checkout, or
+  // the referral is lost between the plans page and the sale. Read on the
+  // client so /plans stays statically rendered.
+  const searchParams = useSearchParams();
+  const refCode = (searchParams.get("ref") ?? searchParams.get("referral") ?? "")
+    .trim()
+    .toUpperCase()
+    .slice(0, 32);
+  const refQuery = /^[A-Z0-9-]{1,32}$/.test(refCode) ? `&ref=${encodeURIComponent(refCode)}` : "";
 
   const visiblePlans = useMemo(() => plans.filter((p) => p.isKosher === (tab === "kosher")), [tab]);
   const selected = useMemo(
@@ -150,7 +174,7 @@ export function PlanSelector({
             <div className="mt-6 grid gap-6 sm:grid-cols-[1fr_auto]">
               <PlanFeatureList plan={selected} />
               <div className="flex flex-col justify-end gap-2 sm:min-w-42">
-                <ButtonLink href={`/checkout?plan=${selected.slug}`} className="w-full">
+                <ButtonLink href={`/checkout?plan=${selected.slug}${refQuery}`} className="w-full">
                   Choose {selected.shortName}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </ButtonLink>
