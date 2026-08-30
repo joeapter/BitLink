@@ -41,3 +41,18 @@ export function repDestinationPath(code: string, landing: RepLanding): string {
   const base = landing === "plans" ? "/plans" : "/trial";
   return `${base}?ref=${encodeURIComponent(code.toUpperCase())}`;
 }
+
+/**
+ * Bumped whenever the share card's artwork changes.
+ *
+ * The image response is cached hard on purpose — a scraper hitting it on every
+ * share would otherwise re-render it each time — and the URL is the cache key.
+ * Without this, a redesign only reaches people whose previews hadn't been
+ * cached yet. Appended to the og:image URL, not read by the route.
+ */
+export const REP_OG_VERSION = "2";
+
+/** The share-card URL for a Rep, cache-busted by REP_OG_VERSION. */
+export function repOgImagePath(code: string): string {
+  return `/api/og/rep?code=${encodeURIComponent(code.toUpperCase())}&v=${REP_OG_VERSION}`;
+}

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createNoIndexMetadata } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/utils";
-import { isRepCode, isRepLanding, repDestinationPath, type RepLanding } from "@/lib/rep-links";
+import { isRepCode, isRepLanding, repDestinationPath, repOgImagePath, type RepLanding } from "@/lib/rep-links";
 import { RepRedirect } from "@/components/marketing/RepRedirect";
 
 export const dynamic = "force-dynamic";
@@ -47,7 +47,7 @@ export async function generateMetadata({
       description: "Scan the code to start a real Israeli line.",
       images: [
         {
-          url: absoluteUrl(`/api/og/rep?code=${encodeURIComponent(normalized)}`),
+          url: absoluteUrl(repOgImagePath(normalized)),
           width: 1200,
           height: 630,
           alt: "Scan to get started with BitLink",

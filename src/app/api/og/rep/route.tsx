@@ -58,7 +58,7 @@ export async function GET(request: Request): Promise<Response> {
           flexDirection: 'column',
           justifyContent: 'space-between',
           background: '#ffffff',
-          padding: '48px 56px',
+          padding: '40px 56px',
           fontFamily: 'sans-serif',
         }}
       >
@@ -76,8 +76,8 @@ export async function GET(request: Request): Promise<Response> {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={qr}
-            width={280}
-            height={280}
+            width={360}
+            height={360}
             alt=""
             style={{ border: `2px solid ${BLUE}`, borderRadius: 20 }}
           />

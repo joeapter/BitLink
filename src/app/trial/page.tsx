@@ -6,6 +6,7 @@ import { getPlan } from "@/lib/plans";
 import { TRIAL_AUTO_CONTINUE_PLAN } from "@/lib/trial-offer";
 import { formatMoney, absoluteUrl } from "@/lib/utils";
 import { createNoIndexMetadata } from "@/lib/seo";
+import { repOgImagePath } from "@/lib/rep-links";
 
 const autoContinuePlan = getPlan(TRIAL_AUTO_CONTINUE_PLAN);
 
@@ -33,7 +34,7 @@ export async function generateMetadata({
       description: "Scan the code to start a real Israeli eSIM line — free for a month, 11GB included.",
       images: [
         {
-          url: absoluteUrl(`/api/og/rep?code=${encodeURIComponent(code)}`),
+          url: absoluteUrl(repOgImagePath(code)),
           width: 1200,
           height: 630,
           alt: "Scan to start your free BitLink trial",
