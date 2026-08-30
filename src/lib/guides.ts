@@ -2659,12 +2659,12 @@ export const guides: Guide[] = [
     title: "How do I receive Israeli SMS verification codes from abroad?",
     metaTitle: "Israeli SMS Verification Codes From Abroad: How It Works",
     metaDescription:
-      "Locked out of an Israeli bank or Bit because the code goes to a number you can't reach? How a real Israeli number delivers texts to your email.",
+      "Locked out of an Israeli bank, Bit or gov.il because the code goes to a number you can't reach? Get a real Israeli mobile number that forwards every text to your inbox, from anywhere in the world, for $14.99/month.",
     datePublished: "2026-08-20",
     dateModified: "2026-08-20",
     readingTime: "7 min read",
     intro:
-      "This is one of the most frustrating situations in Israeli daily life, and it hits people who are nowhere near Israel. Your bank, Bit, gov.il, or Kupat Cholim wants to send a code to an Israeli mobile number — and you're in New York, London, or Toronto, with no Israeli number that can receive it. The account is yours, the money is yours, and you simply cannot get in. Here's why it happens, and how a real Israeli number can deliver those codes to your inbox while you're still overseas.",
+      "Israel runs on SMS to an 05 number, which is fine until you don't live there. Your bank, Bit, gov.il or Kupat Cholim sends a code to an Israeli mobile — and you're in London, Sydney, Moscow or New York, with no Israeli number that can receive it. The account is yours, the money is yours, and you simply cannot get in. This is a permanent, ordinary situation for anyone with Israeli ties and a life somewhere else, and it has a straightforward fix: a real Israeli number whose texts arrive in your inbox, wherever you happen to be. You never need to visit Israel for it to work.",
     sections: [
       {
         heading: "Why do Israeli banks and services insist on an Israeli number?",
@@ -2697,21 +2697,21 @@ export const guides: Guide[] = [
       {
         heading: "What can this not do while you're abroad?",
         paragraphs: [
-          "Be clear-eyed about what you're buying, because this is not a normal phone service until you land. While you are outside Israel, the number cannot make or receive calls, and you cannot send texts from it. There is no roaming. What works is inbound SMS delivered to your email — that is the whole of it.",
+          "Be clear-eyed about what you're buying. Used this way the number is inbound text only: it does not make or receive calls, you cannot send texts from it, and there is no roaming, because the line never attaches to a network outside Israel. That is the design, not a limitation waiting to be lifted — it is what keeps the price at $14.99/month.",
           "For the verification problem, that's usually enough, because codes are one-way and inbound. But if what you actually need is to speak to your bank in Israel, or to reply to a text, this doesn't solve that on its own, and you shouldn't buy it expecting otherwise. Some services also insist on a voice call rather than an SMS for verification, and those won't work from abroad either.",
         ],
       },
       {
         heading: "Who is this genuinely useful for?",
         paragraphs: [
-          "The people it fits best are those who already have Israeli accounts and have lost the number that unlocks them: Israelis living or working abroad, olim who opened accounts on a pilot trip and haven't made the move yet, dual citizens with Israeli businesses or property, and people managing an elderly parent's or a late relative's Israeli affairs from overseas.",
-          "It also fits anyone with a date in the diary. If you're making aliyah, starting a program, or moving for work in the coming months, getting the number now means every account you set up in advance is tied to a number you will still hold after you land — rather than to an airport SIM you'll lose, or a number you have to change everywhere later.",
+          "It fits people who have Israeli accounts and live somewhere else, indefinitely: Israelis working or raising families abroad, dual citizens with an Israeli bank account or mortgage, someone managing an elderly parent's affairs from another country, people who inherited an Israeli account, and anyone holding Israeli property or investments from overseas. Our own customers on it are spread across the United States, the United Kingdom, France, Spain, Australia and Russia — none of them waiting to move.",
+          "It also fits the other case — someone who is moving to Israel later. Getting the number now means every account you open in advance is tied to a number you will still control after you land, instead of one you have to change on every service afterwards.",
         ],
       },
       {
-        heading: "What happens when you actually arrive in Israel?",
+        heading: "And if you do move to Israel later?",
         paragraphs: [
-          "The number stops being an inbox-only service and becomes an ordinary phone line. Put the SIM or eSIM in your phone, and it works like any Israeli mobile — calls, texts, and data on the local network. The number does not change, so every account you registered while you were abroad carries over untouched. Nothing needs re-verifying.",
+          "Nothing about the number has to change, and nothing expires if you never go. If you do move, the same number stops being inbox-only and becomes an ordinary Israeli mobile line — put the eSIM on your phone and it makes calls, sends texts and uses data on the local network, keeping the number every one of your accounts already knows.",
           "You can leave SMS-to-email switched on after you land if you like — plenty of people do, because having a written copy of every code in their inbox is useful in itself. Or switch it off from your account at any point. If you're arriving for a gap year or a program, [get the eSIM installed before the flight](/guides/israeli-phone-number-before-you-land) so the line is live the moment you touch down.",
         ],
       },
