@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Handshake } from "lucide-react";
 import { getAdminDb } from "@/lib/db/admin";
 import { getRepSummaries } from "@/lib/admin/rep-earnings";
-import { setRepStatusAction, recordRepPaymentAction, setRepLandingAction } from "@/lib/admin/rep-actions";
-import { REP_LANDINGS, repSharePath } from "@/lib/rep-links";
+import { setRepStatusAction, recordRepPaymentAction } from "@/lib/admin/rep-actions";
+import { repSharePath } from "@/lib/rep-links";
+import { RepLandingSelect } from "@/components/admin/RepLandingSelect";
 import { RepCreateForm } from "@/components/admin/RepCreateForm";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -95,24 +96,9 @@ export default async function AdminRepsPage() {
                         {rep.contact && <p className="mt-1 text-sm text-muted-slate">{rep.contact}</p>}
                         <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-muted-slate">Their link</p>
                         <p className="mt-1 break-all font-mono text-sm text-link-blue">{link}</p>
-                        <form action={setRepLandingAction} className="mt-3 flex flex-wrap items-center gap-2">
-                          <input type="hidden" name="repId" value={rep.id} />
-                          <span className="text-xs text-muted-slate">Opens</span>
-                          <select
-                            name="landing"
-                            defaultValue={rep.landing}
-                            className="h-8 rounded-full border border-ink/15 bg-white px-3 text-xs font-semibold text-ink outline-none focus:border-link-blue"
-                          >
-                            {REP_LANDINGS.map((l) => (
-                              <option key={l.value} value={l.value}>
-                                {l.label}
-                              </option>
-                            ))}
-                          </select>
-                          <Button type="submit" size="sm" variant="secondary">
-                            Update
-                          </Button>
-                        </form>
+                        <div className="mt-3">
+                          <RepLandingSelect key={rep.landing} repId={rep.id} landing={rep.landing} />
+                        </div>
                         <p className="mt-2 text-xs text-muted-slate">
                           Pays {formatMoney(rep.rateBasicCents)} on Basic · {formatMoney(rep.ratePremiumCents)} on
                           Student 5G or Max 5G
