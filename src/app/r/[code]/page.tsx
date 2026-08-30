@@ -35,7 +35,7 @@ export async function generateMetadata({
   const { code } = await params;
   const normalized = decodeURIComponent(code).toUpperCase();
   const base = createNoIndexMetadata(
-    "Your free month on BitLink",
+    "BitLink Powered by one of Israel’s leading 5G networks",
     "Start a real Israeli line — scan the code or tap through.",
   );
   if (!isRepCode(normalized)) return base;
@@ -43,8 +43,8 @@ export async function generateMetadata({
   return {
     ...base,
     openGraph: {
-      title: "Your free month on BitLink",
-      description: "Scan the code to start a real Israeli line on one of Israel's leading 5G networks.",
+      title: "BitLink Powered by one of Israel’s leading 5G networks",
+      description: "Scan the code to start a real Israeli line.",
       images: [
         {
           url: absoluteUrl(`/api/og/rep?code=${encodeURIComponent(normalized)}`),

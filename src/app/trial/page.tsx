@@ -29,7 +29,7 @@ export async function generateMetadata({
   return {
     ...base,
     openGraph: {
-      title: "Your free month on BitLink",
+      title: "BitLink Powered by one of Israel’s leading 5G networks",
       description: "Scan the code to start a real Israeli eSIM line — free for a month, 11GB included.",
       images: [
         {
