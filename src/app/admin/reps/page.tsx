@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Handshake } from "lucide-react";
 import { getAdminDb } from "@/lib/db/admin";
 import { getRepSummaries } from "@/lib/admin/rep-earnings";
-import { createRepAction, setRepStatusAction, recordRepPaymentAction } from "@/lib/admin/rep-actions";
+import { setRepStatusAction, recordRepPaymentAction } from "@/lib/admin/rep-actions";
+import { RepCreateForm } from "@/components/admin/RepCreateForm";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -66,17 +67,7 @@ export default async function AdminRepsPage() {
             <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
               <Handshake className="h-4 w-4 text-link-blue" aria-hidden="true" /> Add a Rep
             </h2>
-            <form action={createRepAction} className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <Input name="name" label="Name" placeholder="Racheli" required />
-              <Input name="code" label="Code" placeholder="RACHELI" required />
-              <Input name="email" label="Email (for conversion alerts)" type="email" placeholder="racheli@gmail.com" />
-              <Input name="contact" label="Contact" placeholder="@racheli / whatsapp" />
-              <Input name="rateBasic" label="Basic pays ($)" placeholder="5" defaultValue="5" />
-              <Input name="ratePremium" label="Student / Max pays ($)" placeholder="10" defaultValue="10" />
-              <div className="flex items-end">
-                <Button type="submit">Create Rep</Button>
-              </div>
-            </form>
+            <RepCreateForm />
             <p className="mt-3 text-xs text-muted-slate">
               The code becomes their link. Codes are stored uppercase and attribution is recorded the moment
               someone starts a trial from it.

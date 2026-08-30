@@ -27,14 +27,25 @@ function normalizeCode(value: FormDataEntryValue | null): string {
     .slice(0, 32);
 }
 
-export async function createRepAction(formData: FormData) {
+export type RepActionState = { error?: string; success?: string } | null;
+
+// Every write here reports what happened. The previous version threw the
+// insert result away and revalidated regardless, so a rejected row looked
+// exactly like a saved one — which is how a Rep was "created" against a
+// production table that was missing the `email` column (migration 037 had
+// never been applied) with nothing on screen to say so.
+export async function createRepAction(
+  _prev: RepActionState,
+  formData: FormData,
+): Promise<RepActionState> {
   const { user } = await requireAdmin();
   const name = String(formData.get("name") ?? "").trim();
   const code = normalizeCode(formData.get("code"));
-  if (!name || !code) return;
+  if (!name) return { error: "Give the Rep a name." };
+  if (!code) return { error: "Give the Rep a code — letters and numbers, e.g. RACHELI." };
 
   const db = await getWritableDb();
-  await db.from("affiliates").insert({
+  const { error } = await db.from("affiliates").insert({
     name,
     code,
     email: String(formData.get("email") ?? "").trim() || null,
@@ -45,7 +56,16 @@ export async function createRepAction(formData: FormData) {
     created_by: user.id,
   });
 
+  if (error) {
+    // 23505 = unique violation, which here always means the code is taken.
+    if (error.code === "23505") {
+      return { error: `The code ${code} is already used by another Rep. Pick a different one.` };
+    }
+    return { error: `Could not save the Rep: ${error.message}` };
+  }
+
   revalidatePath("/admin/reps");
+  return { success: `${name} added — their link uses the code ${code}.` };
 }
 
 export async function setRepStatusAction(formData: FormData) {
@@ -55,7 +75,8 @@ export async function setRepStatusAction(formData: FormData) {
   if (!id || !["active", "paused"].includes(status)) return;
 
   const db = await getWritableDb();
-  await db.from("affiliates").update({ status }).eq("id", id);
+  const { error } = await db.from("affiliates").update({ status }).eq("id", id);
+  if (error) throw new Error(`Could not change the Rep's status: ${error.message}`);
   revalidatePath("/admin/reps");
 }
 
@@ -66,13 +87,16 @@ export async function recordRepPaymentAction(formData: FormData) {
   if (!affiliateId || amountCents <= 0) return;
 
   const db = await getWritableDb();
-  await db.from("affiliate_payments").insert({
+  // A payment that silently fails to record is the worst of these to lose —
+  // the money has left and nothing says it did.
+  const { error } = await db.from("affiliate_payments").insert({
     affiliate_id: affiliateId,
     amount_cents: amountCents,
     method: String(formData.get("method") ?? "").trim() || null,
     reference: String(formData.get("reference") ?? "").trim() || null,
     created_by: user.id,
   });
+  if (error) throw new Error(`Could not record the payment: ${error.message}`);
 
   revalidatePath("/admin/reps");
 }
