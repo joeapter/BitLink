@@ -615,7 +615,7 @@ export const guides: Guide[] = [
         ],
         steps: [
           "Get the certified device. The certification lives in the hardware, and requirements can be institution-specific — if the phone is for a yeshiva or seminary student, confirm what the school accepts before buying. Kosher phones are widely available in religious neighborhoods in Israel, and some families buy one after arrival.",
-          "Choose the line: Kosher Basic ($19.99/month) for calling within Israel, or Kosher+ ($24.99/month) if calls to the US or Canada are part of regular life.",
+          "Choose the line: Kosher Basic ($19.99/month) for calling within Israel, or Kosher+ ($24.99/month) if calls to the US or Canada are part of regular life. Both are laid out side by side on the [kosher phone plans page](/kosher-phone-plans-israel).",
           "Order online — checkout is in USD with a regular US, UK, or Canadian card, so a parent can pay from abroad while the phone is used in Israel.",
           "Coordinate SIM timing. Because kosher plans are physical-SIM only, [message support](/support) with your arrival or start date and the team will time delivery around it — this is the step that rewards planning a week or two ahead.",
           "Insert the SIM and call. There's no app setup or QR scanning on a kosher device — once the SIM is in and the line is active, it just works.",
@@ -624,7 +624,7 @@ export const guides: Guide[] = [
       {
         heading: "Staying connected with family abroad",
         paragraphs: [
-          "A kosher line doesn't have to mean being hard to reach from America. In the outbound direction, Kosher+ includes 150 minutes per month of calling to US and Canadian numbers directly from the kosher phone. In the inbound direction, a [US or Canadian local number](/us-number-in-israel) can be added to either kosher plan for $9.99/month — family dials a number that's local to them, and it rings the kosher phone in Israel like any other call. No calling cards, no international dialing, and nothing about the setup affects the line's kosher status.",
+          "A kosher line doesn't have to mean being hard to reach from America. In the outbound direction, Kosher+ includes 150 minutes per month of calling to US and Canadian numbers directly from the kosher phone. In the inbound direction, [Kosher+ now includes a local US, Canada, or UK number](/kosher-phone-plan-with-usa-number) at no extra charge — family dials a number that's local to them, and it rings the kosher phone in Israel like any other call. On [Kosher Basic](/plans/kosher-basic) the same number is available as a $9.99/month [add-on](/us-number-in-israel). No calling cards, no international dialing, and nothing about the setup affects the line's kosher status — the line stays voice-only, so that number carries incoming calls and nothing else.",
           "Support itself is in English — WhatsApp, phone, and email — so the parent managing the account from abroad can handle billing or plan changes directly, without the phone's user needing to be involved at all.",
         ],
       },
@@ -2009,7 +2009,7 @@ export const guides: Guide[] = [
       {
         heading: "Switching to BitLink with an existing kosher number",
         paragraphs: [
-          "If your number matches one of the ranges above, [BitLink's kosher plans](/kosher-phone-plans-israel) support porting it in the normal kosher-to-kosher way — [Kosher Basic](/plans/kosher-basic) at $19.99/month or [Kosher+](/plans/kosher-plus) at $24.99/month if US and Canada calling matters to you. [Message support](/support) with your current carrier and number, and the team will confirm eligibility and handle the port. If you don't have a kosher number yet and want one, the same plans work with a freshly assigned kosher number instead — no port needed.",
+          "If your number matches one of the ranges above, [BitLink's kosher plans](/kosher-phone-plans-israel) support porting it in the normal kosher-to-kosher way — [Kosher Basic](/plans/kosher-basic) at $19.99/month or [Kosher+](/plans/kosher-plus) at $24.99/month if US and Canada calling matters to you — that one now [includes a local US, Canada, or UK number](/kosher-phone-plan-with-usa-number) so family abroad can reach the phone with a local call. [Message support](/support) with your current carrier and number, and the team will confirm eligibility and handle the port. If you don't have a kosher number yet and want one, the same plans work with a freshly assigned kosher number instead — no port needed.",
         ],
       },
     ],
@@ -2281,7 +2281,7 @@ export const guides: Guide[] = [
         heading: "How does delivery actually work in Israel?",
         paragraphs: [
           "Differently from home, and this is where students get burned. Israeli couriers run on SMS and WhatsApp: they text a delivery notice or a pickup-point code to the phone number on the order, and if that number doesn't answer or the text goes nowhere, the package stalls and eventually goes back. Many deliveries don't come to the door at all — they land at a pickup point or locker at a nearby store, and the collection code arrives by text.",
-          "So the single most important field on any order form is the phone number: it needs to be the student's working Israeli number, not the US number and not the parents' number back home. This is one of those places where the [Israeli number they set up before landing](/guides/israeli-phone-number-before-you-land) quietly earns its keep — the courier's text arrives, the code works, the package gets collected.",
+          "So the single most important field on any order form is the phone number: it needs to be the student's working Israeli number, not the US number and not the parents' number back home. This is one of those places where the [Israeli number they set up before landing](/guides/israeli-phone-number-before-you-land) quietly earns its keep — the courier's text arrives, the code works, the package gets collected. If that number isn't sorted yet, [the plans](/israeli-phone-plans-for-students) start at $14.99/month and the line can be running before the flight.",
         ],
       },
       {
