@@ -180,6 +180,8 @@ export const guides: Guide[] = [
         paragraphs: [
           "Arrival day in Israel runs on your phone number. The taxi or Gett driver calls it. The landlord, the madricha, the cousin picking you up — they all message it. If you're arriving as a student or new oleh, the paperwork starts almost immediately: banks, Misrad HaPnim, Kupat Cholim, and half the apps in the country verify you with an SMS code sent to an Israeli mobile number.",
           "The old routine — landing, finding a SIM kiosk, queuing, and paying tourist prices — solves this hours or days after you actually needed it. Doing it from home reverses the order: your number exists before your flight does.",
+          "There's a second reason to do it early, and it catches people out more than arrival day does. Israeli banks, gov.il, Bit and Kupat Cholim all verify by texting an Israeli mobile — so any account you try to open before you arrive stalls on a code you have no way to receive. Switch on SMS-to-email in your BitLink account and those texts land in your inbox while you're still at home, which means the bank account, the health fund and the government portal can all be set up in the weeks before the flight instead of the fortnight after it.",
+          "If you're reading this and you're not actually moving to Israel — you live abroad and simply need Israeli codes to keep working — that's a different situation with its own answer: [receiving Israeli SMS verification codes from abroad](/guides/israeli-sms-verification-from-abroad).",
         ],
       },
       {
@@ -2705,7 +2707,7 @@ export const guides: Guide[] = [
         heading: "Who is this genuinely useful for?",
         paragraphs: [
           "It fits people who have Israeli accounts and live somewhere else, indefinitely: Israelis working or raising families abroad, dual citizens with an Israeli bank account or mortgage, someone managing an elderly parent's affairs from another country, people who inherited an Israeli account, and anyone holding Israeli property or investments from overseas. Our own customers on it are spread across the United States, the United Kingdom, France, Spain, Australia and Russia — none of them waiting to move.",
-          "It also fits the other case — someone who is moving to Israel later. Getting the number now means every account you open in advance is tied to a number you will still control after you land, instead of one you have to change on every service afterwards.",
+          "It also fits the other case — someone who is moving to Israel later. Getting the number now means every account you open in advance is tied to a number you will still control after you land, instead of one you have to change on every service afterwards. If that's you, the setup and timing are covered properly in [getting an Israeli phone number before you land](/guides/israeli-phone-number-before-you-land).",
         ],
       },
       {
