@@ -805,3 +805,30 @@ export function buildRepConversionEmail(params: {
     </p>
   `);
 }
+
+// ── Past-due notice — a renewal charge was declined and the invoice is still
+// open. Deliberately does NOT name a suspension deadline: the dunning policy
+// isn't live yet, and announcing a date we don't yet enforce is worse than
+// saying nothing. It also states plainly that the line still works, because
+// the first thing someone fears on reading this is that they've been cut off.
+
+export function buildPastDueEmail(params: {
+  fullName: string;
+  amountLabel: string;
+  dueDateLabel: string;
+  payUrl: string;
+}): string {
+  const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  return layout(`
+    ${h1(`Hey ${firstName}, your last payment didn't go through`)}
+    ${p(`We tried to charge <strong>${escapeHtml(params.amountLabel)}</strong> for your monthly BitLink plan on <strong>${escapeHtml(params.dueDateLabel)}</strong>, and your bank declined it. It happens — usually it's a card that expired, a temporary hold, or a balance that was short on the day.`)}
+    ${p("Your line is still working normally in the meantime. Nothing has changed with your number.")}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn("Pay now", params.payUrl)}
+    </div>
+    ${p(`That link settles the outstanding amount in one step. If the card itself is the problem, you can swap it from <a href="${BASE_URL}/account/billing" style="color:${BRAND_COLOR};text-decoration:none;font-weight:600;">your billing page</a> and we'll retry automatically.`)}
+    ${p("Already paid, or think this reached you by mistake? Just reply to this email and we'll sort it out.")}
+    ${p("Questions? Reply here or message us on WhatsApp, real people, always happy to help.")}
+  `);
+}

@@ -9,7 +9,7 @@
 import crypto from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createProvisioningJob } from "@/lib/provisioning/orchestrator";
-import { getAnnatelPlanName, getPlan, isActivationFeeWaivedForPlan, type PlanSlug } from "@/lib/plans";
+import { getAnnatelPlanName, getPlan, type PlanSlug } from "@/lib/plans";
 import { grantTopup } from "@/lib/topups/grant-topup";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import { getStripe } from "@/lib/stripe/server";
@@ -212,12 +212,25 @@ export async function convertTrialToPlan(
     .maybeSingle();
   if (!planRow?.stripe_price_id) return { success: false, error: "Plan not available" };
 
-  const skipActivationFee = isActivationFeeWaivedForPlan(planSlug);
+  // No activation fee on this path, on any plan. Two reasons, either of which
+  // is sufficient:
+  //
+  // 1. It cannot work. The fee is a one-time price, and Stripe rejects
+  //    one-time prices as subscription items ("this field only accepts prices
+  //    with type=recurring"). Adding it threw, the caller caught it, and
+  //    processTrialLifecycle froze the line instead of converting it — so
+  //    every trial defaulting to Basic (or converting to either Kosher plan)
+  //    silently lost service at its deadline and was never charged. Only
+  //    Student 5G and Max 5G survived, because they skip the fee anyway.
+  // 2. There is nothing to charge for. A trial line is already provisioned
+  //    and activated; the fee covers work that happened a month earlier and
+  //    was not billed then.
+  //
+  // Charging it here would mean a separate one-time invoice after the
+  // subscription exists (the pattern used for the intl port fee), not a
+  // subscription item. Note that buildTrialFinalWarningEmail quotes the plan
+  // price alone — that copy is correct only while this stays fee-free.
   const items: { price: string }[] = [{ price: planRow.stripe_price_id as string }];
-  const activationFeePriceId = process.env.STRIPE_PRICE_ACTIVATION_FEE?.trim();
-  if (!skipActivationFee && activationFeePriceId) {
-    items.push({ price: activationFeePriceId });
-  }
 
   let subscription: Awaited<ReturnType<typeof stripe.subscriptions.create>>;
   try {
