@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getAdminDb, getAdminOverview } from "@/lib/db/admin";
 import { getExpectedRevenue, getMonthlyRevenue } from "@/lib/stripe/revenue";
+import { getPlan } from "@/lib/plans";
 import { formatMoney } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -122,6 +123,59 @@ export default async function AdminPage() {
         <AdminMetric label="Provisioning queue" value={overview.metrics.provisioningQueue} icon={RadioTower} tone="amber" />
         <AdminMetric label="Failed payments" value={overview.metrics.failedPayments} icon={AlertTriangle} tone="red" />
       </section>
+
+      {/* Named, not just counted. A number alone still leaves you opening
+          Stripe to find out who — which is how three declines sat unnoticed
+          for ten days while the tile read 0. */}
+      {overview.pastDue.length > 0 && (
+        <section className="rounded-2xl border border-red-200 bg-red-50 p-4 shadow-soft sm:rounded-4xl sm:p-6">
+          <h2 className="flex items-center gap-2 text-xl font-semibold text-red-900">
+            <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+            Payment failed — {overview.pastDue.length} {overview.pastDue.length === 1 ? "line" : "lines"}
+          </h2>
+          <p className="mt-1 text-sm text-red-800">
+            Stripe declined these renewals and is still retrying. The lines are live until someone suspends them.
+          </p>
+          <div className="mt-4 grid gap-3">
+            {overview.pastDue.map((sub) => {
+              const customer = sub.customers as { full_name?: string; email?: string } | null;
+              const failingSince = sub.updated_at ? new Date(sub.updated_at as string) : null;
+              const days = failingSince
+                ? Math.floor((Date.now() - failingSince.getTime()) / 86_400_000)
+                : null;
+              return (
+                <div
+                  key={sub.id as string}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white p-4"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-ink">{customer?.full_name ?? "Unknown customer"}</p>
+                    <p className="truncate text-xs text-muted-slate">{customer?.email ?? "no email on file"}</p>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-muted-slate">
+                      {getPlan(sub.plan_slug as string).name}
+                    </span>
+                    {days !== null && (
+                      <span className="rounded-full bg-red-100 px-3 py-1 font-semibold text-red-800">
+                        {days === 0 ? "today" : `${days}d`}
+                      </span>
+                    )}
+                    {sub.telecom_line_id ? (
+                      <Link
+                        href={`/admin/lines/${sub.telecom_line_id}`}
+                        className="font-semibold text-link-blue hover:text-ink"
+                      >
+                        Open line
+                      </Link>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <section className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <Suspense fallback={<RevenueCardSkeleton monthLabel={monthLabel} />}>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Activity, Phone, Radio } from "lucide-react";
+import { Activity, AlertTriangle, Phone, Radio } from "lucide-react";
 import { getAdminDb } from "@/lib/db/admin";
 import { formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -32,6 +32,20 @@ export default async function AdminLinesPage() {
       ).data ?? []
     : [];
 
+  // Billing health is a property of the subscriber, not the line — a line
+  // whose renewal is failing still reads "active" here, because Annatel has
+  // no idea Stripe was declined. Without this column the list looks perfectly
+  // healthy while someone is a week into not paying.
+  const pastDueLineIds = new Set(
+    db
+      ? (
+          (await db.from("subscribers").select("telecom_line_id").eq("status", "suspended")).data ?? []
+        )
+          .map((s) => s.telecom_line_id as string | null)
+          .filter((id): id is string => Boolean(id))
+      : [],
+  );
+
   const countByStatus = lines.reduce<Record<string, number>>((acc, l) => {
     const s = l.status ?? "unknown";
     acc[s] = (acc[s] ?? 0) + 1;
@@ -61,7 +75,7 @@ export default async function AdminLinesPage() {
       <section className="overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-soft">
         {lines.length ? (
           <div className="overflow-x-auto">
-            <table className="min-w-[960px] w-full text-left text-sm">
+            <table className="min-w-[1080px] w-full text-left text-sm">
               <thead className="bg-slate-50 text-muted-slate">
                 <tr>
                   <th className="px-5 py-4 font-semibold">Customer</th>
@@ -69,6 +83,7 @@ export default async function AdminLinesPage() {
                   <th className="px-5 py-4 font-semibold">Line ID</th>
                   <th className="px-5 py-4 font-semibold">Provider line</th>
                   <th className="px-5 py-4 font-semibold">Status</th>
+                  <th className="px-5 py-4 font-semibold">Billing</th>
                   <th className="px-5 py-4 font-semibold">Kosher</th>
                   <th className="px-5 py-4 font-semibold">Created</th>
                   <th className="px-5 py-4" />
@@ -109,6 +124,16 @@ export default async function AdminLinesPage() {
                         <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${STATUS_COLOR[line.status] ?? "text-slate-600 bg-slate-100"}`}>
                           {line.status}
                         </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        {pastDueLineIds.has(line.id) ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">
+                            <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+                            Payment failed
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-slate">—</span>
+                        )}
                       </td>
                       <td className="px-5 py-4 text-xs text-muted-slate">
                         {line.is_kosher ? (

@@ -23,7 +23,7 @@ export async function getAdminOverview() {
       },
       recentOrders: [],
       provisioningOrders: [],
-      failedOrders: [],
+      pastDue: [],
       referrals: [],
       portInQueue: [],
       intlNumberQueue: [],
@@ -39,7 +39,7 @@ export async function getAdminOverview() {
     failedPaymentCount,
     recentOrders,
     provisioningOrders,
-    failedOrders,
+    pastDue,
     referrals,
     portInLines,
     intlNumberLines,
@@ -55,7 +55,14 @@ export async function getAdminOverview() {
       .from("orders")
       .select("id", { count: "exact", head: true })
       .not("provisioning_status", "in", "(active,cancelled)"),
-    db.from("orders").select("id", { count: "exact", head: true }).in("payment_status", ["failed", "unpaid"]),
+    // Failed payments live on `subscribers`, NOT on `orders`. An order row is
+    // written once at checkout and always with payment_status 'paid' — no code
+    // path ever writes 'failed' or 'unpaid' — and a renewal that declines weeks
+    // later never creates an order at all. This tile counted orders and so read
+    // 0 permanently, hiding three genuinely past-due customers for ten days.
+    // handlePaymentFailed (process-stripe-event) is what actually records a
+    // failure, by flipping the subscriber to 'suspended'.
+    db.from("subscribers").select("id", { count: "exact", head: true }).eq("status", "suspended"),
     db.from("orders").select("*").order("created_at", { ascending: false }).limit(6),
     db
       .from("orders")
@@ -63,7 +70,15 @@ export async function getAdminOverview() {
       .not("provisioning_status", "in", "(active,cancelled)")
       .order("created_at", { ascending: true })
       .limit(8),
-    db.from("orders").select("*").in("payment_status", ["failed", "unpaid"]).order("created_at", { ascending: false }).limit(6),
+    // Who is past due, not just how many — the count alone doesn't tell you
+    // who to chase. updated_at is when handlePaymentFailed suspended them,
+    // which is the closest thing we store to "failing since".
+    db
+      .from("subscribers")
+      .select("id, plan_slug, telecom_line_id, stripe_subscription_id, updated_at, customers(full_name, email)")
+      .eq("status", "suspended")
+      .order("updated_at", { ascending: true })
+      .limit(10),
     db.from("referrals").select("*").order("created_at", { ascending: false }).limit(6),
     db
       .from("telecom_lines")
@@ -118,7 +133,7 @@ export async function getAdminOverview() {
     },
     recentOrders: recentOrders.data ?? [],
     provisioningOrders: provisioningOrders.data ?? [],
-    failedOrders: failedOrders.data ?? [],
+    pastDue: pastDue.data ?? [],
     referrals: referrals.data ?? [],
     portInQueue,
     intlNumberQueue,
