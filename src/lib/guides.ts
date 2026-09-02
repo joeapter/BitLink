@@ -2255,15 +2255,23 @@ export const guides: Guide[] = [
   },
   {
     slug: "getting-packages-in-israel",
-    title: "How do I get packages and Amazon orders during a year in Israel?",
-    metaTitle: "Packages & Amazon Orders in Israel: What Actually Works",
+    // Retitled Sept 2026 off Search Console data. The page was ranking well —
+    // "does amazon work in israel" pos 5.4, "does amazon deliver to israel"
+    // pos 6.3, "do they have amazon in israel" pos 4.0 — and taking zero
+    // clicks from any of them. Nearly every reportable query on this URL is
+    // the same general question, but the metadata advertised a gap-year
+    // student page ("How students get packages", "yeshiva"), so the people
+    // asking it scrolled past. The body already answered them: "Does Amazon
+    // deliver to Israel?" is the first section. Only the framing was wrong.
+    title: "Does Amazon deliver to Israel, and how do packages actually arrive?",
+    metaTitle: "Does Amazon Deliver to Israel? Yes, Tax-Free Under $75",
     metaDescription:
-      "How students get packages in Israel: Amazon shipping, the customs thresholds, courier SMS, addressing mail to a yeshiva, and what not to post.",
+      "Yes. Amazon ships to Israel — under $75 arrives tax-free, VAT applies above that. Delivery times, customs thresholds, and the one order field that stalls packages.",
     datePublished: "2026-08-16",
-    dateModified: "2026-08-16",
+    dateModified: "2026-09-03",
     readingTime: "6 min read",
     intro:
-      "Sooner or later every gap-year family hits this: the kid needs something from America, or the parents want to send a care package, and nobody knows how packages in Israel actually work. The short version — Amazon does deliver to Israel, small orders arrive tax-free, the courier will text an Israeli number, and for anything sentimental or urgent, a person flying over beats the postal system every time. Here's the whole picture.",
+      "Yes, Amazon delivers to Israel, and a large share of the catalogue ships to Israeli addresses directly. But \"does it deliver\" turns out to be the easy half of the question. What actually decides whether your package arrives is what it cost (under $75 clears tax-free, above that VAT applies), and whether the order carries a working Israeli phone number — because Israeli couriers deliver by text, and a package whose SMS goes nowhere sits at a pickup point until it's sent back. Here's the whole picture, whether you're ordering for yourself, sending a care package to a student, or trying to work out if it's cheaper to just buy it locally.",
     sections: [
       {
         heading: "Does Amazon deliver to Israel?",
