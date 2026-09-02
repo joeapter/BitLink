@@ -19,6 +19,7 @@ import { trialTopupGrant } from '@/inngest/functions/trial-topup-grant';
 import { trialOfferLifecycleCron } from '@/inngest/functions/trial-offer-lifecycle';
 import { notifyTrialSignup } from '@/inngest/functions/notify-trial-signup';
 import { customOrderTopupGrant } from '@/inngest/functions/custom-order-topup-grant';
+import { dunningCron } from '@/inngest/functions/dunning';
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -40,5 +41,6 @@ export const { GET, POST, PUT } = serve({
     trialOfferLifecycleCron,
     notifyTrialSignup,
     customOrderTopupGrant,
+    dunningCron,
   ],
 });

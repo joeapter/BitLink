@@ -832,3 +832,56 @@ export function buildPastDueEmail(params: {
     ${p("Questions? Reply here or message us on WhatsApp, real people, always happy to help.")}
   `);
 }
+
+// ── Past-due day 7: the line will be paused unless they act ──────────────────
+//
+// This one names a date, which the day-1 notice deliberately does not. That is
+// only safe because processDunning actually enforces it — never send this from
+// a path that cannot suspend, or the next warning this customer gets is one
+// they've learned to ignore.
+
+export function buildPastDueFinalWarningEmail(params: {
+  fullName: string;
+  amountLabel: string;
+  holdDateLabel: string;
+  payUrl: string;
+}): string {
+  const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  return layout(`
+    ${h1(`${firstName}, we need to sort your payment out`)}
+    ${p(`We still haven't been able to collect <strong>${escapeHtml(params.amountLabel)}</strong> for your BitLink plan. We've retried your card several times since, and it's still being declined.`)}
+    ${p(`Your line is working right now. But if the payment hasn't gone through by <strong>${escapeHtml(params.holdDateLabel)}</strong>, we'll put it on hold — calls and data stop, and the number stays reserved for you.`)}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn("Pay now and keep your line", params.payUrl)}
+    </div>
+    ${p(`If the card is the problem rather than the balance, swap it on <a href="${BASE_URL}/account/billing" style="color:${BRAND_COLOR};text-decoration:none;font-weight:600;">your billing page</a> — we'll retry straight away and nothing gets paused.`)}
+    ${p("If money is tight this month, reply and tell us. We'd rather work something out than pause your number.")}
+  `);
+}
+
+// ── Past-due day 10: the line has been paused ────────────────────────────────
+//
+// Sent after the carrier suspension actually lands, never before. The number
+// is explicitly still theirs — suspension is reversible and paying restores
+// the line automatically, which is the one thing this email has to make
+// unmistakable or people assume they've lost the number and don't come back.
+
+export function buildLineSuspendedEmail(params: {
+  fullName: string;
+  amountLabel: string;
+  payUrl: string;
+}): string {
+  const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  return layout(`
+    ${h1(`${firstName}, your line is on hold`)}
+    ${p(`We weren't able to collect <strong>${escapeHtml(params.amountLabel)}</strong>, so your BitLink line has been paused. Calls, texts and data are off for now.`)}
+    ${p("<strong>Your number is still yours.</strong> It's reserved on your account and nothing has been cancelled or given away.")}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn("Pay now and restore my line", params.payUrl)}
+    </div>
+    ${p("As soon as the payment clears, your line comes back on automatically with the same number — you don't need to reinstall anything or ask us to switch it on.")}
+    ${p("Something else going on, or want to cancel instead? Just reply to this email and a real person will pick it up.")}
+  `);
+}

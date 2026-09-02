@@ -36,6 +36,7 @@ import { normalizeCustomOrderLines } from '@/lib/stripe/custom-orders';
 import { provisionSubscriptionLines } from '@/lib/custom-orders/provision-lines';
 import { listIntlPortInRequests, createIntlPortInRequest } from '@/lib/custom-orders/intl-port-in-requests';
 import { startTrial } from '@/lib/trial-offer';
+import { clearDunningState } from '@/lib/billing/dunning';
 import { sendEmail } from '@/lib/email/send';
 import { logger } from '@/lib/logger';
 
@@ -864,6 +865,18 @@ async function handleSubscriptionChange(
       updates.activatedAt = activatedAt;
     }
     await updateSubscriber(admin, subscriber.id, updates);
+
+    // Recovery. Stripe keeps retrying well past our day-10 hold, so the
+    // ordinary case is that we pause a line and Stripe then collects a day or
+    // two later — this is what turns the line back on. Without it, paying
+    // customers stay dark indefinitely.
+    //
+    // This event carries the recovery rather than invoice.payment_succeeded
+    // because past_due -> active fires subscription.updated, which the
+    // endpoint is already subscribed to. Nothing to change in Stripe.
+    if (newStatus === 'active') {
+      await clearDunningState(admin, subscriber.id);
+    }
   }
 
   return { updated: true, subscriberIds: subscribers.map((subscriber) => subscriber.id) };
@@ -947,6 +960,18 @@ async function handlePaymentFailed(
 
   for (const subscriber of subscribers) {
     await updateSubscriber(admin, subscriber.id, { status: 'suspended' });
+
+    // Stamp the clock the dunning ladder runs on — but only on the FIRST
+    // decline. Stripe retries the same invoice for weeks and fires this event
+    // each time; overwriting here would reset the ladder on every retry and
+    // the customer would never reach the day-7 rung. Written straight to the
+    // table rather than through updateSubscriber, which has no notion of
+    // these columns.
+    await admin
+      .from('subscribers')
+      .update({ payment_failed_at: new Date().toISOString() })
+      .eq('id', subscriber.id)
+      .is('payment_failed_at', null);
   }
 
   log.warn(

@@ -3,6 +3,8 @@ import { BillingPanel, type InvoiceRow } from "@/components/account/BillingPanel
 import { requireUser } from "@/lib/auth/server";
 import { getAccountSnapshot } from "@/lib/db/account";
 import { getStripe } from "@/lib/stripe/server";
+import { getOpenInvoice } from "@/lib/billing/open-invoice";
+import { PastDueBanner } from "@/components/account/PastDueBanner";
 
 export const metadata: Metadata = {
   title: "Billing",
@@ -36,12 +38,23 @@ export default async function AccountBillingPage() {
     }));
   }
 
+  const openInvoice = await getOpenInvoice(stripeCustomerId);
+
   return (
-    <BillingPanel
-      subscriptionStatus={snapshot.subscription?.status}
-      nextBillingDate={nextBillingDate}
-      invoices={invoices}
-      lineBillings={snapshot.lineBillings}
-    />
+    <div className="grid gap-6">
+      {openInvoice ? (
+        <PastDueBanner
+          amountDueCents={openInvoice.amountDueCents}
+          currency={openInvoice.currency}
+          payUrl={openInvoice.payUrl}
+        />
+      ) : null}
+      <BillingPanel
+        subscriptionStatus={snapshot.subscription?.status}
+        nextBillingDate={nextBillingDate}
+        invoices={invoices}
+        lineBillings={snapshot.lineBillings}
+      />
+    </div>
   );
 }

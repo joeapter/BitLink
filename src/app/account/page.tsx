@@ -8,6 +8,8 @@ import { SmsForwarderCard } from "@/components/account/SmsForwarderCard";
 import { requireUser } from "@/lib/auth/server";
 import { getAccountSnapshot } from "@/lib/db/account";
 import { getSmsForwarderStatus } from "@/lib/account/sms-forwarder-actions";
+import { getOpenInvoice } from "@/lib/billing/open-invoice";
+import { PastDueBanner } from "@/components/account/PastDueBanner";
 
 export const metadata: Metadata = {
   title: "Account",
@@ -39,8 +41,20 @@ export default async function AccountPage() {
     ? await getSmsForwarderStatus(activeLine.provider_line_id).catch(() => null)
     : null;
 
+  // Top of the page, above the plan card: someone who owes money should see
+  // that before anything else on the account.
+  const openInvoice = await getOpenInvoice(snapshot.customer?.stripe_customer_id);
+
   return (
     <div className="grid gap-6">
+      {openInvoice ? (
+        <PastDueBanner
+          amountDueCents={openInvoice.amountDueCents}
+          currency={openInvoice.currency}
+          payUrl={openInvoice.payUrl}
+        />
+      ) : null}
+
       <AccountOverview
         planName={snapshot.planName}
         planDetail={snapshot.planDetail}
