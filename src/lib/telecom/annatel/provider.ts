@@ -399,10 +399,22 @@ export class AnnatelProvider implements TelecomProvider {
     // Plain REST delete, not a bulk_request — confirmed against Annatel's
     // Swagger spec, Jul 2026. Needs the line_plan's own id, so the matching
     // plan is looked up by name first (same pattern as replaceSim/releaseDid).
-    const plansResult = await this.client.get<{ data: Array<{ id: string; plan?: { name: string } }> }>(
-      `${LINES_BASE}/${providerLineId}/plans`,
+    //
+    // GET .../plans never actually nests a `plan` object (confirmed live,
+    // Sep 2026 — every response back to our earliest logs, Jun 18, is flat
+    // `plan_id` only; the Swagger doc's nested shape has never matched
+    // reality). p.plan?.name is always undefined, so this match always
+    // failed — see the incident note on listLinePlans below, same cause.
+    // Names live in the tenant catalog and have to be joined in.
+    const [plansResult, catalog] = await Promise.all([
+      this.client.get<{ data: Array<{ id: string; plan_id: string; plan?: { name: string } }> }>(
+        `${LINES_BASE}/${providerLineId}/plans`,
+      ),
+      this.resolvePlanCatalogMap(),
+    ]);
+    const match = (plansResult.data ?? []).find(
+      (p) => (p.plan?.name ?? catalog.get(p.plan_id)?.name) === planName,
     );
-    const match = (plansResult.data ?? []).find((p) => p.plan?.name === planName);
     if (!match) {
       throw new Error(`Plan ${planName} not found on line ${providerLineId}`);
     }
@@ -415,18 +427,60 @@ export class AnnatelProvider implements TelecomProvider {
     });
   }
 
+  // A private catalog lookup, not a public interface method: this is a
+  // resolve-by-id map for the two call sites below, distinct from
+  // listPlansCatalog() (the public, tenant-wide catalog listing). The
+  // catalog holds only main plans — a topup's plan_id legitimately has no
+  // entry, which the two callers below both treat as "not main" rather than
+  // an error.
+  private async resolvePlanCatalogMap(): Promise<Map<string, { name: string; isMain: boolean }>> {
+    const catalog = await this.client
+      .get<{ data: Array<{ id: string; name: string; is_main: boolean }> }>(
+        '/api/operational/network_manager/plans?page%5Bsize%5D=200',
+      )
+      .catch(() => ({ data: [] }));
+    return new Map((catalog.data ?? []).map((p) => [p.id, { name: p.name, isMain: p.is_main }]));
+  }
+
+  // INCIDENT (Sep 2026): every response from GET .../plans is flat —
+  // `{ id, plan_id, start_at, end_at, external_id, first_used_at,
+  // provisioned_at }`, never the nested `plan: { id, name, is_main }` the
+  // Swagger spec documents and this method used to assume. Reading
+  // `p.plan.id`/`.name`/`.is_main` on that shape throws TypeError, which is
+  // NOT caught anywhere in changeLinePlan — it propagates out of the admin
+  // "Change plan" server action as an unhandled exception, which Next.js
+  // renders as a generic "This page couldn't load" error with no detail.
+  //
+  // Verified against production logs: this has been the shape since our
+  // earliest recorded call (2026-06-18) — not a recent API change. Zero
+  // audit_logs rows for line_plan_changed and zero POST .../plans/.../replace
+  // calls exist anywhere in provider_sync_logs, meaning this admin action has
+  // never once completed successfully since it was built; getLineDetail's
+  // plans mapping already carries the correct catalog-join fix (see there),
+  // this standalone method just never got the same treatment.
   async listLinePlans(providerLineId: string): Promise<LinePlanInfo[]> {
-    const result = await this.client.get<{ data: AnnatelLinePlan[] }>(
-      `${LINES_BASE}/${providerLineId}/plans`,
-    );
-    return (result.data ?? []).map((p) => ({
-      id: p.id,
-      planId: p.plan.id,
-      planName: p.plan.name,
-      isMain: p.plan.is_main,
-      startAt: new Date(p.start_at),
-      endAt: p.end_at ? new Date(p.end_at) : undefined,
-    }));
+    const [result, catalog] = await Promise.all([
+      this.client.get<{
+        data: Array<{ id: string; start_at: string; end_at?: string; plan_id: string; plan?: { id: string; name: string; is_main: boolean } }>;
+      }>(`${LINES_BASE}/${providerLineId}/plans`),
+      this.resolvePlanCatalogMap(),
+    ]);
+    const catalogLoaded = catalog.size > 0;
+    return (result.data ?? []).map((p) => {
+      const cataloged = catalog.get(p.plan_id);
+      return {
+        id: p.id,
+        planId: p.plan?.id ?? p.plan_id,
+        planName: p.plan?.name ?? cataloged?.name ?? '',
+        // Absence from the catalog means "not a main plan" once the catalog
+        // itself loaded successfully; only fall back to assuming main when
+        // the catalog fetch failed outright, so a topup misidentified by a
+        // network hiccup doesn't get offered as the line's primary plan.
+        isMain: p.plan?.is_main ?? cataloged?.isMain ?? !catalogLoaded,
+        startAt: new Date(p.start_at),
+        endAt: p.end_at ? new Date(p.end_at) : undefined,
+      };
+    });
   }
 
   // This pool backs auto-assignment of a customer's PRIMARY Israeli number

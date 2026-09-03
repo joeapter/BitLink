@@ -141,8 +141,22 @@ export async function changeLinePlan(params: {
   const oldLinePlanId = currentLinePlan.id;
   const changedAt = new Date().toISOString();
 
+  // Wrapped rather than left to propagate: a carrier-side rejection here
+  // (422 for a plan combination Annatel won't allow, a transient 5xx, etc.)
+  // used to throw straight out of this "use server" action with nothing
+  // catching it, which Next.js renders as a bare "This page couldn't load" —
+  // no error text, no indication anything carrier-side even happened. Same
+  // failure shape as the listLinePlans bug just above it, different cause.
   if (oldCarrierPlanName !== newCarrierPlanName) {
-    await provider.replacePlan(providerLineId, oldLinePlanId, newCarrierPlanName);
+    try {
+      await provider.replacePlan(providerLineId, oldLinePlanId, newCarrierPlanName);
+    } catch (err) {
+      return {
+        error: err instanceof Error
+          ? `Carrier rejected the plan change: ${err.message}`
+          : 'Carrier rejected the plan change.',
+      };
+    }
   }
 
   try {
