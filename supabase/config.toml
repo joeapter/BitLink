@@ -12,6 +12,20 @@ additional_redirect_urls = [
   "https://www.bitlink.co.il/auth/confirm",
   "http://localhost:3000/auth/callback",
   "http://localhost:3000/auth/confirm",
+  # Wildcard variants, added Sep 2026: GoTrue matches the FULL redirect URL
+  # against this list, so a redirectTo carrying a query string (e.g.
+  # /auth/callback?next=/reset-password, used by both the self-serve
+  # "Forgot password" flow and the admin-triggered reset-link feature) never
+  # matched the bare entries above. The mismatch fails silently — no error,
+  # just a fallback to the bare site_url — so a customer clicking their reset
+  # email landed on the homepage instead of /reset-password. These don't
+  # replace the exact entries above; they just also allow the ?next=... form.
+  "https://bitlink.co.il/auth/callback**",
+  "https://www.bitlink.co.il/auth/callback**",
+  "https://bitlink.co.il/auth/confirm**",
+  "https://www.bitlink.co.il/auth/confirm**",
+  "http://localhost:3000/auth/callback**",
+  "http://localhost:3000/auth/confirm**",
 ]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true

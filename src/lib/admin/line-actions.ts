@@ -11,7 +11,9 @@ import { sendProvisionedNotifications } from "@/lib/notifications/send-provision
 import { addIntlNumberToLine, removeIntlNumberFromLine, type AddIntlNumberResult, type RemoveIntlNumberResult } from "@/lib/custom-orders/international-numbers";
 import { grantTopup, cancelTopupGrant, type GrantTopupResult } from "@/lib/topups/grant-topup";
 import { refundAndCancelLine } from '@/lib/admin/refund-cancel';
-import { formatMoney } from '@/lib/utils';
+import { formatMoney, absoluteUrl } from '@/lib/utils';
+import { sendEmail } from '@/lib/email/send';
+import { buildAdminResetLinkEmail } from '@/lib/email/templates';
 import { createIntlPortInRequest, setIntlPortInStatus, completeIntlPortInRequest } from "@/lib/custom-orders/intl-port-in-requests";
 import {
   createIsraeliPortInRequest,
@@ -981,5 +983,61 @@ export async function refundAndCancelLineAction(
 
   return {
     success: `${amount} refunded and the subscription cancelled. The line terminates automatically within a minute or two, once Stripe's cancellation webhook lands.`,
+  };
+}
+
+// ── Password reset ────────────────────────────────────────────────────────────
+
+export type ResetLinkState = { success?: string; error?: string; link?: string } | null;
+
+// Generates the same recovery link a customer gets from "Forgot password"
+// themselves — via Supabase's admin API, not by faking their self-serve flow
+// — and both hands it back to the admin UI to display/copy AND emails it to
+// the address on file, in the same call. Reuses the exact redirectTo the
+// self-serve flow already uses (requestPasswordResetAction in auth/actions.ts)
+// so it lands on the same allowlisted URL and the same /reset-password page —
+// no separate Supabase redirect-URL configuration needed.
+//
+// Requires a real Supabase Auth account. A customer created only via a manual
+// admin order (no login ever provisioned) has no account for Supabase to
+// generate a recovery link against, and generateLink fails with "User not
+// found" — surfaced as the error text rather than silently doing nothing.
+export async function generateResetLinkAction(
+  _prev: ResetLinkState,
+  formData: FormData,
+): Promise<ResetLinkState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const email = String(formData.get('email') ?? '').trim();
+  const fullName = String(formData.get('fullName') ?? '');
+
+  if (!lineId || !email) return { error: 'Missing customer email.' };
+
+  const admin = getAdmin();
+  const { data, error } = await admin.auth.admin.generateLink({
+    type: 'recovery',
+    email,
+    options: { redirectTo: absoluteUrl('/auth/callback?next=/reset-password') },
+  });
+
+  if (error || !data?.properties?.action_link) {
+    return { error: error?.message ?? 'Could not generate a reset link for this email.' };
+  }
+
+  const link = data.properties.action_link;
+
+  const sent = await sendEmail({
+    to: email,
+    subject: 'Reset your BitLink password',
+    html: buildAdminResetLinkEmail({ fullName, resetUrl: link }),
+  });
+
+  await logAction(user.id, 'admin_password_reset_link_generated', lineId, { email, emailed: sent });
+
+  return {
+    link,
+    success: sent
+      ? `Link generated and emailed to ${email}.`
+      : `Link generated, but the email failed to send — copy it and send it yourself.`,
   };
 }

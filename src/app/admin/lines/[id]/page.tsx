@@ -15,6 +15,7 @@ import QRCode from "qrcode";
 import { toLpaString } from "@/lib/esim";
 import { whatsappGreeting, whatsappWebUrl } from "@/lib/whatsapp";
 import { RefundAndCancelCard } from "@/components/admin/RefundAndCancelCard";
+import { ResetLinkCard } from "@/components/admin/ResetLinkCard";
 import { getRefundContext } from "@/lib/admin/refund-cancel";
 import { LiveLineData, LiveLineDataSkeleton } from "./LiveLineData";
 
@@ -236,6 +237,8 @@ export default async function AdminLineDetailPage({ params }: Props) {
             if (!metaIsEsim || !providerLineId) return null;
             return <EsimResendCard lineId={line.id} providerLineId={providerLineId} />;
           })()}
+
+          <ResetLinkCard lineId={line.id} email={customer?.email} fullName={customer?.full_name} />
 
           {!isEsim && providerLineId && (
             <AssignPhysicalSimCard
