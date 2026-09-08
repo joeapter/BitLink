@@ -229,8 +229,9 @@ export const guides: Guide[] = [
       { href: "/israel-esim", label: "Israel eSIM" },
       { href: "/israeli-phone-plans-for-students", label: "Student phone plans" },
       { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
-          { href: "/guides/esim-israel", label: "How to set up an eSIM in Israel" },
-          { href: "/guides/travel-esim-or-phone-plan-israel", label: "Travel eSIM or phone plan?" },
+      { href: "/guides/esim-israel", label: "How to set up an eSIM in Israel" },
+      { href: "/guides/travel-esim-or-phone-plan-israel", label: "Travel eSIM or phone plan?" },
+      { href: "/guides/gett-moovit-israeli-number", label: "Do you need a number for Gett?" },
     ],
   },
   {
@@ -771,6 +772,7 @@ export const guides: Guide[] = [
     ],
     relatedLinks: [
       { href: "/guides/israeli-phone-number-before-you-land", label: "Get your number before you land" },
+      { href: "/guides/gett-moovit-israeli-number", label: "Do you need a number for Gett?" },
       { href: "/israeli-phone-plans-for-olim", label: "Phone plans for new olim" },
       { href: "/keep-your-number", label: "Number porting" },
     ],
@@ -3251,6 +3253,86 @@ export const guides: Guide[] = [
       { href: "/guides/israeli-phone-number-before-you-land", label: "Get an Israeli number before you land" },
       { href: "/israeli-number-from-abroad", label: "Israeli number from abroad" },
       { href: "/aliyah", label: "Aliyah phone service" },
+    ],
+  },
+  {
+    slug: "gett-moovit-israeli-number",
+    title: "Do I need an Israeli number for Gett, Wolt, and the apps everyone uses here?",
+    metaTitle: "Do You Need an Israeli Number for Gett? Yes — Here's Why",
+    metaDescription:
+      "Gett and Wolt verify by SMS to a real Israeli mobile — a foreign number or travel eSIM usually won't work. What to do before you land so your first ride from the airport just works.",
+    datePublished: "2026-09-08",
+    dateModified: "2026-09-08",
+    readingTime: "5 min read",
+    intro:
+      "You land, connect to the airport WiFi, and open Gett to book a ride home — and it wants to verify your phone number by SMS. Your home number either can't receive the text or won't arrive for several minutes over roaming, and now you're standing in the arrivals hall without a working ride app. This is one of the most common first-hour snags for tourists, new olim, and returning Israelis, and it has a simple cause: Gett and Wolt both verify accounts against a real Israeli mobile number, not just any number you happen to be holding. Here's why, which apps actually require it, and how to have it already working before you board.",
+    sections: [
+      {
+        heading: "Why does Gett need an Israeli number specifically?",
+        paragraphs: [
+          "Ride-hailing and delivery apps verify new accounts by sending a one-time code by SMS, the same way a bank or gov.il does. That code has to arrive at a real, active mobile line — and both Gett and Wolt check that the number is a genuine Israeli mobile, not a landline, not a VoIP number, and in practice not a foreign number that's about to disappear the moment you land and swap SIMs.",
+          "It's the identical mechanism behind the bank and gov.il verification problem covered in [our guide to Israeli SMS codes](/guides/virtual-israeli-number-bank-2fa) — a real SIM, registered and active on an Israeli network, is what these systems are actually checking for. The only difference here is timing: a bank account can wait a day to sort out, but a taxi from the airport can't.",
+        ],
+      },
+      {
+        heading: "Will my home number work instead?",
+        paragraphs: [
+          "Sometimes, briefly, and unreliably. If your home SIM is still in the phone and roaming is switched on, the verification text can arrive — eventually, and often with a delay long enough that the code expires before it lands, since most of these codes are only valid for a couple of minutes. The moment you swap to a local SIM or eSIM for data, though, that foreign number stops being able to receive anything, and any app tied to it during setup starts asking you to re-verify.",
+          "A data-only travel eSIM doesn't solve this either — it gives you internet, not a phone number, so Gett and Wolt have nothing to send the code to at all.",
+        ],
+      },
+      {
+        heading: "Which apps actually need this, and which don't",
+        paragraphs: [
+          "Not everything in the country requires phone verification, and it's worth knowing which is which before you assume you're stuck.",
+        ],
+        table: {
+          columns: ["App", "Needs an Israeli number?", "What happens without one"],
+          rows: [
+            { cells: ["Gett (taxis)", "Yes", "Can't complete signup — verification SMS has nowhere valid to land"] },
+            { cells: ["Wolt (food delivery)", "Yes", "Same — phone verification is required to place a first order"] },
+            { cells: ["Moovit (transit)", "Mostly no", "Trip planning and live times work without an account at all"], highlight: true },
+            { cells: ["Israeli banking / Bit / Pango", "Yes", "Covered in the [SMS-verification guide](/guides/virtual-israeli-number-bank-2fa) — same mechanism, different urgency"] },
+          ],
+          note: "Moovit's core routing works without signing in; an account is only needed for saved favorites and trip history.",
+        },
+      },
+      {
+        heading: "The fix: have the number working before you fly",
+        paragraphs: [
+          "The reliable version of this looks nothing like fixing it from the arrivals hall. [Set up an Israeli eSIM before you leave](/guides/israeli-phone-number-before-you-land), and on most phones it activates the moment you land and connect — Gett, Wolt, and everything else verify instantly against a real, active Israeli number, because it's been one since before you took off.",
+          "This is also the safer version of the [airport SIM](/guides/airport-sim-trap-israel): a kiosk SIM bought on arrival gets you a number fast, but it's frequently registered to the seller rather than to you, and prepaid numbers on that circuit lapse within months if the line goes idle — a bad foundation for the number your ride app, your bank, and everything else are about to be built on.",
+          "A [BitLink line](/plans) is a real Israeli mobile on Partner's network, registered to you, live before you board — so the first thing you do on Israeli soil isn't troubleshooting a taxi app.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Can I just use my home country's number for Gett?",
+        answer:
+          "Only if it's actively roaming and can receive SMS at the moment you sign up — and that stops working the instant you switch to a local SIM or eSIM for data, which is what most visitors do within the first day. It also isn't reliable even briefly: international SMS delivery can lag past the code's expiry window.",
+      },
+      {
+        question: "Does Moovit need an Israeli phone number?",
+        answer:
+          "No, not for the parts most people use. Route planning, live bus and train times, and general navigation all work without an account. A phone-verified account only adds saved favorites and trip history, so it's optional rather than a blocker.",
+      },
+      {
+        question: "I already landed without a working number — what now?",
+        answer:
+          "Sign up for a plan online, and if your phone supports eSIM the number is usually live within minutes — no store visit needed. Once it's active, Gett and Wolt verify normally. If you're weighing a kiosk SIM as a same-day fix instead, read the [airport SIM trap guide](/guides/airport-sim-trap-israel) first — it's fast, but often not a number you actually keep.",
+      },
+      {
+        question: "Does this apply to a kosher line?",
+        answer:
+          "No — kosher lines are voice-only by design, with no data and no SMS, so they can't run any app at all, Gett included. This guide is about ordinary data-and-SMS lines, which is what a smartphone running these apps needs regardless of who the carrier is.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/guides/israeli-phone-number-before-you-land", label: "Get your number before you land" },
+      { href: "/guides/airport-sim-trap-israel", label: "The airport SIM trap" },
+      { href: "/guides/virtual-israeli-number-bank-2fa", label: "Israeli SMS codes, explained" },
+      { href: "/israel-sim-for-tourists", label: "SIM plans for tourists" },
     ],
   },
 ];
