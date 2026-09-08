@@ -14,7 +14,7 @@ import { createPageMetadata, faqPageJsonLd, jsonLdScriptProps, plansCollectionJs
 export const metadata: Metadata = createPageMetadata({
   title: "Israeli Phone Plans & Pricing — From $14.99/month",
   description:
-    "Compare all five BitLink plans: 1GB to 120GB 5G data, kosher options, USD pricing with VAT included, no hidden fees. eSIM or physical SIM. See every price up front.",
+    "Compare all five BitLink plans: 1GB to 120GB 5G data, kosher options, USD pricing with VAT included where applicable, no hidden fees. eSIM or physical SIM. See every price up front.",
   path: "/plans",
 });
 
@@ -41,7 +41,7 @@ export default async function PlansPage() {
               Israeli phone plans with prices you can actually see.
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-slate">
-              Five monthly plans from $14.99 to $39.99 — priced in USD with VAT included, no hidden fees, and no
+              Five monthly plans from $14.99 to $39.99 — priced in USD with VAT included where applicable, no hidden fees, and no
               long-term contract. Every plan includes a real Israeli number and activates by eSIM or physical SIM,
               with kosher voice-only options and a US/Canada/UK number add-on.
             </p>

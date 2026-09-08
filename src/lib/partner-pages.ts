@@ -30,7 +30,7 @@ const sharfmansPage: PartnerPage = {
     eyebrow: "BitLink × Sharfmans",
     h1: "Her phone, sorted before the seminary year starts.",
     intro:
-      "This is the Sharfmans partner page with BitLink — orders placed from here are linked to the seminary automatically, nothing to type at checkout. A seminary year runs on a working Israeli number: the plans are $14.99–$39.99/month in USD with VAT included, parents pay from home with a regular US, UK, or Canadian card (no Teudat Zehut, no Israeli paperwork), and on an eSIM phone the number is live before the flight — she lands connected. Support is in English, from real people, on WhatsApp.",
+      "This is the Sharfmans partner page with BitLink — orders placed from here are linked to the seminary automatically, nothing to type at checkout. A seminary year runs on a working Israeli number: the plans are $14.99–$39.99/month in USD with VAT included where applicable, parents pay from home with a regular US, UK, or Canadian card (no Teudat Zehut, no Israeli paperwork), and on an eSIM phone the number is live before the flight — she lands connected. Support is in English, from real people, on WhatsApp.",
     primaryCta: {
       href: "/plans",
       label: "See the plans",
@@ -46,7 +46,7 @@ const sharfmansPage: PartnerPage = {
       },
       {
         title: "The bill stays with you",
-        body: "USD pricing, VAT included, charged to your own card — a predictable amount every month, managed from home without needing your daughter to handle billing in Israel.",
+        body: "USD pricing, VAT included where applicable, charged to your own card — a predictable amount every month, managed from home without needing your daughter to handle billing in Israel.",
       },
       {
         title: "Every signup counts for Sharfmans",
@@ -113,7 +113,7 @@ export const partnerPages: Record<string, PartnerPage> = {
       eyebrow: "BitLink × Neveh Zion",
       h1: "Phone service for Neveh Zion students, handled before the flight.",
       intro:
-        "This is Neveh Zion's partner page with BitLink — signups from here are linked to the yeshiva through BitLink's partner program automatically, with no code to type. Plans run $14.99–$39.99/month in USD with VAT included, parents pay from the US, UK, or Canada with their own card (no Teudat Zehut, no Israeli paperwork), and on an eSIM-compatible phone the Israeli number is live before your son boards. Support is real people, in English, on WhatsApp.",
+        "This is Neveh Zion's partner page with BitLink — signups from here are linked to the yeshiva through BitLink's partner program automatically, with no code to type. Plans run $14.99–$39.99/month in USD with VAT included where applicable, parents pay from the US, UK, or Canada with their own card (no Teudat Zehut, no Israeli paperwork), and on an eSIM-compatible phone the Israeli number is live before your son boards. Support is real people, in English, on WhatsApp.",
       primaryCta: {
         href: "/plans",
         label: "See the plans",
@@ -159,7 +159,7 @@ export const partnerPages: Record<string, PartnerPage> = {
         {
           question: "Can I pay for the line from the US and manage it from home?",
           answer:
-            "Yes — that's the normal setup for yeshiva families. Checkout is priced in US dollars with VAT included and takes a regular US, UK, or Canadian card; no Teudat Zehut or Israeli paperwork is involved. The account stays in your hands: billing, plan changes, and support all work from abroad, in English, by WhatsApp, phone, or email.",
+            "Yes — that's the normal setup for yeshiva families. Checkout is priced in US dollars with VAT included where applicable and takes a regular US, UK, or Canadian card; no Teudat Zehut or Israeli paperwork is involved. The account stays in your hands: billing, plan changes, and support all work from abroad, in English, by WhatsApp, phone, or email.",
         },
         {
           question: "Does signing up through this page cost my family anything extra?",

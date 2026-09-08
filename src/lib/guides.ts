@@ -271,7 +271,7 @@ export const guides: Guide[] = [
       {
         heading: "The fix takes ten minutes",
         paragraphs: [
-          "Every [BitLink plan](/plans) includes a real Israeli mobile number, from $14.99/month with VAT included and no contract. On an eSIM-compatible phone the whole setup happens online before you land — the [step-by-step guide](/guides/israeli-phone-number-before-you-land) walks through it. Verification codes, bank callbacks, Bit, Pango, and delivery apps then work exactly as they do for anyone else in the country.",
+          "Every [BitLink plan](/plans) includes a real Israeli mobile number, from $14.99/month with VAT included where applicable and no contract. On an eSIM-compatible phone the whole setup happens online before you land — the [step-by-step guide](/guides/israeli-phone-number-before-you-land) walks through it. Verification codes, bank callbacks, Bit, Pango, and delivery apps then work exactly as they do for anyone else in the country.",
           "For new olim specifically, this is worth doing before the klita paperwork starts rather than during it — the [olim plan guide](/israeli-phone-plans-for-olim) covers which plan fits the first year.",
         ],
       },
@@ -494,7 +494,7 @@ export const guides: Guide[] = [
     dateModified: "2026-07-12",
     readingTime: "6 min read",
     intro:
-      "If you're headed to yeshiva or seminary in Israel — or you're the parent organizing it — the phone is one job that shouldn't wait for landing day. The short version: confirm the school's phone policy first, because it decides everything else. Kosher programs need a certified kosher phone on a recognized kosher line (from $19.99/month); smartphone programs fit Student 5G ($34.99/month, 50GB); and on an eSIM-compatible phone the Israeli number can be live before the flight. Prices are in USD with VAT included, parents can pay from abroad, and support answers in English. Here's the whole thing as a checklist, in order.",
+      "If you're headed to yeshiva or seminary in Israel — or you're the parent organizing it — the phone is one job that shouldn't wait for landing day. The short version: confirm the school's phone policy first, because it decides everything else. Kosher programs need a certified kosher phone on a recognized kosher line (from $19.99/month); smartphone programs fit Student 5G ($34.99/month, 50GB); and on an eSIM-compatible phone the Israeli number can be live before the flight. Prices are in USD with VAT included where applicable, parents can pay from abroad, and support answers in English. Here's the whole thing as a checklist, in order.",
     sections: [
       {
         heading: "Start with the school's phone policy — it decides everything",
@@ -528,7 +528,7 @@ export const guides: Guide[] = [
       {
         heading: "For parents: paying and staying in touch from abroad",
         paragraphs: [
-          "Plans are priced and charged in US dollars with VAT included, so a parent pays with their own card and sees the same predictable amount every month — no shekel conversion moving with the exchange rate. Many families keep the account entirely in the parent's hands while the line runs on the student's phone in Israel.",
+          "Plans are priced and charged in US dollars with VAT included where applicable, so a parent pays with their own card and sees the same predictable amount every month — no shekel conversion moving with the exchange rate. Many families keep the account entirely in the parent's hands while the line runs on the student's phone in Israel.",
           "For staying in touch, a [US, Canadian, or UK local number](/us-number-in-israel) can be added to any plan — including the kosher plans — for $9.99/month. Family dials a number that's local to them, and it rings the student's phone in Israel; no international dialing, no calling cards. On smartphone plans the number receives US verification texts as well, so a student's American bank login keeps working from Israel. In the other direction, Kosher+ and Max 5G both include 150 minutes of outbound calling to US and Canadian numbers.",
           "Support is in English by WhatsApp, phone, and email — so a parent can sort out a billing question or a setup issue directly, without the student translating from a dorm hallway.",
         ],
@@ -563,7 +563,7 @@ export const guides: Guide[] = [
       {
         question: "Can parents pay for a student's Israeli phone plan from the US?",
         answer:
-          "Yes — this is one of the main reasons families choose BitLink. Checkout is online and priced in US dollars with VAT included, so a parent pays with their own US, UK, or Canadian card and sees a predictable USD charge each month. Support is in English by WhatsApp, phone, and email, so parents can manage the account directly from abroad.",
+          "Yes — this is one of the main reasons families choose BitLink. Checkout is online and priced in US dollars with VAT included where applicable, so a parent pays with their own US, UK, or Canadian card and sees a predictable USD charge each month. Support is in English by WhatsApp, phone, and email, so parents can manage the account directly from abroad.",
       },
       {
         question: "How can family call the student without international charges?",
@@ -587,7 +587,7 @@ export const guides: Guide[] = [
     dateModified: "2026-07-12",
     readingTime: "7 min read",
     intro:
-      "A kosher phone is two things working together: a certified device built for calling only, and a kosher phone line from the carrier. Getting one in Israel as an English speaker usually means navigating Hebrew-first stores and paperwork — this guide explains the whole system plainly: what certification actually covers, who Vaadat Harabanim is, what a kosher line does and deliberately doesn't include, and what it costs. BitLink's kosher plans run $19.99–$24.99/month in USD, VAT included, on lines recognized by Vaadat Harabanim L'inyanei Tikshoret.",
+      "A kosher phone is two things working together: a certified device built for calling only, and a kosher phone line from the carrier. Getting one in Israel as an English speaker usually means navigating Hebrew-first stores and paperwork — this guide explains the whole system plainly: what certification actually covers, who Vaadat Harabanim is, what a kosher line does and deliberately doesn't include, and what it costs. BitLink's kosher plans run $19.99–$24.99/month in USD, VAT included where applicable, on lines recognized by Vaadat Harabanim L'inyanei Tikshoret.",
     sections: [
       {
         heading: "What makes a phone kosher: the two-part system",
@@ -606,7 +606,7 @@ export const guides: Guide[] = [
       {
         heading: "What a kosher line includes — and deliberately doesn't",
         paragraphs: [
-          "[Kosher Basic](/plans/kosher-basic) is $19.99/month and includes 5,000 minutes of calling to Israeli numbers. [Kosher+](/plans/kosher-plus) is $24.99/month and adds 150 minutes of calling to US and Canadian numbers. Both are voice-only: no mobile data, no SMS, on a physical SIM. Prices are in USD with VAT included, and plans are monthly with no long-term contract.",
+          "[Kosher Basic](/plans/kosher-basic) is $19.99/month and includes 5,000 minutes of calling to Israeli numbers. [Kosher+](/plans/kosher-plus) is $24.99/month and adds 150 minutes of calling to US and Canadian numbers. Both are voice-only: no mobile data, no SMS, on a physical SIM. Prices are in USD with VAT included where applicable, and plans are monthly with no long-term contract.",
           "The exclusions are the product, not a gap in it. A kosher line carries no data or SMS because that's what the certification requires — it isn't a stripped-down data plan, it's a different category of service. If you need internet on your line, a kosher-certified device can't use it anyway; the honest comparison is BitLink's [standard plans](/plans) from $14.99/month, which require a standard (non-kosher) phone.",
           "One technical consequence worth knowing in advance: kosher plans activate on a physical SIM only. Kosher devices aren't built for eSIM, so there's no scan-a-QR-code shortcut — the SIM has to physically reach the phone, which makes timing part of the plan (more below).",
         ],
@@ -634,7 +634,7 @@ export const guides: Guide[] = [
       {
         heading: "The costs, all of them",
         paragraphs: [
-          "The line: $19.99/month (Kosher Basic) or $24.99/month (Kosher+), VAT included, no contract, cancel anytime. The optional US/Canada number add-on: $9.99/month. The device: bought separately, since certification is hardware-level — prices vary by model and where you buy.",
+          "The line: $19.99/month (Kosher Basic) or $24.99/month (Kosher+), VAT included where applicable, no contract, cancel anytime. The optional US/Canada number add-on: $9.99/month. The device: bought separately, since certification is hardware-level — prices vary by model and where you buy.",
           "There are no activation surprises, and each plan's full contract is published on its page before checkout. If the line is for a student and the school has a BitLink signup link, use it — signups are tracked and the institution is supported through BitLink's partner program at no cost to the school.",
         ],
       },
@@ -738,7 +738,7 @@ export const guides: Guide[] = [
       {
         heading: "The skip-the-trap path: own your number from the first hour",
         paragraphs: [
-          "The trap only exists because the number came from a counter transaction with no real registration. The alternative is starting with a line that's yours before you land: [BitLink](/plans) signup happens online with no Israeli paperwork at all — no Teudat Zehut, and no passport either. Checkout takes a name, email, phone number, and a regular US, UK, or Canadian card, charged in USD with VAT included. On an eSIM-compatible phone, the activation QR code arrives within minutes and your Israeli number is live before your flight boards.",
+          "The trap only exists because the number came from a counter transaction with no real registration. The alternative is starting with a line that's yours before you land: [BitLink](/plans) signup happens online with no Israeli paperwork at all — no Teudat Zehut, and no passport either. Checkout takes a name, email, phone number, and a regular US, UK, or Canadian card, charged in USD with VAT included where applicable. On an eSIM-compatible phone, the activation QR code arrives within minutes and your Israeli number is live before your flight boards.",
           "That means the number you give the bank on day three is the same number you'll have in year five — no migration, no re-registration circuit. And it stays flexible in both directions: if you leave Israel for a stretch, [pause the line for $10/month](/israel-sim-for-tourists) and the number waits for you; and if you ever want to move to another Israeli carrier, every BitLink line is deliberately left open for porting out — no blocks, no release process, no exit fee. The number is simply yours.",
         ],
       },
@@ -762,7 +762,7 @@ export const guides: Guide[] = [
       {
         question: "Can I pay for an Israeli phone plan with a foreign credit card?",
         answer:
-          "With BitLink, yes — plans are priced and charged in US dollars with VAT included, and a regular US, UK, or Canadian debit or credit card works. That's also why a parent abroad can pay for a student's or new oleh's line directly. Traditional Israeli carriers typically expect Israeli billing details for postpaid plans.",
+          "With BitLink, yes — plans are priced and charged in US dollars with VAT included where applicable, and a regular US, UK, or Canadian debit or credit card works. That's also why a parent abroad can pay for a student's or new oleh's line directly. Traditional Israeli carriers typically expect Israeli billing details for postpaid plans.",
       },
       {
         question: "Can I port my BitLink number to another Israeli carrier later?",
@@ -1448,7 +1448,7 @@ export const guides: Guide[] = [
         paragraphs: [
           "Run dual SIM: your home SIM stays in the phone so the number your family and your bank know keeps receiving texts, and the Israeli line does all the actual work. Turn roaming off on the home line and drop it to the cheapest tier that keeps the number alive — or skip paying a US carrier entirely and [port the number onto your BitLink line](/keep-your-number), or add a [US, Canadian, or UK local number](/us-number-in-israel) for $9.99/month so parents dial a local call and it rings in Israel. Both routes receive US verification texts — real bank codes, tested — so nothing about your American logins breaks. The add-on is live right away; porting takes 3–5 business days, so start it before the flight if that's your plan.",
           "One thing not to do for a gap year: don't move your WhatsApp to the Israeli number. That advice is for aliyah. You're going home in a year — keep WhatsApp on the number you'll still have at 20, and let the Israeli number handle SMS codes and local calls. WhatsApp works fine on Israeli data regardless of which number it's registered to.",
-          "For parents: the plan is priced in dollars with VAT included, the card on file can be yours, and support answers in English on WhatsApp — so billing questions never route through a teenager's dorm hallway.",
+          "For parents: the plan is priced in dollars with VAT included where applicable, the card on file can be yours, and support answers in English on WhatsApp — so billing questions never route through a teenager's dorm hallway.",
         ],
       },
       {
@@ -1492,7 +1492,7 @@ export const guides: Guide[] = [
       {
         question: "Can my parents pay for the plan from the US?",
         answer:
-          "Yes — checkout is online, priced in US dollars with VAT included, and takes a regular US, UK, or Canadian card with no Israeli ID or bank account. Many families keep the card and the account in a parent's hands while the line runs on the student's phone in Israel, and support answers parents directly in English.",
+          "Yes — checkout is online, priced in US dollars with VAT included where applicable, and takes a regular US, UK, or Canadian card with no Israeli ID or bank account. Many families keep the card and the account in a parent's hands while the line runs on the student's phone in Israel, and support answers parents directly in English.",
       },
       {
         question: "What happens to my number if I come back for shana bet?",

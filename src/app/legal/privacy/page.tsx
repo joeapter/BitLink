@@ -36,9 +36,9 @@ export default function PrivacyPolicyPage() {
 
         <div className="mt-8 rounded-[2rem] border border-ink/10 bg-slate-50 p-6 leading-7 text-slate-700">
           <p>
-            This Privacy Policy explains how BitLink Ltd. collects, uses, stores, shares, and protects personal
-            information when you use our website, create an account, choose a telecom plan, request activation,
-            contact support, or otherwise interact with BitLink.
+            This Privacy Policy explains how BitLink (an Israeli sole proprietorship, Business ID 341280188)
+            collects, uses, stores, shares, and protects personal information when you use our website, create an
+            account, choose a telecom plan, request activation, contact support, or otherwise interact with BitLink.
           </p>
           <p className="mt-4">
             For privacy questions or requests, contact us at{" "}
@@ -59,7 +59,7 @@ export default function PrivacyPolicyPage() {
 
         <H2>1. Who controls your information</H2>
         <P>
-          BitLink Ltd. is responsible for the personal information we collect and use for our website, customer
+          BitLink is responsible for the personal information we collect and use for our website, customer
           accounts, plan sales, billing, support, referrals, and telecom activation workflows. Some services are
           provided with telecom, payment, hosting, authentication, email, messaging, analytics, and support vendors
           that process information for us or with us as described below.

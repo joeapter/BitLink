@@ -81,7 +81,7 @@ const homeFaqItems = faqItems.filter((item) => homeFaqQuestions.has(item.questio
 
 const carrierComparison = [
   ["Support", "Hebrew call centers", "Real people in English, on WhatsApp"],
-  ["Billing", "NIS bills, terms in Hebrew", "USD prices with VAT included — the price shown is the price paid"],
+  ["Billing", "NIS bills, terms in Hebrew", "USD prices with VAT included where applicable — the price shown is the price paid"],
   ["Signing up", "In-store, usually with an Israeli ID and bank account", "Online from anywhere, before you even land"],
   ["Contracts", "Fine print in Hebrew", "Plain-English contracts published on every plan page"],
   ["When you leave", "Cancel through a call center", "Cancel anytime, or pause for $10/mo and keep your number"],
@@ -108,7 +108,7 @@ export default function Home() {
           <p className="text-sm font-semibold text-link-blue">What is BitLink?</p>
           <p className="mt-4 text-pretty text-lg leading-8 text-slate-700 sm:text-xl sm:leading-9">
             BitLink is an Israeli mobile carrier built for English speakers — students, new olim, families, and
-            frequent visitors. Plans run $14.99–$39.99 per month in USD, VAT included, with a real Israeli number, 5G
+            frequent visitors. Plans run $14.99–$39.99 per month in USD, VAT included where applicable, with a real Israeli number, 5G
             data on the Partner network, eSIM or physical SIM activation, kosher options recognized by Vaadat
             Harabanim, and an optional US, Canadian, or UK number add-on. Support comes from real people — in English,
             on WhatsApp, by phone, and by email.

@@ -53,7 +53,7 @@ export default async function PlanContractPage({ params }: { params: Promise<{ s
         </div>
 
         <h1 className="mb-1 text-2xl font-bold text-ink">Plan: {plan.name}</h1>
-        <p className="text-slate-500">BitLink Ltd. · Reg. 341280188 · HaRashar Hirsch 4/1, Israel</p>
+        <p className="text-slate-500">BitLink · Business ID 341280188 · HaRashar Hirsch 4/1, Israel</p>
         <p className="mb-8 text-slate-500">Phone / WhatsApp: +972-55-519-5375 · support@bitlink.co.il · bitlink.co.il</p>
 
         {/* Customer fields */}

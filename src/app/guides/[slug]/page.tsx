@@ -236,7 +236,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
               Ready to set up your Israeli number?
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-200">
-              Monthly plans from $14.99, VAT included, no contract — with real people on WhatsApp if you get stuck.
+              Monthly plans from $14.99, VAT included where applicable, no contract — with real people on WhatsApp if you get stuck.
             </p>
           </div>
           <ButtonLink href="/plans" variant="dark" size="lg" className="shrink-0">

@@ -15,7 +15,7 @@ const pagePath = "/about";
 export const metadata: Metadata = createPageMetadata({
   title: "About BitLink — Israeli Phone Service in English",
   description:
-    "BitLink Ltd. is an Israeli mobile carrier founded in 2026 for English speakers: USD pricing with VAT included, real human support on WhatsApp, on Israel's Partner network.",
+    "BitLink is an Israeli mobile carrier founded in 2026 for English speakers: USD pricing with VAT included where applicable, real human support on WhatsApp, on Israel's Partner network.",
   path: pagePath,
 });
 
@@ -41,8 +41,8 @@ const aboutJsonLd = {
 const differences = [
   {
     icon: ReceiptText,
-    title: "Prices in USD, VAT included",
-    body: "Every plan is priced and charged in US dollars with VAT already included — no shekel conversion surprises, and family abroad can pay with their own card.",
+    title: "Prices in USD, VAT included where applicable",
+    body: "Every plan is priced and charged in US dollars, VAT included where applicable — no shekel conversion surprises, and family abroad can pay with their own card.",
   },
   {
     icon: Headphones,
@@ -62,8 +62,8 @@ const differences = [
 ];
 
 const companyFacts = [
-  ["Legal name", "BitLink Ltd."],
-  ["Company number", "341280188"],
+  ["Legal name", "BitLink"],
+  ["Business ID", "341280188"],
   ["Founded", "2026"],
   ["Registered office", "HaRashar Hirsch 4/1, Beit Shemesh, Israel 9965000"],
   ["Networks", "Partner (primary), Pelephone (secondary)"],

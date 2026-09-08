@@ -50,7 +50,7 @@ function layout(body: string): string {
 
         <!-- Footer -->
         <tr><td style="padding-top:24px;text-align:center;font-size:12px;color:#94a3b8;">
-          BitLink Ltd. · Reg. 341280188 · HaRashar Hirsch 4/1, Israel<br/>
+          BitLink · Business ID 341280188 · HaRashar Hirsch 4/1, Israel<br/>
           <a href="${BASE_URL}" style="color:${BRAND_COLOR};text-decoration:none;">${BASE_URL.replace('https://', '')}</a>
           &nbsp;·&nbsp;
           <a href="mailto:support@bitlink.co.il" style="color:${BRAND_COLOR};text-decoration:none;">support@bitlink.co.il</a>

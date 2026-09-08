@@ -194,7 +194,7 @@ export const landingPages = {
       {
         question: "How much does a phone plan cost in Israel?",
         answer:
-          "BitLink phone plans in Israel range from $14.99 to $39.99 per month, with no contract beyond the monthly term, VAT included, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS — a fit for light, occasional use. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, and is BitLink's most popular plan among students. Max 5G is $39.99/month with 120GB of data, 5,000 minutes, 1,000 SMS, and 150 minutes of calling to US and Canadian numbers, built for heavier daily use. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month — family back home calls you like a local call, and the number receives US verification texts too.",
+          "BitLink phone plans in Israel range from $14.99 to $39.99 per month, with no contract beyond the monthly term, VAT included where applicable, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS — a fit for light, occasional use. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, and is BitLink's most popular plan among students. Max 5G is $39.99/month with 120GB of data, 5,000 minutes, 1,000 SMS, and 150 minutes of calling to US and Canadian numbers, built for heavier daily use. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month — family back home calls you like a local call, and the number receives US verification texts too.",
       },
       {
         question: "How much data do I need for a semester in Israel?",
@@ -204,7 +204,7 @@ export const landingPages = {
       {
         question: "Do I need an Israeli bank account or credit card?",
         answer:
-          "No. Checkout is online and priced in US dollars with VAT included, so a regular US, UK, or Canadian card works — which is also why many parents simply pay for the line from home while the student uses it in Israel. There's no in-store visit and no Israeli bank account required to get started, a real difference from signing up with a traditional Israeli carrier. If anything extra is ever needed for your specific situation, [support](/support) will tell you before you pay, not after.",
+          "No. Checkout is online and priced in US dollars with VAT included where applicable, so a regular US, UK, or Canadian card works — which is also why many parents simply pay for the line from home while the student uses it in Israel. There's no in-store visit and no Israeli bank account required to get started, a real difference from signing up with a traditional Israeli carrier. If anything extra is ever needed for your specific situation, [support](/support) will tell you before you pay, not after.",
       },
       {
         question: "Can I set up my Israeli number before I fly?",
@@ -600,7 +600,7 @@ export const landingPages = {
       {
         question: "How much does a phone plan cost for new olim in Israel?",
         answer:
-          "BitLink phone plans range from $14.99 to $39.99 per month, with no long-term contract beyond the monthly term, VAT included, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS, a fit for light use while you're getting settled. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, BitLink's most popular plan for everyday use. Max 5G is $39.99/month with 120GB of data, 5,000 minutes, 1,000 SMS, and 150 minutes of calling to US and Canadian numbers built in, which tends to suit olim families staying in close touch with relatives abroad during the first year. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month — it receives US verification texts as well as calls.",
+          "BitLink phone plans range from $14.99 to $39.99 per month, with no long-term contract beyond the monthly term, VAT included where applicable, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS, a fit for light use while you're getting settled. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, BitLink's most popular plan for everyday use. Max 5G is $39.99/month with 120GB of data, 5,000 minutes, 1,000 SMS, and 150 minutes of calling to US and Canadian numbers built in, which tends to suit olim families staying in close touch with relatives abroad during the first year. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month — it receives US verification texts as well as calls.",
       },
       {
         question: "Do I need an Israeli phone number for banks, Kupat Cholim, and apps like Bit?",
@@ -743,7 +743,7 @@ export const landingPages = {
       },
       {
         title: "Parents pay from abroad",
-        body: "Plans are priced and charged in USD with VAT included, so a parent in the US, UK, or Canada pays with their own card while the line runs on the student's phone in Israel.",
+        body: "Plans are priced and charged in USD with VAT included where applicable, so a parent in the US, UK, or Canada pays with their own card while the line runs on the student's phone in Israel.",
       },
       {
         title: "A standard path where it's allowed",
@@ -778,7 +778,7 @@ export const landingPages = {
       {
         question: "Can parents manage and pay for the line from the US?",
         answer:
-          "Yes — this is one of the main reasons families choose BitLink. Checkout is online and priced in US dollars with VAT included, so a parent pays with their own card and sees a predictable USD charge each month, not a shekel amount that moves with the exchange rate. Support is in English by WhatsApp, phone, and email, so a parent can ask questions or sort out an issue directly, without needing the student to translate. Adding a [US, Canadian, or UK local number](/us-number-in-israel) for $9.99/month also lets family call the student like a local call — and the number receives US verification texts, so a student's American bank login keeps working from Israel.",
+          "Yes — this is one of the main reasons families choose BitLink. Checkout is online and priced in US dollars with VAT included where applicable, so a parent pays with their own card and sees a predictable USD charge each month, not a shekel amount that moves with the exchange rate. Support is in English by WhatsApp, phone, and email, so a parent can ask questions or sort out an issue directly, without needing the student to translate. Adding a [US, Canadian, or UK local number](/us-number-in-israel) for $9.99/month also lets family call the student like a local call — and the number receives US verification texts, so a student's American bank login keeps working from Israel.",
       },
       {
         question: "Does BitLink work with schools directly?",
@@ -938,7 +938,7 @@ export const landingPages = {
       },
       {
         title: "Leave without strings",
-        body: "Plans are monthly with no long-term commitment. Fly home, cancel, and you've paid only for the months you used — VAT included, no exit fees.",
+        body: "Plans are monthly with no long-term commitment. Fly home, cancel, and you've paid only for the months you used — VAT included where applicable, no exit fees.",
       },
       {
         title: "Come back to the same number",
@@ -968,7 +968,7 @@ export const landingPages = {
         {
           label: "Cost shape",
           a: "Per-day or per-GB, adds up fast",
-          b: "Flat monthly from $14.99, VAT included",
+          b: "Flat monthly from $14.99, VAT included where applicable",
         },
         {
           label: "Between trips",
@@ -1000,7 +1000,7 @@ export const landingPages = {
       {
         question: "What's the best SIM card for tourists in Israel?",
         answer:
-          "It depends on what your trip needs. For a few days of maps and WhatsApp on Wi-Fi-adjacent travel, a data-only travel eSIM is genuinely fine and often cheapest. The switch point is needing a real Israeli phone number: receiving calls, getting SMS verification codes from Israeli banks and apps like Bit and Pango, ordering deliveries, or staying multiple weeks. Travel eSIMs don't do those things — they're data pipes. A BitLink monthly plan from $14.99 (VAT included, no contract) includes a real Israeli number and activates by eSIM before you land, and for a 2–4 week stay [Student 5G](/plans/student-5g) at $34.99 with 50GB usually beats stacking travel data packs.",
+          "It depends on what your trip needs. For a few days of maps and WhatsApp on Wi-Fi-adjacent travel, a data-only travel eSIM is genuinely fine and often cheapest. The switch point is needing a real Israeli phone number: receiving calls, getting SMS verification codes from Israeli banks and apps like Bit and Pango, ordering deliveries, or staying multiple weeks. Travel eSIMs don't do those things — they're data pipes. A BitLink monthly plan from $14.99 (VAT included where applicable, no contract) includes a real Israeli number and activates by eSIM before you land, and for a 2–4 week stay [Student 5G](/plans/student-5g) at $34.99 with 50GB usually beats stacking travel data packs.",
       },
       {
         question: "Can I get an Israeli SIM before I arrive?",
@@ -1015,7 +1015,7 @@ export const landingPages = {
       {
         question: "How much does a phone plan cost for a month in Israel?",
         answer:
-          "With BitLink: [Basic](/plans/basic) is $14.99/month with 1GB of 5G data for light use, [Student 5G](/plans/student-5g) is $34.99/month with 50GB — the right size for most multi-week visits — and [Max 5G](/plans/max-5g) is $39.99/month with 120GB plus 150 minutes of calling to US and Canadian numbers. All prices are in USD with VAT included, there's no contract beyond the month, and every plan includes a real Israeli number with eSIM or physical SIM activation.",
+          "With BitLink: [Basic](/plans/basic) is $14.99/month with 1GB of 5G data for light use, [Student 5G](/plans/student-5g) is $34.99/month with 50GB — the right size for most multi-week visits — and [Max 5G](/plans/max-5g) is $39.99/month with 120GB plus 150 minutes of calling to US and Canadian numbers. All prices are in USD with VAT included where applicable, there's no contract beyond the month, and every plan includes a real Israeli number with eSIM or physical SIM activation.",
       },
     ],
     planSlugs: ["student-5g", "basic", "max-5g"],
@@ -1034,7 +1034,7 @@ export const plansFaqItems = [
   {
     question: "How much does an Israeli phone plan cost with BitLink?",
     answer:
-      "Standard plans run from $14.99/month ([Basic](/plans/basic), 1GB) to $39.99/month ([Max 5G](/plans/max-5g), 120GB plus US/Canada minutes), with [Student 5G](/plans/student-5g) at $34.99/month the most popular. Kosher voice-only plans are $19.99–$24.99/month. Every price is in US dollars with VAT included and no hidden fees — the price on the page is the price on your statement.",
+      "Standard plans run from $14.99/month ([Basic](/plans/basic), 1GB) to $39.99/month ([Max 5G](/plans/max-5g), 120GB plus US/Canada minutes), with [Student 5G](/plans/student-5g) at $34.99/month the most popular. Kosher voice-only plans are $19.99–$24.99/month. Every price is in US dollars with VAT included where applicable and no hidden fees — the price on the page is the price on your statement.",
   },
   {
     question: "Am I locked into a contract?",
@@ -1044,7 +1044,7 @@ export const plansFaqItems = [
   {
     question: "Are the prices really in US dollars?",
     answer:
-      "Yes — plans are priced and charged in USD, unlike Israeli carriers that bill in shekels. That means no currency-conversion surprises on your statement, and a parent or family member abroad can pay for a student's line with their own card. VAT is already included in every price shown.",
+      "Yes — plans are priced and charged in USD, unlike Israeli carriers that bill in shekels. That means no currency-conversion surprises on your statement, and a parent or family member abroad can pay for a student's line with their own card. VAT is included in every price shown, where applicable.",
   },
   {
     question: "Can I keep my current phone number?",
@@ -1072,7 +1072,7 @@ export const faqItems = [
   {
     question: "Can I use BitLink for a short trip to Israel?",
     answer:
-      "Yes. BitLink plans are monthly with no long-term commitment, so a 2–4 week visit works fine: choose a [plan](/plans), activate by eSIM within minutes of checkout (or by physical SIM), and cancel when you leave — you pay for the months you use, VAT included. Unlike a travel eSIM, a BitLink plan includes a real Israeli phone number, so calls, SMS verification codes, and local services work like a resident's phone from day one. And if you visit Israel regularly, there's a smarter option than cancelling: pause your line for $10/month right from your account and keep your Israeli number between trips — no new SIM, no new number, and everything simply works again the next time you land. The pause takes effect immediately, the $10/month rate starts at your next billing date (your current paid month runs its course), and a paused line is held for up to 18 months — after that it may be cancelled and the number released.",
+      "Yes. BitLink plans are monthly with no long-term commitment, so a 2–4 week visit works fine: choose a [plan](/plans), activate by eSIM within minutes of checkout (or by physical SIM), and cancel when you leave — you pay for the months you use, VAT included where applicable. Unlike a travel eSIM, a BitLink plan includes a real Israeli phone number, so calls, SMS verification codes, and local services work like a resident's phone from day one. And if you visit Israel regularly, there's a smarter option than cancelling: pause your line for $10/month right from your account and keep your Israeli number between trips — no new SIM, no new number, and everything simply works again the next time you land. The pause takes effect immediately, the $10/month rate starts at your next billing date (your current paid month runs its course), and a paused line is held for up to 18 months — after that it may be cancelled and the number released.",
   },
   {
     question: "Which plan is meant for students?",

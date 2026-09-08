@@ -112,7 +112,7 @@ export const siteJsonLd: JsonLd = {
     {
       "@type": "Organization",
       "@id": organizationId,
-      name: "BitLink Ltd.",
+      name: "BitLink",
       alternateName: SITE_NAME,
       url: SITE_URL,
       logo: canonicalUrl("/assets/logo-v2.png"),
@@ -314,7 +314,7 @@ export function testimonialsJsonLd(reviews: TestimonialReview[]): JsonLd {
       {
         "@type": "Organization",
         "@id": organizationId,
-        name: "BitLink Ltd.",
+        name: "BitLink",
         url: SITE_URL,
         aggregateRating: {
           "@type": "AggregateRating",

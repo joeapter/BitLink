@@ -71,7 +71,7 @@ const aliyahFaqItems = [
   {
     question: "What does phone service cost after aliyah?",
     answer:
-      "BitLink plans run $14.99–$39.99 per month in USD with VAT included and no long-term contract. [Max 5G](/plans/max-5g) at $39.99/month is the one built for the first year of aliyah — 120GB of data plus 150 minutes of calling to US and Canadian numbers included, for staying close to family while everything else is new. There are no setup surprises: each plan's full contract is published on its page before you pay.",
+      "BitLink plans run $14.99–$39.99 per month in USD with VAT included where applicable and no long-term contract. [Max 5G](/plans/max-5g) at $39.99/month is the one built for the first year of aliyah — 120GB of data plus 150 minutes of calling to US and Canadian numbers included, for staying close to family while everything else is new. There are no setup surprises: each plan's full contract is published on its page before you pay.",
   },
   {
     question: "Is an airport SIM good enough for my first weeks?",
@@ -123,7 +123,7 @@ export default function AliyahPage() {
                 Your phone works when you land. Your work does too.
               </h1>
               <p className="mt-5 text-lg leading-8 text-slate-700">
-                BitLink phone plans for aliyah run $14.99–$39.99/month in USD, VAT included, with a real Israeli number on every plan. Max 5G at $39.99/month is built for the first year: 120GB of 5G data plus 150 minutes of calling to US and Canadian numbers included, and a US, Canadian, or UK local number can be added to any plan for $9.99/month so family back home can call you locally. Activation is by eSIM — usually live within minutes of checkout, often before you board — or by physical SIM.
+                BitLink phone plans for aliyah run $14.99–$39.99/month in USD, VAT included where applicable, with a real Israeli number on every plan. Max 5G at $39.99/month is built for the first year: 120GB of 5G data plus 150 minutes of calling to US and Canadian numbers included, and a US, Canadian, or UK local number can be added to any plan for $9.99/month so family back home can call you locally. Activation is by eSIM — usually live within minutes of checkout, often before you board — or by physical SIM.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <ButtonLink href={`/plans/${workPlan.slug}`} size="lg">

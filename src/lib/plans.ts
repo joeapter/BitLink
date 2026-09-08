@@ -73,7 +73,7 @@ export const plans: BitLinkPlan[] = [
       "A clean starting point for people who want reliable monthly service with an Israeli number, basic 5G data, and included calls and texts.",
     seoTitle: "Basic — $14.99/mo Israeli Phone Plan, 1GB 5G",
     seoDescription:
-      "Israeli number, 1GB 5G data, 1,000 minutes, 500 SMS. $14.99/month, VAT included, eSIM or physical SIM. For light phone use in Israel.",
+      "Israeli number, 1GB 5G data, 1,000 minutes, 500 SMS. $14.99/month, VAT included where applicable, eSIM or physical SIM. For light phone use in Israel.",
     faq: [
       {
         question: "Who is the Basic plan for?",
@@ -96,7 +96,7 @@ export const plans: BitLinkPlan[] = [
       "Texts — 500 SMS to Israeli mobiles",
       "eSIM or physical SIM",
       "WhatsApp support",
-      "VAT included",
+      "VAT included where applicable",
       "No hidden fees",
     ],
     comparison: {
@@ -128,7 +128,7 @@ export const plans: BitLinkPlan[] = [
       {
         question: "Can my parents pay for this plan from abroad?",
         answer:
-          "Yes. Checkout is online and priced in US dollars with VAT included, so a parent in the US, UK, or Canada can pay with their own card while the line activates on the student's phone in Israel. There are no NIS conversion surprises on the statement, and support is available in English if the family has questions before or after signup.",
+          "Yes. Checkout is online and priced in US dollars with VAT included where applicable, so a parent in the US, UK, or Canada can pay with their own card while the line activates on the student's phone in Israel. There are no NIS conversion surprises on the statement, and support is available in English if the family has questions before or after signup.",
       },
     ],
     stripeEnvKey: "STRIPE_PRICE_STUDENT_5G",
@@ -143,7 +143,7 @@ export const plans: BitLinkPlan[] = [
       "1,000 SMS to Israeli mobiles",
       "eSIM or physical SIM",
       "WhatsApp support",
-      "VAT included",
+      "VAT included where applicable",
       "No hidden fees",
       "US/Canada/UK number available as add-on: +$9.99/mo",
     ],
@@ -166,7 +166,7 @@ export const plans: BitLinkPlan[] = [
       "120GB of 5G data for students who stream and stay connected all day — includes 5,000 local minutes, 1,000 SMS, and 150 minutes to US and Canadian numbers.",
     seoTitle: "Max 5G — $39.99/mo, 120GB + US/Canada Minutes",
     seoDescription:
-      "120GB 5G data plus 150 minutes to US & Canada, 5,000 local minutes. $39.99/month, VAT included. The plan for olim staying close to family abroad.",
+      "120GB 5G data plus 150 minutes to US & Canada, 5,000 local minutes. $39.99/month, VAT included where applicable. The plan for olim staying close to family abroad.",
     faq: [
       {
         question: "Who should choose Max 5G?",
@@ -191,7 +191,7 @@ export const plans: BitLinkPlan[] = [
       "150 minutes to US & Canadian numbers",
       "eSIM or physical SIM",
       "Priority WhatsApp support",
-      "VAT included",
+      "VAT included where applicable",
       "No hidden fees",
       "US/Canada/UK number available as add-on: +$9.99/mo",
     ],
@@ -214,7 +214,7 @@ export const plans: BitLinkPlan[] = [
       "Designed for certified kosher phones — 5,000 minutes to Israeli numbers monthly, voice only. Add a US or Canadian local number for an extra $9.99/mo.",
     seoTitle: "Kosher Basic — $19.99/mo Voice-Only Kosher Plan",
     seoDescription:
-      "5,000 minutes to Israeli numbers on a certified kosher phone. Voice only, physical SIM, $19.99/month VAT included. English support by phone.",
+      "5,000 minutes to Israeli numbers on a certified kosher phone. Voice only, physical SIM, $19.99/month VAT included where applicable. English support by phone.",
     faq: [
       {
         question: "Which phones work with Kosher Basic?",
@@ -238,7 +238,7 @@ export const plans: BitLinkPlan[] = [
       "Only compatible with a certified kosher phone",
       "No data or SMS — voice only",
       "Physical SIM card",
-      "VAT included",
+      "VAT included where applicable",
       "No hidden fees",
       "US, Canada, or UK local number included (normally $9.99/mo)",
     ],
@@ -287,7 +287,7 @@ export const plans: BitLinkPlan[] = [
       "Only compatible with a certified kosher phone",
       "No data or SMS — voice only",
       "Physical SIM card",
-      "VAT included",
+      "VAT included where applicable",
       "No hidden fees",
       "US, Canada, or UK local number included (normally $9.99/mo)",
     ],

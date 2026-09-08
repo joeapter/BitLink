@@ -54,7 +54,7 @@ export function Footer() {
             Plans and activation are subject to availability, eligibility, and final BitLink confirmation.
           </p>
           <p className="mt-4 text-xs text-slate-400">
-            BitLink Ltd. · HaRashar Hirsch 4/1, Beit Shemesh, Israel 9965000
+            BitLink · Business ID 341280188 · HaRashar Hirsch 4/1, Beit Shemesh, Israel 9965000
           </p>
         </div>
 

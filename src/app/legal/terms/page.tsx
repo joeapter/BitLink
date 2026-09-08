@@ -58,7 +58,7 @@ export default function TermsPage() {
         <div className="mb-8 text-center">
           <h1 className="text-xl font-bold text-slate-800">Terms and Conditions for Telecommunication Services</h1>
           <div className="mt-4 text-slate-600 leading-7">
-            <p className="font-semibold">BitLink Ltd. — 341280188</p>
+            <p className="font-semibold">BitLink — Israeli sole proprietorship, Business ID 341280188</p>
             <p>HaRashar Hirsch 4/1 — Israel</p>
             <p>
               Phone / WhatsApp: +972-55-519-5375 · Email:{" "}
@@ -327,7 +327,7 @@ export default function TermsPage() {
 
         {/* Footer */}
         <div className="mt-12 border-t border-slate-200 pt-6 text-center text-xs text-slate-400">
-          <p>BitLink Ltd. · <a href="https://www.bitlink.co.il" className="hover:text-link-blue">bitlink.co.il</a> · <a href="mailto:support@bitlink.co.il" className="hover:text-link-blue">support@bitlink.co.il</a></p>
+          <p>BitLink · <a href="https://www.bitlink.co.il" className="hover:text-link-blue">bitlink.co.il</a> · <a href="mailto:support@bitlink.co.il" className="hover:text-link-blue">support@bitlink.co.il</a></p>
           <p className="mt-1">These terms and conditions are subject to Israeli telecommunications law and may be updated from time to time.</p>
         </div>
       </div>
