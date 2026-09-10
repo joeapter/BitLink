@@ -13,19 +13,38 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getStripe } from '@/lib/stripe/server';
+import { getRefundContext } from '@/lib/admin/refund-cancel';
 
 export type CustomPriceResult = { success?: string; error?: string };
 
 async function getSubscriberForLine(admin: SupabaseClient, lineId: string) {
   const { data } = await admin
     .from('subscribers')
-    .select('id, stripe_subscription_id, monthly_price_cents')
+    .select('id, stripe_subscription_id, stripe_subscription_item_id, monthly_price_cents')
     .eq('telecom_line_id', lineId)
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
   return data;
+}
+
+// A custom-order subscription bundles multiple BitLink lines as separate
+// items on ONE Stripe subscription (see src/lib/stripe/custom-orders.ts) —
+// so "the subscription's first item" is only safe to assume for a
+// single-line subscriber. Same lookup-by-item-id pattern already used in
+// international-numbers.ts and israeli-port-in.ts; falls back to item[0]
+// only when this subscriber never recorded a specific item (true for every
+// standalone, single-line subscription today).
+async function findSubscriptionItem(
+  stripe: NonNullable<ReturnType<typeof getStripe>>,
+  stripeSubscriptionId: string,
+  itemId: string | null,
+) {
+  const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+  return itemId
+    ? subscription.items.data.find((item) => item.id === itemId) ?? null
+    : subscription.items.data[0] ?? null;
 }
 
 export async function setCustomLinePrice(params: {
@@ -53,8 +72,11 @@ export async function setCustomLinePrice(params: {
   const stripe = getStripe();
   if (!stripe) return { error: 'Stripe is not configured.' };
 
-  const subscription = await stripe.subscriptions.retrieve(subscriber.stripe_subscription_id);
-  const item = subscription.items.data[0];
+  const item = await findSubscriptionItem(
+    stripe,
+    subscriber.stripe_subscription_id,
+    subscriber.stripe_subscription_item_id,
+  );
   if (!item) return { error: 'Could not find the subscription item to update.' };
 
   const previousPriceCents = subscriber.monthly_price_cents ?? item.price.unit_amount ?? 0;
@@ -119,4 +141,79 @@ export async function setCustomLinePrice(params: {
       ? `Price changed from $${from} to $${to}/month, effective now — Stripe will prorate this cycle.`
       : `Price changed from $${from} to $${to}/month, effective next renewal. This month's bill is unaffected.`,
   };
+}
+
+// ── Partial refund, line stays active ───────────────────────────────────────
+//
+// The counterpart to refundAndCancelLine (refund-cancel.ts), for the opposite
+// situation: a customer keeps the line, just at a lower ongoing price, and
+// what they already paid under the old price needs a partial credit back —
+// not a full refund, and definitely not a cancellation. Reuses
+// getRefundContext's lookup of the subscription's last paid invoice rather
+// than re-deriving it, so both refund paths agree on what "the last payment"
+// means.
+
+export type PartialRefundResult = { success?: string; error?: string };
+
+export async function refundPartialAmount(params: {
+  admin: SupabaseClient;
+  lineId: string;
+  refundCents: number;
+  reason: string;
+  actorUserId?: string | null;
+}): Promise<PartialRefundResult> {
+  const { admin, lineId, refundCents, reason } = params;
+
+  if (!Number.isFinite(refundCents) || refundCents <= 0) {
+    return { error: 'Enter a valid amount to refund.' };
+  }
+  if (!reason.trim()) {
+    return { error: 'A reason is required for the audit trail.' };
+  }
+
+  const stripe = getStripe();
+  if (!stripe) return { error: 'Stripe is not configured.' };
+
+  const context = await getRefundContext(admin, lineId);
+  if (!context.lastPayment) {
+    return { error: context.blockedReason ?? 'No paid invoice found for this line.' };
+  }
+  const payment = context.lastPayment;
+
+  const remaining = payment.amountCents - payment.refundedCents;
+  if (refundCents > remaining) {
+    return {
+      error: `Only $${(remaining / 100).toFixed(2)} is left to refund on this payment ` +
+        `($${(payment.amountCents / 100).toFixed(2)} paid, $${(payment.refundedCents / 100).toFixed(2)} already refunded).`,
+    };
+  }
+  if (!payment.paymentIntentId) {
+    return { error: 'This payment has no payment intent on record — cannot issue a refund.' };
+  }
+
+  try {
+    await stripe.refunds.create({
+      payment_intent: payment.paymentIntentId,
+      amount: refundCents,
+      metadata: { reason, lineId },
+    });
+  } catch (err) {
+    return { error: err instanceof Error ? `Stripe rejected the refund: ${err.message}` : 'Stripe rejected the refund.' };
+  }
+
+  if (params.actorUserId) {
+    try {
+      await admin.from('audit_logs').insert({
+        actor_user_id: params.actorUserId,
+        action: 'line_partial_refund',
+        entity_type: 'telecom_line',
+        entity_id: lineId,
+        metadata: { refundCents, reason, invoiceId: payment.invoiceId, paymentIntentId: payment.paymentIntentId },
+      });
+    } catch {
+      // audit failure is non-fatal
+    }
+  }
+
+  return { success: `$${(refundCents / 100).toFixed(2)} refunded. The line and subscription are untouched.` };
 }

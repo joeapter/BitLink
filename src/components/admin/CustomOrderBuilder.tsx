@@ -48,6 +48,7 @@ type BuilderLine = {
   intlPortNumber: string;
   intlChosenNumber: string;
   customPrice: string;
+  activationFee: string;
   topups: BuilderTopup[];
 };
 
@@ -67,6 +68,10 @@ function newLine(): BuilderLine {
     intlPortNumber: "",
     intlChosenNumber: "",
     customPrice: (plan.priceCents / 100).toFixed(2),
+    // Custom orders never charged an activation fee before this field
+    // existed — 0 keeps that the default so nothing changes for anyone who
+    // doesn't deliberately set it.
+    activationFee: "0.00",
     topups: [],
   };
 }
@@ -225,6 +230,7 @@ export function CustomOrderBuilder({
       intlPortNumber: line.wantsIntlNumber && line.intlSource === "port" ? line.intlPortNumber : null,
       intlChosenNumber: line.wantsIntlNumber && line.intlSource === "new" ? (line.intlChosenNumber || null) : null,
       customPriceCents: dollarsToCents(line.customPrice),
+      activationFeeCents: dollarsToCents(line.activationFee),
       topups: line.topups.map((t) => ({ topupId: t.topupId, customPriceCents: dollarsToCents(t.customPrice) })),
     }));
   }
@@ -441,7 +447,7 @@ export function CustomOrderBuilder({
                   ) : null}
                 </div>
 
-                <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                <div className="mt-4 grid gap-4 lg:grid-cols-4">
                   <Select
                     label="Plan"
                     value={line.planSlug}
@@ -467,6 +473,15 @@ export function CustomOrderBuilder({
                     step="0.01"
                     value={line.customPrice}
                     onChange={(event) => updateLine(line.id, { customPrice: event.target.value })}
+                  />
+                  <Input
+                    label="Activation fee (one-time)"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={line.activationFee}
+                    onChange={(event) => updateLine(line.id, { activationFee: event.target.value })}
+                    placeholder="0.00"
                   />
                 </div>
 

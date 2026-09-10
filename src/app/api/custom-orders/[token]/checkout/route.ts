@@ -232,6 +232,7 @@ export async function POST(
     if (existingSubscription) {
       const items = await addLinesToExistingSubscription(stripe, {
         subscriptionId: existingSubscription.id,
+        stripeCustomerId: resolvedStripeCustomerId,
         token,
         lines,
         startingLineIndex: 0,

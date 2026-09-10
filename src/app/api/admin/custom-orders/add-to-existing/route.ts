@@ -49,6 +49,7 @@ const lineSchema = z.object({
     .nullable()
     .optional(),
   customPriceCents: z.number().int().min(100).max(200_000),
+  activationFeeCents: z.number().int().min(0).max(200_000).optional(),
 });
 
 const bodySchema = z.object({
@@ -122,6 +123,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   try {
     const items = await addLinesToExistingSubscription(stripe, {
       subscriptionId: existingSubscription.id,
+      stripeCustomerId: customer.stripe_customer_id as string,
       token,
       lines,
     });

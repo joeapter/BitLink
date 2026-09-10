@@ -45,6 +45,11 @@ export type CustomOrderLine = {
     requestedDate: string | null;
   } | null;
   customPriceCents: number;
+  // One-time charge alongside the recurring price — the negotiated
+  // equivalent of STRIPE_PRICE_ACTIVATION_FEE on the standard checkout.
+  // Custom orders never charged one before this existed; 0 preserves that
+  // for every line that doesn't set it explicitly.
+  activationFeeCents: number;
   // Recurring monthly carrier topups bundled onto this line (e.g. +120 Min
   // USA/CA), each at its own admin-set price — independent of the topup's
   // catalog price so an admin can discount it for a specific deal. Granted to
@@ -82,6 +87,7 @@ export function normalizeCustomOrderLines(value: unknown): CustomOrderLine[] {
         : null,
       delivery: (row.delivery ?? null) as CustomOrderLine['delivery'],
       customPriceCents: Number(row.customPriceCents ?? row.custom_price_cents ?? plan.priceCents),
+      activationFeeCents: Math.max(0, Number(row.activationFeeCents ?? row.activation_fee_cents ?? 0)),
       topups: normalizeCustomOrderTopups(row.topups),
     };
   });
@@ -129,6 +135,28 @@ function toTopupLineItems(token: string, lines: CustomOrderLine[]): CheckoutLine
       } satisfies CheckoutLineItem;
     }),
   );
+}
+
+// One-time items, mixed directly into a subscription-mode Checkout Session's
+// line_items. Stripe charges these once at checkout and never adds them to
+// the resulting subscription — the presence/absence of `recurring` on the
+// price is what distinguishes them from the plan and topup items above, not
+// a separate mode or session.
+function toActivationFeeLineItems(token: string, lines: CustomOrderLine[]): CheckoutLineItem[] {
+  return lines
+    .map((line, index) => ({ line, index }))
+    .filter(({ line }) => line.activationFeeCents > 0)
+    .map(({ line, index }) => ({
+      quantity: 1,
+      price_data: {
+        currency: 'usd',
+        unit_amount: line.activationFeeCents,
+        product_data: {
+          name: `Activation fee — ${customOrderLineName(line)}`,
+          metadata: { custom_order_token: token, custom_order_line_index: String(index), is_activation_fee: '1' },
+        },
+      },
+    } satisfies CheckoutLineItem));
 }
 
 export function customOrderLineName(line: CustomOrderLine): string {
@@ -207,7 +235,11 @@ export function createCustomOrderSession(
   const shared: Stripe.Checkout.SessionCreateParams = {
     mode: 'subscription',
     customer: params.stripeCustomerId,
-    line_items: [...toRecurringLineItems(params.token, params.lines), ...toTopupLineItems(params.token, params.lines)],
+    line_items: [
+      ...toRecurringLineItems(params.token, params.lines),
+      ...toTopupLineItems(params.token, params.lines),
+      ...toActivationFeeLineItems(params.token, params.lines),
+    ],
     billing_address_collection: 'auto',
     phone_number_collection: { enabled: true },
     // Card-first: don't let Link take over the form.
@@ -243,12 +275,15 @@ export async function addLinesToExistingSubscription(
   stripe: Stripe,
   params: {
     subscriptionId: string;
+    stripeCustomerId: string;
     token: string;
     lines: CustomOrderLine[];
     startingLineIndex?: number;
   },
 ): Promise<Stripe.SubscriptionItem[]> {
   const created: Stripe.SubscriptionItem[] = [];
+  let pendingActivationFees = false;
+
   for (const [offset, line] of params.lines.entries()) {
     const index = (params.startingLineIndex ?? 0) + offset;
     // Subscription-item price_data needs a Product id (no inline product_data),
@@ -274,6 +309,44 @@ export async function addLinesToExistingSubscription(
       },
     });
     created.push(item);
+
+    // Unlike the fresh-checkout path, there is no Checkout Session to attach
+    // a one-time line item to — an invoice item pending against the customer
+    // is the equivalent here. It rides into the SAME invoice as this line's
+    // proration below rather than waiting for next month's renewal.
+    if (line.activationFeeCents > 0) {
+      pendingActivationFees = true;
+      await stripe.invoiceItems.create({
+        customer: params.stripeCustomerId,
+        amount: line.activationFeeCents,
+        currency: 'usd',
+        description: `Activation fee — ${customOrderLineName(line)}`,
+        metadata: {
+          custom_order_token: params.token,
+          custom_order_line_index: String(index),
+          is_activation_fee: '1',
+        },
+      });
+    }
   }
+
+  // create_prorations leaves the new items' charges pending until the next
+  // invoice is generated — normally the following renewal. Forcing an
+  // on-demand invoice now is what actually makes this "billed immediately"
+  // rather than a silent wait until next cycle, and it's the only way the
+  // one-time activation fee items above get charged at all (nothing else
+  // ever generates an invoice for them). Stripe sweeps every pending item
+  // for this customer into it, proration included, in one charge.
+  if (pendingActivationFees || created.length > 0) {
+    const invoice = await stripe.invoices.create({
+      customer: params.stripeCustomerId,
+      subscription: params.subscriptionId,
+      auto_advance: true,
+    });
+    if (invoice.id) {
+      await stripe.invoices.finalizeInvoice(invoice.id);
+    }
+  }
+
   return created;
 }

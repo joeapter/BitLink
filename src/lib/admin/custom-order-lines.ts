@@ -27,6 +27,13 @@ export type AdminOrderLineInput = {
     requestedDate?: string | null;
   } | null;
   customPriceCents: number;
+  // One-time charge, billed alongside the recurring price rather than folded
+  // into it — the standard checkout flow's activation fee is a separate line
+  // item for the same reason (see STRIPE_PRICE_ACTIVATION_FEE), and custom
+  // orders never had an equivalent until an admin needed to negotiate one.
+  // Optional and defaults to 0: every existing custom order never charged
+  // this, and that behavior must not change for anyone who doesn't set it.
+  activationFeeCents?: number;
   topups?: AdminOrderTopupInput[];
 };
 
@@ -43,6 +50,7 @@ export type NormalizedAdminOrderLine = {
   iccId: string | null;
   delivery: { method: 'courier' | 'israel_post'; city: string; addressLine1: string; addressLine2: string | null; requestedDate: string | null } | null;
   customPriceCents: number;
+  activationFeeCents: number;
   topups: AdminOrderTopupInput[];
 };
 
@@ -68,6 +76,11 @@ export async function normalizeAdminOrderLines(
 
     if (line.wantsIntlNumber && (line.intlSource ?? 'new') === 'port' && !line.intlPortNumber?.trim()) {
       throw new Error(`Line ${index + 1}: enter the US/Canada/UK number to port.`);
+    }
+
+    const activationFeeCents = line.activationFeeCents ?? 0;
+    if (!Number.isFinite(activationFeeCents) || activationFeeCents < 0) {
+      throw new Error(`Line ${index + 1}: enter a valid activation fee (or leave it at 0).`);
     }
 
     const normalizedTopups: AdminOrderTopupInput[] = [];
@@ -128,6 +141,7 @@ export async function normalizeAdminOrderLines(
         requestedDate: line.delivery.requestedDate || null,
       } : null,
       customPriceCents: line.customPriceCents,
+      activationFeeCents,
       topups: normalizedTopups,
     };
   }));

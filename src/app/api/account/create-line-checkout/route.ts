@@ -243,12 +243,16 @@ export async function POST(request: NextRequest): Promise<Response> {
       intlChosenNumber: chosenIntlNumber,
       delivery: deliveryForStorage,
       customPriceCents: monthlyPriceCents,
+      // Self-serve add-a-line never carries a negotiated activation fee —
+      // that's an admin-only concept (custom orders).
+      activationFeeCents: 0,
       topups: [],
     };
 
     try {
       const [item] = await addLinesToExistingSubscription(stripe, {
         subscriptionId: existingSubscription.id,
+        stripeCustomerId,
         token,
         lines: [customLine],
       });

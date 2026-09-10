@@ -42,6 +42,7 @@ const lineSchema = z.object({
     .nullable()
     .optional(),
   customPriceCents: z.number().int().min(100).max(200_000),
+  activationFeeCents: z.number().int().min(0).max(200_000).optional(),
   topups: z.array(topupSchema).max(10).default([]),
 });
 

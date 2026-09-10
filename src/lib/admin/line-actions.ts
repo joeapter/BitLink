@@ -11,7 +11,7 @@ import { sendProvisionedNotifications } from "@/lib/notifications/send-provision
 import { addIntlNumberToLine, removeIntlNumberFromLine, type AddIntlNumberResult, type RemoveIntlNumberResult } from "@/lib/custom-orders/international-numbers";
 import { grantTopup, cancelTopupGrant, type GrantTopupResult } from "@/lib/topups/grant-topup";
 import { refundAndCancelLine } from '@/lib/admin/refund-cancel';
-import { setCustomLinePrice, type CustomPriceResult } from '@/lib/admin/custom-price';
+import { setCustomLinePrice, type CustomPriceResult, refundPartialAmount, type PartialRefundResult } from '@/lib/admin/custom-price';
 import { formatMoney, absoluteUrl } from '@/lib/utils';
 import { sendEmail } from '@/lib/email/send';
 import { buildAdminResetLinkEmail } from '@/lib/email/templates';
@@ -1072,5 +1072,34 @@ export async function setCustomLinePriceAction(
 
   revalidatePath(`/admin/lines/${lineId}`);
   revalidatePath('/admin/subscriptions');
+  return result;
+}
+
+// ── Partial refund (line stays active) ──────────────────────────────────────
+
+export type PartialRefundState = PartialRefundResult | null;
+
+export async function refundPartialAmountAction(
+  _prev: PartialRefundState,
+  formData: FormData,
+): Promise<PartialRefundState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const dollars = Number(formData.get('refundDollars') ?? NaN);
+  const reason = String(formData.get('reason') ?? '');
+
+  if (!lineId) return { error: 'Missing line reference.' };
+  if (!Number.isFinite(dollars) || dollars <= 0) return { error: 'Enter a valid dollar amount.' };
+
+  const admin = getAdmin();
+  const result = await refundPartialAmount({
+    admin,
+    lineId,
+    refundCents: Math.round(dollars * 100),
+    reason,
+    actorUserId: user.id,
+  });
+
+  revalidatePath(`/admin/lines/${lineId}`);
   return result;
 }
