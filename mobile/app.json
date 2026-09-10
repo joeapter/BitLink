@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "BitLink",
+    "slug": "bitlink",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "bitlink",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#050606",
+    "primaryColor": "#0FC2C2",
+    "ios": {
+      "bundleIdentifier": "com.bitlink.app",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.bitlink.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-web-browser",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#050606"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "00d338aa-3fb1-4c3f-8fcf-ce1a4cdd2b1b"
+      }
+    },
+    "owner": "joe613"
+  }
+}

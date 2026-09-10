@@ -83,9 +83,24 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(siteJsonLd)} />
-        <SiteHeader />
+        {/* Runs before first paint so the native app shell never flashes the
+            marketing header/footer. window.ReactNativeWebView is injected by
+            react-native-webview ahead of any page script, so this is a
+            reliable "are we inside the BitLink app" signal with no header
+            plumbing and no server-side dynamic-rendering cost — every other
+            page on the site stays statically generated. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if (window.ReactNativeWebView) { document.documentElement.classList.add('app-mode'); }`,
+          }}
+        />
+        <div id="app-shell-header">
+          <SiteHeader />
+        </div>
         <main className="flex-1">{children}</main>
-        <Footer />
+        <div id="app-shell-footer">
+          <Footer />
+        </div>
         <WebAnalytics />
         <SpeedInsights />
         {/* Native script tags rendered server-side — Next's client-side script

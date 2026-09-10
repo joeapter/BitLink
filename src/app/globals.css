@@ -368,3 +368,15 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Native app shell (mobile/): hide the marketing header/footer so /account
+   inside the wrapped WebView reads as an app screen, not a website in a box.
+   See app-mode detection script in src/app/layout.tsx. */
+html.app-mode #app-shell-header,
+html.app-mode #app-shell-footer {
+  display: none;
+}
+
+html.app-mode .account-sidebar {
+  top: 1rem;
+}

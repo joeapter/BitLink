@@ -35,7 +35,7 @@ export function AccountShell({
   return (
     <div className="bg-slate-50">
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[18rem_1fr] lg:px-8">
-        <aside className="lg:sticky lg:top-24 lg:self-start">
+        <aside className="account-sidebar lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-[2rem] border border-ink/10 bg-white p-4 shadow-soft">
             <div className="flex items-center gap-3 border-b border-ink/8 pb-4">
               <div className="grid h-12 w-12 place-items-center rounded-full bg-ink text-sm font-semibold text-white">
