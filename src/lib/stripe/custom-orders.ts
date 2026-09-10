@@ -344,7 +344,13 @@ export async function addLinesToExistingSubscription(
       auto_advance: true,
     });
     if (invoice.id) {
+      // finalizeInvoice alone does NOT collect payment — confirmed the hard
+      // way against a real invoice, which sat at $0.00 paid / status "open"
+      // with next_payment_attempt an hour out despite auto_advance: true.
+      // Explicitly paying is what actually charges the card now rather than
+      // leaving it to Stripe's own automatic-collection schedule.
       await stripe.invoices.finalizeInvoice(invoice.id);
+      await stripe.invoices.pay(invoice.id);
     }
   }
 
