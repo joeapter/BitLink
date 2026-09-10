@@ -395,6 +395,24 @@ async function handleTrialSetupCompleted(
     const paymentMethodId =
       typeof setupIntent.payment_method === 'string' ? setupIntent.payment_method : setupIntent.payment_method?.id;
     if (paymentMethodId) {
+      // Confirmed in production (2026-09), one trial in ~13: a setup-mode
+      // Checkout Session completed with a real card on the SetupIntent, but
+      // the PaymentMethod was never attached to the Customer — Stripe is
+      // documented to do this automatically for a session created with
+      // `customer` set, and it does reliably, but "reliably" isn't
+      // "always," and this code had nothing to fall back on when it didn't.
+      // customers.update() below doesn't error on an unattached PM either —
+      // it silently accepts the ID without making the card chargeable, so
+      // the trial ran its full 30 days looking completely normal and only
+      // failed, silently, at the one moment it tried to actually charge.
+      // attach() is idempotent (a no-op if Stripe already attached it), so
+      // this is a pure safety net, not a behavior change for the normal case.
+      await stripe.paymentMethods.attach(paymentMethodId, { customer: stripeCustomerId }).catch((err) => {
+        log.warn(
+          { stripeCustomerId, paymentMethodId, error: err instanceof Error ? err.message : String(err) },
+          'Explicit payment method attach failed — Stripe had likely already attached it (attach is idempotent); only worth investigating if the default_payment_method update below also fails',
+        );
+      });
       await stripe.customers.update(stripeCustomerId, {
         invoice_settings: { default_payment_method: paymentMethodId },
       });
