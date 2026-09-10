@@ -77,8 +77,15 @@ async function notifyAdminOfDidAssignmentFailure(lineId: string, attempts: numbe
 
 // ICCIDs consumed by lines or reserved by in-flight jobs — the provider's SIM
 // listing keeps consumed SIMs, so without this every order picks the same SIM.
+//
+// This is an optimization, not the correctness guarantee — it just keeps
+// reserveEsimIccId() from wasting round trips proposing a candidate someone
+// else already has. Two jobs can still both read this before either has
+// claimed anything (that is exactly the race that motivated
+// esim_iccid_reservations in the first place); the unique constraint on that
+// table, not this snapshot, is what actually makes a claim atomic.
 export async function collectUsedIccIds(admin: Admin): Promise<string[]> {
-  const [{ data: jobs }, { data: lines }] = await Promise.all([
+  const [{ data: jobs }, { data: lines }, { data: reservations }] = await Promise.all([
     admin
       .from('provisioning_jobs')
       .select('payload')
@@ -88,10 +95,65 @@ export async function collectUsedIccIds(admin: Admin): Promise<string[]> {
       .from('telecom_lines')
       .select('metadata')
       .not('metadata->>esim_icc_id', 'is', null),
+    admin.from('esim_iccid_reservations').select('icc_id'),
   ]);
   const fromJobs = (jobs ?? []).map((j) => (j.payload as Record<string, unknown>)?.iccId as string | undefined);
   const fromLines = (lines ?? []).map((l) => (l.metadata as Record<string, unknown>)?.esim_icc_id as string | undefined);
-  return [...fromJobs, ...fromLines].filter((x): x is string => Boolean(x));
+  const fromReservations = (reservations ?? []).map((r) => r.icc_id as string | undefined);
+  return [...fromJobs, ...fromLines, ...fromReservations].filter((x): x is string => Boolean(x));
+}
+
+// Atomically claims an eSIM ICCID for this job. Tries a candidate from the
+// provider's inventory, then INSERTs a reservation row — the primary key on
+// esim_iccid_reservations.icc_id is what actually prevents two concurrent
+// jobs from both walking away thinking they own the same ICCID (see the
+// migration's comment for the production incident this fixes). A conflict
+// here means another job won the race a moment ago; loop and try the next
+// candidate rather than failing outright. Bounded so an exhausted inventory
+// fails fast instead of spinning.
+async function reserveEsimIccId(admin: Admin, jobId: string): Promise<string | null> {
+  const provider = getTelecomProvider();
+  const excluded = new Set(await collectUsedIccIds(admin));
+
+  for (let attempt = 0; attempt < 15; attempt++) {
+    const candidate = await provider.getAvailableEsimIccId([...excluded]);
+    if (!candidate) return null; // inventory genuinely exhausted
+
+    const { error } = await admin
+      .from('esim_iccid_reservations')
+      .insert({ icc_id: candidate, provisioning_job_id: jobId });
+
+    if (!error) return candidate; // claimed — nobody else can take this row's icc_id
+
+    if (error.code === '23505') {
+      // Unique violation: another job claimed this candidate between our
+      // read and our insert. Not our bug to fix here — exclude it and ask
+      // the provider for the next one.
+      excluded.add(candidate);
+      continue;
+    }
+
+    // Any other DB error is unexpected — surface it rather than looping
+    // silently on a problem retrying won't solve.
+    throw new Error(`Failed to reserve eSIM ${candidate}: ${error.message}`);
+  }
+
+  return null; // exhausted retry budget — inventory is thrashing or too small
+}
+
+// Releases a claim this job made but did not end up using — the ICCID was
+// either rejected by the carrier (we don't actually hold it, so a phantom
+// local reservation would only block some future line from a number nobody
+// is using) or the job succeeded and telecom_lines.metadata.esim_icc_id is
+// now the authoritative record instead. Best-effort: a failed cleanup here
+// just means the ICCID stays excluded a little longer than necessary, never
+// a correctness problem.
+async function releaseEsimReservation(admin: Admin, iccId: string): Promise<void> {
+  try {
+    await admin.from('esim_iccid_reservations').delete().eq('icc_id', iccId);
+  } catch (err) {
+    log.warn({ iccId, error: err instanceof Error ? err.message : String(err) }, 'Failed to release eSIM reservation');
+  }
 }
 
 // Numbers already assigned to lines — excluded when picking a fresh DID.
@@ -208,14 +270,22 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
     telecomLineId: job.line_id ?? undefined,
   };
 
-  // For eSIM orders without a pre-assigned ICC ID, pick one from Annatel's inventory.
+  // For eSIM orders without a pre-assigned ICC ID, claim one from Annatel's
+  // inventory. Was a plain read-then-write here — see reserveEsimIccId for
+  // why that let two lines in the same batch both walk away with the same
+  // ICCID (real production incident, 2026-09-10).
   const isEsim = payload.metadata?.is_esim === true;
   let resolvedIccId = payload.iccId;
+  // Only an auto-claimed pick gets released on failure below — one the
+  // caller supplied explicitly (pre-assigned iccId) isn't ours to release.
+  let selfClaimedIccId: string | null = null;
   if (isEsim && !resolvedIccId) {
-    resolvedIccId = (await provider.getAvailableEsimIccId(await collectUsedIccIds(admin))) ?? undefined;
+    resolvedIccId = (await reserveEsimIccId(admin, job.id)) ?? undefined;
     if (resolvedIccId) {
-      // Persist the pick: retries reuse the same SIM, and concurrent orders
-      // see it as reserved via collectUsedIccIds.
+      selfClaimedIccId = resolvedIccId;
+      // Persist the pick: retries reuse the same SIM, and collectUsedIccIds'
+      // job-payload check sees it as taken even before the DB reservation
+      // row is queried.
       await admin
         .from('provisioning_jobs')
         .update({
@@ -270,6 +340,24 @@ async function executeCreateLine(admin: Admin, job: ProvisioningJob): Promise<Pr
     // Inngest retries are reserved for infrastructure failures only.
     // Use retryProvisioningJob() for explicit operator-controlled retries.
     const errMsg = err instanceof Error ? err.message : String(err);
+
+    // We claimed this ICCID but the carrier rejected the whole line — we
+    // don't actually hold it, so release the claim and wipe it from the
+    // stored payload. Otherwise a manual retry (the FAILED job status route)
+    // would resubmit the exact same ICCID and fail identically every time —
+    // exactly what happened in production before this fix, requiring a
+    // by-hand payload edit to unstick it.
+    if (selfClaimedIccId) {
+      await releaseEsimReservation(admin, selfClaimedIccId);
+      await admin
+        .from('provisioning_jobs')
+        .update({
+          payload: { ...(job.payload as Record<string, unknown>), iccId: null } as never,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', job.id);
+    }
+
     const failed = transition(submitted, 'FAILED', { error: errMsg });
     await jobsRepo.updateJob(admin, job.id, {
       status: 'failed',
