@@ -11,6 +11,7 @@ import { sendProvisionedNotifications } from "@/lib/notifications/send-provision
 import { addIntlNumberToLine, removeIntlNumberFromLine, type AddIntlNumberResult, type RemoveIntlNumberResult } from "@/lib/custom-orders/international-numbers";
 import { grantTopup, cancelTopupGrant, type GrantTopupResult } from "@/lib/topups/grant-topup";
 import { refundAndCancelLine } from '@/lib/admin/refund-cancel';
+import { setCustomLinePrice, type CustomPriceResult } from '@/lib/admin/custom-price';
 import { formatMoney, absoluteUrl } from '@/lib/utils';
 import { sendEmail } from '@/lib/email/send';
 import { buildAdminResetLinkEmail } from '@/lib/email/templates';
@@ -1040,4 +1041,36 @@ export async function generateResetLinkAction(
       ? `Link generated and emailed to ${email}.`
       : `Link generated, but the email failed to send — copy it and send it yourself.`,
   };
+}
+
+// ── Custom price override ───────────────────────────────────────────────────
+
+export type CustomPriceState = CustomPriceResult | null;
+
+export async function setCustomLinePriceAction(
+  _prev: CustomPriceState,
+  formData: FormData,
+): Promise<CustomPriceState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const dollars = Number(formData.get('newPriceDollars') ?? NaN);
+  const reason = String(formData.get('reason') ?? '');
+  const applyImmediately = formData.get('applyImmediately') === 'true';
+
+  if (!lineId) return { error: 'Missing line reference.' };
+  if (!Number.isFinite(dollars) || dollars < 0) return { error: 'Enter a valid dollar amount.' };
+
+  const admin = getAdmin();
+  const result = await setCustomLinePrice({
+    admin,
+    lineId,
+    newPriceCents: Math.round(dollars * 100),
+    reason,
+    applyImmediately,
+    actorUserId: user.id,
+  });
+
+  revalidatePath(`/admin/lines/${lineId}`);
+  revalidatePath('/admin/subscriptions');
+  return result;
 }

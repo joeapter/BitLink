@@ -16,6 +16,7 @@ import { toLpaString } from "@/lib/esim";
 import { whatsappGreeting, whatsappWebUrl } from "@/lib/whatsapp";
 import { RefundAndCancelCard } from "@/components/admin/RefundAndCancelCard";
 import { ResetLinkCard } from "@/components/admin/ResetLinkCard";
+import { CustomPriceCard } from "@/components/admin/CustomPriceCard";
 import { getRefundContext } from "@/lib/admin/refund-cancel";
 import { LiveLineData, LiveLineDataSkeleton } from "./LiveLineData";
 
@@ -70,7 +71,7 @@ export default async function AdminLineDetailPage({ params }: Props) {
   // the warning is the safe direction for a destructive button.
   const { data: billingRow } = await db
     .from("subscribers")
-    .select("status")
+    .select("status, monthly_price_cents")
     .eq("telecom_line_id", id)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -239,6 +240,10 @@ export default async function AdminLineDetailPage({ params }: Props) {
           })()}
 
           <ResetLinkCard lineId={line.id} email={customer?.email} fullName={customer?.full_name} />
+
+          {hasActiveSubscription ? (
+            <CustomPriceCard lineId={line.id} currentPriceCents={billingRow?.monthly_price_cents ?? null} />
+          ) : null}
 
           {!isEsim && providerLineId && (
             <AssignPhysicalSimCard
