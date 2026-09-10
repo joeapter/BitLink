@@ -35,7 +35,7 @@ import { getStripeClient } from '@/lib/stripe/client';
 import { normalizeCustomOrderLines } from '@/lib/stripe/custom-orders';
 import { provisionSubscriptionLines } from '@/lib/custom-orders/provision-lines';
 import { listIntlPortInRequests, createIntlPortInRequest } from '@/lib/custom-orders/intl-port-in-requests';
-import { startTrial } from '@/lib/trial-offer';
+import { startTrial, convertTrialToPlan } from '@/lib/trial-offer';
 import { clearDunningState } from '@/lib/billing/dunning';
 import { sendEmail } from '@/lib/email/send';
 import { logger } from '@/lib/logger';
@@ -360,10 +360,64 @@ async function handleCustomOrderCheckoutCompleted(
 }
 
 /**
+ * Attaches a setup session's resulting payment method to the customer, sets
+ * it as default, and — this is the part that was missing before 2026-09 —
+ * actually confirms it worked rather than trusting that it did. Shared by
+ * the normal trial signup and the manual card-recovery flow below; both
+ * need the identical guarantee before doing anything that commits real
+ * carrier resources or money to a customer.
+ *
+ * Returns true only if Stripe, re-read fresh, shows the payment method
+ * attached to this exact customer.
+ */
+async function attachAndVerifyPaymentMethod(
+  stripe: ReturnType<typeof getStripeClient>,
+  stripeCustomerId: string,
+  setupIntentId: string | undefined,
+): Promise<boolean> {
+  if (!setupIntentId) return false;
+  const setupIntent = await stripe.setupIntents.retrieve(setupIntentId);
+  const paymentMethodId =
+    typeof setupIntent.payment_method === 'string' ? setupIntent.payment_method : setupIntent.payment_method?.id;
+  if (!paymentMethodId) return false;
+
+  // Confirmed in production (2026-09), one trial in ~13: a setup-mode
+  // Checkout Session completed with a real card on the SetupIntent, but the
+  // PaymentMethod was never attached to the Customer — Stripe is documented
+  // to do this automatically for a session created with `customer` set, and
+  // it does reliably, but "reliably" isn't "always." attach() is idempotent
+  // (a no-op if Stripe already attached it), so this changes nothing for
+  // the normal case — it only matters the next time Stripe's own auto-attach
+  // doesn't fire.
+  await stripe.paymentMethods.attach(paymentMethodId, { customer: stripeCustomerId }).catch((err) => {
+    log.warn(
+      { stripeCustomerId, paymentMethodId, error: err instanceof Error ? err.message : String(err) },
+      'Explicit payment method attach failed — Stripe had likely already attached it (attach is idempotent); only worth investigating if verification below also fails',
+    );
+  });
+  await stripe.customers.update(stripeCustomerId, {
+    invoice_settings: { default_payment_method: paymentMethodId },
+  });
+
+  // Don't just hope the two calls above worked — re-read the payment method
+  // from Stripe and check it actually shows this customer. customers.update()
+  // doesn't error on an unattached PM; it silently accepts the ID without
+  // making the card chargeable, which is exactly how a trial ran its full 30
+  // days looking normal and only failed at the moment it tried to charge.
+  const verifiedPm = await stripe.paymentMethods.retrieve(paymentMethodId);
+  return verifiedPm.customer === stripeCustomerId;
+}
+
+/**
  * checkout.session.completed for a trial-offer setup session (mode: 'setup',
  * metadata.source = 'bitlink_trial'). No subscription/payment happened — this
  * just saved a card. Sets it as the customer's default payment method, then
- * starts the trial (drafts the line, queues provisioning).
+ * starts the trial (drafts the line, queues provisioning) — but only once
+ * attachAndVerifyPaymentMethod actually confirms there's something chargeable
+ * on file. That confirmation used to not exist at all: startTrial() ran
+ * unconditionally, which is how a trial was provisioned once for a customer
+ * with no usable card — a real Annatel line, real cost, discovered only 30
+ * days later when there was nothing to charge.
  */
 async function handleTrialSetupCompleted(
   admin: SupabaseClient,
@@ -388,42 +442,34 @@ async function handleTrialSetupCompleted(
   }
 
   const stripe = getStripeClient();
-
   const setupIntentId = typeof session.setup_intent === 'string' ? session.setup_intent : session.setup_intent?.id;
-  if (setupIntentId) {
-    const setupIntent = await stripe.setupIntents.retrieve(setupIntentId);
-    const paymentMethodId =
-      typeof setupIntent.payment_method === 'string' ? setupIntent.payment_method : setupIntent.payment_method?.id;
-    if (paymentMethodId) {
-      // Confirmed in production (2026-09), one trial in ~13: a setup-mode
-      // Checkout Session completed with a real card on the SetupIntent, but
-      // the PaymentMethod was never attached to the Customer — Stripe is
-      // documented to do this automatically for a session created with
-      // `customer` set, and it does reliably, but "reliably" isn't
-      // "always," and this code had nothing to fall back on when it didn't.
-      // customers.update() below doesn't error on an unattached PM either —
-      // it silently accepts the ID without making the card chargeable, so
-      // the trial ran its full 30 days looking completely normal and only
-      // failed, silently, at the one moment it tried to actually charge.
-      // attach() is idempotent (a no-op if Stripe already attached it), so
-      // this is a pure safety net, not a behavior change for the normal case.
-      await stripe.paymentMethods.attach(paymentMethodId, { customer: stripeCustomerId }).catch((err) => {
-        log.warn(
-          { stripeCustomerId, paymentMethodId, error: err instanceof Error ? err.message : String(err) },
-          'Explicit payment method attach failed — Stripe had likely already attached it (attach is idempotent); only worth investigating if the default_payment_method update below also fails',
-        );
-      });
-      await stripe.customers.update(stripeCustomerId, {
-        invoice_settings: { default_payment_method: paymentMethodId },
-      });
-    }
-  }
+  const paymentMethodConfirmed = await attachAndVerifyPaymentMethod(stripe, stripeCustomerId, setupIntentId);
 
   const { data: customer } = await admin
     .from('customers')
     .select('full_name, email, phone')
     .eq('id', customerRecordId)
     .maybeSingle();
+
+  if (!paymentMethodConfirmed) {
+    log.error(
+      { stripeCustomerId, customerRecordId, sessionId: session.id },
+      'Trial setup completed but no confirmed payment method — refusing to provision a line',
+    );
+    await sendEmail({
+      to: 'joe@bitlink.co.il',
+      subject: 'Trial signup blocked — no usable card',
+      html: [
+        `<p><b>${(customer?.full_name as string | undefined) ?? 'A customer'}</b> (${(customer?.email as string | undefined) ?? 'no email'}) completed the trial signup form, but Stripe does not show a usable payment method on their account after the setup step — so no line was provisioned.</p>`,
+        `<p>This is the same failure mode fixed on ${new Date().toDateString()}: the card capture can succeed while the attach to the customer silently doesn't. It's now caught before any service is given away, rather than only surfacing 30 days later at the billing deadline.</p>`,
+        `<p>Stripe customer: <code>${stripeCustomerId}</code></p>`,
+        `<p>Nothing further happens automatically — reach out to the customer to try again, or investigate in Stripe directly.</p>`,
+      ].join(''),
+    }).catch(() => {
+      // alerting is best-effort; never let it mask the real skip reason
+    });
+    return { skipped: true, reason: 'no_confirmed_payment_method' };
+  }
 
   const { trialId, lineId, jobId } = await startTrial(admin, {
     customerRecordId,
@@ -443,6 +489,130 @@ async function handleTrialSetupCompleted(
   }).catch((err) => log.warn({ error: String(err) }, 'Failed to dispatch trial/signup.completed'));
 
   return { subscriberId: trialId, jobId, lineId };
+}
+
+/**
+ * checkout.session.completed for a manually-generated card-recovery session
+ * (mode: 'setup', metadata.source = 'bitlink_trial_recovery') — the flow a
+ * customer lands on when their trial froze because the original card never
+ * confirmed as attached (see attachAndVerifyPaymentMethod). This is the
+ * automation that used to not exist: previously, recovering one of these
+ * meant an admin manually attaching a card, charging the customer, and
+ * reactivating the carrier line by hand once the customer said they'd added
+ * one. Here, the moment they actually submit a working card, it all happens
+ * on its own and Joe gets an email either way — fixed or still blocked.
+ *
+ * Not the general trial-signup path on purpose: startTrial() must never run
+ * again for a customer who already has a trial_lines row, and this handler
+ * only exists to finish converting one that already started.
+ */
+async function handleTrialRecoveryCompleted(
+  admin: SupabaseClient,
+  session: Stripe.Checkout.Session,
+): Promise<HandlerResult> {
+  const stripeCustomerId = typeof session.customer === 'string' ? session.customer : null;
+  const customerRecordId = session.metadata?.customer_record_id ?? null;
+  if (!stripeCustomerId || !customerRecordId) {
+    log.warn({ sessionId: session.id }, 'Trial recovery session missing customer or customer_record_id');
+    return { skipped: true, reason: 'no_customer' };
+  }
+
+  const { data: trial } = await admin
+    .from('trial_lines')
+    .select('id, telecom_line_id, customer_id, stripe_customer_id, status')
+    .eq('stripe_customer_id', stripeCustomerId)
+    .maybeSingle();
+  if (!trial) {
+    log.warn({ stripeCustomerId, sessionId: session.id }, 'Trial recovery session but no trial_lines row found');
+    return { skipped: true, reason: 'no_trial_to_recover' };
+  }
+
+  const { data: customer } = await admin
+    .from('customers')
+    .select('full_name, email')
+    .eq('id', customerRecordId)
+    .maybeSingle();
+  const customerLabel = `${(customer?.full_name as string | undefined) ?? 'A customer'} (${(customer?.email as string | undefined) ?? 'no email'})`;
+
+  const stripe = getStripeClient();
+  const setupIntentId = typeof session.setup_intent === 'string' ? session.setup_intent : session.setup_intent?.id;
+  const paymentMethodConfirmed = await attachAndVerifyPaymentMethod(stripe, stripeCustomerId, setupIntentId);
+
+  if (!paymentMethodConfirmed) {
+    log.error({ stripeCustomerId, trialId: trial.id }, 'Trial recovery: card still not confirmed after retry');
+    await sendEmail({
+      to: 'joe@bitlink.co.il',
+      subject: 'Recovery link submitted, but still no usable card',
+      html: [
+        `<p><b>${customerLabel}</b> used the recovery link, but Stripe still doesn't show a usable payment method afterward.</p>`,
+        `<p>Their line is still on hold. This needs a look in Stripe directly rather than another automated attempt.</p>`,
+        `<p>Stripe customer: <code>${stripeCustomerId}</code></p>`,
+      ].join(''),
+    }).catch(() => {});
+    return { skipped: true, reason: 'no_confirmed_payment_method' };
+  }
+
+  const conversion = await convertTrialToPlan(
+    admin,
+    {
+      id: trial.id as string,
+      telecom_line_id: trial.telecom_line_id as string,
+      customer_id: trial.customer_id as string,
+      stripe_customer_id: stripeCustomerId,
+    },
+    'basic',
+  );
+
+  if (!conversion.success) {
+    log.error({ stripeCustomerId, trialId: trial.id, error: conversion.error }, 'Trial recovery: card confirmed but the charge failed');
+    await sendEmail({
+      to: 'joe@bitlink.co.il',
+      subject: 'Recovery card confirmed, but the charge failed',
+      html: [
+        `<p><b>${customerLabel}</b>'s card is now properly attached, but the actual charge failed: ${conversion.error}</p>`,
+        `<p>Their line is still on hold — nothing was reactivated. Worth a look before trying again.</p>`,
+      ].join(''),
+    }).catch(() => {});
+    return { skipped: true, reason: 'charge_failed' };
+  }
+
+  // convertTrialToPlan only handles Stripe + our own tables — it never
+  // touches the carrier, since the normal (non-recovery) path it's built for
+  // converts a line that's still ACTIVE at Annatel. This one was frozen by
+  // freezeTrialLine when the original attempt failed, so reactivating it here
+  // is this handler's job specifically, not something to add to the shared
+  // function for every other caller that doesn't need it.
+  const line = await getLine(admin, trial.telecom_line_id as string);
+  let reactivated = false;
+  if (line?.provider_line_id) {
+    try {
+      await getTelecomProvider().reactivateLine(line.provider_line_id);
+      await admin
+        .from('telecom_lines')
+        .update({ status: 'active', updated_at: new Date().toISOString() })
+        .eq('id', trial.telecom_line_id as string);
+      reactivated = true;
+    } catch (err) {
+      log.error(
+        { stripeCustomerId, trialId: trial.id, error: err instanceof Error ? err.message : String(err) },
+        'Trial recovery: charge succeeded but carrier reactivation failed',
+      );
+    }
+  }
+
+  await sendEmail({
+    to: 'joe@bitlink.co.il',
+    subject: reactivated ? 'Recovery complete — line back on' : 'Charged, but reactivation needs a manual check',
+    html: [
+      `<p><b>${customerLabel}</b> added a card via the recovery link. They've been charged for Basic ($14.99, no activation fee) and their trial is now marked converted.</p>`,
+      reactivated
+        ? `<p>Their line has been reactivated at the carrier — should be working again within a minute or two.</p>`
+        : `<p><b>The line itself did not reactivate automatically</b> — worth checking it directly before assuming it's back on.</p>`,
+      `<p><a href="https://www.bitlink.co.il/admin/lines/${trial.telecom_line_id}">Open the line in admin</a></p>`,
+    ].join(''),
+  }).catch(() => {});
+
+  return { updated: true, subscriberId: trial.id as string };
 }
 
 /**
@@ -1043,6 +1213,9 @@ export const processStripeEvent = inngest.createFunction(
           const session = stripeEvent.data.object as Stripe.Checkout.Session;
           if (session.mode === 'setup' && session.metadata?.source === 'bitlink_trial') {
             return handleTrialSetupCompleted(admin, session);
+          }
+          if (session.mode === 'setup' && session.metadata?.source === 'bitlink_trial_recovery') {
+            return handleTrialRecoveryCompleted(admin, session);
           }
           if (session.metadata?.custom_order_token) {
             return handleCustomOrderCheckoutCompleted(
