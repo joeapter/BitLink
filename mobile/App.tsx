@@ -1,112 +1,86 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, BackHandler, Linking, Platform, StyleSheet, View } from "react-native";
-import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useCallback } from "react";
+import { Platform } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
-import * as WebBrowser from "expo-web-browser";
-import WebView, { type WebViewNavigation } from "react-native-webview";
-import type { ShouldStartLoadRequest } from "react-native-webview/lib/WebViewTypes";
+import { NavigationContainer, DarkTheme } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
+import { WebViewScreen } from "./components/WebViewScreen";
 
 // The account portal is a server-rendered Next.js app, not a JSON API — the
-// fastest, least redundant way to ship a native shell is to load it live
-// rather than rebuild it as a native UI. Site updates then reach the app
-// instantly with no store resubmission. See app-mode CSS in the Next.js repo
-// (src/app/layout.tsx / globals.css) for how the marketing header/footer get
-// hidden so this doesn't read as "a website in a box."
-const ACCOUNT_URL = "https://www.bitlink.co.il/account";
-const APP_HOST = "bitlink.co.il";
+// fastest, least redundant way to ship a native shell is to load each tab's
+// page live rather than rebuild it as native UI. Site updates then reach the
+// app instantly with no store resubmission. See app-mode CSS in the Next.js
+// repo (src/app/layout.tsx / globals.css) for how the marketing header/
+// footer get hidden so this doesn't read as "a website in a box."
+const SITE = "https://www.bitlink.co.il";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
-function shouldOpenExternally(url: string): boolean {
-  try {
-    const { hostname, protocol } = new URL(url);
-    if (protocol !== "http:" && protocol !== "https:") return true; // tel:, mailto:, etc.
-    // Anything leaving our own domain — Stripe Checkout, the Stripe billing
-    // portal, future OAuth-style redirects — goes to the system browser so
-    // payment never happens inside the app shell (Apple's external-purchase
-    // requirement) and so the customer keeps their real browser's autofill.
-    return hostname !== APP_HOST && !hostname.endsWith(`.${APP_HOST}`);
-  } catch {
-    return false;
-  }
-}
+const Tab = createBottomTabNavigator();
 
-function Portal() {
-  const webViewRef = useRef<WebView>(null);
-  const [canGoBack, setCanGoBack] = useState(false);
-  const insets = useSafeAreaInsets();
+const navTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: "#0FC2C2",
+    background: "#050606",
+    card: "#0B0D0E",
+    border: "#1C1F20",
+  },
+};
 
-  useEffect(() => {
-    if (Platform.OS !== "android") return;
-    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
-      if (canGoBack) {
-        webViewRef.current?.goBack();
-        return true;
-      }
-      return false;
-    });
-    return () => sub.remove();
-  }, [canGoBack]);
-
-  const handleShouldStartLoad = useCallback((request: ShouldStartLoadRequest) => {
-    if (shouldOpenExternally(request.url)) {
-      WebBrowser.openBrowserAsync(request.url).catch(() => Linking.openURL(request.url));
-      return false;
-    }
-    return true;
-  }, []);
-
-  const handleNavigationStateChange = useCallback((navState: WebViewNavigation) => {
-    setCanGoBack(navState.canGoBack);
-  }, []);
-
-  return (
-    <View style={[styles.flex, { paddingTop: insets.top, backgroundColor: "#050606" }]}>
-      <WebView
-        ref={webViewRef}
-        source={{ uri: ACCOUNT_URL }}
-        style={styles.flex}
-        onLoadEnd={() => SplashScreen.hideAsync().catch(() => {})}
-        onNavigationStateChange={handleNavigationStateChange}
-        onShouldStartLoadWithRequest={handleShouldStartLoad}
-        pullToRefreshEnabled
-        sharedCookiesEnabled
-        thirdPartyCookiesEnabled
-        decelerationRate="normal"
-        allowsBackForwardNavigationGestures
-        startInLoadingState
-        renderLoading={() => (
-          <View style={styles.loading}>
-            <ActivityIndicator size="large" color="#0FC2C2" />
-          </View>
-        )}
-      />
-    </View>
-  );
-}
+const ICONS: Record<string, { focused: keyof typeof Ionicons.glyphMap; unfocused: keyof typeof Ionicons.glyphMap }> = {
+  Plans: { focused: "pricetags", unfocused: "pricetags-outline" },
+  Account: { focused: "person-circle", unfocused: "person-circle-outline" },
+  Settings: { focused: "settings", unfocused: "settings-outline" },
+};
 
 export default function App() {
+  const handleReady = useCallback(() => {
+    // Navigation is mounted and ready to paint — hand off from the native
+    // splash to our own UI now instead of holding it open until the account
+    // page's network round trip finishes. Each screen shows its own spinner
+    // (WebViewScreen's renderLoading) for that wait, which is the normal,
+    // fast-feeling pattern instead of a long native splash hold.
+    SplashScreen.hideAsync().catch(() => {});
+  }, []);
+
   return (
     <SafeAreaProvider>
       <StatusBar style="light" />
-      <Portal />
+      <NavigationContainer theme={navTheme} onReady={handleReady}>
+        <Tab.Navigator
+          initialRouteName="Account"
+          screenOptions={({ route }) => ({
+            headerShown: false,
+            tabBarActiveTintColor: "#0FC2C2",
+            tabBarInactiveTintColor: "#7A8688",
+            tabBarStyle: {
+              backgroundColor: "#0B0D0E",
+              borderTopColor: "#1C1F20",
+              height: Platform.OS === "ios" ? 88 : 64,
+              paddingTop: 8,
+            },
+            tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
+            tabBarIcon: ({ focused, color, size }) => {
+              const set = ICONS[route.name];
+              return <Ionicons name={focused ? set.focused : set.unfocused} size={size} color={color} />;
+            },
+          })}
+        >
+          <Tab.Screen name="Plans" options={{ title: "Plans" }}>
+            {() => <WebViewScreen url={`${SITE}/account/add-line`} />}
+          </Tab.Screen>
+          <Tab.Screen name="Account" options={{ title: "Account" }}>
+            {() => <WebViewScreen url={`${SITE}/account`} />}
+          </Tab.Screen>
+          <Tab.Screen name="Settings" options={{ title: "Settings" }}>
+            {() => <WebViewScreen url={`${SITE}/account/settings`} />}
+          </Tab.Screen>
+        </Tab.Navigator>
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  loading: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#050606",
-  },
-});
