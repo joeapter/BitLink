@@ -1,0 +1,15 @@
+# EAS Build archives from the git repo root since mobile/ is nested inside
+# the main BitLink repo, not its own standalone project. Without this, EAS
+# was uploading the entire Next.js site (assets, PDFs, spreadsheets, docs)
+# on every mobile build — slow, and it hit a transient failure trying to
+# archive an unrelated file the mobile app doesn't even use. Scope the
+# upload to only what the Expo build actually needs.
+*
+!mobile
+!mobile/**
+mobile/node_modules
+mobile/.expo
+mobile/dist
+mobile/web-build
+mobile/ios
+mobile/android
