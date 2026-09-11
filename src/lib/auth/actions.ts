@@ -6,7 +6,6 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hasSupabasePublicEnv } from "@/lib/supabase/env";
 import { authenticatedRedirectPath, safeInternalPath } from "@/lib/auth/redirects";
-import { requireUser } from "@/lib/auth/server";
 import { absoluteUrl } from "@/lib/utils";
 import { sendEmail } from "@/lib/email/send";
 import { buildAdminSignupEmail } from "@/lib/email/templates";
@@ -175,64 +174,4 @@ export async function logoutAction() {
   }
 
   redirect("/");
-}
-
-// Real carrier lines and billing can't be safely torn down by an unattended
-// customer action, so this doesn't delete anything itself — it's the
-// in-app request Apple's account-deletion guideline (5.1.1(v)) requires:
-// the customer submits it without leaving the app or contacting support,
-// and it's Joe who processes the actual teardown from the admin console.
-// Archiving immediately (same soft-hide admin uses for any other customer)
-// pulls them out of the active list right away as a visible "needs review"
-// signal, on top of the email.
-export async function requestAccountDeletionAction() {
-  const user = await requireUser();
-  const admin = createSupabaseAdminClient();
-  if (!admin) {
-    redirect(`/login?error=${encodeMessage("Account deletion is temporarily unavailable. Please try again shortly.")}`);
-  }
-
-  const { data: customer } = await admin
-    .from("customers")
-    .select("id, full_name, email")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (customer?.id) {
-    await admin
-      .from("customers")
-      .update({ archived_at: new Date().toISOString() })
-      .eq("id", customer.id);
-
-    try {
-      await admin.from("audit_logs").insert({
-        actor_user_id: user.id,
-        action: "customer_requested_deletion",
-        entity_type: "customer",
-        entity_id: customer.id,
-        metadata: {},
-      });
-    } catch {
-      // audit failure is non-fatal
-    }
-
-    await sendEmail({
-      to: ADMIN_NOTIFY_EMAIL,
-      subject: `⚠ Account deletion requested — ${(customer.full_name as string | null) ?? customer.email}`,
-      html: [
-        `<p><b>${(customer.full_name as string | null) ?? "A customer"}</b> (${customer.email}) requested account deletion from the app.</p>`,
-        `<p>They've been archived out of the active list as a placeholder. Review their lines/billing and process the deletion in the admin console.</p>`,
-        `<p><a href="https://www.bitlink.co.il/admin/customers/${customer.id}">Open in admin</a></p>`,
-      ].join(""),
-    }).catch(() => {});
-  }
-
-  if (hasSupabasePublicEnv()) {
-    const supabase = await createSupabaseServerClient();
-    await supabase.auth.signOut();
-  }
-
-  redirect(
-    `/login?message=${encodeMessage("Your account deletion request has been submitted. We'll follow up by email once it's processed.")}`,
-  );
 }

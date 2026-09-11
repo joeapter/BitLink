@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { requireUser } from "@/lib/auth/server";
 import { getAccountSnapshot } from "@/lib/db/account";
 import { logoutAction, requestPasswordResetAction } from "@/lib/auth/actions";
-import { DeleteAccountButton } from "@/components/account/DeleteAccountButton";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -60,17 +59,6 @@ export default async function AccountSettingsPage() {
             Sign out
           </button>
         </form>
-      </div>
-
-      <div className="rounded-[2rem] border border-red-100 bg-white p-6 shadow-soft">
-        <h2 className="text-lg font-semibold text-ink">Delete account</h2>
-        <p className="mt-2 text-sm text-muted-slate">
-          Submit a request to close your BitLink account. If you have active lines or an open
-          balance, we&apos;ll follow up before anything is finalized.
-        </p>
-        <div className="mt-4">
-          <DeleteAccountButton />
-        </div>
       </div>
     </div>
   );
