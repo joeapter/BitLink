@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { BarChart2, CreditCard, Home, LogOut, Phone, PlusCircle, RadioTower, Share2, ShieldCheck } from "lucide-react";
+import { BarChart2, CreditCard, Home, LogOut, Phone, PlusCircle, RadioTower, Settings, Share2, ShieldCheck } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
 import { initials } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ const accountLinks = [
   { href: "/account/billing",   label: "Billing",    icon: CreditCard },
   { href: "/account/activation",label: "Activation", icon: RadioTower },
   { href: "/account/referrals", label: "Referrals",  icon: Share2     },
+  { href: "/account/settings", label: "Settings",    icon: Settings   },
 ];
 
 type AccountProfile = {
