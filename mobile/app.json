@@ -17,7 +17,7 @@
       }
     },
     "android": {
-      "package": "com.bitlink.app",
+      "package": "il.co.bitlink.app",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/android-icon-foreground.png",
