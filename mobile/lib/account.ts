@@ -106,3 +106,37 @@ const STATUS_LABELS: Record<string, string> = {
 export function statusLabel(status: string): string {
   return STATUS_LABELS[status] ?? status;
 }
+
+export type ActiveGrant = {
+  id: string;
+  lineId: string;
+  topupId: string;
+  label: string;
+  frequency: string;
+};
+
+/**
+ * The customer's own active top-up grants. Readable from the app only because
+ * migration 042 added a self-scoped SELECT policy to line_topup_grants — before
+ * that the table was admin-only and this query returned nothing at all.
+ */
+export async function fetchActiveGrants(lineIds: string[]): Promise<ActiveGrant[]> {
+  if (lineIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from("line_topup_grants")
+    .select("id, line_id, topup_id, label, frequency")
+    .in("line_id", lineIds)
+    .eq("status", "active")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    lineId: row.line_id as string,
+    topupId: row.topup_id as string,
+    label: (row.label as string) ?? "",
+    frequency: (row.frequency as string) ?? "once",
+  }));
+}

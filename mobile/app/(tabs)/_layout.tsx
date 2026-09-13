@@ -1,46 +1,47 @@
-import { Platform } from "react-native";
-// Importing Tabs from the package root is deprecated in SDK 57; the navigator
-// now lives at expo-router/js-tabs.
-import { Tabs } from "expo-router/js-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { colors } from "../../lib/theme";
 
-const ICONS: Record<
-  string,
-  { focused: keyof typeof Ionicons.glyphMap; unfocused: keyof typeof Ionicons.glyphMap }
-> = {
-  plans: { focused: "pricetags", unfocused: "pricetags-outline" },
-  index: { focused: "person-circle", unfocused: "person-circle-outline" },
-  settings: { focused: "settings", unfocused: "settings-outline" },
-};
-
+// A real UITabBar (and BottomNavigationView on Android) rather than a
+// JS-drawn one. The press, the selection animation and the iOS 26 scroll
+// minimise behaviour are all handled by the OS, so tab switching can never sit
+// behind a busy JS thread — which is exactly where a React-drawn tab bar feels
+// sluggish. Icons are SF Symbols on iOS and Material icons on Android, so each
+// platform gets its own native iconography instead of one set forced on both.
+//
+// Tab order follows the order of these triggers. `index` is the initial route
+// by expo-router convention, which puts Account in the middle and open by
+// default.
 export default function TabsLayout() {
   return (
-    <Tabs
-      initialRouteName="index"
-      screenOptions={({ route }) => ({
-        // Every screen draws its own title inside its scroll view, so there is
-        // no navigation header anywhere in the app.
-        headerShown: false,
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.inactive,
-        tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.border,
-          height: Platform.OS === "ios" ? 88 : 64,
-          paddingTop: 8,
-        },
-        tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
-        tabBarIcon: ({ focused, color, size }) => {
-          const set = ICONS[route.name];
-          if (!set) return null;
-          return <Ionicons name={focused ? set.focused : set.unfocused} size={size} color={color} />;
-        },
-      })}
-    >
-      <Tabs.Screen name="plans" options={{ title: "Plans" }} />
-      <Tabs.Screen name="index" options={{ title: "Account" }} />
-      <Tabs.Screen name="settings" options={{ title: "Settings" }} />
-    </Tabs>
+    <NativeTabs tintColor={colors.accent}>
+      <NativeTabs.Trigger name="plans">
+        <NativeTabs.Trigger.Icon sf={{ default: "tag", selected: "tag.fill" }} md="local_offer" />
+        <NativeTabs.Trigger.Label>Plans</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="topups">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "bolt", selected: "bolt.fill" }}
+          md="bolt"
+        />
+        <NativeTabs.Trigger.Label>Top-ups</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "person.crop.circle", selected: "person.crop.circle.fill" }}
+          md="account_circle"
+        />
+        <NativeTabs.Trigger.Label>Account</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="settings">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "gearshape", selected: "gearshape.fill" }}
+          md="settings"
+        />
+        <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

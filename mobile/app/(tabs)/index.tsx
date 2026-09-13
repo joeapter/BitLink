@@ -7,16 +7,16 @@ import {
   Text,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../../lib/theme";
 import { useSession } from "../../lib/auth";
 import { fetchAccount, formatPhone, statusLabel, type AccountSnapshot } from "../../lib/account";
 import { findPlanBySlug } from "../../lib/plans";
 import { SignInForm } from "../../components/SignInForm";
+import { BrandHeader, useScreenTopPadding } from "../../components/BrandHeader";
 
 export default function AccountTab() {
-  const insets = useSafeAreaInsets();
+  const topPadding = useScreenTopPadding();
   const { session, loading: sessionLoading } = useSession();
 
   const [data, setData] = useState<AccountSnapshot | null>(null);
@@ -58,10 +58,12 @@ export default function AccountTab() {
     return (
       <ScrollView
         style={styles.screen}
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + 24 }]}
+        contentContainerStyle={[styles.content, { paddingTop: topPadding }]}
         keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
       >
-        <Text style={styles.title}>Your account</Text>
+        <BrandHeader />
+      <Text style={styles.title}>Your account</Text>
         <SignInForm intro="Sign in to see your lines, numbers and activation details." />
       </ScrollView>
     );
@@ -70,11 +72,12 @@ export default function AccountTab() {
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]}
+      contentContainerStyle={[styles.content, { paddingTop: topPadding }]}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={() => load("refresh")} tintColor={colors.accent} />
       }
     >
+      <BrandHeader />
       <Text style={styles.title}>Your account</Text>
       {data?.fullName ? <Text style={styles.subtitle}>{data.fullName}</Text> : null}
 
@@ -184,7 +187,7 @@ function Row({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, paddingBottom: 32, gap: 14 },
+  content: { padding: 20, paddingBottom: 120, gap: 14 },
   centre: { alignItems: "center", justifyContent: "center" },
   centrePad: { paddingVertical: 40, alignItems: "center" },
   title: { fontSize: 30, fontWeight: "800", color: colors.ink },

@@ -9,16 +9,16 @@ import {
   Text,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import { supabase } from "../../lib/supabase";
 import { useSession } from "../../lib/auth";
 import { colors, contact } from "../../lib/theme";
 import { SignInForm } from "../../components/SignInForm";
+import { BrandHeader, useScreenTopPadding } from "../../components/BrandHeader";
 
 export default function SettingsTab() {
-  const insets = useSafeAreaInsets();
+  const topPadding = useScreenTopPadding();
   const { session, loading } = useSession();
   const [profileName, setProfileName] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -82,9 +82,11 @@ export default function SettingsTab() {
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]}
+      contentContainerStyle={[styles.content, { paddingTop: topPadding }]}
       keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
     >
+      <BrandHeader />
       <Text style={styles.title}>Settings</Text>
 
       {loading ? (
@@ -222,7 +224,7 @@ function ContactRow({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, paddingBottom: 40, gap: 14 },
+  content: { padding: 20, paddingBottom: 120, gap: 14 },
   title: { fontSize: 30, fontWeight: "800", color: colors.ink },
 
   card: {

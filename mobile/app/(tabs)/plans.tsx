@@ -12,11 +12,15 @@ import { Ionicons } from "@expo/vector-icons";
 import * as WebBrowser from "expo-web-browser";
 import { colors, SITE_URL } from "../../lib/theme";
 import { fiveGPlans, kosherPlans, type NativePlan } from "../../lib/plans";
+import { BrandHeader, useScreenTopPadding } from "../../components/BrandHeader";
+import { useSession } from "../../lib/auth";
 
 type Segment = "5g" | "kosher";
 
 export default function PlansTab() {
   const insets = useSafeAreaInsets();
+  const topPadding = useScreenTopPadding();
+  const { session } = useSession();
   const [segment, setSegment] = useState<Segment>("5g");
   const [selected, setSelected] = useState<NativePlan | null>(null);
 
@@ -26,7 +30,12 @@ export default function PlansTab() {
   // inside the app — Apple requires real-world service purchases to complete
   // outside the app, and it keeps card entry in the browser's trusted UI.
   const openSignup = (plan: NativePlan) => {
-    const url = `${SITE_URL}/account/add-line?plan=${plan.slug}`;
+    // An existing customer adds a line to the account they already have; a
+    // first-time buyer needs the public checkout, because /account/add-line
+    // requires a customer record and would just bounce them to a login screen.
+    const url = session
+      ? `${SITE_URL}/account/add-line?plan=${plan.slug}`
+      : `${SITE_URL}/checkout?plan=${plan.slug}`;
     WebBrowser.openBrowserAsync(url).catch(() => Linking.openURL(url));
   };
 
@@ -37,13 +46,17 @@ export default function PlansTab() {
   }
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
+    <View style={[styles.screen, { paddingTop: topPadding }]}>
+      <View style={styles.brandRow}>
+        <BrandHeader />
+      </View>
       <View style={styles.segmentRow}>
         <SegmentButton label="5G Plans" active={segment === "5g"} onPress={() => setSegment("5g")} />
         <SegmentButton label="Kosher" active={segment === "kosher"} onPress={() => setSegment("kosher")} />
       </View>
 
       <ScrollView
+        style={styles.flex}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       >
@@ -67,6 +80,7 @@ export default function PlansTab() {
                   </Text>
                 </View>
               ) : null}
+              <Ionicons name="chevron-forward" size={18} color={colors.inactive} />
             </View>
 
             <View style={styles.priceRow}>
@@ -80,10 +94,6 @@ export default function PlansTab() {
               <Spec label="Texts" value={plan.specs.texts} />
             </View>
 
-            <View style={styles.cardFooter}>
-              <Text style={styles.cardFooterText}>View plan</Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.accent} />
-            </View>
           </Pressable>
         ))}
       </ScrollView>
@@ -101,10 +111,15 @@ function PlanDetail({
   onAdd: () => void;
 }) {
   const insets = useSafeAreaInsets();
+  const topPadding = useScreenTopPadding();
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <ScrollView contentContainerStyle={styles.detailContent} showsVerticalScrollIndicator={false}>
+    <View style={[styles.screen, { paddingTop: topPadding }]}>
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={styles.detailContent}
+        showsVerticalScrollIndicator={false}
+      >
         <Pressable onPress={onBack} style={styles.backRow} accessibilityRole="button">
           <Ionicons name="chevron-back" size={20} color={colors.accent} />
           <Text style={styles.backText}>Back to plans</Text>
@@ -133,7 +148,7 @@ function PlanDetail({
         ))}
       </ScrollView>
 
-      <View style={[styles.actionBar, { paddingBottom: 12 }]}>
+      <View style={[styles.actionBar, { paddingBottom: insets.bottom + 64 }]}>
         <Pressable
           onPress={onAdd}
           style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]}
@@ -189,6 +204,8 @@ function DetailSpec({ label, value, last }: { label: string; value: string; last
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
+  brandRow: { paddingHorizontal: 20 },
   segmentRow: {
     flexDirection: "row",
     gap: 8,
@@ -209,16 +226,25 @@ const styles = StyleSheet.create({
   segmentText: { fontSize: 14, fontWeight: "600", color: colors.muted },
   segmentTextActive: { color: "#FFFFFF" },
 
-  listContent: { padding: 20, paddingTop: 12, gap: 14 },
+  listContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 104,
+    gap: 12,
+  },
   card: {
+    flex: 1,
+    minHeight: 168,
+    justifyContent: "center",
     backgroundColor: colors.surface,
-    borderRadius: 24,
-    padding: 20,
+    borderRadius: 22,
+    padding: 18,
     borderWidth: 1,
     borderColor: colors.border,
   },
   cardPressed: { opacity: 0.7 },
-  cardTop: { flexDirection: "row", justifyContent: "space-between", gap: 12 },
+  cardTop: { flexDirection: "row", alignItems: "center", gap: 8 },
   cardTitleBlock: { flex: 1 },
   planName: { fontSize: 20, fontWeight: "700", color: colors.ink },
   planTagline: { marginTop: 2, fontSize: 13, color: colors.muted },
@@ -233,11 +259,11 @@ const styles = StyleSheet.create({
   badgeText: { fontSize: 11, fontWeight: "700", color: colors.accent },
   badgeTextFeatured: { color: "#FFFFFF" },
 
-  priceRow: { flexDirection: "row", alignItems: "baseline", marginTop: 14 },
-  price: { fontSize: 30, fontWeight: "800", color: colors.ink },
+  priceRow: { flexDirection: "row", alignItems: "baseline", marginTop: 10 },
+  price: { fontSize: 29, fontWeight: "800", color: colors.ink },
   priceUnit: { marginLeft: 4, fontSize: 14, color: colors.muted },
 
-  specRow: { flexDirection: "row", marginTop: 16, gap: 10 },
+  specRow: { flexDirection: "row", marginTop: 14, gap: 10 },
   spec: { flex: 1 },
   specLabel: { fontSize: 11, color: colors.muted, textTransform: "uppercase", letterSpacing: 0.4 },
   specValue: { marginTop: 3, fontSize: 13, fontWeight: "600", color: colors.ink },
