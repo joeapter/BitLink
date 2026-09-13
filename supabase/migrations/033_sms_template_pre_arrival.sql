@@ -18,7 +18,7 @@ insert into public.sms_templates (name, body) values
     'Pre-arrival: SMS to email while still abroad',
     'Hi {name}, it''s BitLink.
 Not in Israel yet? We''ve got you covered.
-We''ve switched on automatic SMS-to-email for your line, so every text to your Israeli number also lands in {email}. Go set up WhatsApp and your Israeli bank before you even fly.
+We''ve switched on automatic SMS-to-email for your line, so every text to your Israeli number also lands in {email}. Set up WhatsApp and your Israeli bank before you even fly.
 Great phone service & a head start...
 BitLink, it''s a no brainer!
 Reply STOP to opt out.'
