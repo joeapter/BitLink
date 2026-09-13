@@ -70,3 +70,19 @@ verify_enabled = false
 otp_length = 6
 template = "Your code is {{ .Code }}"
 max_frequency = "5s"
+
+# Local development only — the hosted project is unaffected by this block.
+# BitLink does not use Supabase Storage (no `supabase.storage` call anywhere in
+# src/), and CLI 2.117.0 ships a storage-api image tag that no longer resolves
+# in any registry, which fails `supabase start` before the database is usable.
+# Turning the service off locally lets the local stack come up for migration
+# testing without pulling an image the project has no use for.
+[storage]
+enabled = false
+
+# Also local-only. The analytics (Logflare) and vector containers are log
+# plumbing for the local Studio UI; they report unhealthy on this machine and
+# take the whole stack down with them on `supabase start`, including a database
+# that had already migrated successfully. Nothing in BitLink reads them.
+[analytics]
+enabled = false
