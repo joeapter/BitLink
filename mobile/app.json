@@ -40,12 +40,15 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-router"
+      "expo-router",
+      "expo-secure-store"
     ],
     "extra": {
       "eas": {
         "projectId": "00d338aa-3fb1-4c3f-8fcf-ce1a4cdd2b1b"
-      }
+      },
+      "supabaseUrl": "https://purdnlvalgefiurfesot.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1cmRubHZhbGdlZml1cmZlc290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NTg4NTMsImV4cCI6MjA5NTEzNDg1M30.DserbIfgf1xX4fIHjArrweX_eglIAluYoZXm_P7CsEA"
     },
     "owner": "joe613",
     "runtimeVersion": {

@@ -1,8 +1,14 @@
 import { Platform } from "react-native";
-import { Tabs } from "expo-router";
+// Importing Tabs from the package root is deprecated in SDK 57; the navigator
+// now lives at expo-router/js-tabs.
+import { Tabs } from "expo-router/js-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { colors } from "../../lib/theme";
 
-const ICONS: Record<string, { focused: keyof typeof Ionicons.glyphMap; unfocused: keyof typeof Ionicons.glyphMap }> = {
+const ICONS: Record<
+  string,
+  { focused: keyof typeof Ionicons.glyphMap; unfocused: keyof typeof Ionicons.glyphMap }
+> = {
   plans: { focused: "pricetags", unfocused: "pricetags-outline" },
   index: { focused: "person-circle", unfocused: "person-circle-outline" },
   settings: { focused: "settings", unfocused: "settings-outline" },
@@ -13,18 +19,21 @@ export default function TabsLayout() {
     <Tabs
       initialRouteName="index"
       screenOptions={({ route }) => ({
+        // Every screen draws its own title inside its scroll view, so there is
+        // no navigation header anywhere in the app.
         headerShown: false,
-        tabBarActiveTintColor: "#0FC2C2",
-        tabBarInactiveTintColor: "#7A8688",
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.inactive,
         tabBarStyle: {
-          backgroundColor: "#0B0D0E",
-          borderTopColor: "#1C1F20",
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           height: Platform.OS === "ios" ? 88 : 64,
           paddingTop: 8,
         },
         tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
         tabBarIcon: ({ focused, color, size }) => {
           const set = ICONS[route.name];
+          if (!set) return null;
           return <Ionicons name={focused ? set.focused : set.unfocused} size={size} color={color} />;
         },
       })}
