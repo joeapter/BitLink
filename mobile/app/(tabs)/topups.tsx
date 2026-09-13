@@ -24,6 +24,8 @@ import {
 import { buyTopup, findTopup, topupsForLine, type NativeTopUp } from "../../lib/topups";
 import { SignInForm } from "../../components/SignInForm";
 import { BrandHeader, useScreenTopPadding } from "../../components/BrandHeader";
+import { UsageMeters } from "../../components/UsageMeters";
+import { TopupSheet } from "../../components/TopupSheet";
 
 export default function TopupsTab() {
   const topPadding = useScreenTopPadding();
@@ -35,7 +37,13 @@ export default function TopupsTab() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [pendingId, setPendingId] = useState<string | null>(null);
+
+  // Bumped after a successful purchase so the meters re-read and the customer
+  // watches the data they just bought actually appear.
+  const [meterKey, setMeterKey] = useState(0);
+
+  const [pending, setPending] = useState<{ line: AccountLine; topup: NativeTopUp } | null>(null);
+  const [buying, setBuying] = useState(false);
 
   const load = useCallback(
     async (mode: "initial" | "refresh") => {
@@ -45,9 +53,8 @@ export default function TopupsTab() {
       setError(null);
       try {
         const account = await fetchAccount(userId);
-        // Only active lines can take a top-up — grantTopup rejects anything
-        // else, so offering one on a paused or ended line would be a button
-        // that always fails.
+        // Only an active line can take a top-up — grantTopup rejects anything
+        // else, so offering one elsewhere is a button that always fails.
         const active = account.lines.filter((line) => line.status === "active");
         setLines(active);
         setGrants(await fetchActiveGrants(active.map((line) => line.id)));
@@ -69,55 +76,38 @@ export default function TopupsTab() {
     }
   }, [userId, load]);
 
-  // Real money, one tap away — so it always asks first, and `pendingId` keeps
-  // a double tap from becoming a double charge (the purchase itself is not
-  // idempotent: each call writes a new grant and bills the card).
-  const buy = useCallback(
-    (line: AccountLine, topup: NativeTopUp) => {
-      if (pendingId) return;
+  const confirmPurchase = useCallback(async () => {
+    if (!pending || buying) return;
+    setBuying(true);
+    try {
+      const message = await buyTopup(pending.line.id, pending.topup.id);
+      setPending(null);
+      await load("refresh");
+      setMeterKey((key) => key + 1);
+      Alert.alert("Top-up added", `${message}\n\nYour new balance is shown on this screen.`);
+    } catch (e) {
+      setPending(null);
+      // The usual cause is no usable card on file — the charge is an immediate
+      // Stripe invoice against the saved payment method — so offer the fix
+      // rather than just reporting the failure.
       Alert.alert(
-        `Buy ${topup.name}?`,
-        `${topup.price} will be charged to your card on file and added to ${
-          formatPhone(line.metadata.phone_number) ?? "your line"
-        }.`,
+        "Top-up failed",
+        e instanceof Error ? e.message : "Please try again, or message us on WhatsApp.",
         [
-          { text: "Cancel", style: "cancel" },
+          { text: "OK", style: "cancel" },
           {
-            text: `Buy ${topup.price}`,
-            onPress: async () => {
-              setPendingId(topup.id);
-              try {
-                const message = await buyTopup(line.id, topup.id);
-                Alert.alert("Top-up added", message);
-                await load("refresh");
-              } catch (e) {
-                // The usual cause is no usable card on file — the charge is an
-                // immediate Stripe invoice against the saved payment method —
-                // so offer the way to fix it rather than just reporting it.
-                Alert.alert(
-                  "Top-up failed",
-                  e instanceof Error ? e.message : "Please try again, or message us on WhatsApp.",
-                  [
-                    { text: "OK", style: "cancel" },
-                    {
-                      text: "Check payment method",
-                      onPress: () => {
-                        const url = `${SITE_URL}/account/billing`;
-                        WebBrowser.openBrowserAsync(url).catch(() => Linking.openURL(url));
-                      },
-                    },
-                  ],
-                );
-              } finally {
-                setPendingId(null);
-              }
+            text: "Check payment method",
+            onPress: () => {
+              const url = `${SITE_URL}/account/billing`;
+              WebBrowser.openBrowserAsync(url).catch(() => Linking.openURL(url));
             },
           },
         ],
       );
-    },
-    [pendingId, load],
-  );
+    } finally {
+      setBuying(false);
+    }
+  }, [pending, buying, load]);
 
   if (sessionLoading) {
     return (
@@ -136,122 +126,124 @@ export default function TopupsTab() {
         automaticallyAdjustKeyboardInsets
       >
         <BrandHeader />
-      <Text style={styles.title}>Top-ups</Text>
+        <Text style={styles.title}>Top-ups</Text>
         <SignInForm intro="Sign in to add data or minutes to your line." />
       </ScrollView>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingTop: topPadding }]}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={() => load("refresh")}
-          tintColor={colors.accent}
-        />
-      }
-    >
-      <BrandHeader />
-      <Text style={styles.title}>Top-ups</Text>
-      <Text style={styles.subtitle}>Add data or minutes. Valid 30 days.</Text>
+    <>
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={[styles.content, { paddingTop: topPadding }]}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => load("refresh")}
+            tintColor={colors.accent}
+          />
+        }
+      >
+        <BrandHeader />
+        <Text style={styles.title}>Top-ups</Text>
+        <Text style={styles.subtitle}>Add data or minutes. Valid 30 days.</Text>
 
-      {loading && lines.length === 0 ? (
-        <View style={styles.centrePad}>
-          <ActivityIndicator size="large" color={colors.accent} />
-        </View>
-      ) : null}
-
-      {error ? (
-        <View style={styles.errorCard}>
-          <Text style={styles.errorText}>{error}</Text>
-          <Text style={styles.errorHint}>Pull down to try again.</Text>
-        </View>
-      ) : null}
-
-      {!loading && !error && lines.length === 0 ? (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>No active line</Text>
-          <Text style={styles.cardBody}>
-            Top-ups attach to an active BitLink line. Once your line is running you can add data or
-            minutes here any time.
-          </Text>
-        </View>
-      ) : null}
-
-      {lines.map((line) => {
-        const options = topupsForLine(line.isKosher);
-        const lineGrants = grants.filter((g) => g.lineId === line.id);
-        return (
-          <View key={line.id} style={styles.lineBlock}>
-            <Text style={styles.lineHeading}>
-              {formatPhone(line.metadata.phone_number) ?? "Your line"}
-            </Text>
-
-            {lineGrants.length > 0 ? (
-              <View style={styles.activeWrap}>
-                {lineGrants.map((grant) => {
-                  const topup = findTopup(grant.topupId);
-                  return (
-                    <View key={grant.id} style={styles.activeChip}>
-                      <Ionicons name="checkmark-circle" size={14} color={colors.green} />
-                      <Text style={styles.activeChipText}>
-                        {topup?.name ?? grant.topupId}
-                        {grant.frequency === "monthly" ? " · monthly" : ""}
-                      </Text>
-                    </View>
-                  );
-                })}
-              </View>
-            ) : null}
-
-            {options.map((topup) => (
-              <Pressable
-                key={topup.id}
-                onPress={() => buy(line, topup)}
-                disabled={pendingId !== null}
-                style={({ pressed }) => [
-                  styles.topupRow,
-                  (pressed || pendingId !== null) && styles.pressed,
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel={`Buy ${topup.name} for ${topup.price}`}
-              >
-                <View style={styles.topupText}>
-                  <View style={styles.topupNameRow}>
-                    <Text style={styles.topupName}>{topup.name}</Text>
-                    {topup.badge ? (
-                      <View style={styles.badge}>
-                        <Text style={styles.badgeText}>{topup.badge}</Text>
-                      </View>
-                    ) : null}
-                  </View>
-                  <Text style={styles.topupDesc}>{topup.description}</Text>
-                </View>
-                <View style={styles.priceBlock}>
-                  {pendingId === topup.id ? (
-                    <ActivityIndicator color={colors.accent} />
-                  ) : (
-                    <>
-                      <Text style={styles.topupPrice}>{topup.price}</Text>
-                      <Ionicons name="chevron-forward" size={16} color={colors.inactive} />
-                    </>
-                  )}
-                </View>
-              </Pressable>
-            ))}
+        {loading && lines.length === 0 ? (
+          <View style={styles.centrePad}>
+            <ActivityIndicator size="large" color={colors.accent} />
           </View>
-        );
-      })}
+        ) : null}
 
-      {lines.length > 0 ? (
-        <Text style={styles.footnote}>
-          Top-ups are charged to your card on file and are live within minutes.
-        </Text>
-      ) : null}
-    </ScrollView>
+        {error ? (
+          <View style={styles.errorCard}>
+            <Text style={styles.errorText}>{error}</Text>
+            <Text style={styles.errorHint}>Pull down to try again.</Text>
+          </View>
+        ) : null}
+
+        {!loading && !error && lines.length === 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>No active line</Text>
+            <Text style={styles.cardBody}>
+              Top-ups attach to an active BitLink line. Once your line is running you can add data
+              or minutes here any time.
+            </Text>
+          </View>
+        ) : null}
+
+        {lines.map((line) => {
+          const options = topupsForLine(line.isKosher);
+          const lineGrants = grants.filter((g) => g.lineId === line.id);
+          return (
+            <View key={line.id} style={styles.lineBlock}>
+              <Text style={styles.lineHeading}>
+                {formatPhone(line.metadata.phone_number) ?? "Your line"}
+              </Text>
+
+              {/* What you have now, above what you can add — so the decision to
+                  top up is made against a real number rather than a guess. */}
+              <View style={styles.meterCard}>
+                <UsageMeters lineId={line.id} refreshKey={meterKey} />
+              </View>
+
+              {lineGrants.length > 0 ? (
+                <View style={styles.activeWrap}>
+                  {lineGrants.map((grant) => {
+                    const topup = findTopup(grant.topupId);
+                    return (
+                      <View key={grant.id} style={styles.activeChip}>
+                        <Ionicons name="checkmark-circle" size={14} color={colors.green} />
+                        <Text style={styles.activeChipText}>
+                          {topup?.name ?? grant.topupId}
+                          {grant.frequency === "monthly" ? " · monthly" : ""}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              ) : null}
+
+              {options.map((topup) => (
+                <Pressable
+                  key={topup.id}
+                  onPress={() => setPending({ line, topup })}
+                  style={({ pressed }) => [styles.topupRow, pressed && styles.pressed]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Buy ${topup.name} for ${topup.price}`}
+                >
+                  <View style={styles.topupText}>
+                    <View style={styles.topupNameRow}>
+                      <Text style={styles.topupName}>{topup.name}</Text>
+                      {topup.badge ? (
+                        <View style={styles.badge}>
+                          <Text style={styles.badgeText}>{topup.badge}</Text>
+                        </View>
+                      ) : null}
+                    </View>
+                    <Text style={styles.topupDesc}>{topup.description}</Text>
+                  </View>
+                  <View style={styles.priceBlock}>
+                    <Text style={styles.topupPrice}>{topup.price}</Text>
+                    <Ionicons name="chevron-forward" size={16} color={colors.inactive} />
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          );
+        })}
+      </ScrollView>
+
+      <TopupSheet
+        visible={pending !== null}
+        topup={pending?.topup ?? null}
+        lineId={pending?.line.id ?? null}
+        linePhone={pending ? formatPhone(pending.line.metadata.phone_number) : null}
+        busy={buying}
+        onCancel={() => setPending(null)}
+        onConfirm={confirmPurchase}
+      />
+    </>
   );
 }
 
@@ -275,6 +267,16 @@ const styles = StyleSheet.create({
 
   lineBlock: { gap: 8 },
   lineHeading: { fontSize: 15, fontWeight: "700", color: colors.ink, marginTop: 4 },
+
+  meterCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 18,
+    paddingTop: 4,
+    paddingBottom: 18,
+  },
 
   activeWrap: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 2 },
   activeChip: {
@@ -313,8 +315,6 @@ const styles = StyleSheet.create({
   badgeText: { fontSize: 10, fontWeight: "700", color: colors.accent },
   priceBlock: { flexDirection: "row", alignItems: "center", gap: 2 },
   topupPrice: { fontSize: 16, fontWeight: "700", color: colors.ink },
-
-  footnote: { fontSize: 12, lineHeight: 18, color: colors.muted, textAlign: "center", marginTop: 4 },
 
   errorCard: { backgroundColor: "#FDECEA", borderRadius: 18, padding: 16 },
   errorText: { color: "#C0392B", fontSize: 14, fontWeight: "600" },
