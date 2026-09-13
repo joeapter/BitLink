@@ -3,14 +3,19 @@ import { SITE_URL } from "./theme";
 
 // Top-up catalogue for the native Top-ups tab.
 //
-// Mirrors the customer-facing entries in src/lib/topups.ts. Only the ones a
-// customer can buy themselves are here — "usa-ca-120min-standard" is
-// admin-only (reachable through a custom order, not the self-serve picker),
-// so listing it would offer something the buy flow rejects.
+// Mirrors src/lib/topups.ts exactly, including both variants of the USA/CA
+// minutes bundle. They are the same Annatel plan; Annatel's catalogue just
+// labels one "kosher", and the web keeps them as separate entries so anything
+// filtering on forKosher can never mix them up.
 //
-// forKosher mirrors the web exactly: grantTopup enforces
-// topup.forKosher === line.is_kosher, so the tab must filter by the line's own
-// kosher flag or it would offer a top-up that fails at purchase.
+// forKosher must mirror the web exactly, because getTopUpsForPlan() shows a
+// line only the entries where forKosher === line.is_kosher, and grantTopup()
+// rejects a mismatch outright. Get it wrong in either direction and the app
+// either hides a bundle the customer can buy or offers one that always fails.
+//
+// (A comment in src/lib/topups.ts calls usa-ca-120min-standard admin-only.
+// That is stale: getTopUpsForPlan(false) returns it and TopupCard renders it,
+// so non-kosher customers can and do buy it self-serve on the website.)
 
 export type NativeTopUp = {
   id: string;
@@ -57,6 +62,15 @@ export const topups: NativeTopUp[] = [
     description: "Calling to US and Canadian numbers, valid 30 days.",
     price: "$14.99",
     forKosher: true,
+  },
+  {
+    // Same bundle and same price for a non-kosher line; a separate id because
+    // the carrier catalogue separates them.
+    id: "usa-ca-120min-standard",
+    name: "+120 Min USA/CA",
+    description: "Calling to US and Canadian numbers, valid 30 days.",
+    price: "$14.99",
+    forKosher: false,
   },
   {
     id: "local-1000min",

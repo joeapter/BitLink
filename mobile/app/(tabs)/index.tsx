@@ -18,6 +18,7 @@ import { findPlanBySlug } from "../../lib/plans";
 import { SignInForm } from "../../components/SignInForm";
 import { BrandHeader, useScreenTopPadding } from "../../components/BrandHeader";
 import { UsageMeters } from "../../components/UsageMeters";
+import { ReferralCard } from "../../components/ReferralCard";
 
 export default function AccountTab() {
   const topPadding = useScreenTopPadding();
@@ -218,15 +219,7 @@ export default function AccountTab() {
         </Pressable>
       ) : null}
 
-      {data?.referralCode ? (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Your referral code</Text>
-          <Text style={styles.referral}>{data.referralCode}</Text>
-          <Text style={styles.cardBody}>
-            Friends who sign up with your code get bonus data, and so do you.
-          </Text>
-        </View>
-      ) : null}
+      {data?.referralCode ? <ReferralCard code={data.referralCode} /> : null}
     </ScrollView>
   );
 }
@@ -313,14 +306,6 @@ const styles = StyleSheet.create({
   },
   addLineText: { fontSize: 15, fontWeight: "700", color: colors.ink },
   pressed: { opacity: 0.7 },
-
-  referral: {
-    marginTop: 8,
-    fontSize: 22,
-    fontWeight: "800",
-    color: colors.accent,
-    letterSpacing: 1,
-  },
 
   errorCard: { backgroundColor: "#FDECEA", borderRadius: 18, padding: 16 },
   errorText: { color: "#C0392B", fontSize: 14, fontWeight: "600" },
