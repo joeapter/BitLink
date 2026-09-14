@@ -800,7 +800,7 @@ export const landingPages = {
     slug: "/us-number-in-israel",
     metaTitle: "US Number in Israel — $9.99/mo Add-On",
     metaDescription:
-      "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family dials a local number, your phone rings in Israel — and on standard plans, US bank & verification texts arrive too.",
+      "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family dials a local number, your phone rings in Israel — and on standard plans it receives US verification texts from banks, tax software, and the IRS.",
     eyebrow: "US / Canada / UK number",
     h1: "A US number that rings — and texts — in Israel.",
     intro:
@@ -897,6 +897,11 @@ export const landingPages = {
         question: "Will I get bank verification texts on the US number?",
         answer:
           "Yes — the add-on number receives US text messages, including the verification codes banks and services send. This has been tested with real Chase Mobile and Google verification codes arriving on a BitLink US number in Israel. That matters because many VoIP and forwarding services fail exactly here: financial institutions often refuse to text them, which is how people get locked out of accounts after a move. As with any number change, test your most important logins before retiring the old line. (One exception by design: kosher lines are voice-only, so texts to the add-on don't apply there.)",
+      },
+      {
+        question: "Can I use a US number in Israel for IRS and tax verification?",
+        answer:
+          "For the text-message codes, yes. Tax software, payroll portals, and financial institutions send verification codes by SMS, and a BitLink US number receives them in Israel — the same path tested with real Chase Mobile codes. It is a genuine US mobile number from a carrier, not a forwarding service or a web app that relays texts, which is the distinction that matters: services that reject VoIP numbers are rejecting exactly that second category. One honest caveat worth planning around — identity-proofing systems like ID.me go further than a plain SMS code and check the number against US carrier records tied to your name, which is a stricter test than receiving a text. Set the number up and verify your important logins before you need them under deadline, not the week taxes are due, and keep a fallback method on file wherever the service allows one.",
       },
       {
         question: "Does the add-on work with kosher plans?",
