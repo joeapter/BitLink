@@ -13,7 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import { supabase } from "../../lib/supabase";
 import { useSession } from "../../lib/auth";
-import { colors, contact } from "../../lib/theme";
+import { colors, contact, SITE_URL } from "../../lib/theme";
 import { SignInForm } from "../../components/SignInForm";
 import { BrandHeader, useScreenTopPadding } from "../../components/BrandHeader";
 
@@ -58,7 +58,15 @@ export default function SettingsTab() {
   const sendPasswordReset = useCallback(async () => {
     if (!email) return;
     setBusy(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    // Must match what the website sends (lib/auth/actions.ts). Without a
+    // redirectTo, Supabase falls back to the project's default Site URL and
+    // the emailed link lands somewhere that cannot complete the reset. The
+    // new password is set on bitlink.co.il, which already has that screen —
+    // duplicating it in the app would mean a second place to get password
+    // rules wrong.
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${SITE_URL}/auth/callback?next=/reset-password`,
+    });
     setBusy(false);
     Alert.alert(
       error ? "Couldn't send the email" : "Check your inbox",

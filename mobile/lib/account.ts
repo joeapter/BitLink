@@ -13,7 +13,18 @@ export type LineMetadata = {
   phone_number?: string;
   is_esim?: boolean;
   is_trial?: boolean;
-  intl_number?: string;
+  /**
+   * A US/Canada/UK second number. An OBJECT, not a string — rendering it
+   * directly crashed the account screen with "Objects are not valid as a
+   * React child" on every line that had one. `number` is absent while the
+   * number is still being requested, which is the state one production line
+   * is in right now, so it must be treated as optional.
+   */
+  intl_number?: {
+    number?: string;
+    country?: string;
+    status?: string;
+  };
   esim_activation_code?: string;
   esim_icc_id?: string;
   esim_sm_dp_plus?: string;
@@ -93,6 +104,15 @@ export function formatPhone(raw?: string): string | null {
     return `0${local.slice(0, 2)}-${local.slice(2, 5)}-${local.slice(5)}`;
   }
   return raw;
+}
+
+/** The display value for a second number, or null when there is none. */
+export function intlNumberLabel(intl: LineMetadata["intl_number"]): string | null {
+  if (!intl) return null;
+  if (intl.number) return intl.number;
+  // Requested but not yet assigned — say so rather than showing a blank row.
+  const country = intl.country ? intl.country.toUpperCase() : null;
+  return country ? `${country} number pending` : "Pending";
 }
 
 const STATUS_LABELS: Record<string, string> = {

@@ -13,7 +13,13 @@ import { Ionicons } from "@expo/vector-icons";
 import * as WebBrowser from "expo-web-browser";
 import { colors, SITE_URL } from "../../lib/theme";
 import { useSession } from "../../lib/auth";
-import { fetchAccount, formatPhone, statusLabel, type AccountSnapshot } from "../../lib/account";
+import {
+  fetchAccount,
+  formatPhone,
+  intlNumberLabel,
+  statusLabel,
+  type AccountSnapshot,
+} from "../../lib/account";
 import { findPlanBySlug } from "../../lib/plans";
 import { SignInForm } from "../../components/SignInForm";
 import { BrandHeader, useScreenTopPadding } from "../../components/BrandHeader";
@@ -185,11 +191,11 @@ export default function AccountTab() {
 
             {open ? (
               <View style={styles.detailRows}>
-                {line.metadata.intl_number ? (
+                {intlNumberLabel(line.metadata.intl_number) ? (
                   <Row
                     icon="globe-outline"
                     label="Second number"
-                    value={line.metadata.intl_number}
+                    value={intlNumberLabel(line.metadata.intl_number)!}
                   />
                 ) : null}
                 <Row
@@ -246,13 +252,25 @@ function Row({
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
-  value: string;
+  value: unknown;
 }) {
+  // Belt and braces after intl_number turned out to be an object: metadata is
+  // free-form JSON written by several different code paths, so a value that
+  // isn't a string must degrade to something readable rather than crash the
+  // whole account screen.
+  const text =
+    typeof value === "string"
+      ? value
+      : typeof value === "number" || typeof value === "boolean"
+        ? String(value)
+        : null;
+  if (!text) return null;
+
   return (
     <View style={styles.row}>
       <Ionicons name={icon} size={16} color={colors.muted} />
       <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowValue}>{value}</Text>
+      <Text style={styles.rowValue}>{text}</Text>
     </View>
   );
 }
