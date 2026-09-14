@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BitLink</title>
+</head>
+<body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">One tap to confirm your email and finish setting up your BitLink account.</div>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+
+        <!-- Logo / header -->
+        <tr><td style="padding-bottom:24px;text-align:center;">
+          <a href="https://bitlink.co.il" style="text-decoration:none;">
+            <img src="https://bitlink.co.il/assets/logo-email.png" alt="BitLink" width="160" height="53" style="display:inline-block;width:160px;height:53px;" />
+          </a>
+        </td></tr>
+
+        <!-- Card -->
+        <tr><td style="background:#ffffff;border-radius:20px;padding:40px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+          <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:#050606;line-height:1.2;">Confirm your email</h1>
+          <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#475569;">Thanks for creating a BitLink account. Confirm this address and your account is ready to use.</p>
+          <div style="text-align:center;margin:28px 0;">
+            <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=signup&amp;next=/account" style="display:inline-block;background:#00A3A3;color:#ffffff;font-weight:700;font-size:15px;padding:14px 28px;border-radius:100px;text-decoration:none;">Confirm my email</a>
+          </div>
+          <p style="margin:0 0 16px;font-size:13px;line-height:1.5;color:#94a3b8;">
+            Button not working? Copy and paste this link into your browser:<br/>
+            <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=signup&amp;next=/account" style="color:#00A3A3;text-decoration:none;word-break:break-all;">{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=signup&amp;next=/account</a>
+          </p>
+          <p style="margin:24px 0 0;padding-top:20px;border-top:1px solid #e2e8f0;font-size:13px;line-height:1.6;color:#94a3b8;">
+            This link expires in 1 hour and can only be used once. If you didn’t create a BitLink account, you can safely ignore this email.
+          </p>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding-top:24px;text-align:center;font-size:12px;color:#94a3b8;">
+          BitLink &middot; Business ID 341280188 &middot; HaRashar Hirsch 4/1, Israel<br/>
+          <a href="https://bitlink.co.il" style="color:#00A3A3;text-decoration:none;">bitlink.co.il</a>
+          &nbsp;&middot;&nbsp;
+          <a href="mailto:support@bitlink.co.il" style="color:#00A3A3;text-decoration:none;">support@bitlink.co.il</a>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
