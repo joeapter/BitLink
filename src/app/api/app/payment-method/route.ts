@@ -1,7 +1,10 @@
 import type { NextRequest } from 'next/server';
-import type Stripe from 'stripe';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getStripeClient } from '@/lib/stripe/client';
+import {
+  describePaymentMethod,
+  resolveChargeablePaymentMethod,
+} from '@/lib/stripe/payment-method';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
@@ -23,36 +26,6 @@ export const runtime = 'nodejs';
 // customers.
 
 const log = logger.child({ route: 'api/app/payment-method' });
-
-type CardSummary = { brand: string; last4: string; expMonth: number | null; expYear: number | null };
-
-function cardFrom(source: Stripe.PaymentMethod | Stripe.CustomerSource | null): CardSummary | null {
-  if (!source || typeof source === 'string') return null;
-
-  if ('type' in source && source.type === 'card' && source.card) {
-    // brand/last4 are optional in the Stripe types; without them there is
-    // nothing worth showing, so fall through rather than render "undefined".
-    if (!source.card.brand || !source.card.last4) return null;
-    return {
-      brand: source.card.brand,
-      last4: source.card.last4,
-      expMonth: source.card.exp_month ?? null,
-      expYear: source.card.exp_year ?? null,
-    };
-  }
-  // Legacy card sources still bill fine, so they must still be displayable.
-  if ('object' in source && source.object === 'card') {
-    const card = source as Stripe.Card;
-    if (!card.brand || !card.last4) return null;
-    return {
-      brand: card.brand,
-      last4: card.last4,
-      expMonth: card.exp_month ?? null,
-      expYear: card.exp_year ?? null,
-    };
-  }
-  return null;
-}
 
 export async function GET(request: NextRequest): Promise<Response> {
   const admin = createSupabaseAdminClient();
@@ -102,7 +75,7 @@ export async function GET(request: NextRequest): Promise<Response> {
 
   const { data: subscriber } = await admin
     .from('subscribers')
-    .select('stripe_customer_id')
+    .select('stripe_customer_id, stripe_subscription_id')
     .eq('telecom_line_id', lineId)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -117,28 +90,23 @@ export async function GET(request: NextRequest): Promise<Response> {
 
   try {
     const stripe = getStripeClient();
-    const stripeCustomer = await stripe.customers.retrieve(stripeCustomerId, {
-      expand: ['invoice_settings.default_payment_method', 'default_source'],
+    // The same resolution grantTopup uses, so this can never name a different
+    // card than the one actually billed. Most customers' cards sit on the
+    // subscription rather than the customer.
+    const resolved = await resolveChargeablePaymentMethod(stripe, {
+      stripeCustomerId,
+      stripeSubscriptionId: subscriber?.stripe_subscription_id as string | null | undefined,
     });
+    if (!resolved) return Response.json({ card: null });
 
-    if (stripeCustomer.deleted) {
-      return Response.json({ card: null });
-    }
-
-    const card =
-      cardFrom(
-        (stripeCustomer.invoice_settings?.default_payment_method as Stripe.PaymentMethod | null) ??
-          null,
-      ) ?? cardFrom((stripeCustomer.default_source as Stripe.CustomerSource | null) ?? null);
-
-    return Response.json({ card });
+    return Response.json({ card: await describePaymentMethod(stripe, resolved.id) });
   } catch (error) {
     log.warn(
       { userId: user.id, lineId, error: error instanceof Error ? error.message : String(error) },
       'Could not read payment method',
     );
-    // Not fatal: the sheet simply shows no card rather than blocking a purchase
-    // that might still succeed.
+    // Not fatal: the sheet simply shows no card rather than blocking a
+    // purchase that might still succeed.
     return Response.json({ card: null });
   }
 }

@@ -4,6 +4,7 @@ import { getStripe } from '@/lib/stripe/server';
 import { getTelecomProvider } from '@/lib/telecom/provider.registry';
 import { withProviderContext } from '@/lib/telecom/provider-context';
 import { topups, type TopUpId } from '@/lib/topups';
+import { resolveChargeablePaymentMethod } from '@/lib/stripe/payment-method';
 import { sendEmail } from '@/lib/email/send';
 import { buildFreeTopupGiftEmail } from '@/lib/email/templates';
 import { logger } from '@/lib/logger';
@@ -48,12 +49,27 @@ async function getSubscriberForLine(admin: SupabaseClient, lineId: string) {
 }
 
 // Charges a one-time amount right now (not on the next scheduled renewal) by
-// creating an ad-hoc invoice for just this item and paying it immediately
-// against the customer's saved payment method.
+// creating an ad-hoc invoice for just this item and paying it immediately.
+//
+// The payment method is resolved and set on the invoice explicitly. It used to
+// rely on Stripe's implicit fallback (customer default -> default_source),
+// which fails for almost every BitLink customer: Checkout attaches the card to
+// the subscription and leaves the customer with no default at all — 11 of 12
+// active-line customers sampled in production. Monthly billing still worked,
+// because that invoice belongs to the subscription; only ad-hoc topup invoices
+// had nothing to charge.
 async function chargeOneTimeInvoice(
   stripe: Stripe,
   params: { stripeCustomerId: string; stripeSubscriptionId: string | null; productId: string; unitAmount: number; description: string },
 ): Promise<void> {
+  const paymentMethod = await resolveChargeablePaymentMethod(stripe, {
+    stripeCustomerId: params.stripeCustomerId,
+    stripeSubscriptionId: params.stripeSubscriptionId,
+  });
+  if (!paymentMethod) {
+    throw new Error('No usable payment method is on file for this customer.');
+  }
+
   await stripe.invoiceItems.create({
     customer: params.stripeCustomerId,
     price_data: {
@@ -68,6 +84,11 @@ async function chargeOneTimeInvoice(
     customer: params.stripeCustomerId,
     auto_advance: true,
     collection_method: 'charge_automatically',
+    // Only a PaymentMethod can be named here; a legacy source stays on the
+    // customer and Stripe's own fallback picks it up.
+    ...(paymentMethod.source === 'customer_source'
+      ? {}
+      : { default_payment_method: paymentMethod.id }),
   });
   await stripe.invoices.finalizeInvoice(invoice.id!);
   await stripe.invoices.pay(invoice.id!);

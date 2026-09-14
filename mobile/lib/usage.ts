@@ -25,10 +25,10 @@ export type UsageResult = {
 };
 
 export type CardSummary = {
-  brand: string;
-  last4: string;
-  expMonth: number | null;
-  expYear: number | null;
+  /** Display-ready, built server-side: "Visa ···· 4242", "Link · x@y.com". */
+  label: string;
+  brand: string | null;
+  last4: string | null;
 };
 
 async function authedGet<T>(path: string): Promise<T> {
@@ -72,6 +72,8 @@ export function meterLabel(kind: MeterKind): string {
 }
 
 export function cardLabel(card: CardSummary): string {
-  const brand = card.brand.charAt(0).toUpperCase() + card.brand.slice(1);
-  return `${brand} ···· ${card.last4}`;
+  // The server formats this: not every payment method is a card with a brand
+  // and last4 — Stripe Link has neither, and formatting it here as though it
+  // did is what made a paying customer see "no card on file".
+  return card.label;
 }

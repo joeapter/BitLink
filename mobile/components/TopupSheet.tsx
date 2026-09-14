@@ -104,7 +104,7 @@ export function TopupSheet({
             <Pressable onPress={openBilling} style={styles.warnRow} accessibilityRole="button">
               <Ionicons name="alert-circle-outline" size={18} color="#C0392B" />
               <Text style={styles.warnText}>
-                No card on file — tap to add one before buying.
+                No payment method on file — tap to add one before buying.
               </Text>
             </Pressable>
           )}
@@ -129,7 +129,7 @@ export function TopupSheet({
         </Pressable>
 
         <Text style={styles.footnote}>
-          Charged to your card on file. Valid 30 days. Live within minutes.
+          Charged to your payment method on file. Valid 30 days. Live within minutes.
         </Text>
       </View>
     </Modal>
