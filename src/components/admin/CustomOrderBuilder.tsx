@@ -76,6 +76,58 @@ function newLine(): BuilderLine {
   };
 }
 
+// Bundles sold often enough that rebuilding them by hand is a source of
+// pricing drift. The monthly figure is ONE combined price for the plan plus
+// the international number (see INTL_ADDON_CENTS below), not two line items,
+// so it is written here as the final total the customer pays.
+//
+// The international-number bundle exists because idle DIDs cost money whether
+// they are sold or not: 69 were sitting unassigned in September 2026 (22 US,
+// 23 UK, 24 Canada) at roughly 6₪ each per month. Selling one converts that
+// standing cost into ~87% margin, which is why it is priced well under the
+// à-la-carte $14.99 + $9.99.
+type OrderPreset = {
+  id: string;
+  label: string;
+  summary: string;
+  apply: (line: BuilderLine) => BuilderLine;
+};
+
+function intlBundle(country: IntlCountry): (line: BuilderLine) => BuilderLine {
+  return (line) => ({
+    ...line,
+    planSlug: "basic",
+    wantsIntlNumber: true,
+    intlCountry: country,
+    intlSource: "new",
+    // $8 plan + $9.99 number, billed as one price.
+    customPrice: "17.99",
+    // Waived — the whole point of the offer.
+    activationFee: "0.00",
+  });
+}
+
+const ORDER_PRESETS: OrderPreset[] = [
+  {
+    id: "us-number-bundle",
+    label: "US number bundle",
+    summary: "Basic $8 + US number $9.99 · activation waived",
+    apply: intlBundle("us"),
+  },
+  {
+    id: "uk-number-bundle",
+    label: "UK number bundle",
+    summary: "Basic $8 + UK number $9.99 · activation waived",
+    apply: intlBundle("uk"),
+  },
+  {
+    id: "canada-number-bundle",
+    label: "Canada number bundle",
+    summary: "Basic $8 + Canadian number $9.99 · activation waived",
+    apply: intlBundle("canada"),
+  },
+];
+
 function newTopup(): BuilderTopup {
   const first = topupCatalog[0];
   return { id: crypto.randomUUID(), topupId: first.id, customPrice: (first.priceCents / 100).toFixed(2) };
@@ -706,7 +758,27 @@ export function CustomOrderBuilder({
           </div>
         ) : null}
 
-        <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="mt-6 rounded-2xl border border-ink/10 bg-slate-50 p-4">
+          <p className="text-sm font-semibold text-ink">Quick add</p>
+          <p className="mt-1 text-xs text-muted-slate">
+            Adds a line already priced. Everything stays editable afterwards.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {ORDER_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => setLines((current) => [...current, preset.apply(newLine())])}
+                className="rounded-xl border border-ink/15 bg-white px-3 py-2 text-left transition hover:border-link-blue/40"
+              >
+                <span className="block text-xs font-semibold text-ink">{preset.label}</span>
+                <span className="block text-[0.7rem] text-muted-slate">{preset.summary}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <Button type="button" variant="secondary" onClick={() => setLines((current) => [...current, newLine()])}>
             <Plus className="h-4 w-4" aria-hidden="true" />
             Add another line
