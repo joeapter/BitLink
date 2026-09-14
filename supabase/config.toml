@@ -111,11 +111,23 @@ enable_confirmations = false
 template = "Your code is {{ .Code }}"
 max_frequency = "5s"
 
-[auth.sms.twilio]
-enabled = false
-account_sid = ""
-message_service_sid = ""
-auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
+# NOT DECLARED ON PURPOSE — do not uncomment without checking the live project.
+#
+# These were `supabase init` boilerplate (note the empty account_sid: Twilio has
+# never been configured from this file), but the hosted project has Twilio
+# ENABLED. Because `supabase config push` writes every property the file
+# declares and leaves undeclared ones alone, restoring this block would turn
+# production SMS off as a side effect of an unrelated push. Caught by
+# `supabase config diff` in Sep 2026 while pushing the auth email templates.
+#
+# Supabase SMS is managed in the dashboard, not here. If that should change,
+# reconcile against `supabase config diff` first.
+#
+# [auth.sms.twilio]
+# enabled = false
+# account_sid = ""
+# message_service_sid = ""
+# auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
 
 [auth.mfa]
 max_enrolled_factors = 10
