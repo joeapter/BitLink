@@ -13,7 +13,10 @@
       "ios": {
         "simulator": false
       },
-      "channel": "preview"
+      "channel": "preview",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
       "autoIncrement": true,
@@ -27,6 +30,10 @@
     "production": {
       "ios": {
         "ascAppId": "6810954018"
+      },
+      "android": {
+        "serviceAccountKeyPath": "/Users/joeapter/Documents/bitlink-501203-a865ed105826.json",
+        "track": "internal"
       }
     }
   }
