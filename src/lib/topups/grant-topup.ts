@@ -70,8 +70,31 @@ async function chargeOneTimeInvoice(
     throw new Error('No usable payment method is on file for this customer.');
   }
 
+  // The invoice is created FIRST and the item is attached to it by id. Creating
+  // the item first and trusting the invoice to sweep it up does not work on
+  // this API version: invoices.create defaults pending_invoice_items_behavior
+  // to 'exclude', so the item stayed pending, the invoice was created empty,
+  // and Stripe marks a $0 invoice paid the moment it is finalized. pay() then
+  // threw "Invoice is already paid" and grantTopup() returned before granting
+  // anything — a failed topup that had also left a stray pending invoice item
+  // waiting to land on the customer's next monthly bill.
+  const invoice = await stripe.invoices.create({
+    customer: params.stripeCustomerId,
+    // Must stay false, so the finalize/pay below is the only payment path.
+    // With auto_advance on, Stripe finalizes and charges on its own schedule
+    // and pay() races it for the same "already paid" failure.
+    auto_advance: false,
+    collection_method: 'charge_automatically',
+    // Only a PaymentMethod can be named here; a legacy source stays on the
+    // customer and Stripe's own fallback picks it up.
+    ...(paymentMethod.source === 'customer_source'
+      ? {}
+      : { default_payment_method: paymentMethod.id }),
+  });
+
   await stripe.invoiceItems.create({
     customer: params.stripeCustomerId,
+    invoice: invoice.id!,
     price_data: {
       currency: 'usd',
       unit_amount: params.unitAmount,
@@ -80,17 +103,17 @@ async function chargeOneTimeInvoice(
     description: params.description,
   });
 
-  const invoice = await stripe.invoices.create({
-    customer: params.stripeCustomerId,
-    auto_advance: true,
-    collection_method: 'charge_automatically',
-    // Only a PaymentMethod can be named here; a legacy source stays on the
-    // customer and Stripe's own fallback picks it up.
-    ...(paymentMethod.source === 'customer_source'
-      ? {}
-      : { default_payment_method: paymentMethod.id }),
-  });
-  await stripe.invoices.finalizeInvoice(invoice.id!);
+  const finalized = await stripe.invoices.finalizeInvoice(invoice.id!);
+
+  // A zero-total invoice means the item never made it on. Stripe would mark it
+  // paid and we would report success for a topup nobody paid for, so fail loudly
+  // instead of granting something for free.
+  if (finalized.amount_due !== params.unitAmount) {
+    throw new Error(
+      `Invoice total ${finalized.amount_due} does not match the ${params.unitAmount} expected for ${params.description}.`,
+    );
+  }
+
   await stripe.invoices.pay(invoice.id!);
 }
 
