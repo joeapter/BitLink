@@ -805,9 +805,13 @@ export const landingPages = {
     h1: "A US number that rings — and texts — in Israel.",
     intro:
       "Add a US, Canadian, or UK local number to any BitLink plan for $9.99/month. Family and clients back home dial a number that's local to them — no international dialing, no calling cards — and the call rings your phone in Israel. It works on every plan, including kosher lines. On standard plans it's not just calls: the number receives US text messages too, including the verification codes American banks and services send — tested with real Chase and Google codes arriving in Israel. Kosher lines are the exception by design — they stay voice-only, so the number carries incoming calls and nothing else.",
+    // Goes straight to the unlisted bundle rather than /plans: this page's
+    // traffic arrives wanting the number (IRS and bank codes), and /plans made
+    // them pick Basic, find the add-on, and work out that it does SMS before
+    // they could buy. See PROMOS["us-number-bundle"] in src/lib/promos.ts.
     primaryCta: {
-      href: "/plans",
-      label: "Choose a plan",
+      href: "/checkout?plan=basic&promo=us-number-bundle",
+      label: "Get a US number — $17.99/mo",
     },
     secondaryCta: {
       href: "/support",

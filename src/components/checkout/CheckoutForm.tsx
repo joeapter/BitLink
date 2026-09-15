@@ -30,6 +30,14 @@ type IntlSource = "new" | "port";
 
 const REGULAR_INTL_ADDON_CENTS = 999;
 
+// Adjectival forms, for prose like "your Canadian number". The country picker
+// below uses the shorter noun forms ("Canada") that fit its chips.
+const INTL_COUNTRY_LABELS: Record<IntlCountry, string> = {
+  us: "US",
+  canada: "Canadian",
+  uk: "UK",
+};
+
 export function CheckoutForm({
   initialPlanSlug,
   kosherPlusPromoActive = false,
@@ -67,10 +75,17 @@ export function CheckoutForm({
   const [numberChoice, setNumberChoice] = useState<NumberChoice>("new");
   // Direct landings on ?plan=kosher-plus skip handlePlanChange, so the bundled
   // number has to be on from the first render too.
+  // An offer link (e.g. ?promo=us-number-bundle) sells the number as part of
+  // the price, so it has to be on before the customer touches anything —
+  // otherwise the summary quotes a bundle they haven't actually selected.
   const [wantsIntlNumber, setWantsIntlNumber] = useState(
-    () => plans.find((p) => p.slug === initialPlanSlug)?.includesIntlNumber === true,
+    () =>
+      plans.find((p) => p.slug === initialPlanSlug)?.includesIntlNumber === true ||
+      getPromo(initialPromoCode)?.presetIntlCountry != null,
   );
-  const [intlCountry, setIntlCountry] = useState<IntlCountry>("us");
+  const [intlCountry, setIntlCountry] = useState<IntlCountry>(
+    () => getPromo(initialPromoCode)?.presetIntlCountry ?? "us",
+  );
   const [intlSource, setIntlSource] = useState<IntlSource>("new");
   const [intlNumbers, setIntlNumbers] = useState<Array<{ number: string; region?: string | null; city?: string | null }>>([]);
   const [intlChosenNumber, setIntlChosenNumber] = useState<string | null>(null);
@@ -266,6 +281,8 @@ export function CheckoutForm({
             intlNumberIncluded={intlNumberIncluded}
             introPriceCents={introPromoActive ? KOSHER_PLUS_PROMO.introPriceCents : null}
             introMonths={KOSHER_PLUS_PROMO.months}
+            bundleLabel={promo?.bundleLabel ?? null}
+            intlCountryLabel={INTL_COUNTRY_LABELS[intlCountry]}
           />
         </div>
         <div className="border-t border-ink/10 p-6 sm:p-8 lg:border-l lg:border-t-0">
@@ -299,7 +316,13 @@ export function CheckoutForm({
               <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-trust-green" aria-hidden="true" />
               <p className="text-sm text-ink">
                 <span className="font-semibold">{promo.label} applied</span> — activation fee waived
-                {promo.intlAddonPriceCents != null ? `, and the US/Canada/UK add-on is ${formatMoney(promo.intlAddonPriceCents, "USD")}/mo instead of ${formatMoney(REGULAR_INTL_ADDON_CENTS, "USD")}/mo` : ""}.
+                {/* A bundle is sold as one price, so naming the add-on's share
+                    of it here would contradict the single figure in the summary. */}
+                {promo.bundleLabel != null
+                  ? `, and your ${INTL_COUNTRY_LABELS[intlCountry]} number is included in the monthly price`
+                  : promo.intlAddonPriceCents != null
+                    ? `, and the US/Canada/UK add-on is ${formatMoney(promo.intlAddonPriceCents, "USD")}/mo instead of ${formatMoney(REGULAR_INTL_ADDON_CENTS, "USD")}/mo`
+                    : ""}.
               </p>
             </div>
           )}
@@ -450,7 +473,9 @@ export function CheckoutForm({
             <div className="flex-1">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-ink">Add a US, Canadian, or UK number</p>
-                {intlNumberIncluded ? (
+                {/* A bundle prices the number into the monthly total, so it
+                    reads as included here rather than as a discounted add-on. */}
+                {intlNumberIncluded || promo?.bundleLabel != null ? (
                   <span className="flex items-center gap-2 text-sm font-semibold">
                     <span className="text-muted-slate line-through opacity-60">
                       +{formatMoney(REGULAR_INTL_ADDON_CENTS, "USD")}/mo
@@ -680,6 +705,8 @@ export function CheckoutForm({
         intlNumberIncluded={intlNumberIncluded}
         introPriceCents={introPromoActive ? KOSHER_PLUS_PROMO.introPriceCents : null}
         introMonths={KOSHER_PLUS_PROMO.months}
+        bundleLabel={promo?.bundleLabel ?? null}
+        intlCountryLabel={INTL_COUNTRY_LABELS[intlCountry]}
       />
     </div>
   );
