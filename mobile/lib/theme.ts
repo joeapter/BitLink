@@ -23,8 +23,4 @@ export const contact = {
   usaTel: "+19295978919",
   usaDisplay: "929-597-8919",
   email: "support@bitlink.co.il",
-  businessLines: [
-    "BitLink · Business ID 341280188",
-    "HaRashar Hirsch 4/1, Beit Shemesh, Israel 9965000",
-  ],
 } as const;

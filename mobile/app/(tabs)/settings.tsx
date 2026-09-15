@@ -248,12 +248,10 @@ export default function SettingsTab() {
         </Pressable>
       ) : null}
 
+      {/* Business ID and registered address deliberately not shown: the
+          registered address is a private home. The website footer carries the
+          business details where they belong. */}
       <View style={styles.business}>
-        {contact.businessLines.map((line) => (
-          <Text key={line} style={styles.businessText}>
-            {line}
-          </Text>
-        ))}
         <Text style={styles.versionText}>
           BitLink v{Constants.expoConfig?.version ?? "1.0.0"}
         </Text>
@@ -369,6 +367,5 @@ const styles = StyleSheet.create({
   signOutText: { fontSize: 15, fontWeight: "700", color: "#C0392B" },
 
   business: { marginTop: 8, gap: 3, alignItems: "center" },
-  businessText: { fontSize: 11, color: colors.inactive, textAlign: "center" },
   versionText: { marginTop: 6, fontSize: 11, color: colors.inactive },
 });
