@@ -74,6 +74,54 @@ export default function SettingsTab() {
     );
   }, [email]);
 
+  // App Store Review Guideline 5.1.1(v) wants account deletion startable from
+  // inside the app. It files a request rather than deleting on the spot: there
+  // is no self-serve cancellation, so deleting the login outright would leave
+  // the subscription billing a card the customer can no longer see — and an
+  // Israeli number, once released, can't be recovered. The copy says plainly
+  // that a person confirms first, so nobody expects an instant wipe.
+  const requestAccountDeletion = useCallback(() => {
+    Alert.alert(
+      "Delete your account?",
+      "We'll close your BitLink account and delete your details.\n\nIf you have active service, we'll confirm with you before anything is cancelled — your number stays active until then.",
+      [
+        { text: "Keep my account", style: "cancel" },
+        {
+          text: "Request deletion",
+          style: "destructive",
+          onPress: async () => {
+            setBusy(true);
+            try {
+              const { data } = await supabase.auth.getSession();
+              const token = data.session?.access_token;
+              if (!token) throw new Error("Please sign in again.");
+
+              const response = await fetch(`${SITE_URL}/api/app/account/delete-request`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({}),
+              });
+              const payload = (await response.json()) as { message?: string; error?: string };
+              if (!response.ok) throw new Error(payload.error ?? "Something went wrong.");
+
+              Alert.alert("Request received", payload.message ?? "We'll be in touch shortly.");
+            } catch (err) {
+              Alert.alert(
+                "Couldn't send your request",
+                `${err instanceof Error ? err.message : "Something went wrong."}\n\nYou can also email ${contact.email}.`,
+              );
+            } finally {
+              setBusy(false);
+            }
+          },
+        },
+      ],
+    );
+  }, []);
+
   const confirmSignOut = useCallback(() => {
     Alert.alert("Sign out?", "You'll need to sign in again to see your account.", [
       { text: "Cancel", style: "cancel" },
@@ -130,6 +178,22 @@ export default function SettingsTab() {
               ) : (
                 <Text style={styles.secondaryButtonText}>Send password reset email</Text>
               )}
+            </Pressable>
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Delete account</Text>
+            <Text style={styles.cardBody}>
+              Close your BitLink account and delete your details. If you have active service,
+              we&apos;ll confirm with you before anything is cancelled.
+            </Text>
+            <Pressable
+              onPress={requestAccountDeletion}
+              disabled={busy}
+              style={({ pressed }) => [styles.dangerButton, (pressed || busy) && styles.pressed]}
+              accessibilityRole="button"
+            >
+              <Text style={styles.dangerButtonText}>Delete my account</Text>
             </Pressable>
           </View>
         </>
@@ -269,6 +333,18 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: { fontSize: 15, fontWeight: "600", color: colors.ink },
   pressed: { opacity: 0.7 },
+
+  // Outlined rather than filled: destructive, but it shouldn't out-shout the
+  // things people actually come to this screen to do.
+  dangerButton: {
+    marginTop: 14,
+    borderWidth: 1,
+    borderColor: "#C0392B",
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  dangerButtonText: { fontSize: 15, fontWeight: "600", color: "#C0392B" },
 
   contactRow: {
     flexDirection: "row",

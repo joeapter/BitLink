@@ -11,7 +11,7 @@
     "primaryColor": "#0FC2C2",
     "ios": {
       "bundleIdentifier": "com.bitlink.app",
-      "supportsTablet": true,
+      "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
