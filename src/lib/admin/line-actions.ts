@@ -11,6 +11,7 @@ import { sendProvisionedNotifications } from "@/lib/notifications/send-provision
 import { addIntlNumberToLine, removeIntlNumberFromLine, type AddIntlNumberResult, type RemoveIntlNumberResult } from "@/lib/custom-orders/international-numbers";
 import { grantTopup, cancelTopupGrant, type GrantTopupResult } from "@/lib/topups/grant-topup";
 import { refundAndCancelLine } from '@/lib/admin/refund-cancel';
+import { getStripe } from '@/lib/stripe/server';
 import { setCustomLinePrice, type CustomPriceResult, refundPartialAmount, type PartialRefundResult } from '@/lib/admin/custom-price';
 import { formatMoney, absoluteUrl } from '@/lib/utils';
 import { sendEmail } from '@/lib/email/send';
@@ -132,21 +133,88 @@ export async function reactivateLineAction(formData: FormData) {
   return { success: true };
 }
 
+/**
+ * Terminate a line at the carrier AND stop billing for it.
+ *
+ * The billing half used to be missing, and the consequence was exactly what you
+ * would expect: a line terminated here left its Stripe subscription running, so
+ * the customer kept paying monthly for a number that no longer existed. Found
+ * Sept 2026 on two lines, one of which had already been charged (refunded).
+ *
+ * Billing is cancelled FIRST. If Stripe fails we stop and terminate nothing —
+ * a live line that is still being paid for is a recoverable situation, while a
+ * dead line that is still being charged is the bug itself. Cancelling also
+ * fires customer.subscription.deleted, whose handler terminates the line and
+ * releases the DID; doing it here as well is harmless (both sides guard on
+ * status !== 'terminated') and means the admin gets an immediate result rather
+ * than waiting on a webhook.
+ */
 export async function terminateLineAction(formData: FormData) {
   const { user } = await requireAdmin();
   const providerLineId = String(formData.get('providerLineId') ?? '');
   const lineId = String(formData.get('lineId') ?? '');
   if (!providerLineId) return { error: 'Missing providerLineId' };
 
+  const admin = getAdmin();
+  const now = new Date().toISOString();
+
+  const { data: subs } = await admin
+    .from('subscribers')
+    .select('id, stripe_subscription_id, status')
+    .eq('telecom_line_id', lineId);
+
+  const live = (subs ?? []).filter((s) => s.status !== 'cancelled');
+  const stripe = getStripe();
+
+  if (live.length && !stripe) {
+    return { error: 'Stripe is not configured, so billing cannot be stopped. Nothing was terminated.' };
+  }
+
+  const cancelledSubscriptionIds: string[] = [];
+  for (const sub of live) {
+    const subscriptionId = sub.stripe_subscription_id as string | null;
+    if (subscriptionId && stripe) {
+      try {
+        const existing = await stripe.subscriptions.retrieve(subscriptionId);
+        if (existing.status !== 'canceled') {
+          await stripe.subscriptions.cancel(subscriptionId);
+        }
+        cancelledSubscriptionIds.push(subscriptionId);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        return {
+          error:
+            `Could not cancel the Stripe subscription (${message}). ` +
+            `Nothing was terminated — the line is still live and still billing. Sort the subscription out first.`,
+        };
+      }
+    }
+    await admin
+      .from('subscribers')
+      .update({ status: 'cancelled', cancelled_at: now, updated_at: now })
+      .eq('id', sub.id as string);
+  }
+
   const provider = getProvider();
   await provider.terminateLine(providerLineId);
 
-  const admin = getAdmin();
-  await admin.from('telecom_lines').update({ status: 'terminated', updated_at: new Date().toISOString() }).eq('id', lineId);
-  await logAction(user.id, 'line_terminated', lineId, { providerLineId });
+  await admin.from('telecom_lines').update({ status: 'terminated', updated_at: now }).eq('id', lineId);
+
+  // Close any trial still pointing at this line, so the lifecycle sweep does
+  // not later try to auto-continue a line that has been terminated.
+  await admin
+    .from('trial_lines')
+    .update({ status: 'terminated', terminated_at: now, updated_at: now })
+    .eq('telecom_line_id', lineId)
+    .in('status', ['pending_provision', 'active', 'past_due']);
+
+  await logAction(user.id, 'line_terminated', lineId, { providerLineId, cancelledSubscriptionIds });
   revalidatePath(`/admin/lines/${lineId}`);
   revalidatePath('/admin/lines');
-  return { success: true };
+  return {
+    success: true,
+    cancelledSubscriptions: cancelledSubscriptionIds.length,
+  };
 }
 
 // ── Plan operations ───────────────────────────────────────────────────────────

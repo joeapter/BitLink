@@ -262,10 +262,20 @@ export class AnnatelProvider implements TelecomProvider {
   }
 
   async reactivateLine(providerLineId: string): Promise<void> {
+    // This endpoint returns the line's whole suspension HISTORY, not just the
+    // live one: a lifted suspension stays in the list with `end_at` filled in.
+    // Taking data[0] blindly therefore deletes an already-ended record on any
+    // line that has been suspended before — the call returns 200 and the line
+    // stays down.
+    //
+    // A line accumulates these across its life for unrelated reasons: the
+    // customer Pause feature, a dunning hold, a trial freeze. Any line that has
+    // been through one of those and is later suspended again is exposed.
+    // Verified against live data 2026-09-19.
     const suspensions = await this.client.get<{
-      data: Array<{ id: string }>;
+      data: Array<{ id: string; end_at: string | null }>;
     }>(`${LINES_BASE}/${providerLineId}/suspensions`);
-    const active = suspensions.data?.[0];
+    const active = (suspensions.data ?? []).find((s) => !s.end_at);
     if (active) {
       await this.client.delete(`${LINES_BASE}/${providerLineId}/suspensions/${active.id}`);
     }

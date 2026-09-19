@@ -31,10 +31,22 @@ export function getTelecomProvider(): TelecomProvider {
     AnnatelProvider: new (client: unknown, secret: string) => TelecomProvider;
   };
 
-  const apiUrl = process.env.ANNATEL_API_URL ?? 'https://business-manager.annatel.io';
-  const apiKey = process.env.ANNATEL_API_KEY ?? '';
-  const tenantId = process.env.ANNATEL_TENANT_ID ?? '';
-  const webhookSecret = process.env.ANNATEL_WEBHOOK_SECRET ?? '';
+  // ANNATEL_API_URL currently arrives with a trailing newline, and every
+  // request_url in provider_sync_logs has carried that newline ever since.
+  // Live calls survive it only by luck: the WHATWG URL parser strips CR, LF
+  // and tab from a URL, so fetch() quietly repairs it. A one-off script
+  // reading the .env file with a naive parser gets the two-character sequence
+  // "\n" instead, which is NOT stripped — it lands in the path and Annatel
+  // answers 403, which reads exactly like a bad key (2026-09-19: an hour lost
+  // to this). Normalising here fixes the logs too, and covers a trailing slash
+  // while we are at it, since every caller supplies a leading one.
+  const apiUrl = (process.env.ANNATEL_API_URL ?? 'https://business-manager.annatel.io')
+    .replace(/\\n/g, '')
+    .trim()
+    .replace(/\/+$/, '');
+  const apiKey = (process.env.ANNATEL_API_KEY ?? '').trim();
+  const tenantId = (process.env.ANNATEL_TENANT_ID ?? '').trim();
+  const webhookSecret = (process.env.ANNATEL_WEBHOOK_SECRET ?? '').trim();
 
   const client = new AnnatelApiClient(apiUrl, apiKey, tenantId);
   _provider = new AnnatelProvider(client, webhookSecret);

@@ -19,6 +19,10 @@ import {
   buildTrialDecisionReminderEmail,
   buildTrialFinalWarningEmail,
   buildTrialAutoContinuedEmail,
+  buildTrialChargeFailedEmail,
+  buildTrialLineFrozenEmail,
+  buildTrialTerminationWarningEmail,
+  buildTrialTerminatedEmail,
 } from "@/lib/email/templates";
 import { absoluteUrl } from "@/lib/utils";
 import { notifyRepOfConversion } from "@/lib/admin/notify-rep";
@@ -36,6 +40,44 @@ const log = logger.child({ module: "trial-offer" });
 export const TRIAL_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 1 month
 export const TRIAL_REMINDER_BEFORE_MS = 9 * 24 * 60 * 60 * 1000; // ~day 21
 export const TRIAL_TOPUP_ID = "data-10gb";
+
+// ── The charge-retry ladder ──────────────────────────────────────────────────
+//
+// A declined auto-continue charge used to be terminal: status went 'frozen',
+// nothing retried, nothing was emailed. Both trials that hit it in Aug 2026
+// were simply declined cards — neither customer had said no.
+//
+// The ladder, all of it driven by the daily sweep:
+//   day 0    charge declines. The line KEEPS RUNNING. Email says so, and names
+//            the date it stops.
+//   every 2d retry the card. A success at any point converts them and lifts
+//            any suspension already applied.
+//   day 15   suspend the line, and say it has happened.
+//   day 30   one warning naming the termination date.
+//   day 33   terminate at the carrier, releasing the DID.
+//
+// The 15 days of continued service are deliberate. Nearly every decline is an
+// expired card or a short balance, and cutting service off on the same day we
+// first fail to collect punishes a customer who has done nothing wrong for a
+// problem they usually fix within the week.
+//
+// All timing is measured from charge_failed_at — the FIRST decline — never
+// from the last retry. Anchoring to the last attempt makes the dates we promise
+// in these emails drift every time a retry runs.
+export const TRIAL_RETRY_INTERVAL_DAYS = 2;
+export const TRIAL_FREEZE_AFTER_DAYS = 15;
+export const TRIAL_RETRY_WINDOW_DAYS = 30;
+export const TRIAL_TERMINATION_WARNING_DAYS = 3;
+
+const DAY_MS = 86_400_000;
+
+function daysSince(iso: string): number {
+  return (Date.now() - new Date(iso).getTime()) / DAY_MS;
+}
+
+function formatDate(d: Date): string {
+  return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
 
 function buildToken(): string {
   return crypto.randomUUID().replaceAll("-", "");
@@ -150,26 +192,42 @@ export async function activateTrialTopup(admin: SupabaseClient, telecomLineId: s
   await admin.from("trial_lines").update({ status: "active", updated_at: new Date().toISOString() }).eq("id", trial.id);
 }
 
-// Freezes a trial's line at Annatel and marks the trial_lines row terminal.
-// Used both when an auto-continue charge fails (falls back here rather than
-// leaving an unpaid line running) and when a customer explicitly opts out
-// before the deadline.
-async function freezeTrialLine(
+// Suspends the carrier line and marks it paused locally. The number is held,
+// not released — 'freeze' at Annatel keeps the line, the DID and the SIM, so
+// reactivateLine restores service without a reprovision.
+//
+// Says nothing about trial_lines: a suspension happens at several different
+// points on the ladder and the row's status means something different at each.
+async function suspendTrialLine(
   admin: SupabaseClient,
-  trial: { id: string; telecom_line_id: string },
-  trialStatus: "frozen" | "cancelled",
-): Promise<void> {
+  telecomLineId: string,
+): Promise<{ ok: boolean }> {
   const { data: line } = await admin
     .from("telecom_lines")
-    .select("provider_line_id, metadata")
-    .eq("id", trial.telecom_line_id)
+    .select("provider_line_id, metadata, status")
+    .eq("id", telecomLineId)
     .maybeSingle();
 
+  if (line?.status === "terminated") return { ok: false };
+
+  // Already paused by the customer (pause-actions.ts stamps paused_at). The
+  // line is down, so there is nothing to suspend — and claiming it as ours
+  // would hand the ladder the right to lift their pause on the next recovery.
+  if ((line?.metadata as Record<string, unknown> | null)?.paused_at) {
+    log.info({ telecomLineId }, "Trial line already paused by the customer — leaving the carrier alone");
+    return { ok: false };
+  }
+
   if (line?.provider_line_id) {
-    const provider = getTelecomProvider();
-    await provider.suspendLine(line.provider_line_id, "freeze").catch((err) => {
-      log.error({ trialId: trial.id, error: err instanceof Error ? err.message : String(err) }, "Failed to freeze trial line");
-    });
+    try {
+      await getTelecomProvider().suspendLine(line.provider_line_id as string, "freeze");
+    } catch (err) {
+      log.error(
+        { telecomLineId, error: err instanceof Error ? err.message : String(err) },
+        "Failed to suspend trial line",
+      );
+      return { ok: false };
+    }
   }
 
   const now = new Date().toISOString();
@@ -180,15 +238,164 @@ async function freezeTrialLine(
       metadata: { ...((line?.metadata as Record<string, unknown>) ?? {}), trial_ended_at: now },
       updated_at: now,
     })
-    .eq("id", trial.telecom_line_id);
+    .eq("id", telecomLineId);
 
-  await admin.from("trial_lines").update({ status: trialStatus, updated_at: now }).eq("id", trial.id);
+  return { ok: true };
 }
 
-// Customer explicitly opted out before the deadline — freeze right away
-// rather than waiting, and never auto-charge.
-export async function cancelTrial(admin: SupabaseClient, trial: { id: string; telecom_line_id: string }): Promise<void> {
-  await freezeTrialLine(admin, trial, "cancelled");
+/**
+ * Customer explicitly opted out before the deadline.
+ *
+ * This TERMINATES rather than freezes, which is the difference between an
+ * opt-out and a declined card: someone who has told us they don't want the
+ * line is not coming back in two days, so holding their DID only starves the
+ * number bank. Israeli inventory is two blocks of 100 (see KOSHER_DID_PREFIXES
+ * in the Annatel provider), and three opt-outs were sitting on live numbers
+ * before this changed.
+ *
+ * Terminating at the carrier is what returns the DID to the tenant pool, so a
+ * freeze here would keep the number checked out indefinitely.
+ */
+export async function cancelTrial(
+  admin: SupabaseClient,
+  trial: { id: string; telecom_line_id: string },
+): Promise<void> {
+  const outcome = await terminateTrialLine(admin, trial, "cancelled");
+  if (!outcome.ok) {
+    // Couldn't reach the carrier. Suspend instead so the customer at least
+    // stops being able to use a line they've cancelled, and leave the row
+    // terminal — the number is reclaimed by the next admin sweep.
+    log.error({ trialId: trial.id }, "Opt-out termination failed — falling back to suspension");
+    await suspendTrialLine(admin, trial.telecom_line_id);
+    const now = new Date().toISOString();
+    await admin.from("trial_lines").update({ status: "cancelled", updated_at: now }).eq("id", trial.id);
+  }
+}
+
+/**
+ * Lift the freeze applied at the first decline, after a retry finally collects.
+ *
+ * Without this a customer who pays on retry 8 gets a working subscription and a
+ * dead line — the exact shape of bug that made the manual terminate button
+ * leave people paying for nothing. Deliberately tolerant: the money is already
+ * in, so a carrier failure here is logged for a human rather than thrown, which
+ * would roll the conversion back and re-charge them on the next sweep.
+ */
+async function reactivateTrialLine(
+  admin: SupabaseClient,
+  telecomLineId: string,
+  frozenByLadder: boolean,
+): Promise<void> {
+  // Only lift a suspension this ladder applied. 'paused' is not enough to go
+  // on: the customer-facing Pause feature sets exactly the same status, and a
+  // customer paying $10/month to hold their number would otherwise have that
+  // pause silently undone the moment a retry collected. Same narrowing, and
+  // the same reason, as dunning.ts keying its reactivation on
+  // dunning_suspended_at.
+  if (!frozenByLadder) return;
+
+  const { data: line } = await admin
+    .from("telecom_lines")
+    .select("provider_line_id, status, metadata")
+    .eq("id", telecomLineId)
+    .maybeSingle();
+
+  // Belt and braces: paused_at is stamped by pause-actions.ts and by nothing
+  // else, so its presence means the customer chose this.
+  if ((line?.metadata as Record<string, unknown> | null)?.paused_at) {
+    log.warn({ telecomLineId }, "Trial retry collected on a customer-paused line — leaving the pause alone");
+    return;
+  }
+
+  // Most recoveries now happen in the first 15 days, while the line is still
+  // running, and reactivating a line that was never suspended errors.
+  if (!line?.provider_line_id || line.status !== "paused") return;
+
+  try {
+    await getTelecomProvider().reactivateLine(line.provider_line_id as string);
+    await admin
+      .from("telecom_lines")
+      .update({ status: "active", updated_at: new Date().toISOString() })
+      .eq("id", telecomLineId);
+  } catch (err) {
+    log.error(
+      { telecomLineId, error: err instanceof Error ? err.message : String(err) },
+      "Paid on retry but the line did not come back — needs manual reactivation",
+    );
+  }
+}
+
+/**
+ * Cancel at the carrier — which is what releases the DID back to the tenant
+ * number bank — and stop any billing attached to the line.
+ *
+ * Reached two ways: the customer opts out (finalStatus 'cancelled'), or the
+ * retry ladder runs out (finalStatus 'terminated'). The carrier work is
+ * identical; only what the row says afterwards differs, and that distinction is
+ * worth keeping because "changed their mind" and "card never worked" are
+ * different businesses.
+ *
+ * The subscription lookup is defensive. A trial reaching here should have no
+ * subscriber row at all — the charge that would have created one is precisely
+ * what failed — but terminating a line while leaving a live subscription behind
+ * is the bug this whole change exists to kill, so it is checked anyway.
+ */
+async function terminateTrialLine(
+  admin: SupabaseClient,
+  trial: { id: string; telecom_line_id: string },
+  finalStatus: "terminated" | "cancelled" = "terminated",
+): Promise<{ ok: boolean; error?: string }> {
+  const { data: line } = await admin
+    .from("telecom_lines")
+    .select("provider_line_id, status")
+    .eq("id", trial.telecom_line_id)
+    .maybeSingle();
+
+  if (line?.provider_line_id && line.status !== "terminated") {
+    try {
+      await getTelecomProvider().terminateLine(line.provider_line_id as string);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      log.error({ trialId: trial.id, error: message }, "Carrier termination failed — will retry next sweep");
+      return { ok: false, error: message };
+    }
+  }
+
+  const now = new Date().toISOString();
+  await admin
+    .from("telecom_lines")
+    .update({ status: "terminated", updated_at: now })
+    .eq("id", trial.telecom_line_id);
+
+  const stripe = getStripe();
+  const { data: subs } = await admin
+    .from("subscribers")
+    .select("id, stripe_subscription_id, status")
+    .eq("telecom_line_id", trial.telecom_line_id);
+
+  for (const sub of subs ?? []) {
+    if (stripe && sub.stripe_subscription_id && sub.status !== "cancelled") {
+      try {
+        await stripe.subscriptions.cancel(sub.stripe_subscription_id as string);
+      } catch (err) {
+        log.error(
+          { trialId: trial.id, subscriptionId: sub.stripe_subscription_id, error: err instanceof Error ? err.message : String(err) },
+          "Could not cancel subscription while terminating trial line",
+        );
+      }
+    }
+    await admin
+      .from("subscribers")
+      .update({ status: "cancelled", cancelled_at: now, updated_at: now })
+      .eq("id", sub.id as string);
+  }
+
+  await admin
+    .from("trial_lines")
+    .update({ status: finalStatus, terminated_at: now, updated_at: now })
+    .eq("id", trial.id);
+
+  return { ok: true };
 }
 
 // Converts a trial (or any pre-subscription line) into a real paid plan:
@@ -294,16 +501,30 @@ export async function convertTrialToPlan(
 //   2. ~2-days-before "you'll be charged" final warning (once per trial) —
 //      the actual disclosure that makes the auto-continue default fair.
 //   3. Past-deadline trials: auto-continue on Basic (real off-session
-//      charge) by default; if the charge fails (declined card etc.), fall
-//      back to freezing rather than leaving an unpaid line running forever.
+//      charge) by default. A decline freezes the line and starts the retry
+//      ladder rather than ending the trial.
+//   4. The retry ladder itself: re-try the card every TRIAL_RETRY_INTERVAL_DAYS,
+//      warn once at TRIAL_RETRY_WINDOW_DAYS, terminate
+//      TRIAL_TERMINATION_WARNING_DAYS after that warning.
 // Independent of the kill switch — a trial already running finishes its own
 // lifecycle regardless of whether new signups are open.
-export async function processTrialLifecycle(admin: SupabaseClient): Promise<{
+export interface TrialLifecycleResult {
   reminded: number;
   finalWarned: number;
   autoContinued: number;
+  /** Declines at the deadline — each one now enters the retry ladder. */
   autoContinueFailed: number;
-}> {
+  /** Deadlines reached on an already-terminated line; closed without charging. */
+  strandedClosed: number;
+  retried: number;
+  recovered: number;
+  /** Lines suspended at the end of the TRIAL_FREEZE_AFTER_DAYS grace period. */
+  frozen: number;
+  terminationWarned: number;
+  terminated: number;
+}
+
+export async function processTrialLifecycle(admin: SupabaseClient): Promise<TrialLifecycleResult> {
   const now = new Date();
 
   const { data: dueForReminder } = await admin
@@ -378,8 +599,11 @@ export async function processTrialLifecycle(admin: SupabaseClient): Promise<{
     .eq("status", "active")
     .lte("decision_due_at", now.toISOString());
 
+  const priceLabel = `$${(plan.priceCents / 100).toFixed(2)}`;
+
   let autoContinued = 0;
   let autoContinueFailed = 0;
+  let strandedClosed = 0;
   for (const trial of dueForExpiry ?? []) {
     if (!trial.telecom_line_id) continue;
     const trialRef = {
@@ -388,6 +612,27 @@ export async function processTrialLifecycle(admin: SupabaseClient): Promise<{
       customer_id: trial.customer_id as string,
       stripe_customer_id: trial.stripe_customer_id as string,
     };
+
+    // Never start billing a line that no longer exists. A line can be
+    // terminated out from under a running trial — carrier-side, or by an admin
+    // — and charging at the deadline anyway is how a customer ends up paying
+    // for a dead number (Sept 2026: one refund, one near miss). There is
+    // nothing to sell here, so close the trial quietly and do not charge.
+    const { data: expiringLine } = await admin
+      .from("telecom_lines")
+      .select("status")
+      .eq("id", trialRef.telecom_line_id)
+      .maybeSingle();
+
+    if (expiringLine?.status === "terminated") {
+      log.warn({ trialId: trial.id }, "Trial reached its deadline on a terminated line — closing without charging");
+      await admin
+        .from("trial_lines")
+        .update({ status: "terminated", terminated_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+        .eq("id", trial.id);
+      strandedClosed += 1;
+      continue;
+    }
 
     const result = await convertTrialToPlan(admin, trialRef, TRIAL_AUTO_CONTINUE_PLAN);
     if (result.success) {
@@ -401,16 +646,199 @@ export async function processTrialLifecycle(admin: SupabaseClient): Promise<{
         sendEmail({
           to: customer.email as string,
           subject: "Your BitLink line continued on Basic",
-          html: buildTrialAutoContinuedEmail({ fullName: (customer.full_name as string | null) ?? "", planName: plan.name, priceLabel: `$${(plan.priceCents / 100).toFixed(2)}` }),
+          html: buildTrialAutoContinuedEmail({ fullName: (customer.full_name as string | null) ?? "", planName: plan.name, priceLabel }),
         }).catch(() => {});
       }
     } else {
-      log.warn({ trialId: trial.id, error: result.error }, "Auto-continue charge failed — freezing instead");
-      await freezeTrialLine(admin, trialRef, "frozen");
+      // Onto the retry ladder rather than straight into a grave. The line is
+      // deliberately left running — see TRIAL_FREEZE_AFTER_DAYS — so nothing
+      // here touches the carrier.
+      log.warn({ trialId: trial.id, error: result.error }, "Auto-continue charge declined — entering retry ladder");
+
+      const failedAt = new Date().toISOString();
+      await admin
+        .from("trial_lines")
+        .update({ status: "past_due", charge_failed_at: failedAt, last_retry_at: failedAt, retry_count: 1, updated_at: failedAt })
+        .eq("id", trial.id);
+
+      const { data: customer } = await admin
+        .from("customers")
+        .select("full_name, email")
+        .eq("id", trial.customer_id)
+        .maybeSingle();
+      if (customer?.email) {
+        sendEmail({
+          to: customer.email as string,
+          subject: "We couldn't charge your card",
+          html: buildTrialChargeFailedEmail({
+            fullName: (customer.full_name as string | null) ?? "",
+            planName: plan.name,
+            priceLabel,
+            updateCardUrl: absoluteUrl("/account/billing"),
+            retryDays: TRIAL_RETRY_INTERVAL_DAYS,
+            freezeDateLabel: formatDate(new Date(Date.now() + TRIAL_FREEZE_AFTER_DAYS * DAY_MS)),
+          }),
+        }).catch(() => {});
+      }
       autoContinueFailed += 1;
     }
   }
 
-  log.info({ reminded, finalWarned, autoContinued, autoContinueFailed }, "Trial lifecycle sweep complete");
-  return { reminded, finalWarned, autoContinued, autoContinueFailed };
+  // ── The retry ladder ────────────────────────────────────────────────────
+  // Everything already on it: retry the card, warn once the month is up, and
+  // terminate three days after that warning.
+  const { data: pastDue } = await admin
+    .from("trial_lines")
+    .select("id, token, telecom_line_id, customer_id, stripe_customer_id, charge_failed_at, last_retry_at, retry_count, frozen_at, termination_warned_at")
+    .eq("status", "past_due")
+    .order("charge_failed_at", { ascending: true });
+
+  let retried = 0;
+  let recovered = 0;
+  let frozen = 0;
+  let terminationWarned = 0;
+  let terminated = 0;
+
+  for (const trial of pastDue ?? []) {
+    if (!trial.telecom_line_id || !trial.charge_failed_at) continue;
+
+    const trialRef = {
+      id: trial.id as string,
+      telecom_line_id: trial.telecom_line_id as string,
+      customer_id: trial.customer_id as string,
+      stripe_customer_id: trial.stripe_customer_id as string,
+    };
+
+    const { data: customer } = await admin
+      .from("customers")
+      .select("full_name, email")
+      .eq("id", trial.customer_id)
+      .maybeSingle();
+    const fullName = (customer?.full_name as string | null) ?? "";
+    const email = customer?.email as string | undefined;
+
+    const age = daysSince(trial.charge_failed_at as string);
+    const warnedAt = trial.termination_warned_at as string | null;
+    const frozenAt = trial.frozen_at as string | null;
+
+    // ── Rung 4: terminate ──────────────────────────────────────────────
+    // Gated on the warning having actually been sent, not on the day count
+    // alone. A backfilled charge_failed_at could otherwise close a line whose
+    // owner was never told it was at risk.
+    if (warnedAt && daysSince(warnedAt) >= TRIAL_TERMINATION_WARNING_DAYS) {
+      const outcome = await terminateTrialLine(admin, trialRef);
+      if (!outcome.ok) continue;
+
+      if (email) {
+        sendEmail({
+          to: email,
+          subject: "Your BitLink line has been closed",
+          html: buildTrialTerminatedEmail({ fullName }),
+        }).catch(() => {});
+      }
+      log.warn({ trialId: trial.id, days: Math.floor(age) }, "Trial line terminated — retry ladder exhausted");
+      terminated += 1;
+      continue;
+    }
+
+    // ── Rung 3: the one warning ────────────────────────────────────────
+    if (!warnedAt && age >= TRIAL_RETRY_WINDOW_DAYS) {
+      if (!email) continue;
+      const terminationDate = new Date(Date.now() + TRIAL_TERMINATION_WARNING_DAYS * DAY_MS);
+      const sent = await sendEmail({
+        to: email,
+        subject: "Last chance to keep your BitLink number",
+        html: buildTrialTerminationWarningEmail({
+          fullName,
+          terminationDateLabel: formatDate(terminationDate),
+          updateCardUrl: absoluteUrl("/account/billing"),
+        }),
+      });
+      if (sent) {
+        await admin
+          .from("trial_lines")
+          .update({ termination_warned_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+          .eq("id", trial.id);
+        terminationWarned += 1;
+      }
+      continue;
+    }
+
+    // ── Rung 2: the grace period is up, suspend the line ───────────────
+    // Only after this point does past_due mean "not working". Retrying is not
+    // skipped on the same sweep — the suspension and the charge attempt are
+    // independent, and there is no reason to give up a collection opportunity
+    // just because this is the day the line goes down.
+    if (!frozenAt && age >= TRIAL_FREEZE_AFTER_DAYS) {
+      const suspended = await suspendTrialLine(admin, trialRef.telecom_line_id);
+      if (suspended.ok) {
+        await admin
+          .from("trial_lines")
+          .update({ frozen_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+          .eq("id", trial.id);
+        if (email) {
+          sendEmail({
+            to: email,
+            subject: "Your BitLink line has been paused",
+            html: buildTrialLineFrozenEmail({
+              fullName,
+              updateCardUrl: absoluteUrl("/account/billing"),
+              graceDays: TRIAL_FREEZE_AFTER_DAYS,
+            }),
+          }).catch(() => {});
+        }
+        log.warn({ trialId: trial.id, days: Math.floor(age) }, "Trial line suspended — grace period elapsed");
+        frozen += 1;
+      }
+    }
+
+    // ── Rung 1: try the card again ─────────────────────────────────────
+    const lastRetry = (trial.last_retry_at as string | null) ?? (trial.charge_failed_at as string);
+    if (daysSince(lastRetry) < TRIAL_RETRY_INTERVAL_DAYS) continue;
+
+    const attemptAt = new Date().toISOString();
+    const result = await convertTrialToPlan(admin, trialRef, TRIAL_AUTO_CONTINUE_PLAN);
+    retried += 1;
+
+    if (result.success) {
+      // convertTrialToPlan has already flipped the trial to 'converted' and
+      // created the subscriber; all that is left is switching the line back on,
+      // and only if this ladder is what took it down.
+      await reactivateTrialLine(admin, trialRef.telecom_line_id, Boolean(frozenAt));
+      if (email) {
+        sendEmail({
+          to: email,
+          subject: "Your BitLink line is back on",
+          html: buildTrialAutoContinuedEmail({ fullName, planName: plan.name, priceLabel }),
+        }).catch(() => {});
+      }
+      log.info({ trialId: trial.id, attempts: (trial.retry_count as number) + 1 }, "Trial charge recovered on retry");
+      recovered += 1;
+      continue;
+    }
+
+    await admin
+      .from("trial_lines")
+      .update({
+        last_retry_at: attemptAt,
+        retry_count: ((trial.retry_count as number) ?? 0) + 1,
+        updated_at: attemptAt,
+      })
+      .eq("id", trial.id);
+  }
+
+  const summary = {
+    reminded,
+    finalWarned,
+    autoContinued,
+    autoContinueFailed,
+    strandedClosed,
+    retried,
+    recovered,
+    frozen,
+    terminationWarned,
+    terminated,
+  };
+  log.info(summary, "Trial lifecycle sweep complete");
+  return summary;
 }

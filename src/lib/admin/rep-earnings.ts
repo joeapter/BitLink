@@ -153,9 +153,12 @@ export async function getRepSummaries(db: SupabaseClient): Promise<RepSummary[] 
 
     // Trials are still worth showing — they're the leading indicator of a Rep
     // who is active — but they no longer decide the money.
+    // 'past_due' counts as running, not lost: the card is still being retried
+    // every couple of days and these do recover, so writing them off here would
+    // understate a Rep whose customer simply had an expired card.
     for (const t of theirTrials) {
       const status = String(t.status);
-      if (status === "cancelled" || status === "frozen") cancelled++;
+      if (status === "cancelled" || status === "frozen" || status === "terminated") cancelled++;
       else if (status !== "converted") running++;
     }
 

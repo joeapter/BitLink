@@ -29,7 +29,7 @@ export default async function TrialDecisionPage({ params }: { params: Promise<{ 
   const { token } = await params;
   const admin = createSupabaseAdminClient();
   const row = admin
-    ? (await admin.from("trial_lines").select("status").eq("token", token).maybeSingle()).data
+    ? (await admin.from("trial_lines").select("status, frozen_at").eq("token", token).maybeSingle()).data
     : null;
 
   if (!row) {
@@ -53,7 +53,7 @@ export default async function TrialDecisionPage({ params }: { params: Promise<{ 
     return (
       <StatusCard
         title="This trial was cancelled"
-        body="Your line is frozen and you weren't charged. Message us if you want to pick it back up."
+        body="Your line has been closed and you weren't charged. The number has gone back to our pool, so picking it back up would mean starting a new line — message us and we'll set one up."
       />
     );
   }
@@ -63,6 +63,30 @@ export default async function TrialDecisionPage({ params }: { params: Promise<{ 
       <StatusCard
         title="This trial has ended"
         body="We tried to continue your line automatically but the charge didn't go through, so it froze instead. Message us and we'll help you sort it out."
+      />
+    );
+  }
+
+  // past_due says nothing about whether the line is up — it keeps working for
+  // the first stretch of the retry ladder. frozen_at is the one that knows.
+  if (row.status === "past_due") {
+    return (
+      <StatusCard
+        title="We couldn't charge your card"
+        body={
+          row.frozen_at
+            ? "Your line is paused and your number is still being held for you. Update your card on your billing page and we'll retry automatically — your line comes straight back on once a payment goes through."
+            : "Your line is still working for now. Update your card on your billing page and we'll retry automatically, so nothing gets interrupted."
+        }
+      />
+    );
+  }
+
+  if (row.status === "terminated") {
+    return (
+      <StatusCard
+        title="This line has been closed"
+        body="We weren't able to take a payment, so the line was closed and the number released. You haven't been charged. Message us if you'd like to start a new line."
       />
     );
   }

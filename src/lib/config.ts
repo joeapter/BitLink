@@ -31,10 +31,16 @@ export const config = {
   },
   get annatel() {
     return {
-      apiUrl: get('ANNATEL_API_URL', 'https://business-manager.annatel.io/api'),
-      apiKey: get('ANNATEL_API_KEY'),
-      tenantId: get('ANNATEL_TENANT_ID'),
-      webhookSecret: get('ANNATEL_WEBHOOK_SECRET'),
+      // Normalised for the same reason as provider.registry.ts: the deployed
+      // ANNATEL_API_URL carries a trailing newline, which fetch() strips but a
+      // hand-rolled .env parser turns into a literal "\n" in the path (→ 403).
+      apiUrl: get('ANNATEL_API_URL', 'https://business-manager.annatel.io/api')
+        .replace(/\\n/g, '')
+        .trim()
+        .replace(/\/+$/, ''),
+      apiKey: get('ANNATEL_API_KEY').trim(),
+      tenantId: get('ANNATEL_TENANT_ID').trim(),
+      webhookSecret: get('ANNATEL_WEBHOOK_SECRET').trim(),
     };
   },
   get inngest() {

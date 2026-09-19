@@ -39,7 +39,7 @@ export function TrialDecisionForm({ token, autoContinuePlanName }: { token: stri
   }
 
   async function onCancel() {
-    if (!window.confirm("Cancel your trial? Your line will freeze now and you won't be charged.")) return;
+    if (!window.confirm("Cancel your trial? Your line closes now and you won't be charged. Your number goes back to our pool, so this can't be undone.")) return;
     setCancelling(true);
     setError(null);
 
@@ -70,7 +70,8 @@ export function TrialDecisionForm({ token, autoContinuePlanName }: { token: stri
       <div className="rounded-4xl border border-ink/10 bg-white p-8 text-center shadow-soft">
         <h2 className="text-2xl font-semibold text-ink">Trial cancelled</h2>
         <p className="mt-3 text-sm leading-6 text-muted-slate">
-          Your line is frozen and you won&apos;t be charged. Change your mind later? Just message us.
+          Your line is closed and you won&apos;t be charged. Change your mind later? Message us — we&apos;ll set you up
+          again, though it would be on a new number.
         </p>
       </div>
     );
@@ -139,7 +140,7 @@ export function TrialDecisionForm({ token, autoContinuePlanName }: { token: stri
           disabled={loading || cancelling}
           className="mt-2 text-xs font-semibold text-rose-700 underline decoration-rose-300 transition hover:text-rose-800 disabled:opacity-60"
         >
-          {cancelling ? "Cancelling…" : "Cancel my trial instead — freeze now, no charge"}
+          {cancelling ? "Cancelling…" : "Cancel my trial instead — close my line, no charge"}
         </button>
       </div>
     </div>

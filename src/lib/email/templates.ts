@@ -910,3 +910,101 @@ export function buildLineSuspendedEmail(params: {
     ${p("Something else going on, or want to cancel instead? Just reply to this email and a real person will pick it up.")}
   `);
 }
+
+// ── Trial charge-retry ladder ────────────────────────────────────────────────
+//
+// A separate ladder from the past-due one above, because the situation is
+// different: there is no Stripe subscription yet and so no hosted invoice to
+// pay. The only thing that fixes it is a working card on file, so every link
+// here points at the card, not at an invoice.
+
+// Rung 1 — the auto-continue charge was declined at the deadline. The line is
+// deliberately still running at this point, so the copy leads with that and
+// names the date it stops. Never soften that date: buildTrialLineFrozenEmail
+// is what arrives if it passes, and a warning nobody believes is worse than
+// no warning.
+
+export function buildTrialChargeFailedEmail(params: {
+  fullName: string;
+  planName: string;
+  priceLabel: string;
+  updateCardUrl: string;
+  retryDays: number;
+  freezeDateLabel: string;
+}): string {
+  const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  return layout(`
+    ${h1(`${firstName}, we couldn't charge your card`)}
+    ${p(`Your free trial ended, so we tried to continue your line on our <strong>${escapeHtml(params.planName)}</strong> plan at <strong>${escapeHtml(params.priceLabel)}/month</strong> — and your bank declined the charge. Usually that's an expired card, a temporary hold, or a balance that was short on the day.`)}
+    ${p("<strong>Your line is still working.</strong> Calls, texts and data are all running as normal, and we haven't taken a penny.")}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn("Update my card", params.updateCardUrl)}
+    </div>
+    ${p(`We'll keep trying the card every ${params.retryDays} days. If we still can't collect by <strong>${escapeHtml(params.freezeDateLabel)}</strong>, we'll have to pause the line — your number stays reserved for you either way.`)}
+    ${p("Would you rather not continue at all? Just reply to this email and we'll close it out, no charge and no hard feelings.")}
+  `);
+}
+
+// Rung 2 — the grace period is over and the line has actually stopped. Sent
+// after the suspension lands, so it says "is", not "will be".
+
+export function buildTrialLineFrozenEmail(params: {
+  fullName: string;
+  updateCardUrl: string;
+  graceDays: number;
+}): string {
+  const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  return layout(`
+    ${h1(`${firstName}, your line has been paused`)}
+    ${p(`We've been trying your card for ${params.graceDays} days without luck, so your BitLink line is now paused. Calls, texts and data are off.`)}
+    ${p("<strong>Your number is still yours.</strong> It's reserved on your account — nothing has been cancelled or given away.")}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn("Update my card and restore my line", params.updateCardUrl)}
+    </div>
+    ${p("We'll keep trying. The moment a payment goes through, your line comes straight back on with the same number — you won't need to reinstall anything or ask us to switch it on.")}
+    ${p("Something else going on? Reply to this email and a real person will pick it up.")}
+  `);
+}
+
+// Rung 3 — a month of retries has failed. This names a date, which is only
+// safe because processTrialLifecycle actually enforces it.
+
+export function buildTrialTerminationWarningEmail(params: {
+  fullName: string;
+  terminationDateLabel: string;
+  updateCardUrl: string;
+}): string {
+  const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  return layout(`
+    ${h1(`${firstName}, we're about to release your number`)}
+    ${p(`We've been trying your card for a month now and it hasn't gone through, so your BitLink line has been paused that whole time. We've held your number for you while we tried.`)}
+    ${p(`Unless we can take a payment, on <strong>${escapeHtml(params.terminationDateLabel)}</strong> we'll close the line for good and release the number back to the pool. <strong>That part can't be undone</strong> — once a number goes back, it can be reissued to someone else.`)}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn("Update my card and keep my number", params.updateCardUrl)}
+    </div>
+    ${p("If you've moved on and don't want the line, you don't need to do anything at all — nothing will be charged.")}
+    ${p("If something else is going on, reply to this email. A real person reads these and we'd rather sort it out than lose you.")}
+  `);
+}
+
+// Rung 3 — done. Sent after the line is actually gone, so the wording is past
+// tense and offers no link that would imply it can still be saved.
+
+export function buildTrialTerminatedEmail(params: {
+  fullName: string;
+}): string {
+  const firstName = (params.fullName ?? "").trim().split(/\s+/)[0] || "there";
+
+  return layout(`
+    ${h1(`${firstName}, your BitLink line has been closed`)}
+    ${p("We weren't able to take a payment after a month of trying, so as we said we would, we've closed your line and released the number. You haven't been charged anything.")}
+    ${p("If this wasn't what you wanted, we can set you up again from scratch — but it would be a new number, so it's worth telling us quickly if the old one mattered.")}
+    <div style="text-align:center;margin:28px 0;">
+      ${btn("Start a new line", `${BASE_URL}/plans`)}
+    </div>
+    ${p("Thanks for giving us a try. If something about BitLink didn't work for you, reply and tell us — we read every one.")}
+  `);
+}
