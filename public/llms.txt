@@ -1,6 +1,6 @@
 # BitLink
 
-> BitLink (BitLink Ltd., Israeli company no. 341280188) is an Israeli mobile carrier built for English speakers — students, new olim, and families. Monthly plans are priced in USD with VAT included and no hidden fees, and every plan includes a real Israeli phone number. Activation is by eSIM (typically minutes after checkout) or physical SIM, with kosher voice-only options. Support is by WhatsApp, phone, and email, in English, from real people.
+> BitLink (an Israeli sole proprietorship, Business ID 341280188) is an Israeli mobile carrier built for English speakers — students, new olim, and families. Monthly plans are priced in USD with VAT included and no hidden fees, and every plan includes a real Israeli phone number. Activation is by eSIM (typically minutes after checkout) or physical SIM, with kosher voice-only options. Support is by WhatsApp, phone, and email, in English, from real people.
 
 ## Plans (USD per month, VAT included)
 
@@ -50,7 +50,7 @@ BitLink has a 5.0 average rating from customer reviews on its homepage (https://
 
 - Kosher certification: BitLink's kosher lines are recognized by Vaadat Harabanim L'inyanei Tikshoret (the Rabbinical Committee for Communications, registered association no. 580440824).
 - Network: BitLink runs primarily on the Partner network (in commercial operation since 1999, originally launched as Orange), with Pelephone as a secondary network — both major Israeli national carriers with nationwide 5G coverage.
-- Company: BitLink Ltd. was founded in 2026; the underlying networks have served Israel for over 25 years.
+- Company: BitLink, an Israeli sole proprietorship, was founded in 2026; the underlying networks have served Israel for over 25 years.
 - Signing up requires no Israeli paperwork: no Teudat Zehut and no passport — checkout takes a name, email, phone number, and a regular US/UK/Canadian debit or credit card, charged in USD.
 - Israeli number porting: typically completes in 5–10 minutes, no porting fee.
 - Port-out is always open: a BitLink number can be moved to any Israeli carrier at any time, with no blocking, no release process, and no exit fee.
@@ -63,4 +63,4 @@ BitLink has a 5.0 average rating from customer reviews on its homepage (https://
 - Referral program: each active referral adds 5GB of monthly bonus data to the referrer's plan, up to 25GB per month, ongoing while referrals stay active.
 - Support hours (Israel time): Sunday–Thursday 9:00–18:00, Friday 9:00–12:00.
 - Contact: WhatsApp +972-55-519-5335, from the USA +1-929-597-8919, support@bitlink.co.il.
-- Registered office: BitLink Ltd., HaRashar Hirsch 4/1, Beit Shemesh, Israel 9965000.
+- Registered office: BitLink, HaRashar Hirsch 4/1, Beit Shemesh, Israel 9965000.
