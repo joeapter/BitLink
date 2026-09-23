@@ -48,9 +48,10 @@ export default async function CarrierRatesPage() {
         <p className="text-sm font-semibold text-link-blue">Settings</p>
         <h1 className="mt-2 text-4xl font-semibold tracking-normal text-ink">Carrier rates</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-slate">
-          Per-unit costs from your Annatel RESELLER contract. Used to calculate CDR-based cost per
-          customer in monthly org reports. International number rates are placeholders — update them
-          when the contract addendum is signed.
+          Per-unit costs from your Annatel RESELLER contract, used for CDR-based cost in the{" "}
+          <a href="/admin/usage" className="font-semibold text-link-blue">usage meter</a> and the
+          monthly org reports. The international <em>number</em> fees are real and charged per number
+          held; only the per-minute international call rates are still unpriced.
         </p>
       </section>
 
