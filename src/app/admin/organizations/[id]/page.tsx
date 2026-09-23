@@ -23,7 +23,16 @@ function formatIls(agurot: number): string {
   return new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS", minimumFractionDigits: 2 }).format(agurot / 100);
 }
 
-// Cost in agurot for one customer's CDR usage + active line fee
+// Cost in agurot for one customer's CDR usage + active line fee.
+//
+// International DID fees (rates.intl_number_us/uk/ca, real since migration 044)
+// are deliberately NOT charged here, though they are present in the rates map.
+// Annatel bills them per number HELD, not per number assigned, and will not
+// take spare blocks back: 75 numbers held against 6 assigned. Attributing ₪6 to
+// the one customer on a US number would make that customer look worse than they
+// are while the other 22 idle US numbers stayed invisible — the opposite of
+// what this report is for. It is a company-level fixed cost, so it belongs in
+// overheads, not in per-customer margin. Decided 2026-09-23; leave it out.
 function calcCdrCost(
   cdrs: Array<{ call_type: string; duration_sec: number; data_bytes: number; sms_count: number }>,
   rates: Record<string, number>,
