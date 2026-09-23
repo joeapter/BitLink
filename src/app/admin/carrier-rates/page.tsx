@@ -13,12 +13,15 @@ const TYPE_LABELS: Record<string, { label: string; hint: string; group: string }
   line_fee:         { label: "Active line fee",              hint: "₪ per active line per month",      group: "Base rates (Annatel contract)" },
   interconnect_out: { label: "Interconnect (outgoing)",      hint: "₪ per minute — Israeli law",       group: "Base rates (Annatel contract)" },
   interconnect_in:  { label: "Interconnect (incoming)",      hint: "₪ per minute — Israeli law",       group: "Base rates (Annatel contract)" },
-  intl_number_us:   { label: "US number — monthly fee",      hint: "₪ per DID number per month",       group: "International numbers (pending addendum)" },
-  intl_number_uk:   { label: "UK number — monthly fee",      hint: "₪ per DID number per month",       group: "International numbers (pending addendum)" },
-  intl_number_ca:   { label: "Canada number — monthly fee",  hint: "₪ per DID number per month",       group: "International numbers (pending addendum)" },
-  intl_calls_us:    { label: "Calls to/from US number",      hint: "₪ per minute",                    group: "International numbers (pending addendum)" },
-  intl_calls_uk:    { label: "Calls to/from UK number",      hint: "₪ per minute",                    group: "International numbers (pending addendum)" },
-  intl_calls_ca:    { label: "Calls to/from Canada number",  hint: "₪ per minute",                    group: "International numbers (pending addendum)" },
+  // Charged per number HELD, not per number assigned — the fee runs whether or
+  // not a customer is on it, and Annatel will not take spare blocks back.
+  intl_number_us:   { label: "US number — monthly fee",      hint: "₪ per DID held per month",         group: "International numbers" },
+  intl_number_uk:   { label: "UK number — monthly fee",      hint: "₪ per DID held per month",         group: "International numbers" },
+  intl_number_ca:   { label: "Canada number — monthly fee",  hint: "₪ per DID held per month",         group: "International numbers" },
+  // These genuinely are still unpriced.
+  intl_calls_us:    { label: "Calls to/from US number",      hint: "₪ per minute",                    group: "International calls (pending addendum)" },
+  intl_calls_uk:    { label: "Calls to/from UK number",      hint: "₪ per minute",                    group: "International calls (pending addendum)" },
+  intl_calls_ca:    { label: "Calls to/from Canada number",  hint: "₪ per minute",                    group: "International calls (pending addendum)" },
 };
 
 // Israel abolished all mobile interconnect fees in June 2025 (Bill and Keep model).
