@@ -3410,6 +3410,14 @@ export const guides: Guide[] = [
         ],
       },
       {
+        heading: "Can I keep my Israeli number if I switch?",
+        paragraphs: [
+          "Yes, and this is usually the thing people are really asking when they hesitate. Porting an Israeli mobile number to BitLink is free and typically completes in five to ten minutes. Your existing line stays live right up to the moment the switch happens, so there is no window where you are unreachable and nothing to arrange around it.",
+          "The reason it matters is not the number itself but everyone who already has it. Your bank, Bituach Leumi, gov.il, Misrad HaPnim, your employer, your kids' school and every delivery driver who has ever found your building are all holding that number. The real cost of changing carriers in Israel was never the plan — it was the prospect of telling all of them. Porting removes that entirely, which is why it is worth knowing before you weigh anything else.",
+          "This is an ordinary thing here rather than a special request: we have ported real customers' numbers across the 050, 055 and 058 ranges. You keep your Israeli number, and on [Max 5G](/plans/max-5g) you gain an American one — same phone, same bill. [More on how porting works](/keep-your-number).",
+        ],
+      },
+      {
         heading: "What are the honest limits?",
         paragraphs: [
           "It is a US number, not a US address. Services that verify where you live — some insurers, some state-level services, anything asking for proof of residence — are not fooled by a phone number, and should not be. This solves the verification-code problem and the reachability problem. It does not make you appear to be living in New Jersey.",
@@ -3447,16 +3455,22 @@ export const guides: Guide[] = [
         answer:
           "Nothing — it stays attached to your line and keeps receiving calls and texts wherever the line has service. That includes trips back to the States, where having both numbers on one phone tends to be the most useful it ever is.",
       },
+      {
+        question: "Will I lose my Israeli number if I move to BitLink?",
+        answer:
+          "No. Porting an Israeli mobile number across is free and typically takes five to ten minutes, and your existing line keeps working until the moment the switch completes, so there is no gap where people can't reach you. You keep the number your bank, Bituach Leumi, gov.il and everyone else already has on file — the thing that usually makes changing carriers feel expensive is not the plan, it's re-telling everybody your new number, and porting removes that.",
+      },
     ],
     relatedLinks: [
       { href: "/us-number-in-israel", label: "US number in Israel" },
       { href: "/plans/max-5g", label: "Max 5G — two numbers" },
+      { href: "/keep-your-number", label: "Keep your Israeli number" },
       { href: "/guides/virtual-israeli-number-bank-2fa", label: "Why banks reject virtual numbers" },
       { href: "/israeli-phone-plans-for-olim", label: "Phone plans for olim" },
     ],
     cta: {
       heading: "One phone, an Israeli number and an American one.",
-      body: "Max 5G is $39.99/month with a US, Canada or UK number included — the number is $9.99 on every other plan. 120GB of data, 150 minutes to US and Canadian numbers, VAT included where applicable, no contract.",
+      body: "Max 5G is $39.99/month with a US, Canada or UK number included — the number is $9.99 on every other plan. Keep your Israeli number: porting is free and usually takes five to ten minutes. 120GB of data, 150 minutes to US and Canadian numbers, VAT included where applicable, no contract.",
       href: "/plans/max-5g",
       label: "See Max 5G",
       // Read from the plan so this line can never disagree with the window the
