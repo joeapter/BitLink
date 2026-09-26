@@ -229,18 +229,24 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         </div>
       </article>
 
+      {/* A guide whose reader arrived with a specific problem gets a matching
+          offer; everything else falls back to the generic plans pitch. */}
       <section className="bg-ink px-4 py-14 text-white sm:px-6 sm:py-16 lg:px-8">
         <div className="mx-auto flex max-w-3xl flex-col justify-between gap-6 sm:flex-row sm:items-center">
           <div>
             <h2 className="text-balance text-2xl font-semibold tracking-normal sm:text-3xl">
-              Ready to set up your Israeli number?
+              {guide.cta?.heading ?? "Ready to set up your Israeli number?"}
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-200">
-              Monthly plans from $14.99, VAT included where applicable, no contract — with real people on WhatsApp if you get stuck.
+              {guide.cta?.body ??
+                "Monthly plans from $14.99, VAT included where applicable, no contract — with real people on WhatsApp if you get stuck."}
             </p>
+            {guide.cta?.reassurance && (
+              <p className="mt-3 text-sm font-semibold leading-6 text-white">{guide.cta.reassurance}</p>
+            )}
           </div>
-          <ButtonLink href="/plans" variant="dark" size="lg" className="shrink-0">
-            See the plans
+          <ButtonLink href={guide.cta?.href ?? "/plans"} variant="dark" size="lg" className="shrink-0">
+            {guide.cta?.label ?? "See the plans"}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </ButtonLink>
         </div>

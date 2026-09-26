@@ -29,6 +29,12 @@ export type BitLinkPlan = {
   // $9.99/mo add-on. Checkout skips billing for it and provisioning attaches
   // it alongside the Israeli number.
   includesIntlNumber?: boolean;
+  // Days after purchase in which a full refund is given, no questions asked.
+  // Omitted means DEFAULT_REFUND_WINDOW_DAYS. It lives on the plan rather than
+  // in copy because the window differs per plan and the promise is quoted in
+  // several places — a hardcoded number in a guide and a different one in an
+  // email is how a customer ends up being told the wrong thing.
+  refundWindowDays?: number;
   featured?: boolean;
   badge?: string;
   features: string[];
@@ -204,6 +210,13 @@ export const plans: BitLinkPlan[] = [
     //    spare blocks back — 75 held against 6 assigned as of Sept 2026. Each
     //    one we attach to a plan is already paid for.
     includesIntlNumber: true,
+    // Longer than the standard window, and only on this plan. At $39.99 with no
+    // free trial in front of it, the refund IS the risk-reducer at checkout —
+    // the trial funnel auto-continues onto Basic, so it was never going to sell
+    // this plan. Two weeks comfortably covers the period in which someone learns
+    // whether coverage is fine and whether their bank's codes actually arrive,
+    // while staying short enough not to fund a three-week visit.
+    refundWindowDays: 14,
     badge: "Two Numbers",
     features: [
       "Israeli phone number",
@@ -349,6 +362,22 @@ export function getPlan(slug?: string | null) {
 export function findPlan(slug?: string | null): BitLinkPlan | undefined {
   if (!slug) return undefined;
   return plans.find((plan) => plan.slug === slug);
+}
+
+/** The refund window every plan gets unless it names its own. */
+export const DEFAULT_REFUND_WINDOW_DAYS = 3;
+
+/**
+ * Days after purchase in which this plan is refunded in full, no questions
+ * asked. Quote this rather than writing a number into copy — the window is not
+ * the same on every plan.
+ *
+ * Note the promise is administered by hand ("message us"), deliberately: seeing
+ * every request is what makes a pattern of abuse visible. So treat the number
+ * as the floor advertised, not a limit to enforce to the hour.
+ */
+export function refundWindowDays(slug?: string | null): number {
+  return findPlan(slug)?.refundWindowDays ?? DEFAULT_REFUND_WINDOW_DAYS;
 }
 
 export function getStripePriceId(plan: BitLinkPlan) {

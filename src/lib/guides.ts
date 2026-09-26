@@ -1,3 +1,6 @@
+// plans.ts has no imports of its own, so this cannot cycle back.
+import { refundWindowDays } from "@/lib/plans";
+
 export type Guide = {
   slug: string;
   title: string;
@@ -32,6 +35,22 @@ export type Guide = {
     href: string;
     label: string;
   }>;
+  // Optional override for the closing call-to-action. Without it every guide
+  // ends on the same generic "set up your Israeli number → /plans" block, which
+  // is right for most of them but wastes the guides whose reader arrived with a
+  // specific problem — someone reading about US bank codes should be shown the
+  // plan that includes a US number, not a plan list to work through.
+  //
+  // `reassurance` is for the line that lowers friction at the moment of
+  // decision (e.g. the refund window). It belongs here rather than only in the
+  // welcome email, which arrives after the hesitation has already cost the sale.
+  cta?: {
+    heading: string;
+    body: string;
+    href: string;
+    label: string;
+    reassurance?: string;
+  };
   // Opt-in device compatibility block: a table plus the "confirm my model"
   // widget. Only the eSIM guide uses it.
   deviceCompatibility?: {
@@ -313,12 +332,16 @@ export const guides: Guide[] = [
   },
   {
     slug: "esim-israel",
+    // Kept deliberately narrow to device setup — see the note on
+    // landingPages.israelEsim in public-content.ts. This guide was
+    // outranking the commercial page on "israel esim" and "israeli esim";
+    // the split is now install-how-to here, product there.
     title: "How to set up an eSIM in Israel",
-    metaTitle: "How to Set Up an eSIM in Israel — iPhone, Samsung & Pixel",
+    metaTitle: "Install an eSIM in Israel: iPhone, Samsung & Pixel Steps",
     metaDescription:
-      "How eSIM works in Israel: activation time, which phones support it, and step-by-step install for iPhone, Samsung Galaxy and Google Pixel.",
+      "Step-by-step eSIM install for iPhone, Samsung Galaxy and Pixel in Israel, how long activation takes, and how to check your phone supports eSIM before you order.",
     datePublished: "2026-07-08",
-    dateModified: "2026-07-08",
+    dateModified: "2026-09-17",
     readingTime: "8 min read",
     intro:
       "An eSIM is a digital SIM card built into your phone — instead of inserting a plastic card, you activate service by scanning a QR code. For anyone coming to Israel, moving here, learning here, or switching Israeli providers, it means getting connected without shipping, store visits, or a tiny card to lose. This guide covers how eSIM works, how long it takes, which phones support it, and exactly how to install one on an iPhone, Samsung Galaxy, or Google Pixel.",
@@ -579,12 +602,19 @@ export const guides: Guide[] = [
   },
   {
     slug: "kosher-phones-israel-explained",
+    // Retitled Sept 2026 off Search Console data. The page already ranks
+    // page-one on the whole cluster — "kosher phone" pos 5.6 (69 impr),
+    // "kosher phone israel" pos 3.8, "kosher mobile" pos 4.2, "what is
+    // kosher phone" pos 7.7 — and took 4 clicks off ~127 impressions. The
+    // dominant intent is definitional ("what is a kosher phone"), but the
+    // old title opened on a feature list rather than the answer. Same fix
+    // that doubled CTR on getting-packages-in-israel: lead with the answer.
     title: "Kosher phones in Israel, explained: devices, certification, and plans",
-    metaTitle: "Kosher Phones in Israel: Certification, Devices & Plans",
+    metaTitle: "What Is a Kosher Phone in Israel? Rules, Devices & Plans",
     metaDescription:
-      "What makes a phone kosher, who certifies it (Vaadat Harabanim), what a kosher line includes, and how English speakers get one — plans from $19.99/month.",
+      "A kosher phone is two things: a call-only certified device, and a line with data and SMS blocked at network level. What Vaadat Harabanim recognition covers, plans from $19.99/mo.",
     datePublished: "2026-07-12",
-    dateModified: "2026-07-12",
+    dateModified: "2026-09-17",
     readingTime: "7 min read",
     intro:
       "A kosher phone is two things working together: a certified device built for calling only, and a kosher phone line from the carrier. Getting one in Israel as an English speaker usually means navigating Hebrew-first stores and paperwork — this guide explains the whole system plainly: what certification actually covers, who Vaadat Harabanim is, what a kosher line does and deliberately doesn't include, and what it costs. BitLink's kosher plans run $19.99–$24.99/month in USD, VAT included where applicable, on lines recognized by Vaadat Harabanim L'inyanei Tikshoret.",
@@ -3334,6 +3364,105 @@ export const guides: Guide[] = [
       { href: "/guides/virtual-israeli-number-bank-2fa", label: "Israeli SMS codes, explained" },
       { href: "/israel-sim-for-tourists", label: "SIM plans for tourists" },
     ],
+  },
+  {
+    slug: "us-number-for-olim-in-israel",
+    title: "How do olim in Israel keep a US number for their bank?",
+    metaTitle: "Keeping a US Number After Aliyah: What Still Works",
+    metaDescription:
+      "Your US bank won't text an Israeli number, Google Voice gets rejected, and your old US line will eventually be cut off. What actually receives American verification codes while you live in Israel.",
+    datePublished: "2026-09-27",
+    dateModified: "2026-09-27",
+    readingTime: "7 min read",
+    intro:
+      "You are already here. The klita is behind you, your Israeli line works fine, and you are not looking for a new phone plan. What you are looking for is a way to stop losing an afternoon every time Chase, Fidelity or the IRS insists on texting a code to a US number you no longer hold. This is one of the most persistent unglamorous problems of aliyah, it rarely comes up before you move, and it does not resolve itself — American financial institutions will keep asking for a US number for as long as you hold a US account. Here is why the usual workarounds fail, and what a US number that rings in Israel actually does for you.",
+    sections: [
+      {
+        heading: "Why won't my US bank text my Israeli number?",
+        paragraphs: [
+          "Because for a US institution, the country code is part of the security model. A number is being used as proof that you are the account holder, and many American banks and brokerages are configured to send verification codes only to domestic mobile numbers — partly for fraud reasons, partly because the short codes they send from were never set up to deliver internationally.",
+          "The failure mode is what makes this maddening. Some systems refuse the number at the form, which at least tells you where you stand. Others accept it, appear to send, and nothing arrives — so you assume a delivery problem, try again, and eventually trip the account's own fraud protections. A good number of olim discover this the first time they try to log in to a brokerage from Israel and end up locked out of their own money.",
+          "It also does not fade with time. A US bank account, a 401(k), a brokerage, an old credit card, US tax filing and Social Security all keep a US number on file, and each one re-verifies periodically. The problem recurs for as long as you keep the account, which for most olim is permanently.",
+        ],
+      },
+      {
+        heading: "Doesn't Google Voice solve this for free?",
+        paragraphs: [
+          "Sometimes, and then it stops. Google Voice numbers are VoIP, and the same filtering that makes banks refuse virtual Israeli numbers applies here in reverse — a great many US banks and brokerages specifically reject VoIP numbers for two-factor authentication, because they can be created instantly and in bulk. You may get one institution working and another flatly refusing.",
+          "The deeper problem is short codes. Banks send verification texts from five- and six-digit short codes, and delivery of those to Google Voice has always been patchy. It is the single category of message you most need to arrive, and the one least likely to.",
+          "There is also the setup catch. Google Voice expects a US phone number to establish the account in the first place, which is precisely what you no longer have, and numbers can be reclaimed after long periods without use. It is a reasonable way to keep a number you already had alive for occasional calls. It is not something to put between yourself and your bank.",
+        ],
+      },
+      {
+        heading: "Can I just keep my old US line running?",
+        paragraphs: [
+          "You can, for a while, and plenty of olim do. A cheap US plan kept alive on roaming will receive your codes. Two things tend to end it. Most US carriers' terms do not permit a line to live permanently outside the country, and lines used exclusively abroad do get flagged and eventually cancelled — usually without much warning and usually at an inconvenient moment. And keeping a foreign plan paid usually means keeping a US address and a US payment method current, which is its own slow administrative burden.",
+          "The practical cost is the second SIM. Your Israeli line is the one you actually use, so the US line either sits in a second phone in a drawer — where you will not see the code when you need it — or occupies your phone's second SIM slot, which on many devices is the slot your Israeli eSIM is already in.",
+          "If it is working for you, there is no urgency in changing it. This guide is for the point at which it stops.",
+        ],
+      },
+      {
+        heading: "What actually works from Israel?",
+        paragraphs: [
+          "A real US number, issued in the US, attached as a second number to the Israeli line you already carry. Your phone rings for both. Your bank sees an ordinary American mobile number, because that is what it is — not a forwarding service and not a VoIP endpoint, which is why it passes the checks that reject Google Voice.",
+          "In practice that means US verification texts arrive on the phone in your pocket, in Israel, seconds after the bank sends them. We have tested this with real Chase and Google codes rather than taking it on trust. It also takes incoming calls, so the fraud-alert callback and the HR line reach you, and family in the States dial a local number instead of an international one.",
+          "With BitLink this is either an add-on at $9.99/month on any plan, or included at no extra cost on [Max 5G](/plans/max-5g) — which is the same $39.99 as before we bundled it, so the number comes with the plan rather than on top of it. You pick US, Canada or UK at checkout, and it is set up alongside your Israeli number automatically. No Israeli ID, no Israeli bank account, no branch visit; an ordinary foreign card works, and activation on an eSIM usually takes a few minutes.",
+        ],
+      },
+      {
+        heading: "What are the honest limits?",
+        paragraphs: [
+          "It is a US number, not a US address. Services that verify where you live — some insurers, some state-level services, anything asking for proof of residence — are not fooled by a phone number, and should not be. This solves the verification-code problem and the reachability problem. It does not make you appear to be living in New Jersey.",
+          "It cannot rescue an account that is already locked. Once a bank has frozen access after failed attempts, you still have to go through their recovery process. The number keeps it from happening again; it does not undo it.",
+          "And on kosher lines the number carries incoming calls only, with no texts, because the line is voice-only by design. If the reason you want a US number is bank codes, it needs to sit on an ordinary data-and-SMS line.",
+        ],
+      },
+      {
+        heading: "Is talking to a person actually part of this?",
+        paragraphs: [
+          "It is the part olim mention most, and it is worth being plain about why. If you have spent an hour in an Israeli carrier's phone queue to change something that should have taken a minute, or been told to visit a branch during hours you are at work, you already know the frustration is not about coverage. The networks here are genuinely good. The service around them is what wears people down.",
+          "BitLink is built for English speakers, so support is in English, by WhatsApp, phone and email, and answered by people rather than a menu tree. You can message before you buy anything and ask whether your specific bank will work — that is a normal question here, not an escalation. Support runs Sunday to Thursday 9:00–18:00 and Friday 9:00–12:00 Israel time.",
+          "That is also the honest reason someone already settled in Israel would move a line to a smaller carrier: not to save money, because you probably will not, but to stop spending your own time on your phone company.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Will my American bank accept a BitLink US number for two-factor codes?",
+        answer:
+          "In our testing yes — it is a real US mobile number rather than a VoIP or forwarding number, which is the distinction banks actually filter on. We have confirmed real Chase and Google verification codes arriving in Israel. Individual institutions do set their own rules, so if one specific bank matters more than the others, message us before you buy and ask — we would rather tell you honestly than sell you something that does not solve your problem.",
+      },
+      {
+        question: "Do I have to give up my current Israeli plan?",
+        answer:
+          "No. If you are happy with your Israeli carrier, keep them — the US number can sit on a second BitLink line as an eSIM alongside what you already have, and nothing about your existing number changes. Moving your Israeli line across as well is only worth it if you want the English support and the two numbers on one bill, which is what Max 5G is for.",
+      },
+      {
+        question: "Can I keep the US number I already have instead of taking a new one?",
+        answer:
+          "Usually yes, by porting it. That is a separate process from taking a new number: there is a one-time $49.99 fee, it typically takes three to five business days, and your old number stays live throughout so nothing goes dark mid-port. It is worth it when the number is already on file with banks and employers, and not worth it if nobody would notice the change.",
+      },
+      {
+        question: "What happens to the US number if I travel?",
+        answer:
+          "Nothing — it stays attached to your line and keeps receiving calls and texts wherever the line has service. That includes trips back to the States, where having both numbers on one phone tends to be the most useful it ever is.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/us-number-in-israel", label: "US number in Israel" },
+      { href: "/plans/max-5g", label: "Max 5G — two numbers" },
+      { href: "/guides/virtual-israeli-number-bank-2fa", label: "Why banks reject virtual numbers" },
+      { href: "/israeli-phone-plans-for-olim", label: "Phone plans for olim" },
+    ],
+    cta: {
+      heading: "One phone, an Israeli number and an American one.",
+      body: "Max 5G is $39.99/month with a US, Canada or UK number included — the number is $9.99 on every other plan. 120GB of data, 150 minutes to US and Canadian numbers, VAT included where applicable, no contract.",
+      href: "/plans/max-5g",
+      label: "See Max 5G",
+      // Read from the plan so this line can never disagree with the window the
+      // plan actually honours.
+      reassurance: `Not for you? Message us within ${refundWindowDays("max-5g")} days and we'll refund you in full, no questions asked.`,
+    },
   },
 ];
 
