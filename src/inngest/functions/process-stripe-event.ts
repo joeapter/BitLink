@@ -891,9 +891,13 @@ async function handleCheckoutCompleted(
     'Subscriber created, telecom line drafted, provisioning job queued',
   );
 
-  // NEW intl number (no port): record the request on the line so it can't be
-  // silently billed without fulfillment. No automated provisioning path exists
-  // yet — admin fulfills manually until Annatel exposes one.
+  // NEW intl number (no port): record the intent on the line. The number is
+  // attached automatically — completeJob() in the provisioning orchestrator
+  // picks this metadata up once the carrier line is live, assigns the Israeli
+  // DID first and then the international one to the same provider line. It also
+  // chooses a number from the pool when the customer took "no preference"
+  // ('awaiting_fulfillment'), so a bundled-number plan never depends on someone
+  // noticing a queue. Nothing here waits for an admin.
   if (wantsIntlNumber && !intlPortNumber) {
     try {
       const { data: currentLine } = await admin.from('telecom_lines').select('metadata').eq('id', lineId).single();

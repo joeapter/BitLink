@@ -161,39 +161,62 @@ export const plans: BitLinkPlan[] = [
     priceCents: 3999,
     currency: "USD",
     allowances: { dataBytes: 120000000000, voiceMinutes: 5000, smsCount: 1000 },
-    description: "More data, plus USA/CA calling.",
+    description: "Two numbers — Israeli and American.",
     detail:
-      "120GB of 5G data for students who stream and stay connected all day — includes 5,000 local minutes, 1,000 SMS, and 150 minutes to US and Canadian numbers.",
-    seoTitle: "Max 5G — $39.99/mo, 120GB + US/Canada Minutes",
+      "120GB of 5G data with a US, Canadian or UK number included free — so your bank, the IRS and family abroad reach a local number while your Israeli line rings. Plus 5,000 local minutes, 1,000 SMS, and 150 minutes to US and Canadian numbers.",
+    seoTitle: "Max 5G — $39.99/mo, 120GB + a Free US Number",
     seoDescription:
-      "120GB 5G data plus 150 minutes to US & Canada, 5,000 local minutes. $39.99/month, VAT included where applicable. The plan for olim staying close to family abroad.",
+      "An Israeli number and a US, Canadian or UK number on one phone, included. 120GB 5G data, 150 minutes to US & Canada. $39.99/month, VAT included where applicable.",
     faq: [
       {
         question: "Who should choose Max 5G?",
         answer:
-          "Max 5G is built for two situations that often overlap: heavy data use — streaming, hotspotting a laptop, working from your phone — and staying close to family abroad, with 150 minutes of calling to US and Canadian numbers included every month at no extra cost. It tends to suit olim in their first year and anyone whose phone is their main work tool.",
+          "Anyone who needs to exist in two countries at once. Max 5G includes a second number — US, Canadian or UK — on the same phone as your Israeli line, which is what makes it work for olim who still have a bank, a brokerage, an employer or elderly parents abroad. It also carries the most data of any BitLink plan, so it suits heavy streaming, hotspotting a laptop, or working from your phone.",
+      },
+      {
+        question: "Is the US number really included, or is it a trial?",
+        answer:
+          "Included, permanently, at no extra charge — it is part of the plan rather than a promotion with an end date. On any other plan that same number is $9.99/month, so Max 5G is $49.98 of service at $39.99. You choose US, Canada or UK at checkout and the number is set up alongside your Israeli line.",
+      },
+      {
+        question: "What can I actually do with the included US number?",
+        answer:
+          "It takes calls and US verification texts. In practice that means bank and brokerage one-time codes, two-factor prompts from US services, the IRS and employer HR lines, and family who dial a local number in their own country instead of calling internationally. It is a real number in that country, not a forwarding trick, and it keeps working if you travel.",
       },
       {
         question: "Does Max 5G include international calling?",
         answer:
-          "It includes 150 minutes per month to US and Canadian numbers, on top of 5,000 minutes to Israeli numbers. If family calls you more than you call them, the US/Canada/UK local number add-on ($9.99/month) gives them a number that's local on their end, so they can reach you without international dialing at all. It receives US verification texts, too.",
+          "It includes 150 minutes per month to US and Canadian numbers, on top of 5,000 minutes to Israeli numbers — that covers the calls you make. The included US, Canada or UK number covers the calls they make to you, without anyone dialing internationally.",
       },
     ],
     stripeEnvKey: "STRIPE_PRICE_MAX_5G",
-    tone: "More data for heavy users",
+    tone: "An Israeli number and an American one",
     isKosher: false,
-    badge: "Most Data",
+    // Bundles the US/Canada/UK number into the plan price, the same mechanism
+    // Kosher+ uses. Two reasons this is the right plan to bundle it into:
+    //
+    // 1. It is the only axis where no Israeli carrier competes at any price.
+    //    Max 5G was otherwise a pure gigabyte comparison against carriers
+    //    reselling domestic data at a fraction of our wholesale rate, which is
+    //    the one fight we lose.
+    // 2. The DID costs nothing at the margin. Annatel bills international
+    //    numbers per number HELD, not per number assigned, and will not take
+    //    spare blocks back — 75 held against 6 assigned as of Sept 2026. Each
+    //    one we attach to a plan is already paid for.
+    includesIntlNumber: true,
+    badge: "Two Numbers",
     features: [
       "Israeli phone number",
+      "US, Canada or UK number included free (normally $9.99/mo)",
       "120GB high-speed 5G data",
       "5,000 minutes to Israeli landlines and mobiles",
       "1,000 SMS to Israeli mobiles",
       "150 minutes to US & Canadian numbers",
+      "Receives US bank and 2FA verification codes",
       "eSIM or physical SIM",
       "Priority WhatsApp support",
       "VAT included where applicable",
       "No hidden fees",
-      "US/Canada/UK number available as add-on: +$9.99/mo",
     ],
     comparison: {
       data: "120GB 5G",

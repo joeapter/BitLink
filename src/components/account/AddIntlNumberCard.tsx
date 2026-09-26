@@ -16,10 +16,19 @@ export function AddIntlNumberCard({
   lineId,
   status,
   existingNumber,
+  planIncludesNumber = false,
 }: {
   lineId: string;
   status: string;
   existingNumber: string | null;
+  /**
+   * True on plans that bundle the number (Max 5G, Kosher+). Normally such a
+   * line already HAS one, so existingNumber hides this card anyway — but if the
+   * pool ran dry and the automatic attach failed, the customer would otherwise
+   * be invited to pay $9.99/mo for something their plan already includes. That
+   * is the one case worth a second guard.
+   */
+  planIncludesNumber?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [country, setCountry] = useState<IntlCountry>("us");
@@ -29,7 +38,7 @@ export function AddIntlNumberCard({
     null,
   );
 
-  if (status !== "active" || existingNumber) return null;
+  if (status !== "active" || existingNumber || planIncludesNumber) return null;
 
   return (
     <div className="mt-3 rounded-xl border border-ink/10 bg-white p-4">

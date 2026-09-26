@@ -9,6 +9,7 @@ import { AddIntlNumberCard } from "@/components/account/AddIntlNumberCard";
 import { TopupCard } from "@/components/account/TopupCard";
 import { SmsForwarderCard } from "@/components/account/SmsForwarderCard";
 import { requireUser } from "@/lib/auth/server";
+import { planIncludesIntlNumber } from "@/lib/kosher-plus-promo";
 import { getAccountSnapshot } from "@/lib/db/account";
 import { getSmsForwarderStatus } from "@/lib/account/sms-forwarder-actions";
 import { toLpaString } from "@/lib/esim";
@@ -86,6 +87,7 @@ export default async function AccountLinesPage() {
                   ? ((meta.intl_number as { number?: string }).number ?? null)
                   : null
               }
+              planIncludesNumber={currentPlanSlug ? planIncludesIntlNumber(currentPlanSlug) : false}
             />
             {/* One-time data/minute topups, charged immediately */}
             <TopupCard lineId={line.id} status={line.status} isKosher={line.is_kosher} />
