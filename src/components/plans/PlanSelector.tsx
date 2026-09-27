@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { publicPlans as plans, defaultKosherPlanSlug, type PlanSlug } from "@/lib/plans";
 import { formatMoney, cn } from "@/lib/utils";
 import { ButtonLink } from "@/components/ui/Button";
+import { AddOnCard } from "@/components/plans/AddOnCard";
 import { PlanFeatureList } from "./PlanFeatureList";
 import { KOSHER_PLUS_PROMO } from "@/lib/kosher-plus-promo";
 
@@ -192,6 +193,12 @@ function PlanSelectorInner({
             </div>
           </motion.div>
         </AnimatePresence>
+      </div>
+
+      {/* Inside the selector because it has to follow the tab — it names the
+          plan that includes the number, which differs per family. */}
+      <div className="lg:col-span-2">
+        <AddOnCard includedWith={tab === "kosher" ? "kosher" : "standard"} />
       </div>
     </div>
   );

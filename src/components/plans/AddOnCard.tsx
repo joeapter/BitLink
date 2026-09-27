@@ -2,8 +2,18 @@ import { Plus } from "lucide-react";
 import { usCanadaNumberAddOn } from "@/lib/plans";
 import { formatMoney } from "@/lib/utils";
 
-export function AddOnCard() {
+/**
+ * The add-on is included on one plan in each family — Kosher+ among the kosher
+ * plans, Max 5G among the standard ones. Naming the wrong one is worse than
+ * naming none: someone reading the standard tab was being told about a kosher
+ * plan they cannot buy, and never learned Max already includes it.
+ */
+export function AddOnCard({ includedWith = "kosher" }: { includedWith?: "kosher" | "standard" }) {
   const addon = usCanadaNumberAddOn;
+  const includedLine =
+    includedWith === "kosher"
+      ? "Included with Kosher+ — no extra charge."
+      : "Included with Max 5G — no extra charge.";
 
   return (
     <div className="mt-4 flex flex-col gap-4 rounded-lg border border-ink/10 bg-white px-6 py-5 shadow-soft sm:flex-row sm:items-center sm:justify-between sm:gap-8">
@@ -14,7 +24,7 @@ export function AddOnCard() {
         <div>
           <p className="text-sm font-semibold text-ink">{addon.tagline}</p>
           <p className="mt-1 text-sm leading-6 text-muted-slate">{addon.body}</p>
-          <p className="mt-1 text-sm font-semibold text-emerald-700">Included with Kosher+ — no extra charge.</p>
+          <p className="mt-1 text-sm font-semibold text-emerald-700">{includedLine}</p>
         </div>
       </div>
       <div className="shrink-0 pl-11 sm:pl-0">
