@@ -1,4 +1,8 @@
-export type PlanSlug = "basic" | "kosher-basic" | "kosher-plus" | "student-5g" | "max-5g";
+// `max-5g-120` is the retired 120GB Max. The `max-5g` slug deliberately stays
+// with the CURRENT Max so /plans/max-5g keeps its URL, its search equity and
+// every link in the guides; customers already on the old one were relabelled to
+// the legacy slug, which describes what they actually hold.
+export type PlanSlug = "basic" | "kosher-basic" | "kosher-plus" | "student-5g" | "max-5g" | "max-5g-120";
 
 export type BitLinkPlan = {
   slug: PlanSlug;
@@ -35,6 +39,10 @@ export type BitLinkPlan = {
   // several places — a hardcoded number in a guide and a different one in an
   // email is how a customer ends up being told the wrong thing.
   refundWindowDays?: number;
+  // Retired: still billed, still rendered for the customers on it, but never
+  // offered again. Public surfaces iterate `publicPlans`; admin, legal and
+  // anything resolving a slug an existing subscriber holds use `plans`.
+  unlisted?: boolean;
   featured?: boolean;
   badge?: string;
   features: string[];
@@ -60,7 +68,7 @@ export type AddOn = {
 // total, and the plans' LTV easily absorbs the $14.99. Basic/Kosher plans keep
 // the fee: their margins are thinner and we've seen no fee-driven drop-off
 // there. Extend this list only if data shows abandonment on those plans.
-export const ACTIVATION_FEE_WAIVED_PLANS: readonly PlanSlug[] = ["student-5g", "max-5g"];
+export const ACTIVATION_FEE_WAIVED_PLANS: readonly PlanSlug[] = ["student-5g", "max-5g", "max-5g-120"];
 
 export function isActivationFeeWaivedForPlan(slug: string): boolean {
   return (ACTIVATION_FEE_WAIVED_PLANS as readonly string[]).includes(slug);
@@ -129,7 +137,7 @@ export const plans: BitLinkPlan[] = [
       {
         question: "Is 50GB enough for a semester in Israel?",
         answer:
-          "For most students, comfortably. 50GB per month covers daily maps, group chats, social media, music, and moderate video streaming over 5G — which is why Student 5G is BitLink's most popular plan. If you stream video heavily or hotspot a laptop away from Wi-Fi, Max 5G's 120GB gives more headroom for $5 more per month.",
+          "For most students, comfortably. 50GB per month covers daily maps, group chats, social media, music, and moderate video streaming over 5G — which is why Student 5G is BitLink's most popular plan. If you stream video heavily or hotspot a laptop away from Wi-Fi, Max 5G's 200GB gives more headroom for $5 more per month, and throws in a US, Canadian or UK number.",
       },
       {
         question: "Can my parents pay for this plan from abroad?",
@@ -166,13 +174,13 @@ export const plans: BitLinkPlan[] = [
     shortName: "Max",
     priceCents: 3999,
     currency: "USD",
-    allowances: { dataBytes: 120000000000, voiceMinutes: 5000, smsCount: 1000 },
+    allowances: { dataBytes: 200000000000, voiceMinutes: 5000, smsCount: 1000 },
     description: "Two numbers — Israeli and American.",
     detail:
-      "120GB of 5G data with a US, Canadian or UK number included free — so your bank, the IRS and family abroad reach a local number while your Israeli line rings. Plus 5,000 local minutes, 1,000 SMS, and 150 minutes to US and Canadian numbers.",
-    seoTitle: "Max 5G — $39.99/mo, 120GB + a Free US Number",
+      "200GB of 5G data with a US, Canadian or UK number included free — so your bank, the IRS and family abroad reach a local number while your Israeli line rings. Plus 5,000 local minutes, 1,000 SMS, and 300 minutes to US and Canadian numbers.",
+    seoTitle: "Max 5G — $39.99/mo, 200GB + a Free US Number",
     seoDescription:
-      "An Israeli number and a US, Canadian or UK number on one phone, included. 120GB 5G data, 150 minutes to US & Canada. $39.99/month, VAT included where applicable.",
+      "An Israeli number and a US, Canadian or UK number on one phone, included. 200GB 5G data, 300 minutes to US & Canada. $39.99/month, VAT included where applicable.",
     faq: [
       {
         question: "Who should choose Max 5G?",
@@ -192,7 +200,7 @@ export const plans: BitLinkPlan[] = [
       {
         question: "Does Max 5G include international calling?",
         answer:
-          "It includes 150 minutes per month to US and Canadian numbers, on top of 5,000 minutes to Israeli numbers — that covers the calls you make. The included US, Canada or UK number covers the calls they make to you, without anyone dialing internationally.",
+          "It includes 300 minutes per month to US and Canadian numbers, on top of 5,000 minutes to Israeli numbers — that covers the calls you make. The included US, Canada or UK number covers the calls they make to you, without anyone dialing internationally.",
       },
     ],
     stripeEnvKey: "STRIPE_PRICE_MAX_5G",
@@ -221,11 +229,66 @@ export const plans: BitLinkPlan[] = [
     features: [
       "Israeli phone number",
       "US, Canada or UK number included free (normally $9.99/mo)",
+      "200GB high-speed 5G data",
+      "5,000 minutes to Israeli landlines and mobiles",
+      "1,000 SMS to Israeli mobiles",
+      "300 minutes to US & Canadian numbers",
+      "Receives US bank and 2FA verification codes",
+      "eSIM or physical SIM",
+      "Priority WhatsApp support",
+      "VAT included where applicable",
+      "No hidden fees",
+    ],
+    comparison: {
+      data: "200GB 5G",
+      calls: "5,000 min + 300 USA/CA",
+      texts: "1,000 SMS",
+      activation: "eSIM",
+    },
+  },
+  {
+    // RETIRED — the 120GB Max, kept only for the customers who bought it.
+    //
+    // They are not being migrated: their carrier plan is untouched and their
+    // billing is unchanged. This entry exists so their usage meter shows the
+    // 120GB they actually have rather than the 200GB the current Max carries,
+    // which is the precise bug the getPlan() note below warns about.
+    //
+    // includesIntlNumber is false here, unlike the current Max: these customers
+    // bought the number as a $9.99 add-on if they have one at all, so the
+    // account page must keep offering it to those who don't.
+    //
+    // If one of them asks, upgrade them to `max-5g` for free — same price, more
+    // data. That is the policy, and it is why this plan is never advertised.
+    slug: "max-5g-120",
+    name: "Max 5G",
+    shortName: "Max",
+    priceCents: 3999,
+    currency: "USD",
+    allowances: { dataBytes: 120000000000, voiceMinutes: 5000, smsCount: 1000 },
+    description: "More data, plus USA/CA calling.",
+    detail:
+      "120GB of 5G data, 5,000 local minutes, 1,000 SMS, and 150 minutes to US and Canadian numbers.",
+    seoTitle: "Max 5G — $39.99/mo, 120GB + US/Canada Minutes",
+    seoDescription:
+      "120GB 5G data plus 150 minutes to US & Canada, 5,000 local minutes. $39.99/month, VAT included where applicable.",
+    faq: [
+      {
+        question: "Can I move to the current Max 5G?",
+        answer:
+          "Yes, at no extra cost. Max 5G now carries 200GB and 300 minutes to US and Canadian numbers, with a US, Canadian or UK number included, at the same $39.99/month you already pay. Message us and we'll move you across — there is nothing to pay and your number does not change.",
+      },
+    ],
+    stripeEnvKey: "STRIPE_PRICE_MAX_5G",
+    tone: "More data for heavy users",
+    isKosher: false,
+    unlisted: true,
+    features: [
+      "Israeli phone number",
       "120GB high-speed 5G data",
       "5,000 minutes to Israeli landlines and mobiles",
       "1,000 SMS to Israeli mobiles",
       "150 minutes to US & Canadian numbers",
-      "Receives US bank and 2FA verification codes",
       "eSIM or physical SIM",
       "Priority WhatsApp support",
       "VAT included where applicable",
@@ -344,6 +407,14 @@ export const usCanadaNumberAddOn: AddOn = {
   currency: "USD",
 };
 
+/**
+ * Plans still on sale. Every customer-facing list — the plans page, the
+ * checkout picker, the comparison table, the sitemap — iterates this.
+ * `plans` keeps the retired ones so an existing subscriber's slug still
+ * resolves to the right allowances, price and terms.
+ */
+export const publicPlans = plans.filter((plan) => !plan.unlisted);
+
 export const defaultPlanSlug: PlanSlug = "student-5g";
 export const defaultKosherPlanSlug: PlanSlug = "kosher-basic";
 
@@ -389,7 +460,8 @@ export function getStripePriceId(plan: BitLinkPlan) {
 const ANNATEL_PLAN_NAMES: Record<PlanSlug, string> = {
   "basic":        "PLAN_BITLINK_NATIONAL_1000MIN_1GB_202606",
   "student-5g":   "PLAN_BITLINK_NATIONAL_5000MIN_50GB_202606",
-  "max-5g":       "PLAN_BITLINK_NATIONAL_5000MIN_USA_150MIN_120GB_202606",
+  "max-5g":       "PLAN_BITLINK_NATIONAL_5000MIN_USA_300MIN_200GB_202607",
+  "max-5g-120":   "PLAN_BITLINK_NATIONAL_5000MIN_USA_150MIN_120GB_202606",
   "kosher-basic": "PLAN_BITLINK_KOSHER_NATIONAL_5000MIN_202606",
   "kosher-plus":  "PLAN_BITLINK_KOSHER_NATIONAL_5000MIN_USA_150MIN_202606",
 };

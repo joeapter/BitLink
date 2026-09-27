@@ -6,7 +6,7 @@ import { showKosherPlusPromo } from "@/lib/kosher-plus-promo";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { TrialOfferPromo } from "@/components/marketing/TrialOfferPromo";
 import { TextWithLinks } from "@/components/ui/TextWithLinks";
-import { plans } from "@/lib/plans";
+import { publicPlans } from "@/lib/plans";
 import { plansFaqItems } from "@/lib/public-content";
 import { isTrialOfferEnabled } from "@/lib/settings";
 import { createPageMetadata, faqPageJsonLd, jsonLdScriptProps, plansCollectionJsonLd } from "@/lib/seo";
@@ -14,7 +14,7 @@ import { createPageMetadata, faqPageJsonLd, jsonLdScriptProps, plansCollectionJs
 export const metadata: Metadata = createPageMetadata({
   title: "Israeli Phone Plans & Pricing — From $14.99/month",
   description:
-    "Compare all five BitLink plans: 1GB to 120GB 5G data, kosher options, USD pricing with VAT included where applicable, no hidden fees. eSIM or physical SIM. See every price up front.",
+    "Compare all five BitLink plans: 1GB to 200GB 5G data, kosher options, USD pricing with VAT included where applicable, no hidden fees. eSIM or physical SIM. See every price up front.",
   path: "/plans",
 });
 
@@ -23,7 +23,7 @@ export default async function PlansPage() {
 
   return (
     <div className="bg-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(plansCollectionJsonLd(plans))} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(plansCollectionJsonLd(publicPlans))} />
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScriptProps(faqPageJsonLd(plansFaqItems))} />
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#eef5f8_100%)] px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
         {!trialOfferEnabled && (

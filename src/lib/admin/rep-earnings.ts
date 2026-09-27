@@ -29,7 +29,7 @@ import type { PlanSlug } from "@/lib/plans";
 import { isRepLanding, type RepLanding } from "@/lib/rep-links";
 
 /** Plans that pay the higher rate. Everything else pays the basic rate. */
-const PREMIUM_PLANS: ReadonlySet<string> = new Set<PlanSlug>(["student-5g", "max-5g"]);
+const PREMIUM_PLANS: ReadonlySet<string> = new Set<PlanSlug>(["student-5g", "max-5g", "max-5g-120"]);
 
 export type RepConversion = {
   customerName: string | null;

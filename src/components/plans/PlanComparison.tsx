@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { plans } from "@/lib/plans";
+import { publicPlans as plans } from "@/lib/plans";
 import { formatMoney, cn } from "@/lib/utils";
 import { ButtonLink } from "@/components/ui/Button";
 

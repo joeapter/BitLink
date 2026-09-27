@@ -20,11 +20,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const plan = plans.find((item) => item.slug === slug);
   if (!plan) return { title: "Plan" };
-  return createPageMetadata({
+  const metadata = createPageMetadata({
     title: plan.seoTitle,
     description: plan.seoDescription,
     path: `/plans/${plan.slug}`,
   });
+  // A retired plan keeps a working page so an existing customer's link and
+  // their legal terms still resolve — but it must never be indexed or
+  // compete in search with the plan that replaced it.
+  if (plan.unlisted) metadata.robots = { index: false, follow: false };
+  return metadata;
 }
 
 export default async function PlanDetailPage({ params }: { params: Promise<{ slug: string }> }) {

@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, PhoneCall } from "lucide-react";
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { plans, defaultKosherPlanSlug, type PlanSlug } from "@/lib/plans";
+import { publicPlans as plans, defaultKosherPlanSlug, type PlanSlug } from "@/lib/plans";
 import { formatMoney, cn } from "@/lib/utils";
 import { ButtonLink } from "@/components/ui/Button";
 import { PlanFeatureList } from "./PlanFeatureList";

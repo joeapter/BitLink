@@ -52,13 +52,21 @@ export type LandingPageContent = {
 export const landingPages = {
   israelEsim: {
     slug: "/israel-esim",
-    metaTitle: "Does Israel Have eSIM? Real Israeli Number Included",
+    // Retargeted Sept 2026 off Search Console data. This page and
+    // /guides/esim-israel were competing for the same head terms, and the
+    // guide won every head-to-head — "israel esim" pos 70.5 here vs 27.8 on
+    // the guide, "israeli esim" 63.4 vs 12.0. The cause was framing: this is
+    // the commercial page, but it was titled and H1'd as an informational
+    // question ("Does Israel have eSIM?"), which almost nobody searches, so
+    // Google read it as a weaker duplicate of the guide's answer. Now it
+    // targets the product term; the guide stays purely device-setup.
+    metaTitle: "Israel eSIM With a Real Israeli Phone Number",
     metaDescription:
-      "Yes — Israel supports eSIM. BitLink adds a real Israeli number for banks, SMS codes, and calls, from $14.99/month. Human help if setup gets confusing.",
+      "An Israel eSIM that comes with a real Israeli number — not data-only. Calls, SMS, and bank and Bit verification codes, from $14.99/month. Activate before you land.",
     eyebrow: "Israel eSIM",
-    h1: "Does Israel have eSIM? Yes — with a real Israeli number too.",
+    h1: "An Israel eSIM with a real Israeli phone number",
     intro:
-      "Yes — Israel supports eSIM, and BitLink's standard plans (Basic, Student 5G, and Max 5G) activate by eSIM on compatible devices, with a physical SIM available as a backup. Choose a monthly plan from $14.99, and get guidance from a real person if the setup starts to feel unclear.",
+      "Many travel eSIMs sold for Israel are data-only: internet, but no Israeli number, no calls, no SMS. BitLink's plans (Basic, Student 5G, and Max 5G) are full Israeli mobile service delivered by eSIM — a real number that banks, Bit, Pango, and WhatsApp will verify against, with a physical SIM available as a backup. Yes, Israel fully supports eSIM, and you can activate from home before you fly. Plans from $14.99/month, with a real person to help if setup gets unclear.",
     primaryCta: {
       href: "/plans",
       label: "View plans",
@@ -100,7 +108,7 @@ export const landingPages = {
       {
         question: "How much data is included with an Israel eSIM?",
         answer:
-          "It depends on the plan, not the activation method — eSIM and physical SIM draw from the same data allowances. Basic includes 1GB of high-speed 5G data for $14.99/month, enough for light use like messaging and maps. Student 5G includes 50GB for $34.99/month, BitLink's most popular plan, sized for daily social media, navigation, and moderate streaming. Max 5G includes 120GB for $39.99/month and adds 150 minutes of calling to US and Canadian numbers, built for people who stream heavily or use their phone as a hotspot. Basic includes 1,000 minutes and 500 SMS to Israeli numbers; Student 5G and Max 5G include 5,000 minutes and 1,000 SMS. All plans include VAT and no hidden fees. If you are unsure how much data you typically use per month, BitLink support can help you estimate before you commit to a plan.",
+          "It depends on the plan, not the activation method — eSIM and physical SIM draw from the same data allowances. Basic includes 1GB of high-speed 5G data for $14.99/month, enough for light use like messaging and maps. Student 5G includes 50GB for $34.99/month, BitLink's most popular plan, sized for daily social media, navigation, and moderate streaming. Max 5G includes 200GB for $39.99/month, adds 300 minutes of calling to US and Canadian numbers, and includes a US, Canadian or UK local number at no extra cost — built for people who stream heavily or who need a second number for a bank abroad. Basic includes 1,000 minutes and 500 SMS to Israeli numbers; Student 5G and Max 5G include 5,000 minutes and 1,000 SMS. All plans include VAT and no hidden fees. If you are unsure how much data you typically use per month, BitLink support can help you estimate before you commit to a plan.",
       },
     ],
     comparisonTable: {
@@ -126,7 +134,7 @@ export const landingPages = {
         {
           label: "5G data in Israel",
           a: "Yes",
-          b: "Yes — 1GB to 120GB monthly",
+          b: "Yes — 1GB to 200GB monthly",
         },
         {
           label: "After your trip",
@@ -194,12 +202,12 @@ export const landingPages = {
       {
         question: "How much does a phone plan cost in Israel?",
         answer:
-          "BitLink phone plans in Israel range from $14.99 to $39.99 per month, with no contract beyond the monthly term, VAT included where applicable, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS — a fit for light, occasional use. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, and is BitLink's most popular plan among students. Max 5G is $39.99/month with 120GB of data, 5,000 minutes, 1,000 SMS, and 150 minutes of calling to US and Canadian numbers, built for heavier daily use. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month — family back home calls you like a local call, and the number receives US verification texts too.",
+          "BitLink phone plans in Israel range from $14.99 to $39.99 per month, with no contract beyond the monthly term, VAT included where applicable, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS — a fit for light, occasional use. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, and is BitLink's most popular plan among students. Max 5G is $39.99/month with 200GB of data, 5,000 minutes, 1,000 SMS, 300 minutes of calling to US and Canadian numbers, and a US, Canadian or UK local number included at no extra cost, built for heavier daily use. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month — family back home calls you like a local call, and the number receives US verification texts too.",
       },
       {
         question: "How much data do I need for a semester in Israel?",
         answer:
-          "Most students studying in Israel are comfortable with 50GB per month, which is what BitLink's Student 5G plan includes for $34.99/month — enough for daily maps, messaging, social media, and moderate streaming over 5G. If you stream video heavily, use your phone as a mobile hotspot for a laptop, or expect to be away from campus Wi-Fi often, Max 5G's 120GB for $39.99/month gives more headroom and adds 150 minutes of US/Canada calling. For lighter use — mostly messaging and occasional browsing — Basic's 1GB for $14.99/month can be enough, though most students outgrow it within the first week. If you're unsure, BitLink support can help estimate usage from your typical phone habits before you choose.",
+          "Most students studying in Israel are comfortable with 50GB per month, which is what BitLink's Student 5G plan includes for $34.99/month — enough for daily maps, messaging, social media, and moderate streaming over 5G. If you stream video heavily, use your phone as a mobile hotspot for a laptop, or expect to be away from campus Wi-Fi often, Max 5G's 200GB for $39.99/month gives more headroom, adds 300 minutes of US/Canada calling, and includes a US, Canadian or UK number. For lighter use — mostly messaging and occasional browsing — Basic's 1GB for $14.99/month can be enough, though most students outgrow it within the first week. If you're unsure, BitLink support can help estimate usage from your typical phone habits before you choose.",
       },
       {
         question: "Do I need an Israeli bank account or credit card?",
@@ -563,7 +571,7 @@ export const landingPages = {
     eyebrow: "Phone plans for olim",
     h1: "Israeli phone plans for olim who need the basics handled.",
     intro:
-      "Phone plans for new olim in Israel from BitLink start at $14.99/month, with Max 5G at $39.99/month built around staying close to family abroad — 120GB of data plus 150 minutes of calling to US and Canadian numbers. Klita already means enough paperwork and new systems; BitLink keeps phone service simple with a real Israeli number, guided activation, and support from a real person.",
+      "Phone plans for new olim in Israel from BitLink start at $14.99/month, with Max 5G at $39.99/month built around staying close to family abroad — 200GB of data, 300 minutes of calling to US and Canadian numbers, and a US, Canadian or UK number included. Klita already means enough paperwork and new systems; BitLink keeps phone service simple with a real Israeli number, guided activation, and support from a real person.",
     primaryCta: {
       href: "/plans",
       label: "Compare olim plans",
@@ -600,7 +608,7 @@ export const landingPages = {
       {
         question: "How much does a phone plan cost for new olim in Israel?",
         answer:
-          "BitLink phone plans range from $14.99 to $39.99 per month, with no long-term contract beyond the monthly term, VAT included where applicable, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS, a fit for light use while you're getting settled. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, BitLink's most popular plan for everyday use. Max 5G is $39.99/month with 120GB of data, 5,000 minutes, 1,000 SMS, and 150 minutes of calling to US and Canadian numbers built in, which tends to suit olim families staying in close touch with relatives abroad during the first year. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month — it receives US verification texts as well as calls.",
+          "BitLink phone plans range from $14.99 to $39.99 per month, with no long-term contract beyond the monthly term, VAT included where applicable, and no hidden fees. Basic is $14.99/month with 1GB of 5G data, 1,000 minutes, and 500 SMS, a fit for light use while you're getting settled. Student 5G is $34.99/month with 50GB of data, 5,000 minutes, and 1,000 SMS, BitLink's most popular plan for everyday use. Max 5G is $39.99/month with 200GB of data, 5,000 minutes, 1,000 SMS, 300 minutes of calling to US and Canadian numbers, and a US, Canadian or UK local number included at no extra cost, which tends to suit olim families staying in close touch with relatives abroad during the first year. Every plan can activate by eSIM or physical SIM, and a US, Canadian, or UK local number can be added to any plan for an extra $9.99/month — it receives US verification texts as well as calls.",
       },
       {
         question: "Do I need an Israeli phone number for banks, Kupat Cholim, and apps like Bit?",
@@ -615,7 +623,7 @@ export const landingPages = {
       {
         question: "Which BitLink plan is best for olim staying in touch with family back home?",
         answer:
-          "Max 5G, at $39.99/month, is built for exactly that: 120GB of data plus 150 minutes of calling to US and Canadian numbers included at no extra cost, alongside 5,000 Israeli minutes and 1,000 SMS. If family calls you more than you call them, adding a US, Canadian, or UK local number for $9.99/month lets them dial a number that's local to them instead of an international one, on any plan including Basic or Student 5G. For olim without a specific calling pattern yet, Student 5G at $34.99/month with 50GB of data is a reasonable starting point, and BitLink support can help you switch plans later if your usage changes once you're settled.",
+          "Max 5G, at $39.99/month, is built for exactly that: 200GB of data, 300 minutes of calling to US and Canadian numbers, and a US, Canadian or UK local number all included at no extra cost, alongside 5,000 Israeli minutes and 1,000 SMS. If family calls you more than you call them, adding a US, Canadian, or UK local number for $9.99/month lets them dial a number that's local to them instead of an international one, on any plan including Basic or Student 5G. For olim without a specific calling pattern yet, Student 5G at $34.99/month with 50GB of data is a reasonable starting point, and BitLink support can help you switch plans later if your usage changes once you're settled.",
       },
       {
         question: "Should I just buy a SIM at the airport when I land?",
@@ -1024,7 +1032,7 @@ export const landingPages = {
       {
         question: "How much does a phone plan cost for a month in Israel?",
         answer:
-          "With BitLink: [Basic](/plans/basic) is $14.99/month with 1GB of 5G data for light use, [Student 5G](/plans/student-5g) is $34.99/month with 50GB — the right size for most multi-week visits — and [Max 5G](/plans/max-5g) is $39.99/month with 120GB plus 150 minutes of calling to US and Canadian numbers. All prices are in USD with VAT included where applicable, there's no contract beyond the month, and every plan includes a real Israeli number with eSIM or physical SIM activation.",
+          "With BitLink: [Basic](/plans/basic) is $14.99/month with 1GB of 5G data for light use, [Student 5G](/plans/student-5g) is $34.99/month with 50GB — the right size for most multi-week visits — and [Max 5G](/plans/max-5g) is $39.99/month with 200GB, 300 minutes of calling to US and Canadian numbers, and a US, Canadian or UK number included. All prices are in USD with VAT included where applicable, there's no contract beyond the month, and every plan includes a real Israeli number with eSIM or physical SIM activation.",
       },
     ],
     planSlugs: ["student-5g", "basic", "max-5g"],
@@ -1066,7 +1074,7 @@ export const faqItems = [
   {
     question: "Can BitLink set me up with an Israeli phone number?",
     answer:
-      "Yes. Every BitLink plan includes a real Israeli phone number, not a temporary workaround. Plans range from $14.99/month for [Basic](/plans/basic) (1GB data, 1,000 minutes, 500 SMS) up to $39.99/month for [Max 5G](/plans/max-5g) (120GB data, 5,000 minutes, plus 150 minutes to US and Canadian numbers). You choose a plan, see the exact data, minutes, and price before checkout, then pay through a secure flow. BitLink provisions your number and line right after payment, and activation is usually ready within 3 to 5 minutes — you can watch the status live in your account portal. Activation can happen by eSIM or physical SIM depending on your plan and device. Service is subject to availability, eligibility, and final BitLink confirmation, but for the vast majority of customers an Israeli number is live and usable the same day they sign up.",
+      "Yes. Every BitLink plan includes a real Israeli phone number, not a temporary workaround. Plans range from $14.99/month for [Basic](/plans/basic) (1GB data, 1,000 minutes, 500 SMS) up to $39.99/month for [Max 5G](/plans/max-5g) (200GB data, 5,000 minutes, 300 minutes to US and Canadian numbers, and a US, Canadian or UK number included). You choose a plan, see the exact data, minutes, and price before checkout, then pay through a secure flow. BitLink provisions your number and line right after payment, and activation is usually ready within 3 to 5 minutes — you can watch the status live in your account portal. Activation can happen by eSIM or physical SIM depending on your plan and device. Service is subject to availability, eligibility, and final BitLink confirmation, but for the vast majority of customers an Israeli number is live and usable the same day they sign up.",
   },
   {
     question: "Can I use eSIM?",
@@ -1086,7 +1094,7 @@ export const faqItems = [
   {
     question: "Which plan is meant for students?",
     answer:
-      "[Student 5G](/plans/student-5g), at $34.99/month, is BitLink's most popular plan and the one designed for most student use: 50GB of high-speed 5G data, 5,000 minutes to Israeli numbers, and 1,000 SMS, with an optional US/Canada/UK number add-on for $9.99/month. [Max 5G](/plans/max-5g), at $39.99/month, is the heavier-data option — 120GB of data plus 150 minutes of built-in calling to US and Canadian numbers — for students who stream constantly or use their phone as a hotspot. Basic, at $14.99/month with 1GB of data, 1,000 minutes, and 500 SMS, is a simpler starting point for lighter phone use, though most students studying or living in Israel outgrow 1GB within the first week. All three include an Israeli number, VAT, and no hidden fees, and can activate by eSIM or physical SIM.",
+      "[Student 5G](/plans/student-5g), at $34.99/month, is BitLink's most popular plan and the one designed for most student use: 50GB of high-speed 5G data, 5,000 minutes to Israeli numbers, and 1,000 SMS, with an optional US/Canada/UK number add-on for $9.99/month. [Max 5G](/plans/max-5g), at $39.99/month, is the heavier-data option — 200GB of data, 300 minutes of built-in calling to US and Canadian numbers, and a US, Canadian or UK number included — for students who stream constantly, use their phone as a hotspot, or still need a number back home. Basic, at $14.99/month with 1GB of data, 1,000 minutes, and 500 SMS, is a simpler starting point for lighter phone use, though most students studying or living in Israel outgrow 1GB within the first week. All three include an Israeli number, VAT, and no hidden fees, and can activate by eSIM or physical SIM.",
   },
   {
     question: "Do kosher plans include data or SMS?",

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
-import { defaultPlanSlug, plans, type PlanSlug } from "@/lib/plans";
+import { defaultPlanSlug, publicPlans, type PlanSlug } from "@/lib/plans";
 import { createNoIndexMetadata } from "@/lib/seo";
 import { showKosherPlusPromo } from "@/lib/kosher-plus-promo";
 
@@ -13,7 +13,7 @@ export default async function CheckoutPage({
   searchParams: Promise<{ plan?: string; referral?: string; ref?: string; promo?: string }>;
 }) {
   const { plan, referral, ref, promo } = await searchParams;
-  const initialPlanSlug = plans.some((item) => item.slug === plan) ? (plan as PlanSlug) : defaultPlanSlug;
+  const initialPlanSlug = publicPlans.some((item) => item.slug === plan) ? (plan as PlanSlug) : defaultPlanSlug;
   const initialReferralCode = referral ?? ref ?? "";
   const cookieStore = await cookies();
   const initialOrgReferralCode = cookieStore.get("bl_org")?.value ?? "";

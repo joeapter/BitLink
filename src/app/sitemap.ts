@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { guides } from "@/lib/guides";
 import { partnerPages } from "@/lib/partner-pages";
-import { plans } from "@/lib/plans";
+import { publicPlans } from "@/lib/plans";
 import { canonicalUrl } from "@/lib/seo";
 
 const lastModified = new Date("2026-06-22");
@@ -117,7 +117,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.6,
     },
-    ...plans.map((plan) => ({
+    ...publicPlans.map((plan) => ({
       url: canonicalUrl(`/plans/${plan.slug}`),
       lastModified: recentUpdate,
       changeFrequency: "monthly" as const,

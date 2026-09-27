@@ -553,7 +553,7 @@ export const guides: Guide[] = [
         heading: "Which plan fits which student",
         paragraphs: [
           "For kosher programs: [Kosher Basic](/plans/kosher-basic) is $19.99/month with 5,000 minutes to Israeli numbers, voice-only on a physical SIM. [Kosher+](/plans/kosher-plus) is $24.99/month and adds 150 minutes of calling to US and Canadian numbers — the right pick if the student will be calling home rather than only receiving calls. Both run on lines recognized by Vaadat Harabanim L'inyanei Tikshoret (registered association no. 580440824), which is the recognition yeshivos and kosher-phone communities look for.",
-          "For smartphone programs: [Student 5G](/plans/student-5g) at $34.99/month — 50GB of 5G data, 5,000 minutes, 1,000 SMS — is BitLink's most popular plan and fits most students. [Max 5G](/plans/max-5g) at $39.99/month doubles the data to 120GB and includes 150 US/Canada minutes, for heavy streamers or anyone using the phone as a hotspot. Basic at $14.99/month includes 1GB, which most students outgrow within the first week — it's a fit for genuinely light use only.",
+          "For smartphone programs: [Student 5G](/plans/student-5g) at $34.99/month — 50GB of 5G data, 5,000 minutes, 1,000 SMS — is BitLink's most popular plan and fits most students. [Max 5G](/plans/max-5g) at $39.99/month carries 200GB, 300 US/Canada minutes and a US, Canadian or UK number included, for heavy streamers, hotspot users, or anyone who needs a second number for a bank abroad. Basic at $14.99/month includes 1GB, which most students outgrow within the first week — it's a fit for genuinely light use only.",
           "Every plan is monthly with no long-term contract, so a student who picks wrong can switch without penalty once real usage is clear.",
         ],
       },
@@ -1279,7 +1279,7 @@ export const guides: Guide[] = [
         heading: "How much data does a student or gap-year need?",
         paragraphs: [
           "The student pattern: WhatsApp running all day (texts, groups, voice notes), navigation a few times a week, music on buses, social feeds in downtime, video calls home on Sundays, and — crucially — yeshiva, seminary, or dorm WiFi covering evenings. That mix realistically lands in the 10–25GB range. A real student line on our network used about 9GB in a typical recent month, mostly WhatsApp, navigation, and music — with dorm WiFi doing the heavy lifting for video.",
-          "That's why [Student 5G](/plans/student-5g) carries 50GB: it's sized so a normal student month fits with room for the heavy weeks — a Ben Yehuda afternoon of TikTok, a tiyul week living off mobile data, hotspotting a laptop when the dorm WiFi dies. If you're consistently streaming video on cellular or hotspotting daily, that's [Max 5G](/plans/max-5g) territory (120GB). Basic's 1GB is genuinely not a smartphone-student plan — it exists for light-use and secondary lines.",
+          "That's why [Student 5G](/plans/student-5g) carries 50GB: it's sized so a normal student month fits with room for the heavy weeks — a Ben Yehuda afternoon of TikTok, a tiyul week living off mobile data, hotspotting a laptop when the dorm WiFi dies. If you're consistently streaming video on cellular or hotspotting daily, that's [Max 5G](/plans/max-5g) territory (200GB). Basic's 1GB is genuinely not a smartphone-student plan — it exists for light-use and secondary lines.",
         ],
       },
       {
@@ -1299,7 +1299,7 @@ export const guides: Guide[] = [
       {
         heading: "How much data does a remote worker need?",
         paragraphs: [
-          "One number dominates this persona: video meetings burn 0.3–1GB+ per hour, and a hotspotted laptop treats mobile data like a home connection — background sync, updates, cloud drives. A remote worker whose calls happen on office or apartment WiFi can live comfortably on 20–30GB. A remote worker who regularly works from cafés, buses, or a hotspotted laptop should start at [Max 5G's](/plans/max-5g) 120GB and treat WiFi as the primary work connection wherever it exists.",
+          "One number dominates this persona: video meetings burn 0.3–1GB+ per hour, and a hotspotted laptop treats mobile data like a home connection — background sync, updates, cloud drives. A remote worker whose calls happen on office or apartment WiFi can live comfortably on 20–30GB. A remote worker who regularly works from cafés, buses, or a hotspotted laptop should start at [Max 5G's](/plans/max-5g) 200GB and treat WiFi as the primary work connection wherever it exists.",
           "The good news: this is the persona that most benefits from BitLink's no-overage model. A brutal deadline week on hotspot can't generate a surprise bill — worst case, you buy a topup and keep working.",
         ],
       },
@@ -1327,7 +1327,7 @@ export const guides: Guide[] = [
       {
         question: "Is 50GB enough for a year in Israel?",
         answer:
-          "50GB per month is enough for the large majority of students and workers — a real student line on our network used about 9GB in a typical month with dorm WiFi handling video. The main people who outgrow 50GB are daily video-streamers on cellular and laptop-hotspotters, which is what Max 5G's 120GB is for.",
+          "50GB per month is enough for the large majority of students and workers — a real student line on our network used about 9GB in a typical month with dorm WiFi handling video. The main people who outgrow 50GB are daily video-streamers on cellular and laptop-hotspotters, which is what Max 5G's 200GB is for.",
       },
       {
         question: "What happens if I go over my data limit on BitLink?",
@@ -1347,7 +1347,7 @@ export const guides: Guide[] = [
       {
         question: "Do I need unlimited data in Israel?",
         answer:
-          "Almost nobody actually uses \"unlimited\" — it's mostly insurance against overage bills, and on BitLink that risk doesn't exist (data pauses at the cap; no overage charges, topups from $5.99). Real usage math says 50GB covers a heavy normal month and 120GB covers hotspot-and-stream lifestyles.",
+          "Almost nobody actually uses \"unlimited\" — it's mostly insurance against overage bills, and on BitLink that risk doesn't exist (data pauses at the cap; no overage charges, topups from $5.99). Real usage math says 50GB covers a heavy normal month and 200GB covers hotspot-and-stream lifestyles.",
       },
     ],
     relatedLinks: [
@@ -3415,7 +3415,7 @@ export const guides: Guide[] = [
         paragraphs: [
           "A real US number, issued in the US, attached as a second number to the Israeli line you already carry. Your phone rings for both. Your bank sees an ordinary American mobile number, because that is what it is — not a forwarding service and not a VoIP endpoint, which is why it passes the checks that reject Google Voice.",
           "In practice that means US verification texts arrive on the phone in your pocket, in Israel, seconds after the bank sends them. We have tested this with real Chase and Google codes rather than taking it on trust. It also takes incoming calls, so the fraud-alert callback and the HR line reach you, and family in the States dial a local number instead of an international one.",
-          "With BitLink this is either an add-on at $9.99/month on any plan, or included at no extra cost on [Max 5G](/plans/max-5g) — which is the same $39.99 as before we bundled it, so the number comes with the plan rather than on top of it. You pick US, Canada or UK at checkout, and it is set up alongside your Israeli number automatically. No Israeli ID, no Israeli bank account, no branch visit; an ordinary foreign card works, and activation on an eSIM usually takes a few minutes.",
+          "With BitLink this is either an add-on at $9.99/month on any plan, or included at no extra cost on [Max 5G](/plans/max-5g) — $39.99/month with 200GB of data, so the number comes with the plan rather than on top of it. You pick US, Canada or UK at checkout, and it is set up alongside your Israeli number automatically. No Israeli ID, no Israeli bank account, no branch visit; an ordinary foreign card works, and activation on an eSIM usually takes a few minutes.",
         ],
       },
       {
@@ -3479,7 +3479,7 @@ export const guides: Guide[] = [
     ],
     cta: {
       heading: "One phone, an Israeli number and an American one.",
-      body: "Max 5G is $39.99/month with a US, Canada or UK number included — the number is $9.99 on every other plan. Keep your Israeli number: porting is free and usually takes five to ten minutes. 120GB of data, 150 minutes to US and Canadian numbers, VAT included where applicable, no contract.",
+      body: "Max 5G is $39.99/month with a US, Canada or UK number included — the number is $9.99 on every other plan. Keep your Israeli number: porting is free and usually takes five to ten minutes. 200GB of data, 300 minutes to US and Canadian numbers, VAT included where applicable, no contract.",
       href: "/plans/max-5g",
       label: "See Max 5G",
       secondary: { href: "https://wa.me/972555195375", label: "Or ask if your bank will work →" },
