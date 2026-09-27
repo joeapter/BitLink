@@ -45,6 +45,10 @@ export type BitLinkPlan = {
   unlisted?: boolean;
   featured?: boolean;
   badge?: string;
+  // A second, quieter badge under the first. Max 5G carries both because the
+  // two things worth knowing about it are unrelated: it is the only plan with a
+  // foreign number included, AND the one with the most data.
+  secondaryBadge?: string;
   features: string[];
   comparison: {
     data: string;
@@ -124,15 +128,15 @@ export const plans: BitLinkPlan[] = [
     slug: "student-5g",
     name: "Student 5G",
     shortName: "Student",
-    priceCents: 3499,
+    priceCents: 3299,
     currency: "USD",
     allowances: { dataBytes: 50000000000, voiceMinutes: 5000, smsCount: 1000 },
     description: "Best for most students.",
     detail:
       "The most popular choice for students — generous 5G data with 5,000 local minutes and 1,000 SMS included, and the option to add a US or Canadian number.",
-    seoTitle: "Student 5G — $34.99/mo, 50GB Israeli Phone Plan",
+    seoTitle: "Student 5G — $32.99/mo, 50GB Israeli Phone Plan",
     seoDescription:
-      "BitLink's most popular plan: 50GB 5G, 5,000 minutes, 1,000 SMS for $34.99/month. Built for students in Israel. eSIM activation and English WhatsApp support.",
+      "BitLink's most popular plan: 50GB 5G, 5,000 minutes, 1,000 SMS for $32.99/month. Built for students in Israel. eSIM activation and English WhatsApp support.",
     faq: [
       {
         question: "Is 50GB enough for a semester in Israel?",
@@ -226,6 +230,7 @@ export const plans: BitLinkPlan[] = [
     // while staying short enough not to fund a three-week visit.
     refundWindowDays: 14,
     badge: "Two Numbers",
+    secondaryBadge: "Most Data",
     features: [
       "Israeli phone number",
       "US, Canada or UK number included free (normally $9.99/mo)",

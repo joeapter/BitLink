@@ -108,8 +108,15 @@ function PlanSelectorInner({
                 <span className="flex flex-wrap items-start justify-between gap-2">
                   <span className="text-sm font-semibold leading-5">{plan.name}</span>
                   {plan.badge ? (
-                    <span className="rounded-full bg-trust-green/10 px-2 py-1 text-[0.62rem] font-bold uppercase tracking-[0.1em] text-emerald-700 sm:text-[0.68rem] sm:tracking-[0.12em]">
-                      {plan.badge}
+                    <span className="flex shrink-0 flex-col items-end gap-1">
+                      <span className="rounded-full bg-trust-green/10 px-2 py-1 text-[0.62rem] font-bold uppercase tracking-[0.1em] text-emerald-700 sm:text-[0.68rem] sm:tracking-[0.12em]">
+                        {plan.badge}
+                      </span>
+                      {plan.secondaryBadge ? (
+                        <span className="rounded-full bg-link-blue/10 px-2 py-1 text-[0.62rem] font-bold uppercase tracking-[0.1em] text-link-blue sm:text-[0.68rem] sm:tracking-[0.12em]">
+                          {plan.secondaryBadge}
+                        </span>
+                      ) : null}
                     </span>
                   ) : null}
                 </span>

@@ -5,7 +5,7 @@
 ## Plans (USD per month, VAT included)
 
 - Basic — $14.99: 1GB 5G data, 1,000 Israel minutes, 500 SMS. https://www.bitlink.co.il/plans/basic
-- Student 5G — $34.99 (most popular): 50GB 5G data, 5,000 minutes, 1,000 SMS. https://www.bitlink.co.il/plans/student-5g
+- Student 5G — $32.99 (most popular): 50GB 5G data, 5,000 minutes, 1,000 SMS. https://www.bitlink.co.il/plans/student-5g
 - Max 5G — $39.99: 200GB 5G data, 5,000 minutes, 1,000 SMS, 300 minutes to US/Canada, AND a US, Canadian, or UK local number included at no extra cost (that number is a $9.99/month add-on on every other plan). Two numbers on one phone: the Israeli line rings, and the foreign number takes calls and US verification texts. Comes with a 14-day full-refund window. https://www.bitlink.co.il/plans/max-5g
 - Kosher Basic — $19.99: voice-only, 5,000 Israel minutes, physical SIM, requires a certified kosher phone. https://www.bitlink.co.il/plans/kosher-basic
 - Kosher+ — $24.99: Kosher Basic plus 150 minutes to US/Canada. https://www.bitlink.co.il/plans/kosher-plus

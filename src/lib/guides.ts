@@ -222,7 +222,7 @@ export const guides: Guide[] = [
       {
         heading: "The steps, start to finish",
         paragraphs: [
-          "First, [pick a plan](/plans). For a semester or a longer stay, [Student 5G](/plans/student-5g) — $34.99/month for 50GB, 5,000 local minutes, and 1,000 SMS — fits most people; lighter users can start at $14.99 with [Basic](/plans/basic). Prices include VAT and there's no contract beyond the month.",
+          "First, [pick a plan](/plans). For a semester or a longer stay, [Student 5G](/plans/student-5g) — $32.99/month for 50GB, 5,000 local minutes, and 1,000 SMS — fits most people; lighter users can start at $14.99 with [Basic](/plans/basic). Prices include VAT and there's no contract beyond the month.",
           "Second, check out online. Payment confirms, BitLink provisions your Israeli number, and the eSIM activation QR code arrives by email — typically within minutes.",
           "Third, install the eSIM: phone settings → add eSIM (or \"add cellular plan\") → scan the QR code from the email. Your Israeli line now lives alongside your home line, and you can label them so it's obvious which is which.",
           "That's it. When you land, your phone picks up the Israeli network and your +972 number is live — while the plane is still taxiing.",
@@ -526,7 +526,7 @@ export const guides: Guide[] = [
     dateModified: "2026-07-12",
     readingTime: "6 min read",
     intro:
-      "If you're headed to yeshiva or seminary in Israel — or you're the parent organizing it — the phone is one job that shouldn't wait for landing day. The short version: confirm the school's phone policy first, because it decides everything else. Kosher programs need a certified kosher phone on a recognized kosher line (from $19.99/month); smartphone programs fit Student 5G ($34.99/month, 50GB); and on an eSIM-compatible phone the Israeli number can be live before the flight. Prices are in USD with VAT included where applicable, parents can pay from abroad, and support answers in English. Here's the whole thing as a checklist, in order.",
+      "If you're headed to yeshiva or seminary in Israel — or you're the parent organizing it — the phone is one job that shouldn't wait for landing day. The short version: confirm the school's phone policy first, because it decides everything else. Kosher programs need a certified kosher phone on a recognized kosher line (from $19.99/month); smartphone programs fit Student 5G ($32.99/month, 50GB); and on an eSIM-compatible phone the Israeli number can be live before the flight. Prices are in USD with VAT included where applicable, parents can pay from abroad, and support answers in English. Here's the whole thing as a checklist, in order.",
     sections: [
       {
         heading: "Start with the school's phone policy — it decides everything",
@@ -553,7 +553,7 @@ export const guides: Guide[] = [
         heading: "Which plan fits which student",
         paragraphs: [
           "For kosher programs: [Kosher Basic](/plans/kosher-basic) is $19.99/month with 5,000 minutes to Israeli numbers, voice-only on a physical SIM. [Kosher+](/plans/kosher-plus) is $24.99/month and adds 150 minutes of calling to US and Canadian numbers — the right pick if the student will be calling home rather than only receiving calls. Both run on lines recognized by Vaadat Harabanim L'inyanei Tikshoret (registered association no. 580440824), which is the recognition yeshivos and kosher-phone communities look for.",
-          "For smartphone programs: [Student 5G](/plans/student-5g) at $34.99/month — 50GB of 5G data, 5,000 minutes, 1,000 SMS — is BitLink's most popular plan and fits most students. [Max 5G](/plans/max-5g) at $39.99/month carries 200GB, 300 US/Canada minutes and a US, Canadian or UK number included, for heavy streamers, hotspot users, or anyone who needs a second number for a bank abroad. Basic at $14.99/month includes 1GB, which most students outgrow within the first week — it's a fit for genuinely light use only.",
+          "For smartphone programs: [Student 5G](/plans/student-5g) at $32.99/month — 50GB of 5G data, 5,000 minutes, 1,000 SMS — is BitLink's most popular plan and fits most students. [Max 5G](/plans/max-5g) at $39.99/month carries 200GB, 300 US/Canada minutes and a US, Canadian or UK number included, for heavy streamers, hotspot users, or anyone who needs a second number for a bank abroad. Basic at $14.99/month includes 1GB, which most students outgrow within the first week — it's a fit for genuinely light use only.",
           "Every plan is monthly with no long-term contract, so a student who picks wrong can switch without penalty once real usage is clear.",
         ],
       },
@@ -983,7 +983,7 @@ export const guides: Guide[] = [
             {
               cells: [
                 "[BitLink Student 5G](/plans/student-5g)",
-                "$34.99/month",
+                "$32.99/month",
                 "50GB of full-speed 5G",
                 "Yes — a real 05 number",
               ],
@@ -1307,7 +1307,7 @@ export const guides: Guide[] = [
         heading: "What happens if I run out — and how do I right-size without fear?",
         paragraphs: [
           "Here's the part that changes how you should choose: BitLink has no overage billing. When you hit your data cap, data simply pauses — calls and SMS keep working — until you either add a topup or your allowance resets with the new month. You will never get a surprise bill for going over, because going over isn't billable; it's just a pause. We also email you before it happens — a heads-up at 80% used and again near the limit, with your reset date — so running dry is never a mystery.",
-          "Topups are self-serve in [your account portal](/account/lines): +5GB for $5.99 up to +50GB for $34.99, charged to your card on file and live within minutes. So the honest sizing strategy is simple: pick the plan that fits your normal month, not your worst imaginable one. A wrong guess costs a few dollars once — and if you're topping up every month, that's the signal to move up a plan, which you can do instantly, no contract, no penalty.",
+          "Topups are self-serve in [your account portal](/account/lines): +5GB for $5.99 up to +50GB for $32.99, charged to your card on file and live within minutes. So the honest sizing strategy is simple: pick the plan that fits your normal month, not your worst imaginable one. A wrong guess costs a few dollars once — and if you're topping up every month, that's the signal to move up a plan, which you can do instantly, no contract, no penalty.",
         ],
       },
       {
@@ -1332,7 +1332,7 @@ export const guides: Guide[] = [
       {
         question: "What happens if I go over my data limit on BitLink?",
         answer:
-          "Nothing scary: data pauses until you top up or the month resets — calls and texts keep working, and there is no overage billing at all. We email you at 80% used and again near the limit with your reset date. Topups (+5GB $5.99 to +50GB $34.99) are self-serve in the account portal and live within minutes.",
+          "Nothing scary: data pauses until you top up or the month resets — calls and texts keep working, and there is no overage billing at all. We email you at 80% used and again near the limit with your reset date. Topups (+5GB $5.99 to +50GB $32.99) are self-serve in the account portal and live within minutes.",
       },
       {
         question: "How much data does WhatsApp use?",
@@ -1478,7 +1478,7 @@ export const guides: Guide[] = [
         ],
         steps: [
           "Confirm your phone is unlocked and eSIM-compatible (most iPhones from the XS onward, most recent Android flagships). If it's carrier-locked — common on US installment plans — request the unlock now; it can take days. More on this in [do US phones work in Israel](/guides/do-us-phones-work-in-israel).",
-          "Pick a plan and check out online. [Student 5G](/plans/student-5g) — $34.99/month for 50GB, 5,000 minutes, 1,000 SMS — fits most gap year students; [Basic](/plans/basic) at $14.99/month covers genuinely light use. No Israeli ID, no passport upload, no Israeli bank account — a regular US, UK, or Canadian card, charged in USD.",
+          "Pick a plan and check out online. [Student 5G](/plans/student-5g) — $32.99/month for 50GB, 5,000 minutes, 1,000 SMS — fits most gap year students; [Basic](/plans/basic) at $14.99/month covers genuinely light use. No Israeli ID, no passport upload, no Israeli bank account — a regular US, UK, or Canadian card, charged in USD.",
           "Install the eSIM from the QR code that arrives by email, usually within minutes. Your Israeli number is live before the flight — when you land, the phone just connects.",
         ],
       },
@@ -1511,7 +1511,7 @@ export const guides: Guide[] = [
       {
         question: "What's the best phone plan for a gap year in Israel?",
         answer:
-          "A monthly Israeli plan with a real Israeli number, sized for daily life rather than a visit. Student 5G ($34.99/month — 50GB of 5G data, 5,000 minutes, 1,000 SMS) fits most gap year students; light users can start at $14.99/month and switch later, since plans are monthly with no contract. Set it up by eSIM before flying so the number is live on landing.",
+          "A monthly Israeli plan with a real Israeli number, sized for daily life rather than a visit. Student 5G ($32.99/month — 50GB of 5G data, 5,000 minutes, 1,000 SMS) fits most gap year students; light users can start at $14.99/month and switch later, since plans are monthly with no contract. Set it up by eSIM before flying so the number is live on landing.",
       },
       {
         question: "Can't I just use a travel eSIM like Airalo for the year?",
@@ -1584,7 +1584,7 @@ export const guides: Guide[] = [
       {
         heading: "What about a phone and staying reachable?",
         paragraphs: [
-          "This is the one to get right before the flight, not at Ben Gurion. Israeli life runs through an 05 mobile number — the program's group chats, SMS codes, the bank, deliveries — so your child needs a real Israeli number, and the calm way to get one is an eSIM set up at home before departure. With [BitLink](/plans), an eSIM phone can be activated online in about ten minutes — no Israeli ID, paid on your US, UK, or Canadian card in dollars — and it's live the moment they land. Student 5G is $34.99/month for 50GB, which is plenty for maps, group chats, and video calls home.",
+          "This is the one to get right before the flight, not at Ben Gurion. Israeli life runs through an 05 mobile number — the program's group chats, SMS codes, the bank, deliveries — so your child needs a real Israeli number, and the calm way to get one is an eSIM set up at home before departure. With [BitLink](/plans), an eSIM phone can be activated online in about ten minutes — no Israeli ID, paid on your US, UK, or Canadian card in dollars — and it's live the moment they land. Student 5G is $32.99/month for 50GB, which is plenty for maps, group chats, and video calls home.",
           "Have them keep their home number too, on the same phone. Don't switch their WhatsApp to the Israeli number for a single year — they'll still have the home number when they're back, and WhatsApp works fine over Israeli data either way. The home number also keeps US bank verification texts arriving. And if the year turns into shana bet, or they come home mid-year, the Israeli line can be [paused for $10/month](/plans) to hold the number instead of losing it. Full setup steps are in [get an Israeli number before you land](/guides/israeli-phone-number-before-you-land).",
         ],
       },
@@ -1792,7 +1792,7 @@ export const guides: Guide[] = [
       {
         heading: "How does the Israeli phone get set up before landing?",
         paragraphs: [
-          "If the phone is an unlocked, eSIM-capable model — most recent iPhones and many Android phones are — you can set the whole thing up from your couch. With [BitLink](/plans) you pick a plan, pay online with a US, UK, or Canadian card in dollars (no Israeli ID or bank account), and install the eSIM by scanning a QR code, all before the flight. [Student 5G](/israeli-phone-plans-for-students) is $34.99/month for 50GB — enough for maps, group chats, and daily video calls home. The full walkthrough is in [get an Israeli number before you land](/guides/israeli-phone-number-before-you-land).",
+          "If the phone is an unlocked, eSIM-capable model — most recent iPhones and many Android phones are — you can set the whole thing up from your couch. With [BitLink](/plans) you pick a plan, pay online with a US, UK, or Canadian card in dollars (no Israeli ID or bank account), and install the eSIM by scanning a QR code, all before the flight. [Student 5G](/israeli-phone-plans-for-students) is $32.99/month for 50GB — enough for maps, group chats, and daily video calls home. The full walkthrough is in [get an Israeli number before you land](/guides/israeli-phone-number-before-you-land).",
           "If the phone isn't eSIM-capable, or is locked to a US carrier, that's the one thing worth sorting at home — [check whether the phone will work in Israel](/guides/will-my-phone-work-in-israel) before you rely on this plan.",
         ],
       },
@@ -2256,7 +2256,7 @@ export const guides: Guide[] = [
         heading: "What's genuinely cheap in Israel — and what isn't?",
         paragraphs: [
           "Cheap: public transport, produce and supermarket basics, felafel and street food, and phone service — plans cost far less than American ones. Expensive: eating out at real restaurants, delivery, taxis, imported brand-name products, and anything bought in a hurry at a convenience store. A kid who eats program meals, rides buses, and shops at the supermarket lives well on little; a kid who lives on Wolt and Gett spends like a tourist in Manhattan.",
-          "Set the phone up before the flight and it becomes one of the flat, predictable lines in the budget: [Student 5G](/israeli-phone-plans-for-students) is $34.99 a month for 50GB, billed in dollars to a parent's card, with no Israeli ID or bank account needed — no airport kiosk markup, no surprise roaming line on the family bill.",
+          "Set the phone up before the flight and it becomes one of the flat, predictable lines in the budget: [Student 5G](/israeli-phone-plans-for-students) is $32.99 a month for 50GB, billed in dollars to a parent's card, with no Israeli ID or bank account needed — no airport kiosk markup, no surprise roaming line on the family bill.",
         ],
       },
     ],

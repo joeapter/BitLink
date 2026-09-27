@@ -48,7 +48,7 @@ export const contractData: Record<PlanSlug, ContractData> = {
     activationTime: "Within 24 hours of payment",
     commitment: "None — cancel anytime",
     simFee: "$0 — eSIM (instant delivery)",
-    monthlyAlone: "$34.99 / month",
+    monthlyAlone: "$32.99 / month",
     includedFromIsrael: {
       calls: "5,000 minutes to Israeli landlines and mobiles",
       sms: "1,000 SMS to Israeli mobiles",

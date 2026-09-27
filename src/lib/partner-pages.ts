@@ -56,7 +56,7 @@ const sharfmansPage: PartnerPage = {
     details: [
       {
         title: "The plan most seminary students land on",
-        body: "Student 5G — $34.99/month for 50GB of 5G data, 5,000 Israel minutes, and 1,000 SMS — fits a typical seminary year of navigation, group chats, and video calls home. Heavier streamers (or anyone hotspotting a laptop) fit Max 5G's 120GB at $39.99/month, which also includes 150 minutes of calling to US and Canadian numbers.",
+        body: "Student 5G — $32.99/month for 50GB of 5G data, 5,000 Israel minutes, and 1,000 SMS — fits a typical seminary year of navigation, group chats, and video calls home. Heavier streamers (or anyone hotspotting a laptop) fit Max 5G's 200GB at $39.99/month, which also includes 300 minutes of calling to US and Canadian numbers and a US, Canadian or UK number.",
       },
       {
         title: "If the program has phone guidelines",
@@ -71,7 +71,7 @@ const sharfmansPage: PartnerPage = {
       {
         question: "What phone plan do seminary students in Israel actually need?",
         answer:
-          "For most, [Student 5G](/plans/student-5g) at $34.99/month: 50GB of data covers daily maps, group chats, and moderate streaming, with 5,000 Israel minutes and 1,000 SMS alongside. Light users can start at $14.99 with Basic, though 1GB rarely survives a seminary schedule. Everything is monthly with no commitment, so switching plans mid-year when real usage becomes clear costs nothing.",
+          "For most, [Student 5G](/plans/student-5g) at $32.99/month: 50GB of data covers daily maps, group chats, and moderate streaming, with 5,000 Israel minutes and 1,000 SMS alongside. Light users can start at $14.99 with Basic, though 1GB rarely survives a seminary schedule. Everything is monthly with no commitment, so switching plans mid-year when real usage becomes clear costs nothing.",
       },
       {
         question: "How do we set it up before she flies?",
@@ -143,7 +143,7 @@ export const partnerPages: Record<string, PartnerPage> = {
         },
         {
           title: "Both paths are covered",
-          body: "Kosher plans ($19.99–$24.99/month, voice-only, on lines recognized by Vaadat Harabanim L'inyanei Tikshoret) run on a physical SIM and need a certified kosher device. Standard plans (Student 5G at $34.99/month is the most common) activate by eSIM in minutes. Monthly terms either way — no long-term contract.",
+          body: "Kosher plans ($19.99–$24.99/month, voice-only, on lines recognized by Vaadat Harabanim L'inyanei Tikshoret) run on a physical SIM and need a certified kosher device. Standard plans (Student 5G at $32.99/month is the most common) activate by eSIM in minutes. Monthly terms either way — no long-term contract.",
         },
         {
           title: "Family can call without international rates",
