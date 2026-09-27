@@ -245,10 +245,20 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
               <p className="mt-3 text-sm font-semibold leading-6 text-white">{guide.cta.reassurance}</p>
             )}
           </div>
-          <ButtonLink href={guide.cta?.href ?? "/plans"} variant="dark" size="lg" className="shrink-0">
-            {guide.cta?.label ?? "See the plans"}
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </ButtonLink>
+          <div className="flex shrink-0 flex-col items-stretch gap-3 sm:items-end">
+            <ButtonLink href={guide.cta?.href ?? "/plans"} variant="dark" size="lg">
+              {guide.cta?.label ?? "See the plans"}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </ButtonLink>
+            {guide.cta?.secondary && (
+              <Link
+                href={guide.cta.secondary.href}
+                className="text-center text-sm font-semibold text-slate-300 underline-offset-4 transition hover:text-white hover:underline"
+              >
+                {guide.cta.secondary.label}
+              </Link>
+            )}
+          </div>
         </div>
       </section>
     </div>

@@ -47,8 +47,17 @@ export type Guide = {
   cta?: {
     heading: string;
     body: string;
+    // The primary action is always the one that completes a sale. A reader who
+    // has decided should not have to go through a conversation to buy.
     href: string;
     label: string;
+    // For the reader who is convinced by the argument but not yet by us —
+    // usually a WhatsApp link. Secondary on purpose: offering it first
+    // converts a ready buyer into a support ticket.
+    secondary?: {
+      href: string;
+      label: string;
+    };
     reassurance?: string;
   };
   // Opt-in device compatibility block: a table plus the "confirm my model"
@@ -3473,6 +3482,7 @@ export const guides: Guide[] = [
       body: "Max 5G is $39.99/month with a US, Canada or UK number included — the number is $9.99 on every other plan. Keep your Israeli number: porting is free and usually takes five to ten minutes. 120GB of data, 150 minutes to US and Canadian numbers, VAT included where applicable, no contract.",
       href: "/plans/max-5g",
       label: "See Max 5G",
+      secondary: { href: "https://wa.me/972555195375", label: "Or ask if your bank will work →" },
       // Read from the plan so this line can never disagree with the window the
       // plan actually honours.
       reassurance: `Not for you? Message us within ${refundWindowDays("max-5g")} days and we'll refund you in full, no questions asked.`,
@@ -3571,6 +3581,7 @@ export const guides: Guide[] = [
       body: "Port your Israeli number to BitLink free, usually in five to ten minutes, with your old line live until the switch completes. Monthly plans, no commitment, and your number stays open to port out again whenever you want.",
       href: "/keep-your-number",
       label: "How porting works",
+      secondary: { href: "https://wa.me/972555195375", label: "Or ask us about your situation →" },
       reassurance: "Want to test the support before you pay for anything? WhatsApp us and ask something hard — Sun–Thu 9:00–18:00, Fri 9:00–12:00 Israel time.",
     },
   },
@@ -3652,6 +3663,7 @@ export const guides: Guide[] = [
       body: "BitLink plans start at $14.99/month with VAT included where applicable, no introductory rate that expires, and no contract. Change plans yourself from your account instead of negotiating for a better one.",
       href: "/plans",
       label: "See the plans",
+      secondary: { href: "https://wa.me/972555195375", label: "Or send us your last bill →" },
       reassurance: "Not sure which plan matches what you actually use? WhatsApp us your last bill and we'll tell you honestly — Sun–Thu 9:00–18:00, Fri 9:00–12:00 Israel time.",
     },
   },
@@ -3729,10 +3741,11 @@ export const guides: Guide[] = [
       { href: "/plans", label: "See the plans" },
     ],
     cta: {
-      heading: "Go ahead — ask us something hard.",
-      body: "Message us before you buy anything and ask the question you'd dread asking your current carrier: how do I cancel, will this work on my phone, what does your service not do. A person answers, in English, and you can judge us on the reply.",
-      href: "https://wa.me/972555195375",
-      label: "WhatsApp us",
+      heading: "Support you can test before you buy.",
+      body: "English by WhatsApp, email and phone, answered by people rather than a menu tree. Plans from $14.99/month with VAT included where applicable and no contract — or ask us something hard first: how do I cancel, will this work on my phone, what does your service not do.",
+      href: "/plans",
+      label: "See the plans",
+      secondary: { href: "https://wa.me/972555195375", label: "Or ask us something hard first →" },
       reassurance: "Sun–Thu 9:00–18:00, Fri 9:00–12:00 Israel time. Outside those hours we'll reply when support opens — we'd rather say so than pretend otherwise.",
     },
   },
