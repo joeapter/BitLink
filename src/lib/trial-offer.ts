@@ -11,6 +11,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createProvisioningJob } from "@/lib/provisioning/orchestrator";
 import { getAnnatelPlanName, getPlan, type PlanSlug } from "@/lib/plans";
 import { grantTopup } from "@/lib/topups/grant-topup";
+import { changeLinePlan } from "@/lib/line-plan-change";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import { getStripe } from "@/lib/stripe/server";
 import { createSubscriber, updateSubscriber } from "@/lib/db/subscribers";
@@ -40,6 +41,10 @@ const log = logger.child({ module: "trial-offer" });
 export const TRIAL_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 1 month
 export const TRIAL_REMINDER_BEFORE_MS = 9 * 24 * 60 * 60 * 1000; // ~day 21
 export const TRIAL_TOPUP_ID = "data-10gb";
+// Every trial line is provisioned on this plan at the carrier. Converting to
+// anything else therefore needs the carrier told as well as Stripe — see
+// convertTrialToPlan.
+export const TRIAL_PROVISIONED_PLAN: PlanSlug = "basic";
 
 // ── The charge-retry ladder ──────────────────────────────────────────────────
 //
@@ -123,7 +128,7 @@ export async function startTrial(
     type: "create_line",
     payload: {
       externalId,
-      planName: getAnnatelPlanName("basic"),
+      planName: getAnnatelPlanName(TRIAL_PROVISIONED_PLAN),
       isKosher: false,
       email: params.customerEmail,
       identityNumber,
@@ -437,6 +442,41 @@ export async function convertTrialToPlan(
   // subscription exists (the pattern used for the intl port fee), not a
   // subscription item. Note that buildTrialFinalWarningEmail quotes the plan
   // price alone — that copy is correct only while this stays fee-free.
+  // ── Move the carrier plan FIRST, before any money changes hands ──────
+  //
+  // The trial line is provisioned on Basic (TRIAL_PROVISIONED_PLAN), and until
+  // now nothing here ever told Annatel otherwise: a customer who picked Max on
+  // the trial decision page was billed $39.99, shown a 200GB meter, and left on
+  // a 1GB Basic line that would cut out almost immediately. It never surfaced
+  // only because every conversion so far happened to choose Basic, where the
+  // hardcoded plan was accidentally correct — and the decision page now
+  // pre-selects Student, so the default choice was wrong.
+  //
+  // Ordered before the charge deliberately. A carrier failure aborts the whole
+  // conversion with nothing taken, leaving the trial intact for the customer or
+  // the retry ladder to try again — the opposite of charging someone for a plan
+  // their line does not have. carrier_only because the Stripe subscription is
+  // created by this function, a few lines below.
+  //
+  // Skipped when the target IS the provisioned plan, so the well-trodden
+  // auto-continue-on-Basic path keeps behaving exactly as before.
+  if (planSlug !== TRIAL_PROVISIONED_PLAN) {
+    const carrier = await changeLinePlan({
+      admin,
+      lineId: trial.telecom_line_id,
+      newPlanSlug: planSlug,
+      billingMode: "carrier_only",
+    });
+    if (carrier.error) {
+      log.error(
+        { trialId: trial.id, planSlug, error: carrier.error },
+        "Carrier plan change failed — trial NOT converted and nothing was charged",
+      );
+      return { success: false, error: `Could not move the line onto ${planSlug}: ${carrier.error}` };
+    }
+    log.info({ trialId: trial.id, planSlug }, "Carrier plan moved ahead of trial conversion charge");
+  }
+
   const items: { price: string }[] = [{ price: planRow.stripe_price_id as string }];
 
   let subscription: Awaited<ReturnType<typeof stripe.subscriptions.create>>;
