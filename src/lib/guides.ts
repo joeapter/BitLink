@@ -3478,6 +3478,264 @@ export const guides: Guide[] = [
       reassurance: `Not for you? Message us within ${refundWindowDays("max-5g")} days and we'll refund you in full, no questions asked.`,
     },
   },
+  // ── Switching-intent guides ────────────────────────────────────────────────
+  //
+  // Aimed at a specific moment of annoyance rather than at the general mood.
+  // "Sick of Israeli service" does not convert — nobody searches it, and it
+  // asks a reader to act on a feeling. A disputed bill, a cancellation nobody
+  // will process, an hour on hold: those are searched, in English, by someone
+  // who wants to do something about it today.
+  //
+  // The CTA on these is deliberately a conversation rather than a plan. The
+  // reader is mid-problem and not ready to choose 5GB versus 50GB, but they
+  // will happily test whether a human answers — which is the one claim our
+  // competitors cannot match and the one a reader can verify before paying.
+  // Support hours are stated wherever the invitation is made: inviting someone
+  // to message us and then not replying until Sunday would manufacture exactly
+  // the frustration these pages are about.
+  {
+    slug: "cancel-israeli-phone-plan",
+    title: "How do I cancel my Israeli phone plan?",
+    metaTitle: "Cancelling an Israeli Phone Plan: The Shortcut Nobody Mentions",
+    metaDescription:
+      "Why cancelling by phone turns into a retention conversation, and why porting your number out cancels the old plan for you — without the call.",
+    datePublished: "2026-09-27",
+    dateModified: "2026-09-27",
+    readingTime: "6 min read",
+    intro:
+      "You have decided to leave, you called to say so, and forty minutes later you are still on the line being offered a better deal than the one you were originally sold. This is not incompetence — it is the retention process working exactly as designed, and knowing that is what gets you out of it. There is also a shortcut most people are never told about: if you are moving to another carrier, you do not need to cancel at all. Here is how leaving actually works in Israel, and how to do it without the conversation.",
+    sections: [
+      {
+        heading: "Why is cancelling so much harder than signing up?",
+        paragraphs: [
+          "Because the two are measured differently. Signing up is designed to take two minutes with no friction at all — online, in an app, at a kiosk in a mall. Cancelling routes you to a team whose job is to not let you, and which is generally reachable only by phone, generally only during working hours, and generally after a wait. Nothing about that is accidental.",
+          "The practical effect is that leaving costs you time rather than money. The exit fee is rarely the obstacle; the obstacle is an afternoon you will not get back, conducted in a language you may be managing rather than fluent in, against someone whose performance is judged on whether you hang up still a customer.",
+          "It is worth knowing this is a process rather than a person. The representative offering you three months half price is following a script, and none of it is personal. Deciding in advance that you are not negotiating makes the call dramatically shorter.",
+        ],
+      },
+      {
+        heading: "Can I just port my number out instead?",
+        paragraphs: [
+          "Usually, yes, and this is the part worth knowing. When you port your mobile number to a new carrier, the transfer itself ends the service on the old one — the new carrier initiates it, the number moves, and the old plan terminates as a consequence. You do not place the cancellation call, because the cancellation happens on the back of the port.",
+          "That inverts the whole problem. Instead of persuading someone to let you go, you sign up somewhere else and give them the number. The old carrier finds out when it is already done, and there is no retention conversation because there is nothing left to retain.",
+          "Practically, then: arrange the new line first, port the number across, and let the old plan fall away. Do not cancel the old plan before porting — the number has to still be live on it for the port to run, and cancelling first is the one mistake that genuinely can lose you your number.",
+        ],
+      },
+      {
+        heading: "What should I check before I leave?",
+        paragraphs: [
+          "Whether you are inside a commitment period and what leaving it costs, since that is the one number worth knowing before you act rather than after. Ask for it in writing, by email or in the app, rather than taking a figure quoted on a call — it is much harder to dispute a number you agreed to verbally.",
+          "Whether the phone itself is paid off. Device instalments are a separate agreement from the airtime, and they do not disappear when the plan does; a handset being paid over 36 months will either need settling or will carry on billing. This is the most common unpleasant surprise after switching.",
+          "And whether anything else is attached to the number. Two-factor codes from your bank, gov.il, Bituach Leumi and Bit all land on it, so a number that moves cleanly keeps all of that working — which is another argument for porting rather than cancelling and starting fresh.",
+        ],
+      },
+      {
+        heading: "What does leaving BitLink look like, for comparison?",
+        paragraphs: [
+          "There is no retention department, because there is no commitment period to defend. Plans are monthly, you can cancel from your account, and your number is open to port out at any time with no release process and no exit fee. If you want to leave, the honest answer is that we would rather know why, but we are not going to make you earn it.",
+          "That is not generosity. A business that keeps customers by making leaving unpleasant has to keep doing that forever, and it tells you what the service is like before you ever need it. We would rather compete on the part you actually experience.",
+          "If you are weighing us against your current carrier, the fastest way to test that claim is to ask us something difficult before you have paid us anything — see below.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Does porting my number out automatically cancel my old plan?",
+        answer:
+          "In practice yes — the port terminates the service on the old carrier as part of moving the number, so you do not need to make a separate cancellation call. What it does not automatically settle is anything attached but separate: a device paid in instalments, or an early-termination charge if you are inside a commitment. Ask for those figures in writing before you port, so there are no surprises afterwards.",
+      },
+      {
+        question: "Should I cancel my old plan before switching?",
+        answer:
+          "No — this is the one sequence that can genuinely cost you your number. A port needs the number to still be active on the old carrier in order to move it, so if you cancel first the number may be released and you lose the ability to take it with you. Always arrange the new line and port the number across first; the old plan ends as a result.",
+      },
+      {
+        question: "Will I lose my Israeli number if I switch carriers?",
+        answer:
+          "Not if you port it. Porting an Israeli mobile number to BitLink is free and typically completes in five to ten minutes, and your existing line stays live until the moment the switch happens, so there is no gap. You keep the number your bank, Bituach Leumi and gov.il already have on file.",
+      },
+      {
+        question: "Can I leave BitLink easily if I change my mind?",
+        answer:
+          "Yes, and deliberately so. Plans are monthly with no commitment period, you can cancel from your account rather than by calling anyone, and the number is open to port out at any time with no blocking, no release process and no exit fee. New customers also have a refund window if the service simply is not what they expected — message us and ask.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/keep-your-number", label: "Port your number to BitLink" },
+      { href: "/guides/israeli-phone-bill-changes-every-month", label: "Why your bill keeps changing" },
+      { href: "/guides/israeli-carrier-english-support", label: "Getting help in English" },
+      { href: "/plans", label: "See the plans" },
+    ],
+    cta: {
+      heading: "Leaving should be as easy as joining.",
+      body: "Port your Israeli number to BitLink free, usually in five to ten minutes, with your old line live until the switch completes. Monthly plans, no commitment, and your number stays open to port out again whenever you want.",
+      href: "/keep-your-number",
+      label: "How porting works",
+      reassurance: "Want to test the support before you pay for anything? WhatsApp us and ask something hard — Sun–Thu 9:00–18:00, Fri 9:00–12:00 Israel time.",
+    },
+  },
+  {
+    slug: "israeli-phone-bill-changes-every-month",
+    title: "Why is my Israeli phone bill different every month?",
+    metaTitle: "Why Your Israeli Phone Bill Keeps Changing",
+    metaDescription:
+      "Intro prices that expire, out-of-bundle charges, and content services you never signed up for — the four things that move an Israeli mobile bill, and how to check which one hit you.",
+    datePublished: "2026-09-27",
+    dateModified: "2026-09-27",
+    readingTime: "6 min read",
+    intro:
+      "You signed up for a fixed monthly price and the amount leaving your account is not that number. It was close for a while, then it was not, and now you are not certain what you are actually paying. This is one of the most common complaints about Israeli mobile service and it is rarely a billing error — in almost every case it is one of four specific things, all of them documented somewhere you were not looking. Here is how to work out which one applies to you, and what to do about it.",
+    sections: [
+      {
+        heading: "Did my introductory price just expire?",
+        paragraphs: [
+          "This is the most likely explanation by a wide margin. A great many Israeli mobile deals are sold at a promotional rate for a fixed opening period, after which the price reverts to the standard rate for the same plan. Nothing changes about your service. The number simply steps up, often close to doubling, and the increase is usually disclosed in the contract you signed rather than announced when it happens.",
+          "The tell is timing. If the jump arrived neatly twelve, twenty-four or thirty-six months after you joined, and your usage looks the same as the month before, this is almost certainly it. Check the original agreement for the promotional period and the rate afterwards — that second figure is your real price and always was.",
+          "It is also the moment you have the most leverage, because you are now a customer paying full price with nothing holding you. That is why retention offers appear if you call to complain, and why this is the natural moment to look at what else is available.",
+        ],
+      },
+      {
+        heading: "Have I gone outside my bundle?",
+        paragraphs: [
+          "Everything in a plan is an allowance, and anything beyond it is charged separately at a rate you have probably never looked up. Data over your limit, calls to numbers that are not covered, international dialling and calls to premium or service numbers all sit outside the bundle. One video call home over a hotel's bad WiFi can produce a line item larger than the plan itself.",
+          "Roaming is the version that surprises people most, because it does not need a trip to trigger. A phone that connects to a foreign network while you are near a border, or one that quietly updates apps during the first hour of a flight's ground time, can generate charges while you think nothing is happening.",
+          "Your itemised bill will show this, though rarely in a way that is easy to read. Look for lines dated in a cluster rather than spread evenly across the month — out-of-bundle charges tend to arrive in a burst, because whatever caused them happened once.",
+        ],
+      },
+      {
+        heading: "Am I paying for a content service I never signed up for?",
+        paragraphs: [
+          "Possibly, and this is the one worth checking even if your bill looks normal. Premium content and subscription services can be charged to a mobile number rather than to a card — horoscopes, games, quizzes, ringtones — and they are sometimes started by tapping something on a page that did not look like a purchase. The charge then appears monthly under a name that means nothing to you.",
+          "Because the amounts are small and the descriptions are vague, these run for years unnoticed. Scan several months of itemised bills for a recurring charge you cannot name. If you find one, it is a support conversation to stop it, and you can ask the carrier to block third-party charging on the number entirely, which prevents a recurrence.",
+          "This is also a reason to read an itemised bill occasionally even when the total looks right. The total is the last thing to change.",
+        ],
+      },
+      {
+        heading: "How do I stop the number moving at all?",
+        paragraphs: [
+          "Pick a price that has nowhere to go. A plan with no promotional period does not step up, because there is no introductory rate to expire. A plan that includes what you actually use does not generate out-of-bundle charges. And a number that cannot be charged by third parties cannot acquire a subscription you did not choose.",
+          "BitLink is priced in US dollars at a single monthly figure, VAT included where applicable, with no introductory rate and no contract — so the amount in month eighteen is the amount in month one. If you outgrow a plan you change it yourself in your account rather than negotiating, and if you want to leave, the number ports out with no exit fee.",
+          "That is a deliberately boring promise. Predictability is the entire feature, and the reason to care about it is that you should not have to audit your own phone bill.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "My bill doubled and nothing changed — why?",
+        answer:
+          "Almost certainly an introductory rate expiring. Many Israeli mobile deals are sold at a promotional price for a set opening period and then revert to the standard rate for the identical plan. The increase is usually in the agreement you signed rather than announced when it lands, so check the original contract for the promotional period and the rate afterwards. If the jump arrived exactly twelve or twenty-four months after you joined and your usage is unchanged, that is the explanation.",
+      },
+      {
+        question: "How do I find out what a charge on my bill actually is?",
+        answer:
+          "Ask for an itemised bill rather than the summary, and look for charges clustered on a single date instead of spread across the month — out-of-bundle charges arrive in a burst because whatever caused them happened once. For a recurring charge you cannot identify, suspect a third-party content subscription billed to the number, and ask the carrier both to stop it and to block third-party charging on the number so it cannot happen again.",
+      },
+      {
+        question: "Can roaming charges appear if I didn't travel?",
+        answer:
+          "Yes, occasionally. A phone can register on a foreign network near a border, or use data during the ground portion of a flight, and either produces genuine roaming charges while you would say you had not travelled. It is worth checking the dates against your own movements before disputing, because these are usually real charges rather than errors — and worth switching roaming off in your phone's settings when you are not deliberately using it.",
+      },
+      {
+        question: "Does BitLink's price change after an introductory period?",
+        answer:
+          "No, because there is no introductory period. The monthly price is one figure in US dollars with VAT included where applicable, and it is the same in month eighteen as in month one. There is no contract, so nothing expires and reverts, and plan changes are made by you in your account rather than by calling to renegotiate.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/plans", label: "See the plans and prices" },
+      { href: "/guides/cancel-israeli-phone-plan", label: "How to leave your carrier" },
+      { href: "/guides/how-much-data-do-i-need-in-israel", label: "How much data you need" },
+      { href: "/guides/israeli-carrier-english-support", label: "Getting help in English" },
+    ],
+    cta: {
+      heading: "One price, in dollars, that doesn't move.",
+      body: "BitLink plans start at $14.99/month with VAT included where applicable, no introductory rate that expires, and no contract. Change plans yourself from your account instead of negotiating for a better one.",
+      href: "/plans",
+      label: "See the plans",
+      reassurance: "Not sure which plan matches what you actually use? WhatsApp us your last bill and we'll tell you honestly — Sun–Thu 9:00–18:00, Fri 9:00–12:00 Israel time.",
+    },
+  },
+  {
+    slug: "israeli-carrier-english-support",
+    title: "Can I get phone support in Israel in English?",
+    metaTitle: "English Support from an Israeli Phone Company",
+    metaDescription:
+      "Why getting help in English from an Israeli carrier is hard even when the agent speaks English, what to try first, and how to test a company's support before you become its customer.",
+    datePublished: "2026-09-27",
+    dateModified: "2026-09-27",
+    readingTime: "5 min read",
+    intro:
+      "The problem is rarely that nobody speaks English. It is that reaching a person at all requires navigating a Hebrew phone menu, waiting, being transferred, and possibly being told to come to a branch during hours you are at work — and then doing the actual conversation, about something technical and financial, in your second language. Plenty of olim who function perfectly well in Hebrew still dread this particular call. Here is what tends to work with the big carriers, and how to judge a company's support before you commit to it.",
+    sections: [
+      {
+        heading: "Why is this hard even when the agent speaks English?",
+        paragraphs: [
+          "Because the difficulty is in the channel, not the vocabulary. Support at a large carrier is built around a phone queue and an in-person branch, both of which are synchronous — they happen at their pace, in real time, with no chance to re-read anything. A technical explanation you would follow easily in writing is much harder to hold onto when it arrives verbally, at speed, while you are trying not to lose your place in the conversation.",
+          "The menu tree compounds it before anyone speaks at all. Choosing correctly between six Hebrew options to reach the right department is a small test you have to pass in order to ask your question, and choosing wrong means starting again.",
+          "And the subject matter is unusually unforgiving. Billing, contract terms and technical settings are exactly the topics where a word you half-recognise changes the meaning of what you have agreed to. That is why people put these calls off for months, which is how a small billing problem becomes a large one.",
+        ],
+      },
+      {
+        heading: "What actually works with the big carriers?",
+        paragraphs: [
+          "Written channels, wherever you can find them. The carriers' apps and web chat put the conversation in text, which means you can read it twice, translate a term without anyone waiting, and — most usefully — keep a record of what was agreed. For anything involving money, a written channel is worth waiting longer for than a phone line.",
+          "Failing that, ask for the thing you need in writing at the end of a call. A figure or a commitment confirmed by email is enforceable in a way that a friendly verbal assurance is not, and asking for it is entirely normal.",
+          "Do bring someone if you are going to a branch for something consequential, and do go early rather than at lunchtime. These are small things, but the difference between a twenty-minute visit and a wasted afternoon is usually queue timing rather than anything about your case.",
+        ],
+      },
+      {
+        heading: "How do I judge a company's support before I sign up?",
+        paragraphs: [
+          "Test it. Before you are a customer, ask a question that requires an actual answer rather than a brochure — whether a specific plan covers something, whether your device will work, what happens to your number if you leave. How long the reply takes, whether it is a human, and whether it answers the question you asked are the three things you will care about later, and you can find all of them out now.",
+          "Pay particular attention to how a company answers something inconvenient. Anyone can respond warmly to \"which plan should I buy.\" The useful signal is what happens when you ask how to cancel, or whether their service has a limitation. A company that answers that plainly before taking your money will probably keep doing so afterwards.",
+          "And check when support is actually available, in Israel time, against the hours you are free. Stated hours are worth more than a promise of responsiveness — they tell you what to expect on a Friday afternoon.",
+        ],
+      },
+      {
+        heading: "So what is different here?",
+        paragraphs: [
+          "BitLink is built for English speakers rather than translated for them, which mostly means the channel is right: WhatsApp, email and phone, answered by people rather than routed through a menu. You can send a message, get on with your day, and read the reply when it arrives — which for anything technical or financial is simply a better way to do it.",
+          "Support runs Sunday to Thursday 9:00–18:00 and Friday 9:00–12:00 Israel time. We would rather state that than imply somebody is awake at 3am, because a company that promises constant availability and then does not reply has taught you something about the rest of its promises.",
+          "The honest reason to move a line to a smaller carrier is not price — you may well not save money. It is to stop spending your own evenings on your phone company. If that sounds like the thing you actually want, the test is easy and it costs nothing.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Do the big Israeli carriers offer support in English?",
+        answer:
+          "Generally yes, in the sense that English-speaking representatives exist. The difficulty is reaching one: the route usually runs through a Hebrew phone menu and a queue, and the conversation then happens verbally and at speed about billing or technical settings — the topics where a half-understood word matters most. Written channels like an app chat are usually a better bet than the phone line, because you can re-read and keep a record.",
+      },
+      {
+        question: "Can I get everything done in writing instead of by phone?",
+        answer:
+          "Often, and it is worth insisting on for anything involving money. App chat and email put the exchange in text, so you can translate a term without holding up a conversation and you keep evidence of what was agreed. If you do end up on a call, ask for the figure or the commitment to be confirmed by email afterwards — that request is completely routine and it is the difference between an agreement and a recollection.",
+      },
+      {
+        question: "How can I tell whether a company's support is any good before I buy?",
+        answer:
+          "Ask it something inconvenient. Anyone answers \"which plan should I buy\" nicely; the signal is how a company handles \"how do I cancel\" or \"what does your service not do.\" Note how long the reply takes, whether a person wrote it, and whether it answered what you actually asked. Also check the stated support hours in Israel time against the hours you are free — that tells you more than any promise of responsiveness.",
+      },
+      {
+        question: "What are BitLink's support hours and channels?",
+        answer:
+          "WhatsApp, email and phone, in English, Sunday to Thursday 9:00–18:00 and Friday 9:00–12:00 Israel time. Messages outside those hours are answered when support opens rather than instantly, which we would rather say plainly than imply round-the-clock cover. You are welcome to message before buying anything, including to ask something awkward.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/support", label: "Contact support" },
+      { href: "/guides/cancel-israeli-phone-plan", label: "How to leave your carrier" },
+      { href: "/guides/israeli-phone-bill-changes-every-month", label: "Why your bill keeps changing" },
+      { href: "/plans", label: "See the plans" },
+    ],
+    cta: {
+      heading: "Go ahead — ask us something hard.",
+      body: "Message us before you buy anything and ask the question you'd dread asking your current carrier: how do I cancel, will this work on my phone, what does your service not do. A person answers, in English, and you can judge us on the reply.",
+      href: "https://wa.me/972555195375",
+      label: "WhatsApp us",
+      reassurance: "Sun–Thu 9:00–18:00, Fri 9:00–12:00 Israel time. Outside those hours we'll reply when support opens — we'd rather say so than pretend otherwise.",
+    },
+  },
 ];
 
 export function getGuide(slug: string) {

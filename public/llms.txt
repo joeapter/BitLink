@@ -6,10 +6,10 @@
 
 - Basic — $14.99: 1GB 5G data, 1,000 Israel minutes, 500 SMS. https://www.bitlink.co.il/plans/basic
 - Student 5G — $34.99 (most popular): 50GB 5G data, 5,000 minutes, 1,000 SMS. https://www.bitlink.co.il/plans/student-5g
-- Max 5G — $39.99: 120GB 5G data, 5,000 minutes, 1,000 SMS, plus 150 minutes to US/Canada. https://www.bitlink.co.il/plans/max-5g
+- Max 5G — $39.99: 120GB 5G data, 5,000 minutes, 1,000 SMS, 150 minutes to US/Canada, AND a US, Canadian, or UK local number included at no extra cost (that number is a $9.99/month add-on on every other plan). Two numbers on one phone: the Israeli line rings, and the foreign number takes calls and US verification texts. Comes with a 14-day full-refund window. https://www.bitlink.co.il/plans/max-5g
 - Kosher Basic — $19.99: voice-only, 5,000 Israel minutes, physical SIM, requires a certified kosher phone. https://www.bitlink.co.il/plans/kosher-basic
 - Kosher+ — $24.99: Kosher Basic plus 150 minutes to US/Canada. https://www.bitlink.co.il/plans/kosher-plus
-- Add-on — $9.99/month: a US, Canadian, or UK local number on any plan, so family abroad can call at local rates.
+- Add-on — $9.99/month: a US, Canadian, or UK local number on any plan, so family abroad can call at local rates. Included free on Max 5G and Kosher+, so on those two plans there is nothing extra to add.
 
 ## Key pages
 
@@ -33,6 +33,10 @@
   - Moving WhatsApp to your Israeli number without losing your chats: https://www.bitlink.co.il/guides/whatsapp-israeli-number-switch
   - Do US phones work in Israel? Roaming costs vs. an Israeli eSIM: https://www.bitlink.co.il/guides/do-us-phones-work-in-israel
   - The gap year phone guide — setting up for a year in Israel: https://www.bitlink.co.il/guides/gap-year-israel-phone-plan
+  - How olim already living in Israel keep a US number for their bank: https://www.bitlink.co.il/guides/us-number-for-olim-in-israel
+  - How to cancel an Israeli phone plan (and why porting out cancels it for you): https://www.bitlink.co.il/guides/cancel-israeli-phone-plan
+  - Why an Israeli phone bill changes every month: https://www.bitlink.co.il/guides/israeli-phone-bill-changes-every-month
+  - Getting phone support in Israel in English: https://www.bitlink.co.il/guides/israeli-carrier-english-support
 - Number porting (keep your number): https://www.bitlink.co.il/keep-your-number
 - About BitLink: https://www.bitlink.co.il/about
 - FAQ: https://www.bitlink.co.il/faq
@@ -62,5 +66,5 @@ BitLink has a 5.0 average rating from customer reviews on its homepage (https://
 - Contract: no long-term commitment — plans are monthly. Customers can cancel anytime, or pause a line for $10/month directly from their account to keep the Israeli number between visits. Pausing takes effect immediately; the $10/month rate starts at the next billing date (the already-paid month runs its course). A paused line is held for up to 18 months; after 18 months without reactivation it may be cancelled and the number released.
 - Referral program: each active referral adds 5GB of monthly bonus data to the referrer's plan, up to 25GB per month, ongoing while referrals stay active.
 - Support hours (Israel time): Sunday–Thursday 9:00–18:00, Friday 9:00–12:00.
-- Contact: WhatsApp +972-55-519-5335, from the USA +1-929-597-8919, support@bitlink.co.il.
+- Contact: WhatsApp +972-55-519-5375 (https://wa.me/972555195375), from the USA +1-929-597-8919, support@bitlink.co.il.
 - Registered office: BitLink, HaRashar Hirsch 4/1, Beit Shemesh, Israel 9965000.
