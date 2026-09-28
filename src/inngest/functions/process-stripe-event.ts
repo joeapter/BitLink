@@ -76,6 +76,60 @@ async function findOwnLineForPortRequest(
   return null;
 }
 
+/**
+ * A customer with a live trial who buys a plan from the public site.
+ *
+ * Checkout has no idea a trial exists: it resolves the customer by email,
+ * then provisions a second line, assigns a second number and charges the
+ * activation fee the conversion path deliberately waives. The customer ends up
+ * paying for a stranger's number while their real one sits on a trial that is
+ * still counting down to its own charge — which is a double bill a few days
+ * later (Anton Youdkevitch, Sept 2026: two lines, $29.98, and his original
+ * number nearly lost).
+ *
+ * `source` is what separates this from the legitimate case. Adding a second
+ * line from inside the account is a real thing people do and must keep working;
+ * it identifies itself as bitlink_account_add_line. Anything else buying while
+ * a trial is live is someone converting without realising there was a button
+ * for it.
+ *
+ * Deliberately narrow: only an active trial on a live line, and never for a
+ * port-in, which findOwnLineForPortRequest already handles and which may
+ * legitimately want a second line.
+ */
+async function findActiveTrialLineToConvert(
+  admin: SupabaseClient,
+  params: { customerRecordId: string | null; source: string | null; isPortIn: boolean },
+): Promise<{ id: string; metadata: Record<string, unknown> } | null> {
+  if (!params.customerRecordId || params.isPortIn) return null;
+  if (params.source === 'bitlink_account_add_line' || params.source === 'account_add_line') return null;
+
+  const { data: trial } = await admin
+    .from('trial_lines')
+    .select('telecom_line_id')
+    .eq('customer_id', params.customerRecordId)
+    .eq('status', 'active')
+    .not('telecom_line_id', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!trial?.telecom_line_id) return null;
+
+  const { data: line } = await admin
+    .from('telecom_lines')
+    .select('id, metadata, status')
+    .eq('id', trial.telecom_line_id as string)
+    .maybeSingle();
+
+  // Only worth reusing if the line is actually usable. A trial line that is
+  // draft or failed has nothing to attach a subscription to, so let checkout
+  // provision a fresh one as it always would.
+  if (!line || !['active', 'paused'].includes(String(line.status))) return null;
+
+  return { id: line.id as string, metadata: (line.metadata ?? {}) as Record<string, unknown> };
+}
+
 // Bind the freshly-paid subscription to a line the customer already has, close
 // any trial on it, and skip provisioning entirely — the line is already live,
 // so there is nothing for the carrier to create.
@@ -90,6 +144,8 @@ async function attachSubscriptionToExistingLine(
     correlationId: string;
     planSlug: string;
     externalId: string;
+    /** Why we are reusing a line — the admin email says which. */
+    reason: 'self_port' | 'active_trial';
   },
 ) {
   const now = new Date().toISOString();
@@ -139,15 +195,19 @@ async function attachSubscriptionToExistingLine(
 
   log.info(
     { lineId: params.line.id, subscriberId: subscriber.id, planSlug: params.planSlug },
-    'Self-port detected — attached subscription to existing line instead of provisioning a new one',
+    params.reason === 'self_port'
+      ? 'Self-port detected — attached subscription to existing line instead of provisioning a new one'
+      : 'Active trial detected — attached subscription to the trial line instead of provisioning a new one',
   );
 
   await sendEmail({
     to: 'joe@bitlink.co.il',
     subject: `Trial converted to ${params.planSlug} — existing line kept`,
     html: [
-      `<p>A customer paid for <b>${params.planSlug}</b> and asked to keep a number already on their own BitLink line.</p>`,
-      `<p>Rather than provisioning a second line (which the carrier rejects), the subscription was attached to the existing line and any trial was closed. No action needed — this is the intended path.</p>`,
+      params.reason === 'self_port'
+        ? `<p>A customer paid for <b>${params.planSlug}</b> and asked to keep a number already on their own BitLink line.</p>`
+        : `<p>A customer with a live trial bought <b>${params.planSlug}</b> from the website rather than using their trial link.</p>`,
+      `<p>Rather than provisioning a second line (which would give them a second number and an activation fee), the subscription was attached to the existing line and the trial was closed. No action needed — this is the intended path.</p>`,
       `<p><a href="https://www.bitlink.co.il/admin/lines/${params.line.id}">Open the line in admin</a></p>`,
     ].join(''),
   }).catch(() => {
@@ -734,9 +794,23 @@ async function handleCheckoutCompleted(
     portInNumber: session.metadata?.port_in_number ?? null,
   });
 
-  if (ownLineForPort) {
+  // Same treatment for someone who already has a live trial: attach rather than
+  // build a second line beside it. Checked after the port case so an explicit
+  // port-in still wins.
+  const trialLineToConvert = ownLineForPort
+    ? null
+    : await findActiveTrialLineToConvert(admin, {
+        customerRecordId,
+        source: session.metadata?.source ?? null,
+        isPortIn: session.metadata?.is_port_in === '1',
+      });
+
+  const existingLineToUse = ownLineForPort ?? trialLineToConvert;
+
+  if (existingLineToUse) {
     return attachSubscriptionToExistingLine(admin, {
-      line: ownLineForPort,
+      reason: ownLineForPort ? 'self_port' : 'active_trial',
+      line: existingLineToUse,
       customerRecordId,
       stripeSubscriptionId,
       stripeCustomerId,

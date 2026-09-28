@@ -260,6 +260,31 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
   }
 
+  // A customer with a live trial is converting, not signing up, whatever page
+  // they happened to buy from. The conversion path never charges the activation
+  // fee (see convertTrialToPlan), so charging it here just because they reached
+  // checkout the long way round produces a refund and an apology — it did once
+  // already, Sept 2026. The webhook separately attaches this subscription to
+  // their existing trial line rather than building a second one.
+  //
+  // Only this route needs the check: adding a second line deliberately goes
+  // through /api/account/create-line-checkout, which is a genuine new line and
+  // should pay the fee like any other.
+  if (!effectiveSkipActivationFee) {
+    const { data: liveTrial } = await admin
+      .from('trial_lines')
+      .select('id')
+      .eq('customer_id', customerRecordId)
+      .eq('status', 'active')
+      .limit(1)
+      .maybeSingle();
+
+    if (liveTrial) {
+      effectiveSkipActivationFee = true;
+      log.info({ customerId: customerRecordId }, 'Active trial — activation fee waived, this is a conversion');
+    }
+  }
+
   // ── 3. Find or create Stripe customer ────────────────────────────────────
   // Lookup order: stripe_customers table → customers.stripe_customer_id → create new
   let stripeCustomerId: string;
