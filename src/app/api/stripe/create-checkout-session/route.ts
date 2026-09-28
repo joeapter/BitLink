@@ -31,6 +31,7 @@ import { getPromo } from '@/lib/promos';
 import { isActivationFeeWaivedForPlan } from '@/lib/plans';
 import { kosherPlusPromoCouponId, planIncludesIntlNumber } from '@/lib/kosher-plus-promo';
 import { resolveDeliveryMethod } from '@/lib/delivery';
+import { ATTRIBUTION_COOKIE, decodeAttribution } from '@/lib/attribution';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -80,6 +81,11 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: NextRequest): Promise<Response> {
+  // First-touch attribution, read from the httpOnly cookie middleware set on
+  // arrival. Deliberately not taken from the request body — the client must not
+  // be able to claim it came from a page it did not.
+  const attribution = decodeAttribution(request.cookies.get(ATTRIBUTION_COOKIE)?.value);
+
   let body: unknown;
   try {
     body = await request.json();
@@ -216,7 +222,10 @@ export async function POST(request: NextRequest): Promise<Response> {
   {
     const { data: existing } = await admin
       .from('customers')
-      .select('id, referred_by, org_referral_code')
+      // attribution_landing is selected so first touch can be preserved —
+      // without it the check below is always true and every repeat visit
+      // overwrites the page that originally found them.
+      .select('id, referred_by, org_referral_code, attribution_landing')
       .eq('email', email)
       .maybeSingle();
 
@@ -228,6 +237,18 @@ export async function POST(request: NextRequest): Promise<Response> {
           phone,
           ...(!existing.referred_by && referralCode ? { referred_by: referralCode } : {}),
           ...(!existing.org_referral_code && orgReferralCode ? { org_referral_code: orgReferralCode } : {}),
+          // First touch wins: a returning customer keeps the page that
+          // originally found them, not whatever they browsed this time.
+          ...(!existing.attribution_landing && attribution
+            ? {
+                attribution_landing: attribution.landing,
+                attribution_referrer: attribution.referrer,
+                attribution_source: attribution.source,
+                attribution_medium: attribution.medium,
+                attribution_campaign: attribution.campaign,
+                attribution_at: attribution.at,
+              }
+            : {}),
           ...(userId ? { user_id: userId } : {}),
           updated_at: new Date().toISOString(),
         })
@@ -246,6 +267,12 @@ export async function POST(request: NextRequest): Promise<Response> {
           referral_code: generateReferralCode(),
           referred_by: referralCode ?? null,
           org_referral_code: orgReferralCode ?? null,
+          attribution_landing: attribution?.landing ?? null,
+          attribution_referrer: attribution?.referrer ?? null,
+          attribution_source: attribution?.source ?? null,
+          attribution_medium: attribution?.medium ?? null,
+          attribution_campaign: attribution?.campaign ?? null,
+          attribution_at: attribution?.at ?? null,
         })
         .select('id')
         .single();

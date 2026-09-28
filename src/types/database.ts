@@ -46,6 +46,12 @@ export type Database = {
           stripe_customer_id: string | null;
           referral_code: string | null;
           referred_by: string | null;
+          attribution_landing: string | null;
+          attribution_referrer: string | null;
+          attribution_source: string | null;
+          attribution_medium: string | null;
+          attribution_campaign: string | null;
+          attribution_at: string | null;
           created_at: string;
           updated_at: string;
         };

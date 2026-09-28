@@ -19,6 +19,9 @@ export type CustomerRow = {
   phone: string | null;
   stripe_customer_id: string | null;
   referral_code: string | null;
+  attribution_landing?: string | null;
+  attribution_referrer?: string | null;
+  attribution_source?: string | null;
   user_id: string | null;
   created_at: string;
   plans: string[];
@@ -231,6 +234,7 @@ export function CustomerTable({ customers, view }: { customers: CustomerRow[]; v
               <th className="px-3 py-3 font-semibold">Phone</th>
               <th className="px-3 py-3 font-semibold">Stripe</th>
               <th className="px-3 py-3 font-semibold">Referral</th>
+              <th className="px-3 py-3 font-semibold">Came from</th>
               <th className="px-3 py-3 font-semibold">Sales rep</th>
               <th className="px-3 py-3 font-semibold">Order</th>
               <th className="px-3 py-3 font-semibold">Review</th>
@@ -292,6 +296,21 @@ export function CustomerTable({ customers, view }: { customers: CustomerRow[]; v
                     <StatusBadge status={customer.stripe_customer_id ? "active" : "pending"} label={customer.stripe_customer_id ? "Connected" : "Missing"} />
                   </td>
                   <td className="px-3 py-3 font-mono text-xs text-slate-500">{customer.referral_code ?? "—"}</td>
+                  {/* First touch: the page that found them, not the one they
+                      checked out from. Blank for anyone who signed up before
+                      this was captured. */}
+                  <td className="px-3 py-3 text-xs text-slate-500">
+                    {customer.attribution_landing ? (
+                      <span className="flex flex-col">
+                        <span className="font-medium text-ink">
+                          {customer.attribution_referrer ?? customer.attribution_source ?? "direct"}
+                        </span>
+                        <span className="font-mono text-[0.7rem] text-slate-400">{customer.attribution_landing}</span>
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                   <td className="px-3 py-3">
                     {customer.salesRep ? (
                       <div className="grid gap-1">

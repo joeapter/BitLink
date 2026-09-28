@@ -2,6 +2,12 @@ import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { getSupabasePublicEnv, hasSupabasePublicEnv } from "@/lib/supabase/env";
 import { partnerOrgCodes } from "@/lib/partner-org-codes";
+import {
+  ATTRIBUTION_COOKIE,
+  ATTRIBUTION_MAX_AGE_SECONDS,
+  buildAttribution,
+  encodeAttribution,
+} from "@/lib/attribution";
 
 export async function middleware(request: NextRequest) {
   if (!hasSupabasePublicEnv()) {
@@ -41,6 +47,27 @@ export async function middleware(request: NextRequest) {
       sameSite: "lax",
       path: "/",
     });
+  }
+
+  // First-touch attribution for traffic carrying no code at all — which is most
+  // of it. Written once and never overwritten while it lives: the page worth
+  // knowing about is the one that FOUND them, not /plans, where everyone ends
+  // up regardless. Same cookie mechanics as bl_org above.
+  if (!request.cookies.get(ATTRIBUTION_COOKIE)) {
+    const attribution = buildAttribution({
+      pathname: request.nextUrl.pathname,
+      searchParams: request.nextUrl.searchParams,
+      referrerHeader: request.headers.get("referer"),
+      selfHost: request.nextUrl.hostname,
+    });
+    if (attribution) {
+      response.cookies.set(ATTRIBUTION_COOKIE, encodeAttribution(attribution), {
+        maxAge: ATTRIBUTION_MAX_AGE_SECONDS,
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+      });
+    }
   }
 
   return response;
