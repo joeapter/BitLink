@@ -12,6 +12,7 @@
 //   - Line update happens BEFORE job COMPLETED write so retries are safe.
 
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { collectUsedNumbers, collectReleasedNumbers } from '@/lib/telecom/did-release';
 import { getTelecomProvider } from '@/lib/telecom/provider.registry';
 import { withProviderContext } from '@/lib/telecom/provider-context';
 import { sendEmail } from '@/lib/email/send';
@@ -157,15 +158,7 @@ async function releaseEsimReservation(admin: Admin, iccId: string): Promise<void
 }
 
 // Numbers already assigned to lines — excluded when picking a fresh DID.
-async function collectUsedNumbers(admin: Admin): Promise<string[]> {
-  const { data: existingLines } = await admin
-    .from('telecom_lines')
-    .select('metadata')
-    .not('metadata->>phone_number', 'is', null);
-  return (existingLines ?? [])
-    .map((l) => (l.metadata as Record<string, unknown>)?.phone_number as string | undefined)
-    .filter((n): n is string => Boolean(n));
-}
+
 
 function requireAdmin(): Admin {
   const admin = createSupabaseAdminClient();
@@ -464,11 +457,14 @@ async function completeJob(
         // Retry against the next candidate instead of giving up on the
         // first rejection, which used to leave the line silently numberless.
         const excluded = await collectUsedNumbers(admin);
+        // Previously-used numbers are usable once nothing fresh is left, oldest
+        // rest first — the same demotion the international pool applies.
+        const released = await collectReleasedNumbers(admin);
         let assigned: string | null = null;
         let lastError = '';
         const MAX_DID_ATTEMPTS = 5;
         for (let attempt = 0; attempt < MAX_DID_ATTEMPTS; attempt++) {
-          const candidate = await provider.getAvailableDid(excluded, { isKosher: isKosherLine });
+          const candidate = await provider.getAvailableDid(excluded, { isKosher: isKosherLine, releasedNumbers: released });
           if (!candidate) break;
           try {
             await provider.assignDid(providerLineId, candidate);

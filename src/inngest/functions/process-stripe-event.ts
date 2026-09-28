@@ -29,6 +29,7 @@ import { upsertSubscription, updateSubscriptionFromStripe } from '@/lib/db/subsc
 import { createProvisioningJob } from '@/lib/provisioning/orchestrator';
 import { getLine } from '@/lib/db/lines';
 import { getTelecomProvider } from '@/lib/telecom/provider.registry';
+import { releaseLineNumber } from '@/lib/telecom/did-release';
 import { withProviderContext } from '@/lib/telecom/provider-context';
 import { getAnnatelPlanName } from '@/lib/plans';
 import { getStripeClient } from '@/lib/stripe/client';
@@ -1181,6 +1182,9 @@ async function handleSubscriptionDeleted(
           .from('telecom_lines')
           .update({ status: 'terminated', updated_at: new Date().toISOString() })
           .eq('id', subscriber.telecomLineId);
+        // Israeli number back to the pool; the DID release above is the
+        // carrier half, this is ours.
+        await releaseLineNumber(admin, subscriber.telecomLineId);
         log.info(
           { subscriberId: subscriber.id, telecomLineId: subscriber.telecomLineId, providerLineId: line.provider_line_id },
           'Line terminated — DID released to number bank',

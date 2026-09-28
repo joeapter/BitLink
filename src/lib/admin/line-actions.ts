@@ -12,6 +12,7 @@ import { addIntlNumberToLine, removeIntlNumberFromLine, type AddIntlNumberResult
 import { grantTopup, cancelTopupGrant, type GrantTopupResult } from "@/lib/topups/grant-topup";
 import { refundAndCancelLine } from '@/lib/admin/refund-cancel';
 import { getStripe } from '@/lib/stripe/server';
+import { releaseLineNumber } from '@/lib/telecom/did-release';
 import { setCustomLinePrice, type CustomPriceResult, refundPartialAmount, type PartialRefundResult } from '@/lib/admin/custom-price';
 import { formatMoney, absoluteUrl } from '@/lib/utils';
 import { sendEmail } from '@/lib/email/send';
@@ -199,6 +200,9 @@ export async function terminateLineAction(formData: FormData) {
   await provider.terminateLine(providerLineId);
 
   await admin.from('telecom_lines').update({ status: 'terminated', updated_at: now }).eq('id', lineId);
+  // Hand the Israeli number back to the pool. Without this the line keeps it
+  // out of provisioning forever — 13 numbers had gone that way by Sept 2026.
+  await releaseLineNumber(admin, lineId);
 
   // Close any trial still pointing at this line, so the lifecycle sweep does
   // not later try to auto-continue a line that has been terminated.

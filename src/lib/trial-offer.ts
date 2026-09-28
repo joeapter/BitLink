@@ -13,6 +13,7 @@ import { getAnnatelPlanName, getPlan, type PlanSlug } from "@/lib/plans";
 import { grantTopup } from "@/lib/topups/grant-topup";
 import { changeLinePlan } from "@/lib/line-plan-change";
 import { getTelecomProvider } from "@/lib/telecom/provider.registry";
+import { releaseLineNumber } from "@/lib/telecom/did-release";
 import { getStripe } from "@/lib/stripe/server";
 import { createSubscriber, updateSubscriber } from "@/lib/db/subscribers";
 import { sendEmail } from "@/lib/email/send";
@@ -371,6 +372,8 @@ async function terminateTrialLine(
     .from("telecom_lines")
     .update({ status: "terminated", updated_at: now })
     .eq("id", trial.telecom_line_id);
+  // Israeli number back to the pool, same as every other termination path.
+  await releaseLineNumber(admin, trial.telecom_line_id);
 
   const stripe = getStripe();
   const { data: subs } = await admin

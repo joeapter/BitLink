@@ -119,7 +119,15 @@ export interface TelecomProvider {
   listPlansCatalog(): Promise<PlanCatalogEntry[]>;
   addTopup(providerLineId: string, topupName: string): Promise<void>;
   getAvailableEsimIccId(excludeIccIds?: string[]): Promise<string | null>;
-  getAvailableDid(usedNumbers?: string[], options?: { isKosher?: boolean }): Promise<string | null>;
+  /**
+   * `usedNumbers` are held by live lines and hard-excluded. `releasedNumbers`
+   * came off terminated lines: eligible, but only after everything fresh is
+   * gone, and then oldest-release first.
+   */
+  getAvailableDid(
+    usedNumbers?: string[],
+    options?: { isKosher?: boolean; releasedNumbers?: string[] },
+  ): Promise<string | null>;
 
   // ── Usage & balance ──────────────────────────────────────────
   getBalances(providerLineId: string): Promise<BalanceBucket[]>;

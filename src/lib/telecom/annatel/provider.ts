@@ -511,27 +511,53 @@ export class AnnatelProvider implements TelecomProvider {
   // bank is exhausted this returns null and the caller raises the
   // "line active without phone number" admin alert rather than attaching a
   // number the carrier will reject.
+  /**
+   * Pick an Israeli number for a new line.
+   *
+   * `usedNumbers` are hard-excluded — a live line holds them. `releasedNumbers`
+   * are numbers that were on a line which has since been terminated: usable,
+   * but only once nothing fresh is left, and then oldest-release first. Same
+   * demote-don't-block rule the international pool already uses; passing an
+   * empty array simply restores the old fresh-only behaviour.
+   *
+   * Scans every page before choosing rather than returning the first hit,
+   * because "is anything fresh left anywhere" cannot be answered from page one.
+   */
   async getAvailableDid(
     usedNumbers: string[] = [],
-    options: { isKosher?: boolean } = {},
+    options: { isKosher?: boolean; releasedNumbers?: string[] } = {},
   ): Promise<string | null> {
     try {
       const usedSet = new Set(usedNumbers);
+      const releasedOrder = options.releasedNumbers ?? [];
+      const releasedSet = new Set(releasedOrder);
       const wantsKosher = options.isKosher === true;
+
+      const eligible = new Set<string>();
       let page = 1;
       while (true) {
         const result = await this.listTenantDids(page, 50);
-        const available = result.dids.find(
-          (d) =>
-            !usedSet.has(d.number) &&
-            !d.isTechnical &&
-            d.number.startsWith('+972') &&
-            isKosherDid(d.number) === wantsKosher,
-        );
-        if (available) return available.number;
+        for (const d of result.dids) {
+          if (usedSet.has(d.number)) continue;
+          if (d.isTechnical) continue;
+          if (!d.number.startsWith('+972')) continue;
+          if (isKosherDid(d.number) !== wantsKosher) continue;
+          eligible.add(d.number);
+        }
         if (result.dids.length < 50 || result.meta.total <= page * 50) break;
         page++;
       }
+
+      for (const number of eligible) {
+        if (!releasedSet.has(number)) return number;
+      }
+
+      // Nothing untouched left — fall back to the number that has been resting
+      // longest.
+      for (const number of releasedOrder) {
+        if (eligible.has(number)) return number;
+      }
+
       return null;
     } catch {
       return null;
