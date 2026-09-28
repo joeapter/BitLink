@@ -84,11 +84,29 @@ export function encodeAttribution(attribution: Attribution): string {
   return encodeURIComponent(JSON.stringify(attribution));
 }
 
-/** Tolerant by design: a malformed or hand-edited cookie must never break a sale. */
+/**
+ * Tolerant by design: a malformed or hand-edited cookie must never break a sale.
+ *
+ * Handles single AND double URI encoding. We encode on write and the cookie
+ * layer encodes again, so what comes back depends on whether the reader decodes
+ * — and getting that wrong fails silently, producing no attribution at all
+ * rather than an error anyone would notice. Peeling until it parses costs
+ * nothing and removes the guess.
+ */
 export function decodeAttribution(raw: string | undefined | null): Attribution | null {
   if (!raw) return null;
   try {
-    const parsed = JSON.parse(decodeURIComponent(raw)) as Partial<Attribution>;
+    let candidate = raw;
+    let parsed: Partial<Attribution> | null = null;
+    for (let attempt = 0; attempt < 3 && parsed === null; attempt++) {
+      try {
+        parsed = JSON.parse(candidate) as Partial<Attribution>;
+      } catch {
+        const decoded = decodeURIComponent(candidate);
+        if (decoded === candidate) break;
+        candidate = decoded;
+      }
+    }
     if (!parsed || typeof parsed.landing !== 'string') return null;
     return {
       landing: parsed.landing,
