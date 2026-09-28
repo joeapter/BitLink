@@ -41,6 +41,8 @@ export type IsraeliPortInRequest = {
   providerBulkRequestId: string | null;
   providerLandingLineId: string | null;
   method: 'direct' | 'landing' | null;
+  /** How ownership was challenged. Null until the code is sent. */
+  authMethod: 'sms_code' | 'ivr' | null;
   error: string | null;
   createdAt: string;
   completedAt: string | null;
@@ -57,6 +59,7 @@ function toRequest(row: Record<string, unknown>): IsraeliPortInRequest {
     providerBulkRequestId: (row.provider_bulk_request_id as string | null) ?? null,
     providerLandingLineId: (row.provider_landing_line_id as string | null) ?? null,
     method: (row.method as 'direct' | 'landing' | null) ?? null,
+    authMethod: (row.auth_method as 'sms_code' | 'ivr' | null) ?? null,
     error: (row.error as string | null) ?? null,
     createdAt: row.created_at as string,
     completedAt: (row.completed_at as string | null) ?? null,
@@ -102,32 +105,48 @@ export async function createIsraeliPortInRequest(params: {
   return { success: 'Request created — send the verification code next.', requestId: data.id as string };
 }
 
-// Step 1: trigger the SMS ownership-verification challenge on the number.
-// Kosher-certified phones can't receive SMS, so a port onto a kosher line
-// must verify by automated voice call instead — read straight off the
-// target line, same source of truth used everywhere else (plans.isKosher).
+// The default challenge for a line: kosher-certified phones can't display an
+// SMS, so a port onto a kosher line verifies by automated voice call. Same
+// source of truth used everywhere else (plans.isKosher).
 async function getLineAuthenticationType(admin: SupabaseClient, lineId: string): Promise<'sms_code' | 'ivr'> {
   const { data: line } = await admin.from('telecom_lines').select('is_kosher').eq('id', lineId).maybeSingle();
   return line?.is_kosher ? 'ivr' : 'sms_code';
 }
 
-export async function sendPortInAuthCode(admin: SupabaseClient, requestId: string): Promise<{ success?: string; error?: string }> {
+/**
+ * Step 1: challenge the current owner to prove the number is theirs.
+ *
+ * `preferred` overrides the line's default. The default is right almost always,
+ * but an SMS can simply fail to arrive — one did on 2026-09-27, and Annatel's
+ * own support suggested verifying by voice instead, which there was then no way
+ * to ask for. IVR is available on any line, not just kosher ones (confirmed
+ * against the live tenant 2026-09-28; it 422'd until Annatel provisioned an IVR
+ * authentication_method for us).
+ *
+ * Whatever is used gets written to the request, because verification must be
+ * submitted with the same method the challenge was issued with.
+ */
+export async function sendPortInAuthCode(
+  admin: SupabaseClient,
+  requestId: string,
+  preferred?: 'sms_code' | 'ivr',
+): Promise<{ success?: string; error?: string }> {
   const request = await getRequest(admin, requestId);
   if (!request) return { error: 'Request not found.' };
 
   const provider = getTelecomProvider();
-  const authenticationType = await getLineAuthenticationType(admin, request.lineId);
+  const authenticationType = preferred ?? (await getLineAuthenticationType(admin, request.lineId));
   try {
     await provider.createNumberAuthentication(request.number, authenticationType);
   } catch (err) {
     return { error: err instanceof Error ? `Could not send code: ${err.message}` : 'Could not send code.' };
   }
-  await setRequest(admin, requestId, { status: 'verifying' });
+  await setRequest(admin, requestId, { status: 'verifying', auth_method: authenticationType });
   return {
     success:
       authenticationType === 'ivr'
-        ? `We're calling ${request.number} now with the verification code.`
-        : `Verification code sent to ${request.number}.`,
+        ? `Calling ${request.number} now — they'll hear the verification code read out.`
+        : `Verification code sent by text to ${request.number}.`,
   };
 }
 
@@ -142,7 +161,9 @@ export async function verifyPortInAuthCode(
   if (!request) return { error: 'Request not found.' };
 
   const provider = getTelecomProvider();
-  const authenticationType = await getLineAuthenticationType(admin, request.lineId);
+  // The method the challenge was actually issued with. Older rows predate the
+  // column, so fall back to the line's default — which is what they used.
+  const authenticationType = request.authMethod ?? (await getLineAuthenticationType(admin, request.lineId));
   const verified = await provider.verifyNumberAuthentication(request.number, code, authenticationType);
   if (!verified) return { error: 'Code did not verify — check it and try again.' };
 

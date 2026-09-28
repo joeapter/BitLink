@@ -90,12 +90,30 @@ export function IsraeliPortInCard({ lineId, requests }: Props) {
 
               {r.id === active?.id && (
                 <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {/* Two ways to prove ownership. Text is the default and works
+                      almost always; the call is for when a text does not arrive,
+                      or the phone is kosher and cannot display one. */}
                   {r.status === "pending_auth" && (
-                    <form action={(fd) => run(sendPortInAuthCodeAction, fd)}>
+                    <form action={(fd) => run(sendPortInAuthCodeAction, fd)} className="flex flex-wrap items-center gap-2">
                       <input type="hidden" name="lineId" value={lineId} />
                       <input type="hidden" name="requestId" value={r.id} />
-                      <button type="submit" disabled={pending} className="inline-flex items-center gap-1 rounded-lg bg-ink px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">
-                        <ShieldCheck className="h-3.5 w-3.5" /> Send verification code
+                      <button
+                        type="submit"
+                        name="authMethod"
+                        value="sms_code"
+                        disabled={pending}
+                        className="inline-flex items-center gap-1 rounded-lg bg-ink px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40"
+                      >
+                        <ShieldCheck className="h-3.5 w-3.5" /> Text the code
+                      </button>
+                      <button
+                        type="submit"
+                        name="authMethod"
+                        value="ivr"
+                        disabled={pending}
+                        className="inline-flex items-center gap-1 rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold text-ink disabled:opacity-40"
+                      >
+                        <PhoneCall className="h-3.5 w-3.5" /> Call with the code
                       </button>
                     </form>
                   )}

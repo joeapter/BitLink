@@ -944,9 +944,14 @@ export async function sendPortInAuthCodeAction(formData: FormData) {
   const requestId = String(formData.get('requestId') ?? '');
   if (!lineId || !requestId) return { error: 'Missing required fields' };
 
+  // Optional override. Anything unrecognised falls through to the line's
+  // default rather than erroring — the button is a convenience, not a contract.
+  const raw = String(formData.get('authMethod') ?? '');
+  const preferred = raw === 'ivr' || raw === 'sms_code' ? raw : undefined;
+
   const admin = getAdmin();
-  const result = await sendPortInAuthCode(admin, requestId);
-  await logAction(user.id, 'israeli_port_in_auth_sent', lineId, { requestId });
+  const result = await sendPortInAuthCode(admin, requestId, preferred);
+  await logAction(user.id, 'israeli_port_in_auth_sent', lineId, { requestId, authMethod: preferred ?? 'line_default' });
   revalidatePath(`/admin/lines/${lineId}`);
   return result;
 }
