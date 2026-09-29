@@ -32,6 +32,12 @@
 // it is detached and does NOT come back on its own. For a customer abroad the
 // forwarder is usually the entire reason they bought the line. We therefore
 // record the forwarders before the move and re-create them on return.
+//
+// Annatel will not even let you skip this: detaching a DID that still has a
+// live forwarder is refused with 422 `{"number":["ongoing sms_forwarder_setting
+// constraint"]}` (hit on the first real move, 2026-09-29). So the forwarders
+// must be deleted explicitly before the detach — which is exactly why they have
+// to be read and stashed first, or they are simply gone.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getTelecomProvider } from '@/lib/telecom/provider.registry';
@@ -157,13 +163,11 @@ export async function loanNumberToOffice(
 
   let smsForwarders: NumberLoan['smsForwarders'] = [];
   try {
-    const existing = await provider.listLineDidSmsForwarders(providerLineId, did.id);
-    smsForwarders = existing
-      .filter((f) => !f.endAt)
-      .map((f) => ({
-        emailRecipientAddress: f.emailRecipientAddress,
-        telegramChatId: f.telegramChatId,
-      }));
+    const existing = (await provider.listLineDidSmsForwarders(providerLineId, did.id)).filter((f) => !f.endAt);
+    smsForwarders = existing.map((f) => ({
+      emailRecipientAddress: f.emailRecipientAddress,
+      telegramChatId: f.telegramChatId,
+    }));
   } catch (err) {
     // Without this list the return would silently drop the customer's
     // forwarding, which is exactly the failure this function exists to prevent.
@@ -187,8 +191,14 @@ export async function loanNumberToOffice(
   await writeLoan(admin, lineId, loan);
 
   try {
+    // Must happen before the detach — the carrier refuses to release a DID that
+    // still has a live forwarder. They are already stashed in the loan record.
+    await clearForwarders(provider, providerLineId, did.id);
     await provider.releaseDid(providerLineId, did.number);
   } catch (err) {
+    // Nothing has moved, but a forwarder may already have been deleted, so put
+    // the customer's setup back before giving up.
+    await restoreForwarders(provider, providerLineId, did.number, smsForwarders).catch(() => {});
     await writeLoan(admin, lineId, null);
     return {
       success: false,
@@ -257,6 +267,25 @@ export async function loanNumberToOffice(
   return { success: true, number: did.number, restoredForwarders: smsForwarders.length };
 }
 
+/**
+ * Take every live forwarder off a line↔DID association.
+ *
+ * Required before any detach: Annatel answers 422 `ongoing
+ * sms_forwarder_setting constraint` otherwise. Only ever called once the
+ * forwarders are safely recorded.
+ */
+async function clearForwarders(
+  provider: ReturnType<typeof getTelecomProvider>,
+  providerLineId: string,
+  didId: string,
+): Promise<void> {
+  const existing = await provider.listLineDidSmsForwarders(providerLineId, didId);
+  for (const f of existing) {
+    if (f.endAt) continue;
+    await provider.removeLineDidSmsForwarder(providerLineId, didId, f.id);
+  }
+}
+
 async function restoreForwarders(
   provider: ReturnType<typeof getTelecomProvider>,
   providerLineId: string,
@@ -314,7 +343,11 @@ export async function returnLoanedNumber(
   // happen before the customer's line will take it back.
   try {
     const officeDids = await provider.getAssignedNumbers(loan.toProviderLineId);
-    if (officeDids.some((n) => n.number === loan.number)) {
+    const onOffice = officeDids.find((n) => n.number === loan.number);
+    if (onOffice) {
+      // The office copy-to-inbox forwarder added during the loan blocks the
+      // detach exactly as the customer's own did, so it comes off first.
+      if (onOffice.id) await clearForwarders(provider, loan.toProviderLineId, onOffice.id);
       await provider.releaseDid(loan.toProviderLineId, loan.number);
     }
   } catch (err) {
