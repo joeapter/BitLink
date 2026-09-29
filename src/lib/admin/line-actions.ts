@@ -13,6 +13,7 @@ import { grantTopup, cancelTopupGrant, type GrantTopupResult } from "@/lib/topup
 import { refundAndCancelLine } from '@/lib/admin/refund-cancel';
 import { getStripe } from '@/lib/stripe/server';
 import { releaseLineNumber } from '@/lib/telecom/did-release';
+import { loanNumberToOffice, returnLoanedNumber, OFFICE_LINE, type LoanResult } from '@/lib/telecom/number-loan';
 import { setCustomLinePrice, type CustomPriceResult, refundPartialAmount, type PartialRefundResult } from '@/lib/admin/custom-price';
 import { formatMoney, absoluteUrl } from '@/lib/utils';
 import { sendEmail } from '@/lib/email/send';
@@ -407,6 +408,50 @@ export async function removeForwardAction(formData: FormData) {
   await logAction(user.id, 'forward_removed', lineId, { forwardId });
   revalidatePath(`/admin/lines/${lineId}`);
   return { success: true };
+}
+
+// ── Temporary number move ─────────────────────────────────────────────────────
+// Borrow a customer's number onto the office line so a voice verification code
+// can be answered in Israel, then give it back. See number-loan.ts for why the
+// SMS forwarding has to be captured and re-created rather than left alone.
+
+export type NumberLoanState = LoanResult | null;
+
+export async function loanNumberAction(
+  _prev: NumberLoanState,
+  formData: FormData,
+): Promise<NumberLoanState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  const providerLineId = String(formData.get('providerLineId') ?? '');
+  if (!lineId || !providerLineId) return { success: false, error: 'Missing required fields' };
+
+  const result = await loanNumberToOffice(getAdmin(), { lineId, providerLineId, actorId: user.id });
+  await logAction(user.id, 'number_loaned', lineId, {
+    number: result.number,
+    to: OFFICE_LINE.providerLineId,
+    error: result.error,
+  });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
+}
+
+export async function returnNumberAction(
+  _prev: NumberLoanState,
+  formData: FormData,
+): Promise<NumberLoanState> {
+  const { user } = await requireAdmin();
+  const lineId = String(formData.get('lineId') ?? '');
+  if (!lineId) return { success: false, error: 'Missing required fields' };
+
+  const result = await returnLoanedNumber(getAdmin(), { lineId });
+  await logAction(user.id, 'number_loan_returned', lineId, {
+    number: result.number,
+    forwardersRestored: result.restoredForwarders,
+    error: result.error,
+  });
+  revalidatePath(`/admin/lines/${lineId}`);
+  return result;
 }
 
 // ── Webhook endpoint operations ───────────────────────────────────────────────

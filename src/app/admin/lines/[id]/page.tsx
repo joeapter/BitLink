@@ -18,6 +18,8 @@ import { RefundAndCancelCard } from "@/components/admin/RefundAndCancelCard";
 import { ResetLinkCard } from "@/components/admin/ResetLinkCard";
 import { CustomPriceCard } from "@/components/admin/CustomPriceCard";
 import { getRefundContext } from "@/lib/admin/refund-cancel";
+import { NumberLoanCard } from "@/components/admin/NumberLoanCard";
+import { OFFICE_LINE, readLoan } from "@/lib/telecom/number-loan";
 import { LiveLineData, LiveLineDataSkeleton } from "./LiveLineData";
 
 export const metadata: Metadata = { title: "Line Detail" };
@@ -79,6 +81,11 @@ export default async function AdminLineDetailPage({ params }: Props) {
   const hasActiveSubscription = ["active", "trialing", "past_due", "unpaid"].includes(
     String(billingRow?.status ?? ""),
   );
+
+  // Temporary number move. The office line is where a borrowed number goes, so
+  // it never offers to borrow from itself.
+  const numberLoan = readLoan(metadata);
+  const isOfficeLine = providerLineId === OFFICE_LINE.providerLineId;
 
   return (
     <div className="grid gap-4 sm:gap-6">
@@ -145,6 +152,18 @@ export default async function AdminLineDetailPage({ params }: Props) {
         <div className="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           <span>This line has not been assigned a provider line ID yet — provisioning may still be in progress.</span>
+        </div>
+      )}
+
+      {/* A number left on loan is a customer with no service, so it is said at
+          the top of the page and not only on the card that does the undo. */}
+      {numberLoan && (
+        <div className="flex items-center gap-3 rounded-2xl border border-amber-300 bg-amber-100 p-4 text-sm font-semibold text-amber-900">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span>
+            <span className="font-mono">{numberLoan.number}</span> is on loan to {OFFICE_LINE.label} — this customer
+            has no calls or texts until it is returned.
+          </span>
         </div>
       )}
 
@@ -238,6 +257,16 @@ export default async function AdminLineDetailPage({ params }: Props) {
             if (!metaIsEsim || !providerLineId) return null;
             return <EsimResendCard lineId={line.id} providerLineId={providerLineId} />;
           })()}
+
+          {providerLineId && !isOfficeLine && (
+            <NumberLoanCard
+              lineId={line.id}
+              providerLineId={providerLineId}
+              phoneNumber={(metadata.phone_number as string | undefined) ?? null}
+              officeLabel={OFFICE_LINE.label}
+              loan={numberLoan}
+            />
+          )}
 
           <ResetLinkCard lineId={line.id} email={customer?.email} fullName={customer?.full_name} />
 
