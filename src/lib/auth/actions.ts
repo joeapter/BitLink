@@ -108,6 +108,29 @@ export async function signupAction(formData: FormData) {
     redirect(`/signup?error=${encodeMessage(error.message)}`);
   }
 
+  // Signing up with an address that already has an account is NOT an error at
+  // Supabase — to avoid leaking which emails are registered it returns success
+  // with an obfuscated user carrying an empty `identities` array, and quietly
+  // resends the confirmation if the account was never confirmed. Taken at face
+  // value that looked like a fresh signup, so the page told the customer to go
+  // and check their email, which for an already-confirmed account never
+  // arrives. Eylul Bargu hit this on 2026-09-29: an account created minutes
+  // after her purchase, then roughly twenty attempts to create it again, each
+  // one changing nothing (the writes below fail the auth.users foreign key) and
+  // each one emailing the admin a "New signup" that had not happened.
+  //
+  // Send her to the login page with the truth instead. This is the one case
+  // where enumeration is not a concern: she just proved she has the address by
+  // typing it, and she is looking at a message about her own account.
+  const alreadyRegistered = Array.isArray(data.user?.identities) && data.user.identities.length === 0;
+  if (alreadyRegistered) {
+    redirect(
+      `/login?message=${encodeMessage(
+        "You already have a BitLink account with this email. Sign in below — or use “Forgot password” if you can't get in.",
+      )}&email=${encodeMessage(email)}`,
+    );
+  }
+
   const admin = createSupabaseAdminClient();
   if (admin && data.user?.id) {
     await admin.from("profiles").upsert({
@@ -151,12 +174,17 @@ export async function signupAction(formData: FormData) {
 
   cookieStore.delete("bl_org");
 
-  // Fire-and-forget — never block the user redirect on this
-  void sendEmail({
-    to: ADMIN_NOTIFY_EMAIL,
-    subject: `New BitLink signup — ${fullName}`,
-    html: buildAdminSignupEmail({ fullName, email, phone, orgReferralCode }),
-  });
+  // Fire-and-forget — never block the user redirect on this. Guarded on an
+  // actual new user for the same reason as the redirect above: an admin
+  // notification for a signup that did not happen is worse than no
+  // notification, because it is indistinguishable from one that did.
+  if (data.user?.id) {
+    void sendEmail({
+      to: ADMIN_NOTIFY_EMAIL,
+      subject: `New BitLink signup — ${fullName}`,
+      html: buildAdminSignupEmail({ fullName, email, phone, orgReferralCode }),
+    });
+  }
 
   if (data.session) {
     redirect("/account");
