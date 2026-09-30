@@ -25,9 +25,26 @@ export async function GET(request: NextRequest): Promise<Response> {
   const provider = getTelecomProvider();
 
   try {
-    const result = await provider.listTenantDids(page, pageSize);
+    // The bank itself says nothing about whether a number is in use, which is
+    // how a number attached to a line as a second DID could read as free — Joe's
+    // own +972555195375 among them. Annotated here so the bank cannot be
+    // mistaken for a list of available numbers.
+    const [result, attached] = await Promise.all([
+      provider.listTenantDids(page, pageSize),
+      provider.listAllAssignedNumbers().catch(() => ({ numbers: [] as string[], complete: false })),
+    ]);
+    const attachedSet = new Set(attached.numbers);
     log.info({ page, pageSize, total: result.meta.total }, 'DID bank fetched');
-    return NextResponse.json(result);
+    return NextResponse.json({
+      ...result,
+      dids: result.dids.map((did) => ({
+        ...did,
+        // undefined rather than false when the sweep was partial: "we did not
+        // manage to check" is not the same answer as "it is free".
+        isAssigned: attached.complete ? attachedSet.has(did.number) : undefined,
+      })),
+      assignmentStatus: attached.complete ? 'complete' : 'partial',
+    });
   } catch (err) {
     log.error({ error: err instanceof Error ? err.message : String(err) }, 'Failed to fetch DID bank');
     return NextResponse.json({ error: 'Failed to fetch DID bank' }, { status: 502 });

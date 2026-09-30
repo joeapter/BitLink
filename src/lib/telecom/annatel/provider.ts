@@ -889,6 +889,52 @@ export class AnnatelProvider implements TelecomProvider {
       }));
   }
 
+  // Enumerating lines is the only way to learn what is attached — see the
+  // interface for why the bank cannot answer this. Bounded concurrency because
+  // the tenant had 86 lines in Sept 2026 and this runs on the provisioning
+  // path: sequential would add most of a minute, unbounded would hammer the
+  // carrier with 86 simultaneous requests.
+  async listAllAssignedNumbers(): Promise<{ numbers: string[]; complete: boolean }> {
+    let complete = true;
+
+    const lineIds: string[] = [];
+    let page = 1;
+    while (true) {
+      try {
+        const qs = new URLSearchParams({ 'page[number]': String(page), 'page[size]': '100' });
+        const result = await this.client.get<{ data: Array<{ id: string }> }>(`${LINES_BASE}?${qs}`);
+        const batch = result.data ?? [];
+        lineIds.push(...batch.map((l) => l.id));
+        if (batch.length < 100) break;
+        page++;
+      } catch {
+        // Without the full line list every number on the unread pages looks
+        // free, which is exactly the mistake this method exists to prevent.
+        return { numbers: [], complete: false };
+      }
+    }
+
+    const numbers = new Set<string>();
+    const CONCURRENCY = 8;
+    for (let i = 0; i < lineIds.length; i += CONCURRENCY) {
+      const slice = lineIds.slice(i, i + CONCURRENCY);
+      const results = await Promise.all(
+        slice.map((id) =>
+          this.getAssignedNumbers(id).catch(() => null),
+        ),
+      );
+      for (const dids of results) {
+        if (dids === null) {
+          complete = false;
+          continue;
+        }
+        for (const did of dids) numbers.add(did.number);
+      }
+    }
+
+    return { numbers: [...numbers], complete };
+  }
+
   async assignDid(providerLineId: string, number: string): Promise<void> {
     await this.client.post(`${LINES_BASE}/${providerLineId}/dids`, { number });
   }

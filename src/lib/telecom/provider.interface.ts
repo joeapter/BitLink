@@ -172,6 +172,21 @@ export interface TelecomProvider {
   /** How many SIMs the tenant holds, by type. Totals held, not what is free. */
   getSimInventory(): Promise<{ esimTotal: number; physicalTotal: number }>;
   getAssignedNumbers(providerLineId: string): Promise<PhoneNumber[]>;
+  /**
+   * Every number currently attached to any line at the provider.
+   *
+   * The DID bank (`listTenantDids`) carries no assignment field of any kind —
+   * confirmed against both the live response and the API spec — so the only way
+   * to know a number is in use is to ask each line what it holds. That makes
+   * this the one authoritative answer to "is this number free", and the reason
+   * it exists: our own records track one number per line, so a SECOND number
+   * attached to a line is invisible to them.
+   *
+   * `complete` is false when any line could not be read. A partial sweep must
+   * not be treated as the full picture — it would report numbers as free purely
+   * because the call that would have claimed them failed.
+   */
+  listAllAssignedNumbers(): Promise<{ numbers: string[]; complete: boolean }>;
   assignDid(providerLineId: string, number: string): Promise<void>;
   releaseDid(providerLineId: string, number: string): Promise<void>;
 

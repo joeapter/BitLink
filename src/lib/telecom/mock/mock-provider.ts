@@ -205,6 +205,11 @@ export class MockTelecomProvider implements TelecomProvider {
     return [{ number: '+9725512345678', isPrimary: true, startAt: new Date() }];
   }
 
+  async listAllAssignedNumbers(): Promise<{ numbers: string[]; complete: boolean }> {
+    await this.tick();
+    return { numbers: ['+9725512345678'], complete: true };
+  }
+
   async assignDid(_providerLineId: string, _number: string): Promise<void> {
     await this.tick();
   }

@@ -448,15 +448,41 @@ async function completeJob(
         // number) — assigning another would double-book inventory.
         log.info({ jobId: job.id, lineId, did: currentMeta.phone_number }, 'Line already has a number — skipping DID auto-assign');
       } else {
-        // getAvailableDid() only ever offers Israeli (+972) candidates from
-        // the side of the bank that matches the line (kosher lines only get
-        // numbers from a kosher-provisioned block), but its listing has no
-        // way to know a number is already attached elsewhere at the provider
-        // (no live assignment status in the DID pool endpoint) — a candidate
-        // can still get rejected with a 422.
-        // Retry against the next candidate instead of giving up on the
-        // first rejection, which used to leave the line silently numberless.
+        // Two sources, and both are needed.
+        //
+        // Our own records reserve one number per line, which covers numbers
+        // claimed before the carrier ever hears about them — but only one per
+        // line, so a SECOND number attached to a line is invisible to them.
+        // Joe's line carries +972555195375, the number on every wa.me link on
+        // the site, as an extra DID; on 2026-09-29 the picker offered it to a
+        // new customer and only the carrier's 422 stopped it being handed over.
+        //
+        // The carrier knows every attachment but cannot be asked directly —
+        // the DID bank has no assignment field — so listAllAssignedNumbers()
+        // walks the lines. A partial sweep is discarded rather than trusted,
+        // because a number looking free only because a request failed is the
+        // precise failure being fixed. The 422 retry below stays either way.
         const excluded = await collectUsedNumbers(admin);
+        try {
+          const attached = await provider.listAllAssignedNumbers();
+          if (attached.complete) {
+            const before = excluded.length;
+            for (const number of attached.numbers) {
+              if (!excluded.includes(number)) excluded.push(number);
+            }
+            log.info(
+              { jobId: job.id, carrierAttached: attached.numbers.length, added: excluded.length - before },
+              'Carrier-attached numbers excluded from the DID pool',
+            );
+          } else {
+            log.warn({ jobId: job.id }, 'Could not read every line at the carrier — falling back to our own records for DID exclusion');
+          }
+        } catch (err) {
+          log.warn(
+            { jobId: job.id, error: err instanceof Error ? err.message : String(err) },
+            'Carrier assignment sweep failed — falling back to our own records for DID exclusion',
+          );
+        }
         // Previously-used numbers are usable once nothing fresh is left, oldest
         // rest first — the same demotion the international pool applies.
         const released = await collectReleasedNumbers(admin);
