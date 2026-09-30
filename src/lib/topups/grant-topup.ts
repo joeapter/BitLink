@@ -253,7 +253,37 @@ function firstOfMonthIso(date = new Date()): string {
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-01`;
 }
 
-export type MonthlyTopupRunResult = { month: string; applied: number; skipped: number; failed: number };
+export type MonthlyTopupRunResult = {
+  month: string;
+  applied: number;
+  skipped: number;
+  failed: number;
+  /** Carrier said the line already holds the balance — satisfied, not retried. */
+  alreadyPresent: number;
+  /** Failures that have used up their attempts and will not be tried again this month. */
+  givenUp: number;
+};
+
+/**
+ * How many times a grant-month may be attempted before the runner gives up.
+ *
+ * It used to be unlimited, which meant a refusal that could never succeed was
+ * re-sent at 05:30 every morning until the month rolled over — about forty
+ * calls on one grant between Aug and Sept 2026, none of them reported.
+ */
+const MAX_GRANT_ATTEMPTS = 3;
+
+/**
+ * The carrier's way of saying the line already holds this balance:
+ * `422 {"errors": {"plan": ["balance has already been taken"]}}`.
+ *
+ * It is a success wearing a failure's clothes — the customer has what they were
+ * granted. Treating it as a failure is what turned one grant into a daily
+ * retry loop, so it gets its own status and is never retried.
+ */
+function isAlreadyPresent(message: string): boolean {
+  return /balance has already been taken/i.test(message);
+}
 
 // Re-applies every active monthly topup grant for the current calendar
 // month — same idempotency shape as processMonthlyReferralBonuses (daily
@@ -262,11 +292,18 @@ export type MonthlyTopupRunResult = { month: string; applied: number; skipped: n
 // this only re-applies the carrier-side data/minutes grant.
 export async function processMonthlyTopupGrants(admin: SupabaseClient, date = new Date()): Promise<MonthlyTopupRunResult> {
   const grantMonth = firstOfMonthIso(date);
-  const result: MonthlyTopupRunResult = { month: grantMonth, applied: 0, skipped: 0, failed: 0 };
+  const result: MonthlyTopupRunResult = {
+    month: grantMonth,
+    applied: 0,
+    skipped: 0,
+    failed: 0,
+    alreadyPresent: 0,
+    givenUp: 0,
+  };
 
   const { data: grants } = await admin
     .from('line_topup_grants')
-    .select('id, line_id, topup_name')
+    .select('id, line_id, topup_name, label')
     .eq('frequency', 'monthly')
     .eq('status', 'active');
 
@@ -275,13 +312,23 @@ export async function processMonthlyTopupGrants(admin: SupabaseClient, date = ne
   for (const grant of grants ?? []) {
     const { data: existingRun } = await admin
       .from('line_topup_grant_runs')
-      .select('id, status')
+      .select('id, status, attempts')
       .eq('grant_id', grant.id)
       .eq('grant_month', grantMonth)
       .maybeSingle();
 
-    if (existingRun?.status === 'applied') {
+    // 'already_present' is as finished as 'applied' — the line holds the
+    // balance either way, and re-asking is what produced the retry loop.
+    if (existingRun?.status === 'applied' || existingRun?.status === 'already_present') {
       result.skipped++;
+      continue;
+    }
+
+    const attemptsSoFar = Number(existingRun?.attempts ?? 0);
+    if (attemptsSoFar >= MAX_GRANT_ATTEMPTS) {
+      // Already reported when the cap was hit; stay quiet for the rest of the
+      // month rather than sending the same mail every morning.
+      result.givenUp++;
       continue;
     }
 
@@ -296,8 +343,9 @@ export async function processMonthlyTopupGrants(admin: SupabaseClient, date = ne
       continue;
     }
 
+    const attempts = attemptsSoFar + 1;
     const runId = existingRun?.id as string | undefined;
-    const pendingRun = { grant_id: grant.id, grant_month: grantMonth, status: 'pending', error: null };
+    const pendingRun = { grant_id: grant.id, grant_month: grantMonth, status: 'pending', error: null, attempts };
     if (runId) {
       await admin.from('line_topup_grant_runs').update(pendingRun).eq('id', runId);
     } else {
@@ -316,13 +364,48 @@ export async function processMonthlyTopupGrants(admin: SupabaseClient, date = ne
       result.applied++;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
+
+      // The carrier refusing because the line already holds the balance means
+      // the grant is in effect. Recording that as a failure is what made this
+      // run every morning for the rest of the month.
+      if (isAlreadyPresent(message)) {
+        await admin
+          .from('line_topup_grant_runs')
+          .update({ status: 'already_present', applied_at: new Date().toISOString(), error: message })
+          .eq('grant_id', grant.id)
+          .eq('grant_month', grantMonth);
+        log.info(
+          { grantId: grant.id, lineId: grant.line_id },
+          'Monthly topup already on the line — grant satisfied, not retrying',
+        );
+        result.alreadyPresent++;
+        continue;
+      }
+
       await admin
         .from('line_topup_grant_runs')
         .update({ status: 'failed', error: message })
         .eq('grant_id', grant.id)
         .eq('grant_month', grantMonth);
-      log.error({ grantId: grant.id, lineId: grant.line_id, error: message }, 'Monthly topup re-grant failed');
+      log.error({ grantId: grant.id, lineId: grant.line_id, attempts, error: message }, 'Monthly topup re-grant failed');
       result.failed++;
+
+      // Told once, when the retries run out — not daily, and not never, which
+      // were the only two options before.
+      if (attempts >= MAX_GRANT_ATTEMPTS) {
+        await sendEmail({
+          to: 'joe@bitlink.co.il',
+          subject: `Monthly top-up grant giving up: ${String(grant.label ?? grant.topup_name)}`,
+          html: [
+            `<p>The recurring <b>${String(grant.label ?? grant.topup_name)}</b> grant could not be applied for ${grantMonth} after ${attempts} attempts, so it will not be retried again this month.</p>`,
+            `<p>The customer is not getting the top-up they were promised. Apply it by hand, or cancel the grant if it is no longer wanted.</p>`,
+            `<p>Carrier said: <code>${message}</code></p>`,
+            `<p><a href="https://www.bitlink.co.il/admin/lines/${String(grant.line_id)}">Open the line in admin</a></p>`,
+          ].join(''),
+        }).catch(() => {
+          // alerting is best-effort; never let it fail the run
+        });
+      }
     }
   }
 

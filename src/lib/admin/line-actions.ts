@@ -213,6 +213,16 @@ export async function terminateLineAction(formData: FormData) {
     .eq('telecom_line_id', lineId)
     .in('status', ['pending_provision', 'active', 'past_due']);
 
+  // And any recurring top-up grant. The daily runner already skips lines that
+  // are not active or suspended, so leaving these behind was harmless — but it
+  // left a dead line showing live monthly grants, which is the sort of thing
+  // that gets believed later.
+  await admin
+    .from('line_topup_grants')
+    .update({ status: 'cancelled', updated_at: now })
+    .eq('line_id', lineId)
+    .eq('status', 'active');
+
   await logAction(user.id, 'line_terminated', lineId, { providerLineId, cancelledSubscriptionIds });
   revalidatePath(`/admin/lines/${lineId}`);
   revalidatePath('/admin/lines');

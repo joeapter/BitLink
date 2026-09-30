@@ -264,13 +264,36 @@ async function attachSubscriptionToExistingLine(
       : 'Active trial detected — attached subscription to the trial line instead of provisioning a new one',
   );
 
+  // Who it is, which the first version of this email left out entirely — it
+  // said "a customer" and gave a line id, so every one of these needed a trip
+  // to admin just to find out whose it was.
+  const { data: notifyCustomer } = params.customerRecordId
+    ? await admin
+        .from('customers')
+        .select('full_name, email, phone')
+        .eq('id', params.customerRecordId)
+        .maybeSingle()
+    : { data: null };
+
+  const who = (notifyCustomer?.full_name as string | undefined) ?? 'A customer';
+  const contact = [
+    notifyCustomer?.email ? `<a href="mailto:${notifyCustomer.email}">${notifyCustomer.email}</a>` : null,
+    notifyCustomer?.phone as string | undefined,
+    params.line.metadata.phone_number
+      ? `BitLink number ${String(params.line.metadata.phone_number)}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
   await sendEmail({
     to: 'joe@bitlink.co.il',
-    subject: `Trial converted to ${params.planSlug} — existing line kept`,
+    subject: `${who} converted to ${params.planSlug} — existing line kept`,
     html: [
       params.reason === 'self_port'
-        ? `<p>A customer paid for <b>${params.planSlug}</b> and asked to keep a number already on their own BitLink line.</p>`
-        : `<p>A customer with a live trial bought <b>${params.planSlug}</b> from the website rather than using their trial link.</p>`,
+        ? `<p><b>${who}</b> paid for <b>${params.planSlug}</b> and asked to keep a number already on their own BitLink line.</p>`
+        : `<p><b>${who}</b> had a live trial and bought <b>${params.planSlug}</b> from the website rather than using their trial link.</p>`,
+      contact ? `<p>${contact}</p>` : '',
       `<p>Rather than provisioning a second line (which would give them a second number and an activation fee), the subscription was attached to the existing line and the trial was closed. No action needed — this is the intended path.</p>`,
       `<p><a href="https://www.bitlink.co.il/admin/lines/${params.line.id}">Open the line in admin</a></p>`,
     ].join(''),

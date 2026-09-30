@@ -38,9 +38,36 @@ export class AnnatelApiError extends Error {
     public readonly path: string,
     public readonly responseBody: unknown,
   ) {
-    super(`Annatel API error ${httpStatus} on ${path}`);
+    // The body belongs in the message, not only on the instance. Everything
+    // that reports a carrier failure — admin action results, grant runs, alert
+    // emails — reads .message, so leaving it out reduced every refusal to
+    // "error 422 on /plans". A monthly top-up grant retried the same 422 every
+    // morning for six weeks and the recorded reason never once said that
+    // Annatel was answering "balance has already been taken", which would have
+    // explained it immediately.
+    super(`Annatel API error ${httpStatus} on ${path}${describeBody(responseBody)}`);
     this.name = 'AnnatelApiError';
   }
+}
+
+/** Compact, bounded rendering of a carrier error body for the message string. */
+function describeBody(body: unknown): string {
+  if (body === null || body === undefined || body === '') return '';
+  let text: string;
+  if (typeof body === 'string') {
+    text = body;
+  } else {
+    try {
+      text = JSON.stringify(body);
+    } catch {
+      return '';
+    }
+  }
+  text = text.trim();
+  if (!text || text === '{}' || text === 'null') return '';
+  // Long enough for the carrier's error objects, short enough to sit in an
+  // email subject or a database column without swamping it.
+  return `: ${text.length > 400 ? `${text.slice(0, 400)}…` : text}`;
 }
 
 export class AnnatelApiClient {
