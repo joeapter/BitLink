@@ -415,6 +415,18 @@ export async function convertTrialToPlan(
   admin: SupabaseClient,
   trial: { id: string; telecom_line_id: string; customer_id: string; stripe_customer_id: string },
   planSlug: PlanSlug,
+  /**
+   * How this plan was arrived at, which decides what happens to a line an
+   * admin changed during the trial.
+   *
+   * 'customer_choice' — they picked it on the decision page and are about to
+   * pay for it, so their choice sets the service level.
+   *
+   * 'auto_continue' — nobody chose anything; the deadline passed and we are
+   * continuing them. "Continue" has to mean on the plan they actually have,
+   * not on the plan the trial was originally provisioned with.
+   */
+  reason: "customer_choice" | "auto_continue" = "customer_choice",
 ): Promise<{ success: true } | { success: false; error: string }> {
   const stripe = getStripe();
   if (!stripe) return { success: false, error: "Stripe unavailable" };
@@ -461,23 +473,44 @@ export async function convertTrialToPlan(
   // their line does not have. carrier_only because the Stripe subscription is
   // created by this function, a few lines below.
   //
-  // Skipped when the target IS the provisioned plan, so the well-trodden
-  // auto-continue-on-Basic path keeps behaving exactly as before.
-  if (planSlug !== TRIAL_PROVISIONED_PLAN) {
+  // Compared against what the line is ACTUALLY on, not against the plan the
+  // trial was provisioned with. Those are not always the same: an admin can
+  // change a trial line's plan mid-trial, and that is real service the customer
+  // can see. Mia Effron was upgraded to Student (50GB) on 2026-09-03 as a free
+  // upgrade; two days later the auto-continue sweep wrote plan_slug 'basic'
+  // straight over it without touching the carrier, so the line kept the 50GB it
+  // had been given while every meter we own reported 1GB plus her topups — 11GB.
+  // She then bought data she already had.
+  //
+  // So: the line is the source of truth for where it is now, and the write at
+  // the end of this function may only claim a plan this function actually put
+  // it on.
+  const { data: preLine } = await admin
+    .from("telecom_lines")
+    .select("metadata")
+    .eq("id", trial.telecom_line_id)
+    .maybeSingle();
+  const preMeta = ((preLine?.metadata as Record<string, unknown>) ?? {}) as Record<string, unknown>;
+  const lineSlug = ((preMeta.plan_slug as PlanSlug | undefined) ?? TRIAL_PROVISIONED_PLAN) as PlanSlug;
+
+  // An auto-continue keeps them where they are. A choice moves them.
+  const servicePlanSlug: PlanSlug = reason === "auto_continue" ? lineSlug : planSlug;
+
+  if (servicePlanSlug !== lineSlug) {
     const carrier = await changeLinePlan({
       admin,
       lineId: trial.telecom_line_id,
-      newPlanSlug: planSlug,
+      newPlanSlug: servicePlanSlug,
       billingMode: "carrier_only",
     });
     if (carrier.error) {
       log.error(
-        { trialId: trial.id, planSlug, error: carrier.error },
+        { trialId: trial.id, servicePlanSlug, error: carrier.error },
         "Carrier plan change failed — trial NOT converted and nothing was charged",
       );
-      return { success: false, error: `Could not move the line onto ${planSlug}: ${carrier.error}` };
+      return { success: false, error: `Could not move the line onto ${servicePlanSlug}: ${carrier.error}` };
     }
-    log.info({ trialId: trial.id, planSlug }, "Carrier plan moved ahead of trial conversion charge");
+    log.info({ trialId: trial.id, servicePlanSlug }, "Carrier plan moved ahead of trial conversion charge");
   }
 
   const items: { price: string }[] = [{ price: planRow.stripe_price_id as string }];
@@ -490,7 +523,11 @@ export async function convertTrialToPlan(
       off_session: true,
       payment_behavior: "error_if_incomplete",
       metadata: {
+        // The billed plan. It can differ from the served one when an admin has
+        // given a free upgrade — the customer keeps paying what they agreed to
+        // and keeps the better service, which is the point of a free upgrade.
         plan_slug: planSlug,
+        ...(servicePlanSlug !== planSlug ? { bitlink_service_plan_slug: servicePlanSlug } : {}),
         customer_record_id: trial.customer_id,
         source: "bitlink_trial_conversion",
       },
@@ -501,13 +538,16 @@ export async function convertTrialToPlan(
     return { success: false, error: message };
   }
 
-  const plan = getPlan(planSlug);
+  // plan_slug describes the SERVICE (it is what every meter and allowance in
+  // the app reads), monthly_price_cents describes the money. Keeping them
+  // separate is how a free upgrade survives — the same split the retention
+  // custom-price flow uses.
   const subscriber = await createSubscriber(admin, {
     customerId: trial.customer_id,
     stripeSubscriptionId: subscription.id,
     stripeCustomerId: trial.stripe_customer_id,
-    planSlug,
-    monthlyPriceCents: plan.priceCents,
+    planSlug: servicePlanSlug,
+    monthlyPriceCents: getPlan(planSlug).priceCents,
     status: "active",
   });
   await updateSubscriber(admin, subscriber.id, {
@@ -521,11 +561,21 @@ export async function convertTrialToPlan(
     .select("metadata")
     .eq("id", trial.telecom_line_id)
     .maybeSingle();
+  // servicePlanSlug, never the billed plan. When the two differ the carrier
+  // move above was skipped on purpose, so writing the billed plan here would
+  // describe a line that does not exist — which is the bug this whole block
+  // exists to prevent. A re-read of the metadata is deliberate: changeLinePlan
+  // may have rewritten it a moment ago.
   await admin
     .from("telecom_lines")
     .update({
       external_id: `stripe_sub_${subscription.id}`,
-      metadata: { ...((lineRow?.metadata as Record<string, unknown>) ?? {}), plan_slug: planSlug, is_trial: false },
+      metadata: {
+        ...((lineRow?.metadata as Record<string, unknown>) ?? {}),
+        plan_slug: servicePlanSlug,
+        is_trial: false,
+        ...(servicePlanSlug !== planSlug ? { billed_plan_slug: planSlug } : {}),
+      },
       updated_at: now,
     })
     .eq("id", trial.telecom_line_id);
@@ -535,7 +585,10 @@ export async function convertTrialToPlan(
   // awaited so it survives a serverless invocation ending, but never throws.
   await notifyRepOfConversion(admin, { customerId: trial.customer_id, planSlug });
 
-  log.info({ trialId: trial.id, planSlug, subscriptionId: subscription.id }, "Trial converted to paid plan");
+  log.info(
+    { trialId: trial.id, planSlug, servicePlanSlug, subscriptionId: subscription.id },
+    "Trial converted to paid plan",
+  );
   return { success: true };
 }
 
@@ -677,7 +730,7 @@ export async function processTrialLifecycle(admin: SupabaseClient): Promise<Tria
       continue;
     }
 
-    const result = await convertTrialToPlan(admin, trialRef, TRIAL_AUTO_CONTINUE_PLAN);
+    const result = await convertTrialToPlan(admin, trialRef, TRIAL_AUTO_CONTINUE_PLAN, "auto_continue");
     if (result.success) {
       autoContinued += 1;
       const { data: customer } = await admin
@@ -840,7 +893,7 @@ export async function processTrialLifecycle(admin: SupabaseClient): Promise<Tria
     if (daysSince(lastRetry) < TRIAL_RETRY_INTERVAL_DAYS) continue;
 
     const attemptAt = new Date().toISOString();
-    const result = await convertTrialToPlan(admin, trialRef, TRIAL_AUTO_CONTINUE_PLAN);
+    const result = await convertTrialToPlan(admin, trialRef, TRIAL_AUTO_CONTINUE_PLAN, "auto_continue");
     retried += 1;
 
     if (result.success) {

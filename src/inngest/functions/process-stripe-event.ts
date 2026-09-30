@@ -31,12 +31,13 @@ import { getLine } from '@/lib/db/lines';
 import { getTelecomProvider } from '@/lib/telecom/provider.registry';
 import { releaseLineNumber } from '@/lib/telecom/did-release';
 import { withProviderContext } from '@/lib/telecom/provider-context';
-import { getAnnatelPlanName } from '@/lib/plans';
+import { getAnnatelPlanName, getPlan } from '@/lib/plans';
 import { getStripeClient } from '@/lib/stripe/client';
 import { normalizeCustomOrderLines } from '@/lib/stripe/custom-orders';
 import { provisionSubscriptionLines } from '@/lib/custom-orders/provision-lines';
 import { listIntlPortInRequests, createIntlPortInRequest } from '@/lib/custom-orders/intl-port-in-requests';
 import { startTrial, convertTrialToPlan } from '@/lib/trial-offer';
+import { changeLinePlan } from '@/lib/line-plan-change';
 import { clearDunningState } from '@/lib/billing/dunning';
 import { sendEmail } from '@/lib/email/send';
 import { logger } from '@/lib/logger';
@@ -151,11 +152,48 @@ async function attachSubscriptionToExistingLine(
 ) {
   const now = new Date().toISOString();
 
+  // Move the carrier onto what they just bought.
+  //
+  // Reusing an existing line means reusing whatever plan that line is on, and
+  // for a trial line that is Basic — 1GB. Without this the customer paid for
+  // Student or Max, the subscription and our own record both said so, and the
+  // line quietly stayed on 1GB. Nika Karasik hit it within hours of this path
+  // shipping on 2026-09-29: billed $32.99 for Student, given 1GB.
+  //
+  // The charge has already happened at this point (checkout completed), so
+  // unlike the trial-decision path there is nothing to abort. If the carrier
+  // refuses, the line keeps the plan it really has and Joe gets told — never
+  // write a plan_slug the line is not on, because every meter and allowance in
+  // the app believes it.
+  const currentSlug = String(params.line.metadata.plan_slug ?? '');
+  let servedSlug = params.planSlug;
+  let carrierError: string | null = null;
+
+  if (currentSlug && currentSlug !== params.planSlug) {
+    const moved = await changeLinePlan({
+      admin,
+      lineId: params.line.id,
+      newPlanSlug: params.planSlug,
+      billingMode: 'carrier_only',
+    });
+    if (moved.error) {
+      carrierError = moved.error;
+      servedSlug = currentSlug;
+      log.error(
+        { lineId: params.line.id, from: currentSlug, to: params.planSlug, error: moved.error },
+        'Paid plan attached to existing line but the carrier plan could NOT be moved',
+      );
+    }
+  }
+
   const subscriber = await createSubscriber(admin, {
     customerId: params.customerRecordId,
     stripeSubscriptionId: params.stripeSubscriptionId,
     stripeCustomerId: params.stripeCustomerId,
     planSlug: params.planSlug,
+    // Left null until now, which quietly hid the line from anything keyed on
+    // what it bills — the admin custom-price card among them.
+    monthlyPriceCents: getPlan(params.planSlug).priceCents,
     originatingStripeEventId: params.stripeEventRecordId,
     correlationId: params.correlationId,
     status: 'active',
@@ -165,14 +203,39 @@ async function attachSubscriptionToExistingLine(
     activatedAt: now,
   });
 
+  // Re-read: changeLinePlan rewrote this metadata a moment ago, so the copy
+  // passed in is stale and would undo the plan fields it just wrote.
+  const { data: freshLine } = await admin
+    .from('telecom_lines')
+    .select('metadata')
+    .eq('id', params.line.id)
+    .maybeSingle();
+
   await admin
     .from('telecom_lines')
     .update({
       external_id: params.externalId,
-      metadata: { ...params.line.metadata, is_trial: false, plan_slug: params.planSlug },
+      metadata: {
+        ...((freshLine?.metadata as Record<string, unknown>) ?? params.line.metadata),
+        is_trial: false,
+        plan_slug: servedSlug,
+      },
       updated_at: now,
     })
     .eq('id', params.line.id);
+
+  if (carrierError) {
+    await sendEmail({
+      to: 'joe@bitlink.co.il',
+      subject: `URGENT: paid for ${params.planSlug}, line still on ${currentSlug}`,
+      html: [
+        `<p>A customer was charged for <b>${params.planSlug}</b>, but the carrier refused to move their line off <b>${currentSlug}</b>.</p>`,
+        `<p>They are paying for a plan they do not have. Change the plan by hand.</p>`,
+        `<p>Carrier said: <code>${carrierError}</code></p>`,
+        `<p><a href="https://www.bitlink.co.il/admin/lines/${params.line.id}">Open the line in admin</a></p>`,
+      ].join(''),
+    }).catch(() => {});
+  }
 
   // Close any live trial so the day-30 sweep can't freeze a paying line.
   await admin
@@ -622,6 +685,10 @@ async function handleTrialRecoveryCompleted(
       stripe_customer_id: stripeCustomerId,
     },
     'basic',
+    // Recovering a failed card is a continuation, not a new choice — they are
+    // not picking a plan here, they are fixing a payment. So keep whatever plan
+    // the line is actually on, including an admin's free upgrade.
+    'auto_continue',
   );
 
   if (!conversion.success) {
