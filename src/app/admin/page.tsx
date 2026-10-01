@@ -57,10 +57,19 @@ async function RevenueCard({ monthLabel }: { monthLabel: string }) {
             <p className="mt-1 text-2xl font-semibold text-ink">{formatMoney(expected.totalCents)}</p>
             <p className="mt-1 text-xs text-muted-slate">
               {expected.renewalCount} renewal{expected.renewalCount === 1 ? "" : "s"}
+              {expected.renewalLineCount !== expected.renewalCount
+                ? ` (${expected.renewalLineCount} lines)`
+                : ""}
               {expected.trialCount > 0
                 ? ` · ${expected.trialCount} trial${expected.trialCount === 1 ? "" : "s"} converting (${formatMoney(expected.trialCents)})`
                 : ""}
             </p>
+            {expected.unpricedCount > 0 && (
+              <p className="mt-1 text-xs font-semibold text-amber-700">
+                {expected.unpricedCount} renewal{expected.unpricedCount === 1 ? "" : "s"} couldn&apos;t be priced by
+                Stripe and {expected.unpricedCount === 1 ? "is" : "are"} missing from this total — reload to retry.
+              </p>
+            )}
           </div>
           <div className="rounded-2xl border border-dashed border-link-blue/40 bg-sky-50/60 p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-slate">Projected month total</p>
