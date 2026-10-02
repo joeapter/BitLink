@@ -434,9 +434,10 @@ export async function loanNumberAction(
   const { user } = await requireAdmin();
   const lineId = String(formData.get('lineId') ?? '');
   const providerLineId = String(formData.get('providerLineId') ?? '');
+  const number = String(formData.get('number') ?? '') || null;
   if (!lineId || !providerLineId) return { success: false, error: 'Missing required fields' };
 
-  const result = await loanNumberToOffice(getAdmin(), { lineId, providerLineId, actorId: user.id });
+  const result = await loanNumberToOffice(getAdmin(), { lineId, providerLineId, number, actorId: user.id });
   await logAction(user.id, 'number_loaned', lineId, {
     number: result.number,
     to: OFFICE_LINE.providerLineId,

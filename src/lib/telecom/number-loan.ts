@@ -115,9 +115,9 @@ async function writeLoan(admin: SupabaseClient, lineId: string, loan: NumberLoan
  */
 export async function loanNumberToOffice(
   admin: SupabaseClient,
-  params: { lineId: string; providerLineId: string; actorId?: string | null },
+  params: { lineId: string; providerLineId: string; number?: string | null; actorId?: string | null },
 ): Promise<LoanResult> {
-  const { lineId, providerLineId, actorId = null } = params;
+  const { lineId, providerLineId, number = null, actorId = null } = params;
   const provider = getTelecomProvider();
 
   const { data: line } = await admin
@@ -142,15 +142,26 @@ export async function loanNumberToOffice(
   if (israeli.length === 0) {
     return { success: false, error: 'This line has no Israeli number attached at the carrier.' };
   }
-  if (israeli.length > 1) {
+  // A line can carry a paid extra Israeli number, so the admin picks which one
+  // goes. The choice is checked against the carrier, never trusted from the form.
+  let did = israeli[0];
+  if (number) {
+    const chosen = israeli.find((n) => n.number === number);
+    if (!chosen) {
+      return {
+        success: false,
+        error: `${number} is not attached to this line at the carrier (it has ${israeli.map((n) => n.number).join(', ')}). Nothing was moved.`,
+      };
+    }
+    did = chosen;
+  } else if (israeli.length > 1) {
     return {
       success: false,
       error:
         `This line has ${israeli.length} Israeli numbers (${israeli.map((n) => n.number).join(', ')}). ` +
-        `Move it by hand so the right one goes.`,
+        `Pick which one to move.`,
     };
   }
-  const did = israeli[0];
 
   // Capture before detaching — after the detach the association is closed and
   // these are unreadable.

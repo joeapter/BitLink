@@ -19,7 +19,8 @@ import { ResetLinkCard } from "@/components/admin/ResetLinkCard";
 import { CustomPriceCard } from "@/components/admin/CustomPriceCard";
 import { getRefundContext } from "@/lib/admin/refund-cancel";
 import { NumberLoanCard } from "@/components/admin/NumberLoanCard";
-import { OFFICE_LINE, readLoan } from "@/lib/telecom/number-loan";
+import { OFFICE_LINE, readLoan, type NumberLoan } from "@/lib/telecom/number-loan";
+import { getTelecomProvider } from "@/lib/telecom/provider.registry";
 import { LiveLineData, LiveLineDataSkeleton } from "./LiveLineData";
 
 export const metadata: Metadata = { title: "Line Detail" };
@@ -259,13 +260,24 @@ export default async function AdminLineDetailPage({ params }: Props) {
           })()}
 
           {providerLineId && !isOfficeLine && (
-            <NumberLoanCard
-              lineId={line.id}
-              providerLineId={providerLineId}
-              phoneNumber={(metadata.phone_number as string | undefined) ?? null}
-              officeLabel={OFFICE_LINE.label}
-              loan={numberLoan}
-            />
+            <Suspense
+              fallback={
+                <NumberLoanCard
+                  lineId={line.id}
+                  providerLineId={providerLineId}
+                  phoneNumber={(metadata.phone_number as string | undefined) ?? null}
+                  officeLabel={OFFICE_LINE.label}
+                  loan={numberLoan}
+                />
+              }
+            >
+              <NumberLoanSection
+                lineId={line.id}
+                providerLineId={providerLineId}
+                phoneNumber={(metadata.phone_number as string | undefined) ?? null}
+                loan={numberLoan}
+              />
+            </Suspense>
           )}
 
           <ResetLinkCard lineId={line.id} email={customer?.email} fullName={customer?.full_name} />
@@ -310,6 +322,28 @@ async function RefundAndCancelSection({ lineId }: { lineId: string }) {
   // Nothing was ever paid on this line — don't take up space on the page.
   if (!context.lastPayment && !context.subscriptionId) return null;
   return <RefundAndCancelCard lineId={lineId} context={context} />;
+}
+
+// Streamed so a slow carrier never holds up the action column. The card needs
+// the carrier's view of the line's numbers only to offer a choice when there is
+// more than one Israeli number (a paid extra DID); on failure it falls back to
+// the single-number card, whose server action still refuses an ambiguous move.
+async function NumberLoanSection(props: {
+  lineId: string;
+  providerLineId: string;
+  phoneNumber: string | null;
+  loan: NumberLoan | null;
+}) {
+  let numbers: string[] = [];
+  if (!props.loan) {
+    try {
+      const assigned = await getTelecomProvider().getAssignedNumbers(props.providerLineId);
+      numbers = assigned.map((n) => n.number).filter((n) => n.startsWith("+972"));
+    } catch {
+      numbers = [];
+    }
+  }
+  return <NumberLoanCard {...props} numbers={numbers} officeLabel={OFFICE_LINE.label} />;
 }
 
 function RefundAndCancelSkeleton() {

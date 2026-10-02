@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { PhoneForwarded, PhoneIncoming, AlertTriangle } from "lucide-react";
 import { loanNumberAction, returnNumberAction, type NumberLoanState } from "@/lib/admin/line-actions";
 import type { NumberLoan } from "@/lib/telecom/number-loan";
@@ -23,15 +23,23 @@ export function NumberLoanCard({
   lineId,
   providerLineId,
   phoneNumber,
+  numbers = [],
   officeLabel,
   loan,
 }: {
   lineId: string;
   providerLineId: string;
   phoneNumber: string | null;
+  /** Israeli numbers on the line at the carrier. More than one → the admin picks. */
+  numbers?: string[];
   officeLabel: string;
   loan: NumberLoan | null;
 }) {
+  const [selected, setSelected] = useState(
+    phoneNumber && numbers.includes(phoneNumber) ? phoneNumber : (numbers[0] ?? phoneNumber ?? ""),
+  );
+  const hasChoice = numbers.length > 1;
+  const moving = hasChoice ? selected : phoneNumber;
   const [loanState, loanFormAction, loanPending] = useActionState<NumberLoanState, FormData>(
     loanNumberAction,
     null,
@@ -98,7 +106,7 @@ export function NumberLoanCard({
       ) : (
         <>
           <p className="mt-1 text-xs text-muted-slate">
-            Moves {phoneNumber ? <b className="font-mono text-ink">{phoneNumber}</b> : "this line's number"} onto{" "}
+            Moves {moving ? <b className="font-mono text-ink">{moving}</b> : "this line's number"} onto{" "}
             {officeLabel} for a few minutes, so a voice verification code — WhatsApp, a bank, a government portal
             — rings in Israel instead of on a handset that is abroad. Read the code out, then press Return.
           </p>
@@ -111,7 +119,7 @@ export function NumberLoanCard({
             action={(fd) => {
               if (
                 !confirm(
-                  `Move ${phoneNumber ?? "this number"} to ${officeLabel}?\n\n` +
+                  `Move ${moving || "this number"} to ${officeLabel}?\n\n` +
                     `The customer loses calls and texts on it until you press Return. Their SMS forwarding is ` +
                     `saved and restored automatically.`,
                 )
@@ -124,6 +132,31 @@ export function NumberLoanCard({
           >
             <input type="hidden" name="lineId" value={lineId} />
             <input type="hidden" name="providerLineId" value={providerLineId} />
+            {hasChoice ? (
+              <fieldset className="mb-3 grid gap-1.5">
+                <legend className="mb-1.5 text-xs font-semibold text-ink">
+                  This line has {numbers.length} Israeli numbers — which one?
+                </legend>
+                {numbers.map((n) => (
+                  <label
+                    key={n}
+                    className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
+                      selected === n ? "border-link-blue bg-sky-50" : "border-ink/10"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="number"
+                      value={n}
+                      checked={selected === n}
+                      onChange={() => setSelected(n)}
+                    />
+                    <span className="font-mono text-ink">{n}</span>
+                    {n === phoneNumber ? <span className="text-xs text-muted-slate">main</span> : null}
+                  </label>
+                ))}
+              </fieldset>
+            ) : null}
             <button
               type="submit"
               disabled={loanPending}
